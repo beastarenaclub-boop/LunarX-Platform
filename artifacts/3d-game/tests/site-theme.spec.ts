@@ -15,7 +15,7 @@ for (const path of ["/profile", "/"]) {
     await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByTestId("input-login-email")).toBeVisible();
     await page.goto("/wallet");
-    await expect(page).toHaveURL(/\/login$/);
+    await expect(page).toHaveURL(/\/login\?next=%2Fwallet$/);
   });
 }
 
@@ -57,6 +57,8 @@ async function setup(page: Page, { guest = false, approved = false } = {}) {
         status: signedIn ? 200 : 401,
         json: signedIn ? profile : { error: "Unauthorized" },
       });
+    if (path === "/api/auth/site")
+      return route.fulfill({ json: { channel: "b2c", signupEnabled: true } });
     if (path === "/api/profile") return route.fulfill({ json: profile });
     if (path === "/api/wallet/balance")
       return route.fulfill({ json: { balance: "1250000", scope: "lunar" } });
@@ -273,6 +275,6 @@ test("auth screens stay themed and usable on small screens", async ({
     }
   }
   await page.goto("/wallet");
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL(/\/login\?next=%2Fwallet$/);
   expect(errors).toEqual([]);
 });

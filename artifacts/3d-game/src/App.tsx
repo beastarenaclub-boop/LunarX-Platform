@@ -19,6 +19,7 @@ import NotFound from "@/pages/not-found";
 import { useStore } from "@/game/store";
 import { initEngine, setActiveCrashGame, setMusicRouteAllowed } from "@/game/engine";
 import { AuthProvider, useAuth } from "@/lib/auth";
+import { getLoginDestination } from "@/lib/loginDestination";
 import { setQueryClient } from "@/game/serverBridge";
 import RealtimeBridge from "@/components/lunar/RealtimeBridge";
 import SharedWalletBridge from "@/components/SharedWalletBridge";
@@ -112,22 +113,21 @@ function AuthSplash() {
   );
 }
 
-// Gate for player surfaces: anyone without an authenticated session is sent to
-// the login page. Nothing in the player app (lobby, games, wallet, history,
-// profile, promotions, help) is reachable while logged out.
+// Browsing the lobby is public; playing and account pages require a session.
 function Protected({ children }: { children: ReactNode }) {
   const { user, isLoading } = useAuth();
+  const [location] = useLocation();
   if (isLoading) return <AuthSplash />;
-  if (!user) return <Redirect to="/login" />;
+  if (!user) return <Redirect to={`/login?next=${encodeURIComponent(location + window.location.search + window.location.hash)}`} />;
   return <>{children}</>;
 }
 
 // Auth screens (login/signup/forgot/reset) are only for logged-out users; an
-// already-signed-in player is bounced to the lobby.
+// already-signed-in player resumes the requested page, or the lobby.
 function GuestOnly({ children }: { children: ReactNode }) {
   const { user, isLoading } = useAuth();
   if (isLoading) return <AuthSplash />;
-  if (user) return <Redirect to="/" />;
+  if (user) return <Redirect to={getLoginDestination()} />;
   return <>{children}</>;
 }
 
@@ -227,12 +227,9 @@ function App() {
           {/* Partner B2B launcher does its own token→session exchange. */}
           <Route path="/launcher" component={Launcher} />
 
-          {/* Everything else requires an authenticated player session. */}
-          <Route path="/">
-            <Protected>
-              <Home />
-            </Protected>
-          </Route>
+          {/* Everyone can browse the catalog before choosing a game. */}
+          <Route path="/" component={Home} />
+          {/* Playing and account access still require authentication. */}
           {INSTANT_COLLECTION.map(game => <Route key={game.code} path={'/' + game.code}><Protected><Suspense fallback={<AuthSplash />}>{game.code === "7up7down" ? <SevenUpDown /> : <InstantCollection key={game.code} gameCode={game.code} />}</Suspense></Protected></Route>)}
           <Route path="/fury-flight"><Redirect to="/fury" /></Route>
           <Route path="/chicken-road-2.0"><Redirect to="/chicken-road-2" /></Route>

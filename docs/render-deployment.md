@@ -19,7 +19,7 @@ Provider prices: <https://render.com/pricing>.
 
 ## Live deployment
 
-Deployed on 17 October 2026 from application commit
+Initially deployed on 17 October 2026 from application commit
 `d9c680060ce3d743ba88006a4bfd2047c680de74`:
 
 - Website: <https://lunarx.live>
@@ -64,10 +64,9 @@ removed. The zone had no other records. Nameservers remain
 `apollo.dns-parking.com` and `athena.dns-parking.com`.
 
 All five domains are attached to `lunarx-web` and verified in Render. HTTPS
-works for `www`, `b2b`, `admin` and `panel`. The apex certificate is still
-pending; use the Render fallback URL until `https://lunarx.live` passes its
-HTTPS check. `www` redirects to the apex, so its destination depends on that
-certificate becoming ready.
+works for the apex, `www`, `b2b`, `admin` and `panel`. The apex certificate
+finished provisioning on 17 October 2026; its HTTPS health check returns 200.
+`www` redirects to the apex.
 
 Browser checks passed for the B2B, Admin, Master and Agent pages. API health,
 admin login, Secure/HttpOnly cookies and authenticated WebSocket access passed
@@ -135,6 +134,11 @@ HTTPS reference: <https://render.com/docs/custom-domains>.
 | `https://admin.lunarx.live/admin/` | Admin panel |
 | `https://panel.lunarx.live/master/` | Master panel |
 | `https://panel.lunarx.live/agent/` | Agent panel |
+
+Both player websites expose the lobby and game search to guests. Gameplay and
+account routes still require a session; login resumes the selected local page.
+Guest browsing does not open authenticated game sockets or fetch private wallet
+data. B2B public signup remains disabled.
 
 The gateway preserves the Host header, which the API uses for B2B and operator
 session isolation. API calls and `/ws` remain on each page's own origin. Existing

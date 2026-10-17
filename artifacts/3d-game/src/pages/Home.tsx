@@ -51,6 +51,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth";
+import { useSiteChannel } from "@/lib/siteChannel";
 import { formatRupees } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -290,6 +291,7 @@ function FavouritePanel({
 
 export default function Home() {
   const { user } = useAuth();
+  const site = useSiteChannel();
   const [, navigate] = useLocation();
   const qc = useQueryClient();
   const balance = useLobbyWallet();
@@ -434,7 +436,7 @@ export default function Home() {
 
   return (
     <div className="casino-lobby">
-      {[...new Set((registry.data ?? []).map((entry) => entry.gameCode))].map(
+      {user && [...new Set((registry.data ?? []).map((entry) => entry.gameCode))].map(
         (code) => (
           <RegistryListener key={code} code={code} />
         ),
@@ -565,9 +567,9 @@ export default function Home() {
               <Link href="/login" className="lobby-button">
                 Log in
               </Link>
-              <Link href="/signup" className="lobby-button lobby-button-primary">
+              {site.data?.signupEnabled && <Link href="/signup" className="lobby-button lobby-button-primary">
                 Sign up
-              </Link>
+              </Link>}
             </>
           )}
         </div>

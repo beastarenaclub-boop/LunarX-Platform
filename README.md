@@ -9,7 +9,11 @@ Deployment: **https://lunarx.live** (Render fallback:
 **https://lunarx-web.onrender.com**). The API, website and database were deployed
 on 17 October 2026. Hostinger DNS now points the apex and the `www`, `b2b`,
 `admin` and `panel` subdomains to Render. All five domains are verified in
-Render. HTTPS works on the subdomains; the apex certificate is still pending.
+Render. HTTPS works on the apex and subdomains.
+
+Both B2C and B2B visitors can browse and search the game lobby without signing
+in. Opening a game or an account page requires login and then returns the
+player to the selected page. Public signup remains available only on B2C.
 
 ## Deploy on Render
 

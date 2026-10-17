@@ -48,7 +48,7 @@ test("a signed-out flight does not start the game engine", async ({ page }) => {
     if (new URL(request.url()).pathname.startsWith("/api/crash/")) crashRequests.push(request.url());
   });
   await page.goto("/jetx");
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL(/\/login\?next=%2Fjetx$/);
   await page.waitForTimeout(1200);
   expect(crashRequests).toEqual([]);
 });
