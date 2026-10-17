@@ -5,9 +5,11 @@ Game website, admin panel, master/agent panels, API and database migrations for
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fbeastarenaclub-boop%2FLunarX-Platform)
 
-Live deployment: **https://lunarx-web.onrender.com**. The API, website and
-database were deployed and verified on 17 October 2026. Custom domains are
-attached in Render; Hostinger DNS cutover is still pending.
+Deployment: **https://lunarx.live** (Render fallback:
+**https://lunarx-web.onrender.com**). The API, website and database were deployed
+on 17 October 2026. Hostinger DNS now points the apex and the `www`, `b2b`,
+`admin` and `panel` subdomains to Render. All five domains are verified in
+Render. HTTPS works on the subdomains; the apex certificate is still pending.
 
 ## Deploy on Render
 
@@ -34,7 +36,7 @@ database import. GitHub stores the application source; Render runs the database.
 Both Docker images built successfully on Render. Live checks passed for API
 health, admin login, secure cookies, authenticated WebSocket connections, and
 the lobby at desktop and mobile sizes. See the deployment guide for the exact
-verification scope and remaining domain setup.
+verification scope and domain status.
 
 ## Local Docker setup
 

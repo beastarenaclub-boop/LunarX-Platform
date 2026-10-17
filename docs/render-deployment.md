@@ -22,7 +22,8 @@ Provider prices: <https://render.com/pricing>.
 Deployed on 17 October 2026 from application commit
 `d9c680060ce3d743ba88006a4bfd2047c680de74`:
 
-- Website: <https://lunarx-web.onrender.com>
+- Website: <https://lunarx.live>
+- Render fallback: <https://lunarx-web.onrender.com>
 - Web service: `srv-db9nceom7kps73e1jl8g`
 - Private API: `srv-db9ncb7avr4c73enfk60`
 - PostgreSQL: `dpg-db9nbvfbtjjs73cc6ij0-a`
@@ -53,11 +54,24 @@ The authenticated lobby rendered in Chrome at 1440x1000 and 390x844, without
 JavaScript exceptions or failed static-asset responses during those checks.
 These checks did not place wagers or exercise payments.
 
-The apex, `www`, `b2b`, `admin` and `panel` domains are attached to `lunarx-web`
-but remain unverified pending DNS changes. The apex still resolved to the
-previous server (`2.57.91.91`) at verification time. The admin and operator
-panels are built into the web image, but public access through their custom
-hostnames still requires the DNS and TLS steps below.
+Hostinger DNS was updated on 17 October 2026 at 13:35 UTC. The apex A record
+now points to `216.24.57.1`; `www`, `b2b`, `admin` and `panel` have CNAME records
+pointing to `lunarx-web.onrender.com`, all with a 300-second TTL. Both Hostinger
+authoritative nameservers and Google and Cloudflare public resolvers returned
+the new records. The previous apex A (`2.57.91.91`) and AAAA
+(`2a02:4780:84::32`) records were saved before cutover; the conflicting AAAA was
+removed. The zone had no other records. Nameservers remain
+`apollo.dns-parking.com` and `athena.dns-parking.com`.
+
+All five domains are attached to `lunarx-web` and verified in Render. HTTPS
+works for `www`, `b2b`, `admin` and `panel`. The apex certificate is still
+pending; use the Render fallback URL until `https://lunarx.live` passes its
+HTTPS check. `www` redirects to the apex, so its destination depends on that
+certificate becoming ready.
+
+Browser checks passed for the B2B, Admin, Master and Agent pages. API health,
+admin login, Secure/HttpOnly cookies and authenticated WebSocket access passed
+through `admin.lunarx.live`. B2B host routing correctly rejects public signup.
 
 ## Source and deployment
 
