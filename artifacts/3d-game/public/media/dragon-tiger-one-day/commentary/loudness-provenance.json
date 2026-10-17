@@ -1,0 +1,80 @@
+{
+  "masteredOn": "2026-10-09",
+  "targetLUFS": -12,
+  "truePeakLimitDb": -1,
+  "video": "Original video stream copied without re-encoding or timing changes",
+  "clips": [
+    {
+      "key": "opening",
+      "file": "opening-loud.mp4",
+      "beforeLUFS": -17.67,
+      "afterLUFS": -13.04,
+      "truePeakDb": -1,
+      "sha256": "8a96bff6f7b8462899faf7cb8506b599813a6a423ccca53ab7c6c61c2ed4e380"
+    },
+    {
+      "key": "ace",
+      "file": "ace-loud.mp4",
+      "beforeLUFS": -17.02,
+      "afterLUFS": -13.01,
+      "truePeakDb": -1,
+      "sha256": "f1ce52df2ca2a29c2181a509d9406b1dfda6b175b04dbcc771deb0d028815d74"
+    },
+    {
+      "key": "low",
+      "file": "low-loud.mp4",
+      "beforeLUFS": -16.85,
+      "afterLUFS": -12.42,
+      "truePeakDb": -1,
+      "sha256": "565edfdebde693a51421394969c44dfd7db02794c70801e7d97c4a5be9a19486"
+    },
+    {
+      "key": "seven",
+      "file": "seven-loud.mp4",
+      "beforeLUFS": -17.09,
+      "afterLUFS": -13.06,
+      "truePeakDb": -1,
+      "sha256": "2e88142840264fb2c514b0dfb0a75ad2514b09934b5c6f29ffd0b926ceee3527"
+    },
+    {
+      "key": "high",
+      "file": "high-loud.mp4",
+      "beforeLUFS": -17.54,
+      "afterLUFS": -12.97,
+      "truePeakDb": -1,
+      "sha256": "0d8f1f0ef68e7476cd6c7694a96103afbfed6c3b1a0763496474830ddbecf2c6"
+    },
+    {
+      "key": "king",
+      "file": "king-loud.mp4",
+      "beforeLUFS": -17.27,
+      "afterLUFS": -12.97,
+      "truePeakDb": -1,
+      "sha256": "9bfbebbe2c7f38fad7dea2b1040c8af8d62850a3f8c7a46ca72b412464ddef02"
+    },
+    {
+      "key": "dragon-wins",
+      "file": "dragon-wins-loud.mp4",
+      "beforeLUFS": -14.63,
+      "afterLUFS": -11.62,
+      "truePeakDb": -1,
+      "sha256": "94409e8758c091ebcb111e71225986cb500c9999a55c8fd2a4a3f9daf6b88f51"
+    },
+    {
+      "key": "tiger-wins",
+      "file": "tiger-wins-loud.mp4",
+      "beforeLUFS": -14.72,
+      "afterLUFS": -11.47,
+      "truePeakDb": -1,
+      "sha256": "91a2c64355560afdca63b665d3a0789808d4ac3f96020cd1b514cb861f144233"
+    },
+    {
+      "key": "tie",
+      "file": "tie-loud.mp4",
+      "beforeLUFS": -16.46,
+      "afterLUFS": -11.65,
+      "truePeakDb": -1,
+      "sha256": "e1fd3a0fae94b50a3deab0d4cdcfb4e71964c0ded8fc599726d329d0513ca1d3"
+    }
+  ]
+}

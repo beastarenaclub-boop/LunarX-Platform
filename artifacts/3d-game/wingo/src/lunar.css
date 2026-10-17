@@ -1,0 +1,121 @@
+/* Shared Lunar identity for the standalone game, lobby game and its portals. */
+.wingo-theme {
+  --coral: #6554cf;
+  --line: #e8e7f2;
+  --shadow: 0 5px 24px #29215d06;
+  color: #292841;
+  background: #f5f5fb;
+}
+.wingo-theme.app {
+  background: radial-gradient(ellipse at 90% 0, #eae7ff 0, transparent 45%), #f5f5fb;
+}
+.wingo-theme :is(button, a, input):focus-visible { outline-color: #7965ed; }
+.wingo-theme ::selection { background: #e0daff; }
+.wingo-theme .topbar { background: #fff; border-color: var(--line); }
+.wingo-theme .brand { flex-shrink: 0; color: #312e69; letter-spacing: -1px; }
+.wingo-theme .brand small { color: #686087; font-size: 8px; letter-spacing: 1.8px; }
+.wingo-theme .brand-mark {
+  flex-shrink: 0;
+  padding: 0;
+  background: linear-gradient(140deg, #8772eb, #43348c);
+  box-shadow: 0 5px 16px #6554cf24;
+}
+.wingo-theme .avatar { width: 44px; height: 44px; color: #6554a8; background: #eeeafb; border-color: #f5f2ff; }
+.wingo-theme .lobby-back:hover { color: #6554cf; background: #eeeafb; }
+.wingo-theme .eyebrow { color: #7c70aa; }
+.wingo-theme h1 > span { color: #79718f; }
+.wingo-theme .wallet-icon { color: #6554cf; background: #eeeafb; }
+.wingo-theme .wallet-overview { min-width: 0; }
+.wingo-theme .wallet-overview > span:nth-child(2) { min-width: 0; overflow-wrap: anywhere; }
+.wingo-theme .overview strong { font-variant-numeric: tabular-nums; }
+.wingo-theme .mode-picker button { color: #756e89; min-height: 48px; }
+.wingo-theme .mode-picker button:hover { background: #f5f2ff; }
+.wingo-theme .mode-picker .selected { background: #eeeafb; color: #5c48bc; }
+.wingo-theme .mode-picker .selected small { color: #8773bc; }
+.wingo-theme .mode-check { background: #7560d7; }
+.wingo-theme .round-ticket {
+  background: radial-gradient(circle at 90% 0, #7960c6 0, transparent 55%), linear-gradient(120deg, #292755, #51408f);
+  box-shadow: 0 8px 25px #30215719;
+}
+.wingo-theme .round-ticket.closing { background: linear-gradient(120deg, #4f3066, #91517c); }
+.wingo-theme :is(.round-caption, .ticket-right > span, .ticket-right > small, .ticket-recent > span:first-child, .ticket-recent .first-round) { color: #e2dcf5; }
+.wingo-theme .ticket-divider:before,
+.wingo-theme .ticket-divider:after { background: #f5f5fb; }
+.wingo-theme .countdown > span { background: #f5f0ff; color: #443078; box-shadow: 0 3px 0 #19163b33; }
+.wingo-theme .period { display: block; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.wingo-theme .ticket-recent { height: auto; min-height: 22px; flex-wrap: wrap; }
+.wingo-theme .primary-button { background: linear-gradient(120deg, #7b64de, #5b49b4); box-shadow: 0 5px 15px #6554cf24; }
+.wingo-theme .primary-button:hover:not(:disabled) { background: #5943b0; box-shadow: 0 6px 20px #6554cf35; }
+.wingo-theme .primary-button:disabled { background: #b4accb; box-shadow: none; }
+.wingo-theme .multipliers button.selected { background: #eeeafb; color: #6554cf; border-color: #d8cff9; }
+.wingo-theme .multipliers button:hover { background: #f5f2ff; }
+.wingo-theme .random-button { border-color: #d8cff9; color: #6554cf; }
+.wingo-theme .step { background: #eeeafb; color: #6554cf; }
+.wingo-theme .history-tabs button.active { color: #6554cf; border-color: #6554cf; }
+.wingo-theme .history-tabs button > span { background: #eeeafb; }
+.wingo-theme .guide-card { background: linear-gradient(120deg, #f1edff, #eae8f8); border-color: #ded8ef; }
+.wingo-theme .guide-card :is(.eyebrow, h3, p, button) { color: #71618f; }
+.wingo-theme .guide-spark { color: #b9a5df; }
+.wingo-theme .rules-steps li > span { color: #6554cf; background: #eeeafb; }
+.wingo-theme .modal-content { scrollbar-width: thin; }
+.wingo-theme .history-mode { min-width: 0; }
+.wingo-theme .table-footer { flex-wrap: wrap; }
+.wingo-theme .toast { bottom: max(20px, env(safe-area-inset-bottom)); }
+
+/* Reflow inside narrow panels as well as narrow browser windows. */
+.wingo-theme .prediction-panel { container: lunar-predictions / inline-size; }
+.wingo-theme .round-ticket { container: lunar-round / inline-size; }
+.wingo-theme .number-options { grid-template-columns: repeat(10, minmax(0, 1fr)); max-width: none; gap: 10px; padding: 0 0 12px; }
+.wingo-theme .number-options .ball { width: min(100%, 54px); height: auto; aspect-ratio: 1; }
+.wingo-theme .number-options > button { min-height: 44px; min-width: 0; }
+.wingo-theme .color-option { min-width: 0; position: relative; }
+.wingo-theme .color-option .choice-check { position: absolute; right: 5px; top: 5px; width: 14px; }
+.wingo-theme .connection-error { flex-wrap: wrap; overflow-wrap: anywhere; }
+.wingo-theme .connection-error > span { flex: 1; min-width: 0; }
+.wingo-theme .history-tabs { flex-wrap: wrap; }
+
+@container lunar-predictions (max-width: 580px) {
+  .wingo-theme .number-options { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; max-width: 420px; margin-inline: auto; }
+  .wingo-theme .number-options .ball { width: min(100%, 54px); height: auto; aspect-ratio: 1; }
+  .wingo-theme .color-option { flex-direction: column; justify-content: center; gap: 4px; height: auto; min-height: 72px; padding: 10px 4px; }
+  .wingo-theme .color-orb { display: none; }
+  .wingo-theme .color-option strong { font-size: 15px; }
+  .wingo-theme .color-option small { font-size: 11px; }
+  .wingo-theme .section-heading { flex-wrap: wrap; }
+  .wingo-theme .muted-caption { display: none; }
+  .wingo-theme .stake-options { flex-wrap: wrap; }
+  .wingo-theme .multipliers { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); width: 100%; gap: 4px; }
+  .wingo-theme .multipliers button { padding-inline: 0; min-width: 0; font-size: 12px; }
+  .wingo-theme .size-options button { min-height: 54px; padding: 10px; gap: 6px; }
+  .wingo-theme .size-options small { font-size: 10px; letter-spacing: 0; }
+  .wingo-theme .coins-caption { font-size: 10px; }
+}
+@container lunar-round (max-width: 560px) {
+  .wingo-theme .ticket-left { padding: 18px 14px; }
+  .wingo-theme .ticket-right { min-width: 130px; padding: 18px 10px; }
+  .wingo-theme .period { font-size: 14px; letter-spacing: 0; }
+  .wingo-theme .round-live { font-size: 9px; letter-spacing: .7px; flex-wrap: wrap; }
+  .wingo-theme .countdown { gap: 3px; }
+  .wingo-theme .countdown > span { width: 23px; height: 34px; font-size: 24px; }
+  .wingo-theme .countdown > b { font-size: 20px; margin: 0; }
+}
+@media (max-width: 740px) {
+  .wingo-theme .brand { font-size: 27px; gap: 8px; }
+  .wingo-theme .brand-mark { width: 40px; height: 40px; border-radius: 12px; }
+  .wingo-theme .brand small { font-size: 7px; letter-spacing: 1.1px; }
+  .wingo-theme .shell { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+  .wingo-theme .history-top { flex-wrap: wrap; gap: 0; padding: 0 12px; }
+  .wingo-theme .history-tabs { gap: 14px; }
+  .wingo-theme .history-mode { margin-bottom: 10px; }
+  .wingo-theme .table-footer { gap: 12px; }
+  .wingo-theme .footer { flex-wrap: wrap; }
+}
+@media (max-width: 380px) {
+  .wingo-theme .header-actions { gap: 2px; }
+  .wingo-theme.wingo-integrated .brand-mark { display: none; }
+  .wingo-theme .place-row { grid-template-columns: minmax(0, 1fr); }
+  .wingo-theme .amount-input > div { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+  .wingo-theme .amount-input button { width: 44px; height: 44px; }
+  .wingo-theme .place-button { font-size: 14px; }
+  .wingo-theme .place-button small { font-size: 11px; }
+}

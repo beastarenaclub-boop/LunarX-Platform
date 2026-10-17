@@ -1,0 +1,30 @@
+{
+  "source": "Screen Recording 2026-10-15 203918.mp4",
+  "sourceStartSeconds": 133,
+  "fps": 30,
+  "frames": 399,
+  "frame": [
+    1430,
+    744
+  ],
+  "studio": [
+    0,
+    0,
+    1430,
+    610
+  ],
+  "matte": [
+    0,
+    610,
+    350,
+    134
+  ],
+  "matteTarget": [
+    690,
+    476,
+    350,
+    134
+  ],
+  "originalPixels": true,
+  "processing": "Native source frames, no interpolation, no frame blending, CRF 14, precomputed hand matte; audio removed."
+}

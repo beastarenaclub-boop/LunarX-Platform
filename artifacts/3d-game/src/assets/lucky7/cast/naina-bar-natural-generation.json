@@ -1,0 +1,24 @@
+{
+  "reference": "naina-bar-reference.png",
+  "referenceMode": "Existing built-in imagegen reference reused; no new still image generated",
+  "jobId": "2419522c-1a55-4c23-bf59-0a7869ef1616",
+  "video": {
+    "model": "minimax_h3",
+    "resolution": "2K",
+    "aspect_ratio": "16:9",
+    "duration": 15,
+    "count": 1,
+    "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+    "medias": [
+      {
+        "role": "start_image",
+        "value": "ff836ca9-ad0d-4e23-9568-e3ba1362af5d"
+      },
+      {
+        "role": "end_image",
+        "value": "9c535745-12bb-4e88-b6d0-d28e67148356"
+      }
+    ],
+    "prompt": "Film a SINGLE CONTINUOUS 15-second casino dealer take, matching the reference woman, opaque black satin dress with gold trim, warm bar guests and green rectangular table exactly. Photographic real human motion, native crisp 2K. Fixed tripod camera and absolutely fixed foreground table; no digital pan, zoom, parallax, image wobble or morphing. Her full head and both arms stay visible.\n\n0–0.5 seconds: her hands rest on the table in the reference pose.\n0.5–1.2 seconds: she picks up exactly two ivory dice at the middle of the table with anatomically coherent fingers. The dice stay physically inside her cupped palms.\n1.2–2.7 seconds: two gentle small natural wrist shakes; her head remains steady, eyes glance down. No violent shaking, no fast wrist flutter.\n2.7–3.4 seconds: she opens her hands and drops the two dice a very short distance onto the CENTER of the felt. The dice make one small physical bounce and stop next to each other by 4 seconds. NO sideways throw, no sliding her hands back over the dice, no repeated throw.\n4–5 seconds: hands move smoothly back to the exact resting positions shown in the reference. The face settles gently to the reference gaze without a sudden nod.\n5–15 seconds: a full ten seconds of quiet natural waiting. The woman is alive, not a moving flat photograph: a relaxed single blink at about 8 seconds, a small eye glance toward the cards/players then back, one tiny natural finger relaxation. Her head and shoulders stay in the same position, no repetitive bobbing, no rocking, no exaggerated breathing, no twitching. No speaking, no smile changing into a grin, no salute or clap. At 15 seconds her hands, gaze and posture match the reference precisely. This is ordinary forward real-time footage, not a freeze frame or ping-pong loop.\n\nBackground bartender gently polishes a glass, seated side guests converse with subtle natural movement. Background people remain at their side tables. Lighting remains constant, broad soft frontal light on the hands, only small natural attached contact shadows below dice, no black halos or floating smoky shadows. Keep skin texture, face and fingers sharp, no artificial blur or ghosting. One coherent real human performance, no cuts, no body or table deformation, no optical flow interpolation, no repeated mini-loop."
+  }
+}

@@ -1,0 +1,19 @@
+ROYAL PARK - UNITY PLAYER, VISUAL REVISION 3
+
+Install Node.js if needed, then run START.cmd.
+Open http://localhost:5292/ in Chrome or Edge and keep the console open.
+Camera, lighting, restart, pause and fullscreen controls are available.
+
+This portable player is a graphics exhibition. It has no account or wallet.
+The full betting game is in the original workspace:
+http://127.0.0.1:5293/horse-racing (run START-HORSE-RACING.cmd)
+It uses the existing API server, authentication and server race plan.
+
+Revision 3 adds Renderpeople scans for the audience and jockey faces, crowd
+distance detail levels and culling, curved racing tack, closer tracking shots,
+frame interpolation and lower rendering overhead. The horse base model is
+unchanged; this is not GTA-level photorealism.
+
+This package contains the compiled game. The source Unity project remains in
+artifacts/unity-horse in the original workspace. See ASSET-LICENSES.md for the
+scanned models' sources and terms. Do not redistribute standalone scan assets.

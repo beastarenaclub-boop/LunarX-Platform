@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "campaigns": [
+    {
+      "id": "demo-trackside",
+      "slot": "trackside",
+      "enabled": true,
+      "imageUrl": "/assets/horse-racing/advertising/trackside-partner-v1.svg"
+    },
+    {
+      "id": "demo-infield",
+      "slot": "infield",
+      "enabled": true,
+      "imageUrl": "/assets/horse-racing/advertising/infield-partner-v1.svg"
+    },
+    {
+      "id": "demo-grandstand",
+      "slot": "grandstand",
+      "enabled": true,
+      "imageUrl": "/assets/horse-racing/advertising/grandstand-partner-v1.svg"
+    },
+    {
+      "id": "demo-finish",
+      "slot": "finish",
+      "enabled": true,
+      "imageUrl": "/assets/horse-racing/advertising/finish-partner-v1.svg"
+    }
+  ]
+}

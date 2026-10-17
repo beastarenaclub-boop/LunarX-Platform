@@ -1,0 +1,214 @@
+/* The table and controls share normal document flow: no fixed bar can cover
+   a dealer's hands. On unusually short viewports the page can still scroll. */
+@media (max-width: 1023px) {
+  .tpl-live-page .tpl-page-header {
+    padding: max(2px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right)) 2px
+      max(8px, env(safe-area-inset-left));
+    min-height: 48px;
+  }
+  .tpl-live-page .tpl-game-content {
+    padding: 8px max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    flex: initial;
+  }
+  .tpl-live-page .tpl-main-column {
+    gap: 8px;
+  }
+  .tpl-live-page [data-testid="last-result-banner"] {
+    height: auto;
+    min-height: 36px;
+    padding: 5px 8px;
+    gap: 6px;
+  }
+  .tpl-live-page [data-testid="last-result-banner"] > div {
+    overflow: visible;
+    display: block;
+    font-size: 10px;
+    line-height: 14px;
+  }
+  .tpl-live-page [data-testid="teen-patti-table"] {
+    aspect-ratio: 16 / 9;
+    flex-shrink: 0;
+  }
+  .tpl-mobile-dock {
+    min-width: 0;
+  }
+  .tpl-live-page .live-bet-layout {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: "spots spots spots" "coins coins coins" "summary actions status";
+    padding: 8px;
+    gap: 6px 8px;
+  }
+  .tpl-live-page .live-bet-status {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    height: auto;
+    font-size: 9px;
+  }
+  .tpl-live-page .live-bet-status > span:last-child {
+    font-size: 13px;
+    color: #6ff5be;
+  }
+  .tpl-live-page .live-bet-summary > div > span {
+    display: none;
+  }
+  .tpl-live-page .live-bet-summary > span {
+    font-size: 11px;
+    overflow-wrap: anywhere;
+    flex-shrink: 1;
+  }
+  .tpl-live-page .live-bet-actions {
+    font-size: 11px;
+  }
+  .tpl-live-page .live-bet-spots button {
+    touch-action: manipulation;
+  }
+  .tpl-live-page .live-bet-spots [data-testid^="chipstack-"] {
+    top: 1px;
+    right: 1px;
+    height: 20px;
+    min-width: 20px;
+    font-size: 8px;
+  }
+  .tpl-mobile-history {
+    margin-top: 4px;
+  }
+  .tpl-live-page .tpl-table-sequence {
+    bottom: 3px;
+    padding: 3px 8px;
+    font-size: 7px;
+  }
+  .tpl-live-page .tpl-film-studio .tpl-table-message {
+    top: auto;
+    bottom: 30px;
+  }
+}
+
+/* All five targets remain at least 44px wide; no coin carousel or hidden bets. */
+@media (max-width: 559px) and (max-height: 700px) {
+  .tpl-live-page .tpl-main-column {
+    gap: 6px;
+  }
+  .tpl-live-page .tpl-game-content {
+    padding-top: 6px;
+  }
+  .tpl-live-page .live-bet-layout {
+    padding: 6px;
+    gap: 4px 6px;
+  }
+  .tpl-live-page .live-bet-spots {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .tpl-live-page .live-bet-spots > div {
+    display: grid;
+  }
+  .tpl-live-page .live-bet-spots button {
+    min-height: var(--game-bet-height);
+    padding: 4px 1px;
+    border-radius: 9px;
+  }
+  .tpl-live-page .live-bet-spots button > span:first-child {
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+  .tpl-live-page .live-bet-spots button > span:nth-child(2) {
+    font-size: 10px;
+  }
+  .tpl-live-page .coin-rack-options {
+    gap: 4px;
+  }
+  .tpl-live-page .coin-rack-option {
+    width: 44px;
+    height: 44px;
+  }
+  .tpl-live-page .coin-rack-custom {
+    width: 100%;
+    height: 48px;
+  }
+}
+
+/* Landscape gives the table and bet controls separate columns. */
+@media (min-width: 560px) and (max-width: 1023px) and (orientation: landscape) {
+  .tpl-live-page .tpl-page-header {
+    min-height: 44px;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: 0;
+  }
+  .tpl-live-page .tpl-game-content {
+    padding-top: 4px;
+  }
+  .tpl-live-page[data-betting="true"] .tpl-main-column {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(304px, 0.95fr);
+    grid-template-rows: 28px auto auto;
+    grid-template-areas: "last bets" "table bets" "history history";
+    align-items: start;
+    align-content: start;
+    gap: 4px 8px;
+  }
+  .tpl-live-page [data-testid="last-result-banner"] {
+    grid-area: last;
+    min-height: 28px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
+  .tpl-live-page [data-testid="teen-patti-table"] {
+    grid-area: table;
+  }
+  .tpl-mobile-dock {
+    grid-area: bets;
+  }
+  .tpl-mobile-history {
+    grid-area: history;
+  }
+  .tpl-live-page .live-bet-layout {
+    gap: 4px 6px;
+    padding: 6px;
+  }
+  .tpl-live-page .live-bet-spots {
+    gap: 4px;
+  }
+  .tpl-live-page .live-bet-spots > div {
+    gap: 4px;
+  }
+  .tpl-live-page .live-bet-spots button {
+    min-height: var(--game-bet-height);
+  }
+  .tpl-live-page .coin-rack-options {
+    gap: 4px;
+  }
+  .tpl-live-page .coin-rack-option {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+.tpl-film-studio[data-layout="side"] .tpl-film-viewport {
+  right: var(--tpl-film-right);
+}
+.tpl-film-studio[data-layout="side"] .tpl-customer-view {
+  left: 50%;
+  right: 8px;
+  top: 40px;
+  bottom: 24px;
+  height: auto;
+  align-content: center;
+  gap: 12px;
+}
+.tpl-film-studio[data-layout="side"] .tpl-customer-cards {
+  gap: 4px;
+}
+.tpl-film-studio[data-layout="side"] .tpl-customer-heading {
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+.tpl-film-studio[data-layout="side"] .tpl-customer-category {
+  font-size: 8px;
+}
+.tpl-live-page [data-testid="teen-patti-table"]:has([data-layout="side"]) {
+  aspect-ratio: auto;
+}

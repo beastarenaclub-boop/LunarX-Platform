@@ -1,0 +1,98 @@
+ROYAL PARK — UNITY HORSE RACING
+
+Open OPEN-UNITY-HORSE.cmd from the workspace to edit this Unity 6000.5.9f1
+project. The Horse Racing > Prepare stadium menu recreates HorseRace.unity,
+URP resources and the imported horse animations. The scene constructs its
+stadium on Play so the procedural source remains editable.
+
+Build: BUILD-UNITY-HORSE.cmd (Unity WebGL module must be installed).
+Main betting game: START-HORSE-RACING.cmd (or START-UNITY-HORSE.cmd), then
+http://127.0.0.1:5293/horse-racing
+Graphics-only preview:
+http://127.0.0.1:5293/unity-horse/index.html
+This standalone exhibition has restart, pause, camera and lighting controls.
+The existing player game is http://127.0.0.1:5293/horse-racing and uses the
+existing API services for login, live rounds and wallet.
+The stable preview reads the compiled UI in dist/horse-unity-v3-review and the
+latest public/unity-horse runtime. Other source edits do not reload a race.
+For UI development the existing Vite server remains available on port 5288.
+Rebuild the stable UI after React/CSS changes:
+node artifacts/3d-game/node_modules/vite/bin/vite.js build
+  --config tools/horse-assets/vite.stable.config.mts
+
+The main horse page selects Unity when /unity-horse/ready.json identifies a
+completed build. Without that build, or after a load/context failure, it uses
+the existing renderer. Unity receives revealed presentation positions from
+the existing server plan at 30 Hz. The server retains bets and settlement.
+No wallet operations are made by Unity or the standalone exhibition.
+
+CONTENTS
+Visual revision 4: eight Grab3D bay horses (about 32,000 triangles each),
+mounted racewear bodies with a scanned human head, individualized coat/silk colors,
+numbered saddlecloths, helmets, reins and leather tack. Gallop is fitted from
+the CC0 afk-rig / Mesh2Motion horse animation on a new 56-bone rig. Standing
+Idle and tail movement were authored locally from the new model's rest pose.
+The 4K coat, normal and roughness textures retain the new model's face, mane
+and muscle detail. The baked mounted jockey pose and fitted saddle follow the
+animated spine; the jockey is not a separate full-body motion capture animation.
+
+An oval track, two 20-row grandstands, scanned seated spectators, seating,
+aisles, hospitality glazing, roof supports/pavilions, floodlight masts,
+starting stalls with opening doors, finish markers, infield signage and
+trackside/infield/grandstand/finish advertising. Geometry batches by material
+and spatial section so hidden parts of the arena can be culled.
+Spectators use Eric, Carla and Claudia scans from Renderpeople. They use
+1,800-triangle meshes nearby, 360-triangle meshes at medium distances, and
+rendered cutouts at long distances. Poses are static. See ASSET-LICENSES.md
+before distributing source models; these scans are not CC0.
+Trees use the CC0 Poly Haven model with a rebuilt 5,521-card canopy, restored
+leaf opacity and 21,315 total triangles per tree. One 2048 shadow map, vertex fill lights, FXAA
+and automatic render-scale adjustment replace four 4096 shadow cascades,
+4x MSAA, SSAO and depth of field. Server presentation samples are interpolated
+without extrapolating the race result. Broadcast fits the field; Close-up
+tracks runner 1, with featured/winner views tracking their selected runner.
+The six live venues share this course architecture with lighting variations.
+This is an original game stadium; it is not a surveyed real-world replica.
+
+SPONSORS
+The integrated page uses the existing configuration:
+artifacts/3d-game/public/assets/horse-racing/advertising/campaigns.json
+The trackside, grandstand, infield and finish slots support the existing
+venue/date rules. Configuration refreshes every 60 seconds; schedule changes
+are checked each second. Artwork is decoded and fitted in the browser before
+Unity receives a PNG. Invalid artwork returns to neutral WORLD RACING boards.
+YOUR BRAND is sample artwork, not a paid sponsorship. The standalone exhibition
+uses neutral boards. There is no ad billing or impression tracking.
+
+ASSETS AND REPRODUCTION
+The active horse was downloaded from https://grab3d.com/models/animals/horse/
+(CC0, AI-assisted model). Cached source/metadata: .cache/horse-v4/.
+To reproduce the horse, run tools/horse-assets/prepare-bay-horse.py in Blender,
+node tools/horse-assets/rig-bay-horse.mjs, then export-bay-horse.py in Blender.
+The rig script uses afk-rig 0.1.2 installed in .cache/horse-v4/rig-tools/.
+UV boundaries are welded before decimation to keep the animated skin closed.
+
+tools/horse-assets/export-unity.py is the LEGACY initial import for the old
+horse, jockey and environment. Do not run it after the bay-horse export, because
+it restores the old horse. If recreating all assets, run the bay-horse pipeline
+last. Blender invocation from the workspace:
+.cache/horse-realism/tools/blender-4.2.9-windows-x64/blender.exe
+  --background --disable-autoexec --python tools/horse-assets/export-bay-horse.py
+The generated sources are retained in Assets/Resources/Horse. SOURCE-CREDITS.md
+preserves the input pack's historical provenance, including CC0 model sources
+and generated texture/crowd artwork. Some historical renderer descriptions in
+that file describe earlier web releases; SETUP.txt describes this Unity build.
+Packed GLB images are decoded into real PNG pixel buffers for Unity. The exporter
+checks the PNG signature and the Unity build rejects missing material textures.
+
+CHECKS
+node artifacts/3d-game/node_modules/@playwright/test/cli.js test
+  --config artifacts/3d-game/playwright.config.ts horse-unity-state.spec.ts
+node tools/horse-assets/review-unity.mjs
+node tools/horse-assets/benchmark-unity.mjs
+Set HORSE_UNITY_URL=http://127.0.0.1:5293/unity-horse/index.html for these scripts.
+The review loads actual Unity WebAssembly and records screenshots and errors
+in tmp/unity-horse/review; the benchmark records measured frame performance.
+horse-unity-browser.spec.ts also tests the main betting screen, chip selection,
+accepted debit, betting cutoff and payout using intercepted test API responses.
+Set HORSE_GAME_URL=http://127.0.0.1:5293/horse-racing when running those tests.

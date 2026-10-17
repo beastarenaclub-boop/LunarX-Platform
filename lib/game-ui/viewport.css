@@ -1,0 +1,317 @@
+:root {
+  --game-screen-width: 1440px;
+}
+
+/* Shared viewport boundary; each game supplies its own width and native layout. */
+.game-viewport {
+  position: relative;
+  width: 100%;
+  max-width: var(--game-screen-width);
+  height: 100vh;
+  height: 100dvh;
+  min-width: 0;
+  min-height: 0;
+  margin-inline: auto;
+  box-sizing: border-box;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #71809666 transparent;
+  scroll-padding-block: 80px 24px;
+}
+.game-fit-content {
+  --game-fit: 1;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--fit-height, 100dvh);
+  isolation: isolate;
+}
+.game-fit-native {
+  height: var(--fit-height, 100dvh);
+}
+.game-fit-content > .game-page {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--fit-height, 100dvh);
+}
+.game-viewport :is(.game-shell, [data-game-screen], .live-bet-layout, .coin-rack-options) > * {
+  min-width: 0;
+}
+.game-viewport :is(button, input, select) { touch-action: manipulation; }
+.game-viewport :is(button, a, input, select):focus-visible {
+  outline: 2px solid #f6d887;
+  outline-offset: 3px;
+}
+.game-viewport :is(button, a, input, select) {
+  scroll-margin-block: 72px 16px;
+}
+@media (pointer: coarse), (max-width: 767px) {
+  .game-viewport :is(input, select, textarea) { font-size: 16px !important; }
+}
+.game-viewport .game-shell {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.game-viewport .game-bottom-bar {
+  position: relative;
+  bottom: auto;
+  max-width: var(--game-screen-width);
+  margin-inline: auto;
+  max-height: none;
+  overflow-y: visible;
+}
+@media (max-width: 1023px) {
+  .game-viewport .game-page:has(.game-bottom-bar) {
+    flex-direction: column;
+  }
+  .game-viewport .game-page:has(.game-bottom-bar) .game-shell,
+  .game-viewport .game-page:has(.game-bottom-bar) [data-game-screen] {
+    padding-bottom: 8px;
+  }
+}
+.game-viewport .dt-page {
+  padding: 0;
+}
+.game-viewport .dt-shell {
+  padding: 8px 12px 16px;
+}
+.game-viewport .rm-content {
+  max-width: none;
+}
+.game-viewport .rm-betting-dock {
+  position: relative;
+  bottom: auto;
+  margin-top: 12px;
+  max-height: none;
+  max-width: calc(var(--game-screen-width) - 24px);
+  left: auto;
+  right: auto;
+  width: calc(100% - 24px);
+  margin-inline: auto;
+}
+.game-viewport .rm-dock-scroll {
+  overflow: visible;
+}
+.game-viewport .rm-chip-rack {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.game-viewport .rm-content {
+  padding-bottom: 8px;
+}
+.game-viewport .rm-app {
+  padding-bottom: 12px;
+}
+.game-viewport .rm-hand-scroll {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.game-viewport .rm-hand-group {
+  max-width: 100%;
+}
+.game-viewport .rm-group-cards {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+@media (max-width: 950px) {
+  .game-viewport .rm-header {
+    height: 48px;
+  }
+  .game-viewport .rm-content {
+    padding-top: 6px;
+  }
+  .game-viewport .rm-titlebar {
+    margin-bottom: 8px;
+  }
+  .game-viewport .rm-titlebar h1 {
+    font-size: 19px;
+  }
+  .game-viewport .rm-titlebar p,
+  .game-viewport .rm-eyebrow,
+  .game-viewport .rm-tip {
+    display: none;
+  }
+  .game-viewport .rm-stage {
+    height: 280px;
+  }
+  .game-viewport .rm-hand-area {
+    padding: 10px;
+  }
+  .game-viewport .rm-hand-scroll {
+    min-height: 95px;
+    padding-block: 14px 6px;
+  }
+  .game-viewport .rm-history-empty {
+    padding: 8px;
+    min-height: 0;
+  }
+  .game-viewport .rm-history-empty > span,
+  .game-viewport .rm-history-empty > small {
+    display: none;
+  }
+  .game-viewport .rm-history-empty p {
+    margin: 0;
+  }
+  .game-viewport .rm-footer {
+    padding-block: 8px;
+  }
+}
+
+/* Crash pages must not clip the bet buttons on short desktop windows. */
+.game-viewport .crash-page {
+  overflow: visible;
+}
+.game-viewport .crash-desktop {
+  min-height: 570px;
+}
+@media (min-width: 1024px) {
+  .game-viewport .crash-page {
+    height: 100%;
+  }
+}
+
+/* Reduce empty chrome on short screens before vertical scrolling is needed. */
+@media (max-height: 760px), (max-width: 760px) {
+  .game-fit-content > .game-page .game-shell > .sticky {
+    padding-block: 5px;
+  }
+  .game-fit-content .game-canvas-frame {
+    min-height: 140px;
+  }
+  .game-fit-content .game-shell > [data-game-screen] {
+    gap: 8px;
+    padding-top: 8px;
+  }
+}
+
+/* Portals stay above game headers and follow the visible/fullscreen frame. */
+.game-dialog-screen {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  isolation: isolate;
+}
+.game-dialog-screen > [data-game-dialog-overlay] {
+  position: absolute;
+  pointer-events: auto;
+}
+.game-dialog-screen > [role="dialog"] {
+  position: absolute;
+  width: calc(100% - 16px);
+  max-height: calc(100% - 16px);
+  pointer-events: auto;
+}
+
+/* The information dialog owns secondary content; play surfaces reserve space
+   for the latest result, the game, the countdown and the betting controls. */
+.game-information-panels {
+  /* Dialogs render outside the themed page, so retain its panel colours. */
+  --rm-gold: #dfc18a;
+  --rm-muted: #8d9895;
+  --rm-line: rgba(225, 220, 199, 0.1);
+  --dt-gold: #e4c482;
+  --dt-muted: #94afa2;
+  --dt-red: #ffb0a4;
+  --dt-blue: #a6d8ff;
+  --vb-ink: #233e5c;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.game-information-panels:empty { display: none; }
+.game-information-panels > :is(button, a)[aria-label] { width: auto; justify-content: flex-start; gap: 10px; padding-inline: 12px; }
+.game-information-panels > :is(button, a)[aria-label]::after { content: attr(aria-label); font-size: 12px; }
+.game-dialog-screen > .game-information-drawer {
+  inset: 0 0 0 auto;
+  width: min(440px, 100%);
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  transform: none;
+  translate: none;
+  border-radius: 16px 0 0 16px;
+  padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  --tw-enter-translate-x: 100%;
+  --tw-exit-translate-x: 100%;
+  --tw-enter-translate-y: 0;
+  --tw-exit-translate-y: 0;
+  --tw-enter-scale: 1;
+  --tw-exit-scale: 1;
+  animation-duration: 180ms;
+}
+.game-information-drawer [data-testid="game-information-panels"] { flex-shrink: 0; }
+.game-information-drawer > .grid { grid-template-columns: minmax(0, 1fr); }
+@media (prefers-reduced-motion: reduce) {
+  .game-dialog-screen > .game-information-drawer { animation: none; }
+}
+.game-information-panels > *,
+.game-information-panels :is(.hr-sidebar, .rm-sidebar, .dt-leaderboard, .vb-history) {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  position: static;
+}
+.game-information-panels :is(.hr-sidebar, .rm-sidebar, .dt-leaderboard, .vb-history) {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.game-information-panels :is(.live-bet-hint, .live-bet-limits) { display: block; }
+.game-viewport .rm-layout,
+.game-viewport .dt-table-grid { grid-template-columns: minmax(0, 1fr); }
+.game-viewport .game-shell > [data-game-screen] { padding-bottom: 8px; }
+.game-viewport .game-shell > [data-game-screen] > div { overflow-y: visible; }
+.game-viewport .lucky7-header-details > p { display: none; }
+.game-viewport .lucky7-header-details { width: auto; margin-left: auto; }
+.game-viewport .lucky7-main { padding: 8px; }
+.game-viewport .lucky7-game .live-bet-layout {
+  grid-template-areas: "status status" "spots spots" "coins coins" "summary actions";
+}
+.game-viewport :is(.lucky7-table-column, .tpl-main-column) { gap: 8px; }
+.game-viewport .lucky7-studio-table {
+  width: min(100%, max(266px, calc((var(--fit-height, 100dvh) - 350px) * 1.7777778)));
+  max-width: 100%;
+  align-self: center;
+  flex-shrink: 0;
+}
+.game-viewport .crash-focused { min-height: var(--fit-height, 100dvh); }
+.crash-play-area { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 370px); gap: 8px; padding: 8px; flex: 1; min-height: 0; }
+.crash-scene-column { display: flex; flex-direction: column; gap: 6px; min-width: 0; min-height: 0; }
+.crash-scene { position: relative; flex: 1; min-height: 180px; overflow: hidden; border-radius: 16px; }
+.crash-scene > div { position: absolute; inset: 0; }
+.crash-bet-controls { min-width: 0; align-self: center; width: 100%; }
+@media (max-width: 699px) {
+  .crash-play-area { display: flex; flex-direction: column; }
+  .crash-scene-column { flex: 1; }
+  .crash-scene { min-height: 150px; }
+}
+@media (min-width: 700px) and (max-height: 600px) {
+  .crash-play-area { grid-template-columns: minmax(200px, 1fr) minmax(320px, 1fr); }
+}
+@media (min-width: 640px) and (max-height: 650px) {
+  .game-viewport .lucky7-table-column {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr);
+    grid-template-rows: auto 1fr;
+    align-items: center;
+  }
+  .game-viewport .lucky7-table-column > :first-child { grid-column: 1 / -1; }
+  .game-viewport .lucky7-studio-table { grid-column: 1; grid-row: 2; width: 100%; max-height: none; }
+  .game-viewport .lucky7-betting-dock { grid-column: 2; grid-row: 2; }
+}
+@media (max-height: 760px), (max-width: 760px) {
+  .game-viewport .game-canvas-frame--dice { aspect-ratio: auto; gap: 12px; padding: 12px; }
+  .game-viewport :is(.game-canvas-frame--mines, .game-canvas-frame--plinko) {
+    max-height: max(150px, calc(var(--fit-height, 100dvh) - 340px));
+    width: min(100%, max(150px, calc((var(--fit-height, 100dvh) - 340px) * var(--game-aspect-num))));
+    max-width: 100%;
+  }
+}

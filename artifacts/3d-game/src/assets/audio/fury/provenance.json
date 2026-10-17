@@ -1,0 +1,12 @@
+{
+  "file": "helicopter-rotor.wav",
+  "title": "Chinook helicopter flying over Greenwich in London",
+  "author": "JoBrodie",
+  "recorded": "2016-05-31",
+  "source": "https://commons.wikimedia.org/wiki/File:Chinook_helicopter_flying_over_Greenwich_in_London.ogg",
+  "download": "https://upload.wikimedia.org/wikipedia/commons/transcoded/3/3c/Chinook_helicopter_flying_over_Greenwich_in_London.ogg/Chinook_helicopter_flying_over_Greenwich_in_London.ogg.mp3",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "processing": "Recorded audio only. FFmpeg: mono, 32000 Hz, highpass 45 Hz, lowpass 5000 Hz. Extract 40–48.6 seconds. Crossfade final 0.6 seconds into first 0.6 seconds using smoothstep, keep 8 seconds, normalize peak to 0.82, PCM16 WAV.",
+  "sha256": "95b31e427662335667fb169e6a6e003c38b5a81b3b30a8e8043edc6fcc88884e"
+}

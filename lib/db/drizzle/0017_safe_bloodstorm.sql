@@ -1,0 +1,1 @@
+ALTER TABLE "partner_sessions" ADD COLUMN "wrapper_nonce" text;

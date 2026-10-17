@@ -1,0 +1,35 @@
+{
+  "materials": [
+    {
+      "name": "HumanSkin",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "albedo": "HumanAtlas.png",
+      "normal": "HumanAtlas_normal.png"
+    },
+    {
+      "name": "HumanDetail",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "albedo": "HumanAtlas.png"
+    },
+    {
+      "name": "HumanUniform",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "albedo": "HumanAtlas.png"
+    }
+  ]
+}

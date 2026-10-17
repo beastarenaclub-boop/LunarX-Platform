@@ -1,0 +1,204 @@
+ARENA SPORTS - UNITY BROWSER PROJECT
+
+FOOTBALL PLAYER PERFORMANCE PASS - 2026-10-16
+Football now has a separate 2K source face material, rebuilt jersey surface,
+four-material/three-LOD FBX and CMU 10_01 motion-capture pass. The source is
+recorded in football-mocap-provenance.json and football-mocap-LICENSE.txt.
+Quaternius locomotion and existing CC0 character geometry remain in use.
+The pass contact marker drives ball release; continuous receiving paths,
+support-foot correction and bind-pose player sizing improve motion consistency.
+These are generic characters, not scanned licensed footballers. This pass is
+not a claim of FIFA-level photorealism. Review output is stored under
+tmp/unity-sports/football-performance/final-visual.
+
+Validation: all six FBX UV0 checks and preservation of both Kick and Pass clips
+passed. Unity compiled the final WebGL player and validated pass continuity,
+receiving boundaries, captured toe/ball contact and the 22-player entrance.
+Actual WebGL checks passed four venues, entrance phases, camera switching and
+round reset without browser/asset errors. The deployed website passed all five
+sports, 17 fixtures, player/camera controls, Hindi commentary playback/mute,
+390/320px layouts, auth and static file serving. Deployed data/wasm SHA-256
+hashes match the final local build. Narrow layouts are not mobile GPU testing.
+
+Local website: http://127.0.0.1:5200/virtual-sports/football
+Standalone preview: http://127.0.0.1:5198/?sport=football
+Docker rollback tag: aviator-game-web:before-football-performance-20261016
+Deployed tag: aviator-game-web:football-performance-20261016
+An earlier sample of this player pass on Intel Iris Xe / Chrome averaged
+49.2 FPS broadcast and 87.5 FPS player camera on Auto (adaptive canvas around
+1178x662 and 1126x632). Small surface/clip fixes followed this measurement;
+it is a local sample, not a final-build or cross-device guarantee. The report
+is tmp/unity-sports/performance/football-performance.json.
+
+FOOTBALL MATCHDAY PASS - 2026-10-16
+All four football fixtures now use the 22-player/3-official tunnel walkout,
+lineup, taking positions and kickoff timeline synchronized to the existing
+20-second betting window. Broadcast/cinematic cameras open with the venue,
+then track the teams. Manual cameras remain available. Full time retains the
+final field positions; goal presentations are labelled as replays.
+
+Football stadium: three tiers with uniform physical crowd spacing, visible
+double-sided canopy, steel trusses, LED ribbons, dugouts, technical areas and
+a hollow tunnel with spectators removed from its opening. Real downloaded
+Poly Haven concrete/metal textures have source checksums and CC0 provenance
+in Resources/Sports/stadium-materials-provenance.json. Stadium geometry is
+authored, the fan atlas is generated, and player faces are CC0-derived game
+characters. This still does not match the supplied FIFA reference's scanned
+players, material detail or professional sport-specific motion capture.
+
+Football kit refinement preserves atlas UV0, smooths angular jersey deformation
+and exports three distance LODs. Player shirts have numbers; officials wear
+contrasting kits. Lighting and pitch marking readability were adjusted after
+reviewing actual WebGL screenshots.
+
+Validation: all six exported FBX UV0 checks, Unity source compilation, full
+WebGL build and 22-player path/kickoff/bounds checks passed. Sports TypeScript,
+main website and standalone builds passed. 12 store tests and 3 legacy motion
+tests passed. Actual Unity checks covered four football venues, five pre/live
+stages, six cameras, labelled goal replay, next-round reset and 390/320px
+layouts without browser or asset errors. The continuous server-clock sequence
+also reached walkout, lineup, positions, kickoff and live play in order.
+The authenticated website check passed all five sports, 17 fixtures, camera
+controls, 77 commentary clips, mute/playback, auth and static file serving.
+
+Review artifacts: tmp/unity-sports/matchday (screenshots, report.json and a
+headless canvas recording). The recording adds GPU readback/encoding load;
+it is not a performance benchmark or proof of physical mobile performance.
+Main local website: http://127.0.0.1:5200/virtual-sports/football
+Standalone preview: http://127.0.0.1:5198/
+Docker rollback tag: aviator-game-web:before-football-matchday-20261016
+Final website tag: aviator-game-web:football-matchday-final-20261016
+Local performance sample: Chrome / Intel Iris Xe, Auto at 1280x720, 1440x1050
+viewport, device scale 1. Broadcast averaged 65.2 submitted frames/second
+(106 draw calls, about 453K triangles); player camera averaged 103.9 FPS.
+These are local samples, not device-wide guarantees. The report is saved in
+tmp/unity-sports/performance/matchday.json; browser errors were empty.
+
+
+Editor: Unity 6000.5.9f1 with WebGL Build Support
+Render pipeline: Universal Render Pipeline 17.5.0
+Target: existing website / browser (WebGL), not Windows standalone.
+
+PROJECT STATUS
+The licensed Editor has successfully built the actual WebGL player, and all
+five sports have been checked in Chrome. Unity Personal was recognized on
+2026-10-15 after fixing the Hub
+launch environment (ELECTRON_RUN_AS_NODE must not be set for Unity Hub).
+This is a working Unity prototype, not a photorealistic or FIFA-quality game.
+The shared player models, generic locomotion, sport-specific actions, stadium
+art and authored racing cars still need substantial professional art/animation
+work to meet that requested quality. Desktop Chrome was tested; a narrow
+viewport test does not establish performance on a physical mobile device.
+
+BUILD FROM WORKSPACE ROOT, AFTER HUB LICENSE ACTIVATION
+  npm run sports:unity:prepare
+  npm run sports:unity:build
+  npm run sports:build
+
+To prepare the main website bundle as well:
+  npm run sports:unity:website
+  node tools/sports-assets/prepare-unity-overlay.mjs
+The overlay is a web-image build context. Updating the local Docker website
+requires building that image and recreating only the web service.
+
+Or add this directory to Unity Hub, open it, and use:
+  Arena Sports > Prepare project
+  Arena Sports > Build website WebGL
+
+The preparation command creates the Arena scene, URP assets, external player
+materials, generic animation imports, post processing and project settings.
+The build command stages WebGL under Builds/WebGL and copies a successful build
+to ../3d-game/public/unity-sports. ready.json is written only after success.
+The website chooses Unity only when a valid ready.json is present. Until then,
+the existing Three.js renderer remains active.
+
+SPORTS
+Football: 22 skinned athletes, regulation pitch, goals/nets, passing motion,
+server-event goal shots, three camera views, batched stadium and fan atlas.
+Cricket: 13 athletes, trousers, wicket, bats/pads, delivery presentation.
+Basketball: 10 athletes, court, hoops and shot presentation.
+Tennis: two athletes, court, net, rackets and rallies.
+Formula: four authored cars and an oval circuit.
+The latter three and cricket-specific actions still need a visual/art pass.
+Current athlete base is shared; licensed player likenesses are not included.
+
+INTEGRATION
+React sends only revealed round presentation state through a same-origin iframe.
+Round outcomes, bets, wallet balance and settlements stay in the existing API.
+One WebAssembly instance is kept across sport/camera/quality switches.
+JavaScript messages are checked for both origin and source.
+Unity keyboard capture is disabled so website stake inputs remain usable.
+The static server needs application/wasm for .wasm and application/json for
+ready.json. Compression is disabled for the initial build.
+
+CHECKS ALREADY RUN
+Main website and standalone sports TypeScript checks: pass.
+ArenaState, ArenaAthlete, ArenaGeometry compiled against installed Unity engine
+assemblies: pass (tools/sports-assets/check-unity-source.ps1).
+Five-sport React bridge fixture, retained iframe, camera/quality updates, wallet
+exclusion, message source checking and 390/320px layout: pass
+(tools/sports-assets/test-unity-bridge.mjs, isolated test server on port 5199).
+The bridge fixture does NOT test actual Unity graphics or WebAssembly.
+Full licensed Unity build including ArenaBridge and ArenaBuild: pass.
+Actual Unity five-sport loading, three cameras, quality switch, mobile layout,
+and browser/asset error checks: pass (tools/sports-assets/review-unity.mjs).
+13 store/motion tests: pass. A real isolated-server browser test placed all
+15 markets, verified reload persistence, rejected closed-round bets, and
+checked exactly five winning settlements: pass.
+Integrated website on port 5200: authenticated API, five lobby cards, all
+five actual Unity venues, retained iframe, camera/quality controls, 390/320px
+layouts, WASM MIME, manifest caching and missing-asset rejection: pass.
+
+ASSETS AND REPRODUCTION
+tools/sports-assets/upgrade-unity-human.py is the current Blender pipeline.
+It combines the CC0 Vitruvian face/eyes/skin with the weighted sports body,
+repairs the shirt, bakes atlases and exports three LODs with three materials.
+Run validate-human-fbx.py in Blender before building: all six exported meshes
+must use the correct atlas in UV0. Copy UV values before deleting old layers;
+Blender UV layer references can change when earlier layers are removed.
+export-unity.py remains the earlier source export. Six clips are retained.
+Asset credits and licenses are under Resources/Sports.
+Source players and locomotion animations are CC0; fan atlas is AI-generated.
+No FIFA/EA models, teams, player likenesses or branding are used.
+
+VISUAL REVIEW AND DEPLOYMENT
+Deployed locally on 2026-10-15:
+  Main website: http://127.0.0.1:5200/virtual-sports/football (login required)
+  Practice preview: http://127.0.0.1:5198/
+The pre-Unity Docker image is tagged aviator-game-web:before-unity-sports.
+Current human-upgrade WebGL.wasm SHA-256:
+  d401375c800d79803618bc1538f0bece3266731746bb392b19b42655ebc29fe6
+Current human-upgrade WebGL.data SHA-256:
+  72004b0e06700aadde705be8a8130ba0b8e5a0e20ea7c523127282e61d34bdfb
+Review screenshots are under tmp/unity-sports/review. The visual checks found
+and led to corrections for missing ambient light, camera/floodlight overlap,
+native collider stripping, tennis framing and overlapping track segments.
+The standalone server and main nginx config serve WASM with application/wasm,
+do not cache the manifest, and return 404 for absent Unity assets.
+tools/sports-assets/prepare-unity-overlay.mjs prepares a Docker web-only overlay.
+tools/sports-assets/check-unity-live.mjs checks the authenticated local website
+without placing bets. Use a separate sports server/database for wager tests.
+
+HUMAN / PERFORMANCE UPGRADE VALIDATION (2026-10-15)
+The exported FBX UV0 checks, full Unity build, TypeScript check, website and
+standalone builds, five-sport browser review, six camera views, fixture/player
+selection and 390px layout passed. The offscreen test verifies that stadium
+and athlete geometry stops rendering; Unity retains a small idle presentation
+surface. Match state remains authoritative on the existing server.
+
+Reference benchmark: headless Chrome, Intel Iris Xe / ANGLE D3D11, 1440x1050
+viewport, device scale 1. High renders at 1374x772 in both runs. After warmup,
+the 10-second full-field samples were 25.0 FPS before and 60.2 FPS after,
+with 761 -> 95 GL draw calls and approximately 1.50M -> 248K submitted triangles.
+Auto produced 77.6 FPS at 1280x720 in this reference run. These are local
+measurements under variable system load, not guarantees for other devices.
+Reports: tmp/unity-sports/performance/{before,verified}.json.
+Actual in-game portraits: tmp/unity-sports/review/human-football.png and
+human-cricket.png. The model remains a game character, not a real player scan
+or FIFA/EA asset. Only desktop Chrome and mobile viewport layouts were tested.
+
+Auto is the default. It adapts render resolution using Unity frame timings
+while preserving the visible screen size. Close players retain the detailed
+mesh; distant players use lower mesh and animation detail. High remains
+available. Unused generated legacy textures/materials are archived outside
+Unity Resources under .cache/football-pro/legacy-unity-resources.

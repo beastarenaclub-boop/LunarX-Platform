@@ -1,0 +1,2 @@
+Hindi announcements: original Arena Sports scripts, generated locally using Kokoro. See hi/CREDITS.txt and hi/manifest.json for model and clip details.
+Crowd bed: copied from this project's existing public/assets/horse-racing/crowd.mp3 stadium audio. Original source and credit record: public/assets/horse-racing/CREDITS.md (native stadium audio from the earlier Royal Park race asset).

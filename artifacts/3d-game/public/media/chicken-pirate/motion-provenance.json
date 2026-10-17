@@ -1,0 +1,15 @@
+{
+  "tool": "Built-in image_gen",
+  "source": "tropical-bay.png",
+  "assets": [
+    {
+      "file": "tropical-bay-layered.png",
+      "prompt": "Precise object edit of this existing game background. Remove ONLY the small pirate sailing ship located at x=20-31 percent, y=36-58 percent of the image, filling that area seamlessly with the existing sky, distant islands/horizon and ocean. Preserve the exact composition, dimensions/aspect ratio, colors, lighting, palm trees, starting island, rocks, clouds, all remaining distant islands and all water texture everywhere else. Do not add anything, do not move any other element, do not change the art style. This will be the identical static scenery behind a separately animated boat. No ship or boat should remain in the image."
+    },
+    {
+      "file": "pirate-ship.png",
+      "transparent": true,
+      "prompt": "Background extraction from the supplied game artwork: isolate ONLY the small blue-gray pirate sailing ship that is behind the left island, with all of its masts, skull-and-crossbones sails, rigging and hull intact. Output that ship as a single centered sprite on a genuinely transparent background, tightly framed with a small 6 percent clear margin. Preserve the exact ship design, right-facing angle, blue-gray atmospheric colors and painted game art. Keep the whole boat, including the tip of the tall mast and full hull. No ocean, wake, ground, sky, island, clouds, frame, or text. Transparent background."
+    }
+  ]
+}

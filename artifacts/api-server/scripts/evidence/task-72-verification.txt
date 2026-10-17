@@ -1,0 +1,36 @@
+=== Task #72 Reset Verification — 2026-05-05T18:51:38Z ===
+(Plaintext password redacted in this log; supplied to script via CLI arg only.)
+
+--- 1. Run reset script: tsx scripts/reset-admin-passwords.ts <new-password> ---
+Updated admin@aviator.dev (id=4O6WNeHJZzmh0NNRzZvdV)
+Updated deptest@test.com (id=uCCVtytcnE8_KLDZSj5if)
+Final state: [
+  { email: 'admin@aviator.dev', role: 'super_admin', status: 'active' },
+  { email: 'deptest@test.com', role: 'super_admin', status: 'active' }
+]
+Rows updated: 2
+Script exit code: 0
+
+--- 2. bcrypt.compare(<new-password>, password_hash) for both accounts ---
+admin@aviator.dev match= true role= super_admin status= active
+deptest@test.com match= true role= super_admin status= active
+
+--- 3. POST /api/auth/login HTTP status ---
+admin@aviator.dev → HTTP 200
+deptest@test.com  → HTTP 200
+
+--- 4. Login response bodies ---
+admin@aviator.dev:
+{"user":{"id":"4O6WNeHJZzmh0NNRzZvdV","email":"admin@aviator.dev","role":"super_admin","status":"active","displayName":null,"referralCode":null,"isDemo":false,"createdAt":"2026-05-04T19:28:41.547Z"}}
+deptest@test.com:
+{"user":{"id":"uCCVtytcnE8_KLDZSj5if","email":"deptest@test.com","role":"super_admin","status":"active","displayName":null,"referralCode":null,"isDemo":false,"createdAt":"2026-05-04T18:41:25.737Z"}}
+
+--- 5. End-to-end authenticated session (login → /api/auth/me) ---
+[admin@aviator.dev]
+  POST /api/auth/login → HTTP 200  (session cookie set: no)
+  GET  /api/auth/me   → HTTP 200
+  /api/auth/me body: {"id":"4O6WNeHJZzmh0NNRzZvdV","email":"admin@aviator.dev","role":"super_admin","status":"active","displayName":null,"referralCode":null,"isDemo":false,"createdAt":"2026-05-04T19:28:41.547Z"}
+[deptest@test.com]
+  POST /api/auth/login → HTTP 200  (session cookie set: no)
+  GET  /api/auth/me   → HTTP 200
+  /api/auth/me body: {"id":"uCCVtytcnE8_KLDZSj5if","email":"deptest@test.com","role":"super_admin","status":"active","displayName":null,"referralCode":null,"isDemo":false,"createdAt":"2026-05-04T18:41:25.737Z"}

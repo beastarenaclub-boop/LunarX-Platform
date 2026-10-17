@@ -1,0 +1,450 @@
+{
+  "materials": [
+    {
+      "name": "RaceBootLeather",
+      "model": "Jockey",
+      "color": [
+        0.017999999225139618,
+        0.01600000075995922,
+        0.013000000268220901,
+        1.0
+      ]
+    },
+    {
+      "name": "RaceGloves",
+      "model": "Jockey",
+      "color": [
+        0.023000000044703484,
+        0.01899999938905239,
+        0.014999999664723873,
+        1.0
+      ]
+    },
+    {
+      "name": "RaceSilk",
+      "model": "Jockey",
+      "color": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "normal": "Jockey_RaceSilk_normal.png"
+    },
+    {
+      "name": "VitBody",
+      "model": "Jockey",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Jockey_VitBody_albedo.png",
+      "normal": "Jockey_VitBody_normal.png"
+    },
+    {
+      "name": "VitCaruncle",
+      "model": "Jockey",
+      "color": [
+        0.47999998927116394,
+        0.11999999731779099,
+        0.10000000149011612,
+        1.0
+      ]
+    },
+    {
+      "name": "VitEyeBack",
+      "model": "Jockey",
+      "color": [
+        0.019999999552965164,
+        0.012000000104308128,
+        0.007000000216066837,
+        1.0
+      ]
+    },
+    {
+      "name": "VitEyeBack.001",
+      "model": "Jockey",
+      "color": [
+        0.019999999552965164,
+        0.012000000104308128,
+        0.007000000216066837,
+        1.0
+      ]
+    },
+    {
+      "name": "VitIris",
+      "model": "Jockey",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Jockey_VitIris_albedo.png"
+    },
+    {
+      "name": "VitIris.001",
+      "model": "Jockey",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Jockey_VitIris_001_albedo.png"
+    },
+    {
+      "name": "VitPants",
+      "model": "Jockey",
+      "color": [
+        0.8500000238418579,
+        0.8199999928474426,
+        0.75,
+        1.0
+      ],
+      "normal": "Jockey_VitPants_normal.png"
+    },
+    {
+      "name": "VitSclera",
+      "model": "Jockey",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Jockey_VitSclera_albedo.png"
+    },
+    {
+      "name": "VitSclera.001",
+      "model": "Jockey",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Jockey_VitSclera_001_albedo.png"
+    },
+    {
+      "name": "VitSkin",
+      "model": "Jockey",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Jockey_VitSkin_albedo.png",
+      "normal": "Jockey_VitSkin_normal.png"
+    },
+    {
+      "name": "VitTearline",
+      "model": "Jockey",
+      "color": [
+        0.3799999952316284,
+        0.11999999731779099,
+        0.10999999940395355,
+        1.0
+      ]
+    },
+    {
+      "name": "CrowdHair",
+      "model": "Spectator",
+      "color": [
+        0.02500000037252903,
+        0.01600000075995922,
+        0.009999999776482582,
+        1.0
+      ]
+    },
+    {
+      "name": "VitBody",
+      "model": "Spectator",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Spectator_VitBody_albedo.png"
+    },
+    {
+      "name": "VitCaruncle",
+      "model": "Spectator",
+      "color": [
+        0.47999998927116394,
+        0.11999999731779099,
+        0.10000000149011612,
+        1.0
+      ]
+    },
+    {
+      "name": "VitEyeBack",
+      "model": "Spectator",
+      "color": [
+        0.019999999552965164,
+        0.012000000104308128,
+        0.007000000216066837,
+        1.0
+      ]
+    },
+    {
+      "name": "VitEyeBack.001",
+      "model": "Spectator",
+      "color": [
+        0.019999999552965164,
+        0.012000000104308128,
+        0.007000000216066837,
+        1.0
+      ]
+    },
+    {
+      "name": "VitIris",
+      "model": "Spectator",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Spectator_VitIris_albedo.png"
+    },
+    {
+      "name": "VitIris.001",
+      "model": "Spectator",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Spectator_VitIris_001_albedo.png"
+    },
+    {
+      "name": "VitPants",
+      "model": "Spectator",
+      "color": [
+        0.05000000074505806,
+        0.07000000029802322,
+        0.09000000357627869,
+        1.0
+      ]
+    },
+    {
+      "name": "VitShirt",
+      "model": "Spectator",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ]
+    },
+    {
+      "name": "VitShoes",
+      "model": "Spectator",
+      "color": [
+        0.017999999225139618,
+        0.014000000432133675,
+        0.009999999776482582,
+        1.0
+      ]
+    },
+    {
+      "name": "VitSkin",
+      "model": "Spectator",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Spectator_VitSkin_albedo.png"
+    },
+    {
+      "name": "VitTearline",
+      "model": "Spectator",
+      "color": [
+        0.3799999952316284,
+        0.11999999731779099,
+        0.10999999940395355,
+        1.0
+      ]
+    },
+    {
+      "name": "CrowdHair",
+      "model": "SpectatorFar",
+      "color": [
+        0.02500000037252903,
+        0.01600000075995922,
+        0.009999999776482582,
+        1.0
+      ]
+    },
+    {
+      "name": "VitBody",
+      "model": "SpectatorFar",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "SpectatorFar_VitBody_albedo.png"
+    },
+    {
+      "name": "VitCaruncle",
+      "model": "SpectatorFar",
+      "color": [
+        0.47999998927116394,
+        0.11999999731779099,
+        0.10000000149011612,
+        1.0
+      ]
+    },
+    {
+      "name": "VitEyeBack",
+      "model": "SpectatorFar",
+      "color": [
+        0.019999999552965164,
+        0.012000000104308128,
+        0.007000000216066837,
+        1.0
+      ]
+    },
+    {
+      "name": "VitEyeBack.001",
+      "model": "SpectatorFar",
+      "color": [
+        0.019999999552965164,
+        0.012000000104308128,
+        0.007000000216066837,
+        1.0
+      ]
+    },
+    {
+      "name": "VitIris",
+      "model": "SpectatorFar",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "SpectatorFar_VitIris_albedo.png"
+    },
+    {
+      "name": "VitIris.001",
+      "model": "SpectatorFar",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "SpectatorFar_VitIris_001_albedo.png"
+    },
+    {
+      "name": "VitPants",
+      "model": "SpectatorFar",
+      "color": [
+        0.05000000074505806,
+        0.07000000029802322,
+        0.09000000357627869,
+        1.0
+      ]
+    },
+    {
+      "name": "VitShirt",
+      "model": "SpectatorFar",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ]
+    },
+    {
+      "name": "VitShoes",
+      "model": "SpectatorFar",
+      "color": [
+        0.017999999225139618,
+        0.014000000432133675,
+        0.009999999776482582,
+        1.0
+      ]
+    },
+    {
+      "name": "VitSkin",
+      "model": "SpectatorFar",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "SpectatorFar_VitSkin_albedo.png"
+    },
+    {
+      "name": "VitTearline",
+      "model": "SpectatorFar",
+      "color": [
+        0.3799999952316284,
+        0.11999999731779099,
+        0.10999999940395355,
+        1.0
+      ]
+    },
+    {
+      "name": "island_tree_01",
+      "model": "Tree",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Tree_island_tree_01_albedo.png",
+      "normal": "Tree_island_tree_01_normal.png"
+    },
+    {
+      "name": "island_tree_01_branches",
+      "model": "Tree",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Tree_island_tree_01_branches_albedo.png",
+      "normal": "Tree_island_tree_01_branches_normal.png"
+    },
+    {
+      "name": "island_tree_01_leaves",
+      "model": "Tree",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "albedo": "Tree_island_tree_01_leaves_albedo.png"
+    },
+    {
+      "name": "BayHorseCoat",
+      "model": "Thoroughbred",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "albedo": "BayHorse-albedo.png",
+      "normal": "BayHorse-normal.png",
+      "roughness": "BayHorse-roughness.png"
+    }
+  ]
+}

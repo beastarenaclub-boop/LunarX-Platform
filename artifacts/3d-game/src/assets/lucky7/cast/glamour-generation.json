@@ -1,0 +1,64 @@
+{
+  "createdAt": "2026-10-01",
+  "model": "seedance_2_5",
+  "estimatedCredits": 126,
+  "project": {
+    "project_id": "d84a6f91-b32d-4f82-9099-8dfdd6a8fdf5",
+    "default_folder_id": "d84a6f91-b32d-4f82-9099-8dfdd6a8fdf5",
+    "workspace_id": "2f0c4c7c-a51c-4f15-843e-a2415dded89a",
+    "name": "Lucky 7 Full HD Dealer"
+  },
+  "jobId": "c53d28e6-7adb-41c1-9373-fd3fcf745a1b",
+  "params": {
+    "model": "seedance_2_5",
+    "mode": "video_edit",
+    "resolution": "1080p",
+    "bitrate_mode": "high",
+    "generate_audio": false,
+    "folder_id": "d84a6f91-b32d-4f82-9099-8dfdd6a8fdf5",
+    "medias": [
+      {
+        "role": "video",
+        "value": "ad3ced3b-8177-4a5e-a97f-aad72137b9e0"
+      }
+    ],
+    "prompt": "Edit the supplied casino dealer video. Upgrade only the central female dealer into a very attractive glamorous adult Indian woman, age 28, photorealistic premium live casino host: expressive brown eyes, refined symmetrical face, natural realistic skin texture, glossy long dark wavy hair, flattering professional makeup, confident warm smile. Replace her white shirt, burgundy vest and bowtie with a fitted elegant deep burgundy evening dress, tasteful sweetheart neckline and fitted long sleeves, subtle gold earrings. Sensual elegant styling, fully clothed. Render crisp detailed Full HD 1920x1080, natural cinematic studio lighting, realistic skin and fabric; no airbrushed plastic skin. CRITICAL temporal and geometric invariants: preserve the original shot exactly, locked camera, same head and body size and center, identical table rail and green felt, gold tray position, background architecture, foreground space. Copy the original hand, wrist, cup and dice movements exactly frame for frame and preserve all action timing. First six seconds are a quiet seated idle; existing hand motion begins at 6 seconds; hands release at 8.625 seconds; clip ends at 10.5 seconds with the same seated resting pose as its start. Preserve the source empty green table after release, do not add or move any dice, cards, chips or text. No zoom, camera motion, cuts, transitions, new gestures, captions, watermarks or logos. One consistent adult woman and unchanged outfit throughout."
+  },
+  "sourceResult": {
+    "index": 0,
+    "job_id": "c53d28e6-7adb-41c1-9373-fd3fcf745a1b",
+    "status": "completed",
+    "type": "video",
+    "model": "seedance_2_5",
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260930_211312_c53d28e6-7adb-41c1-9373-fd3fcf745a1b.mp4"
+  },
+  "processingScript": "scripts/prepare-lucky7-glamour.py",
+  "outputs": [
+    {
+      "media_id": "85c58011-c89a-464e-b8a2-9d079c4e161b",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/85c58011-c89a-464e-b8a2-9d079c4e161b.mp4"
+    },
+    {
+      "media_id": "35c53e8b-758c-4cac-a91f-dc934fe203c8",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/35c53e8b-758c-4cac-a91f-dc934fe203c8.jpg"
+    }
+  ],
+  "width": 1920,
+  "height": 1080,
+  "videoBytes": 4113583,
+  "videoSha256": "23a0fff747f85dac41fc6ac2ff10465710e0518ee39b9db850753fa820cc8a59",
+  "fps": 24,
+  "durationSeconds": 10.5,
+  "timing": {
+    "idleEndMs": 6000,
+    "rollEndMs": 10500,
+    "releaseMs": 8625
+  },
+  "processing": [
+    "Generated at 1920x1080; no spatial upscaling",
+    "Preserve generated face and outfit pixels above the rear rail before encoding",
+    "Fix the empty felt and remove detached filmed dice for the server-controlled result",
+    "Hold the seated last frame for 125ms to recover the original 10.5s duration",
+    "Encode H.264 yuv420p with one-second keyframes and faststart"
+  ]
+}

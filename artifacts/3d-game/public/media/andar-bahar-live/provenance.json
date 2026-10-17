@@ -1,0 +1,13 @@
+{
+  "source": "Screen Recording 2026-10-15 203918.mp4",
+  "sourceStartSeconds": 133,
+  "sourceEndSeconds": 169,
+  "crop": [
+    1430,
+    610,
+    30,
+    11
+  ],
+  "audio": false,
+  "presentation": "Recorded studio backdrop. Original table cards are masked; game cards and results are rendered from the authenticated server round."
+}

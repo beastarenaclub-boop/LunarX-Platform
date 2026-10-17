@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/horse-riding/"
+title = "Wild Trails"
+description = "A cinematic Western-style 3D horse riding game in the browser. The player rides a horse across an open frontier landscape with hills, grass, trees and dynamic sunset lighting, controlling the horse with keyboard (walk, gallop, camera follow). Inspired by the atmosphere of Red Dead Redemption 2."
+version = "1.0.0"
+id = "artifacts/horse-riding"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/horse-riding/" ]
+localPort = 18519
+
+[services.development]
+run = "pnpm --filter @workspace/horse-riding run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/horse-riding", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/horse-riding/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18519"
+BASE_PATH = "/horse-riding/"

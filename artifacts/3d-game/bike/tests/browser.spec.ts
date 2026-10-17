@@ -1,0 +1,61 @@
+import { test, expect } from '@playwright/test';
+import { mkdir } from 'node:fs/promises';
+import path from 'node:path';
+
+const output=path.resolve(process.cwd(),'tmp/bike-validation');
+test('desktop: live 3D, bike selection, settings, riding, cameras, pause and restart',async({page})=>{
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+  await page.goto('/');await expect(page.getByRole('button',{name:"LET'S RIDE"})).toBeVisible({timeout:60_000});
+  await page.evaluate(()=>document.fonts.ready);
+  await mkdir(output,{recursive:true});await page.screenshot({path:path.join(output,'desktop-paddock.png')});
+  expect(await page.locator('canvas').evaluate(c=>(c as HTMLCanvasElement).width)).toBeGreaterThan(1000);
+  await page.getByRole('button',{name:'Next motorcycle'}).click();await expect(page.locator('.bike-choice h2')).toHaveText('V4 CORSA');
+  await page.getByRole('button',{name:'Select RR 1000'}).click();
+  await page.getByRole('button',{name:'Settings',exact:true}).click();
+  await page.getByRole('combobox',{name:'Graphics quality'}).selectOption('performance');
+  await page.getByRole('button',{name:'GOT IT'}).click();
+  await page.getByRole('button',{name:'TIME ATTACK',exact:true}).click();
+  await page.getByRole('combobox',{name:'Number of laps'}).selectOption('1');
+  await page.getByRole('button',{name:"LET'S RIDE"}).click();
+  await expect(page.locator('main')).toHaveAttribute('data-phase','racing');
+  await page.keyboard.down('w');await expect.poll(async()=>Number(await page.getByTestId('speed').textContent())).toBeGreaterThan(45);await page.keyboard.up('w');
+  await page.screenshot({path:path.join(output,'desktop-race.png')});
+  await page.keyboard.press('c');await expect(page.locator('.race-bottom-bar')).toContainText('Cockpit');
+  await page.keyboard.press('c');await expect(page.locator('.race-bottom-bar')).toContainText('Trackside');
+  await page.keyboard.press('Escape');await expect(page.getByRole('heading',{name:'RIDE PAUSED.'})).toBeVisible();
+  const before=await page.getByTestId('race-time').textContent();await page.waitForTimeout(600);expect(await page.getByTestId('race-time').textContent()).toBe(before);
+  await page.getByRole('button',{name:'BACK TO THE TRACK'}).click();await expect(page.locator('main')).toHaveAttribute('data-phase','racing');
+  await page.keyboard.press('p');await page.getByRole('button',{name:'RESTART SESSION'}).click();await expect(page.locator('main')).toHaveAttribute('data-phase','countdown');
+  await page.keyboard.press('p');await page.getByRole('button',{name:'RETURN TO PADDOCK'}).click();await expect(page.getByRole('button',{name:"LET'S RIDE"})).toBeVisible();
+  await page.reload();await expect(page.getByRole('button',{name:"LET'S RIDE"})).toBeVisible();await expect(page.getByRole('combobox',{name:'Number of laps'})).toHaveValue('1');
+  expect(errors).toEqual([]);
+});
+test('mobile: responsive paddock and touch throttle release',async({browser})=>{
+  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});const page=await context.newPage();
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+  await page.addInitScript(()=>localStorage.setItem('apex.settings.v1',JSON.stringify({quality:'performance',mode:'free',sound:false})));
+  await page.goto('/');await expect(page.getByRole('button',{name:"LET'S RIDE"})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+  await page.screenshot({path:path.join(output,'mobile-paddock.png'),fullPage:true});
+  await page.getByRole('button',{name:"LET'S RIDE"}).click();await expect(page.locator('main')).toHaveAttribute('data-phase','racing');
+  const gas=page.getByRole('button',{name:'GAS',exact:true});await expect(gas).toBeVisible();const box=(await gas.boundingBox())!;
+  await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await expect.poll(async()=>Number(await page.getByTestId('speed').textContent())).toBeGreaterThan(35);
+  await page.mouse.up();await expect(gas).not.toHaveClass(/held/);
+  await page.screenshot({path:path.join(output,'mobile-race.png')});
+  await page.getByRole('button',{name:'Pause race'}).click();await expect(page.getByRole('heading',{name:'RIDE PAUSED.'})).toBeVisible();
+  await page.setViewportSize({width:844,height:390});await page.getByRole('button',{name:'BACK TO THE TRACK'}).click();
+  await expect(gas).toBeInViewport();await expect(page.getByRole('button',{name:'Steer left'})).toBeInViewport();
+  await page.screenshot({path:path.join(output,'mobile-landscape.png')});
+  expect(errors).toEqual([]);await context.close();
+});
+
+test('circuit race renders five moving opponents and supports track recovery',async({page})=>{
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+  await page.addInitScript(()=>localStorage.setItem('apex.settings.v1',JSON.stringify({quality:'performance',mode:'race',sound:false,laps:1})));
+  await page.goto('/');await expect(page.getByRole('button',{name:"LET'S RIDE"})).toBeVisible();await page.getByRole('button',{name:"LET'S RIDE"}).click();
+  await expect(page.locator('.leaderboard>div')).toHaveCount(6);await expect(page.locator('main')).toHaveAttribute('data-phase','racing');
+  await page.keyboard.down('w');await expect.poll(async()=>Number(await page.getByTestId('speed').textContent())).toBeGreaterThan(55);await page.keyboard.up('w');
+  await page.screenshot({path:path.join(output,'race-with-opponents.png')});
+  await page.keyboard.press('r');await expect.poll(async()=>Number(await page.getByTestId('speed').textContent())).toBeLessThan(45);
+  expect(errors).toEqual([]);
+});

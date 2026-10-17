@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400">
+  <rect width="1200" height="400" fill="#102e29"/>
+  <path d="M1000 0h115L945 400H830zM1160 0h40v210l-80 190h-115z" fill="#1e4b3c"/>
+  <path d="M52 62h75l-27 61H25z" fill="#d8b86b"/>
+  <text x="65" y="178" font-family="Arial,sans-serif" font-size="43" font-weight="700" letter-spacing="6" fill="#d8b86b">STADIUM PARTNER</text>
+  <text x="60" y="285" font-family="Arial,sans-serif" font-size="114" font-weight="900" letter-spacing="3" fill="#fff7e3">YOUR BRAND</text>
+  <text x="65" y="347" font-family="Arial,sans-serif" font-size="26" letter-spacing="6" fill="#d7dfd6">ADVERTISE AT THE RACES</text>
+</svg>

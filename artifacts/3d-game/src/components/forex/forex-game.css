@@ -1,0 +1,1720 @@
+.fa-game {
+  --fa-gold: #f4ce77;
+  --fa-muted: #8b9db5;
+  --fa-line: #243a54;
+  box-sizing: border-box;
+  height: var(--fit-height, 100dvh);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 18px 8px;
+  color: #e9effa;
+  background:
+    radial-gradient(ellipse at 45% 0, #142d4c66, transparent 65%), #081222;
+  font-family: Inter, "Segoe UI", sans-serif;
+  overflow: visible;
+}
+.fa-game *,
+.fa-information * {
+  box-sizing: border-box;
+}
+.fa-game button,
+.fa-game a,
+.fa-information button {
+  cursor: pointer;
+}
+.fa-game button:disabled,
+.fa-information button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.fa-game button:focus-visible,
+.fa-game a:focus-visible,
+.fa-information button:focus-visible {
+  outline: 2px solid #f4ce77;
+  outline-offset: 3px;
+}
+.fa-game h1,
+.fa-game h2,
+.fa-game p {
+  margin: 0;
+}
+.fa-game button {
+  font: inherit;
+}
+.fa-game button:hover:not(:disabled) {
+  filter: brightness(1.15);
+}
+.fa-game .fx-flat {
+  color: var(--fa-muted) !important;
+}
+.fa-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  flex-shrink: 0;
+}
+.fa-icon {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #29405a;
+  border-radius: 11px;
+  background: #14243b;
+  color: #adbed5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.fa-back {
+  background: #1a2d45;
+  color: #e0eaff;
+}
+.fa-title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+.fa-title h1 {
+  font-size: 23px;
+  font-weight: 850;
+  letter-spacing: 1.5px;
+  line-height: 1.15;
+  color: #fff5da;
+}
+.fa-title h1 em {
+  font-style: normal;
+  font-weight: 500;
+  color: #e5bc6d;
+}
+.fa-title small {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #8ea4c0;
+  display: block;
+  margin-top: 5px;
+}
+.fa-emblem {
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #b8995b70;
+  background: linear-gradient(140deg, #b993442c, #58452818);
+  border-radius: 12px;
+  color: #f4ce77;
+}
+.fa-balance {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-left: auto;
+  padding: 6px 17px;
+  border: 1px solid #d2aa5140;
+  border-radius: 10px;
+  background: #ccb66b0a;
+  color: #e6c276;
+  min-width: 143px;
+}
+.fa-balance > div {
+  display: flex;
+  flex-direction: column;
+}
+.fa-balance small {
+  font-size: 9px;
+  color: #8499b5;
+}
+.fa-balance strong {
+  font-size: 18px;
+  letter-spacing: 0.4px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.fa-market-bar {
+  flex-shrink: 0;
+  border: 1px solid #243a54;
+  border-radius: 13px;
+  background: #0d1b2f;
+  overflow: hidden;
+}
+.fa-market-filters {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #233650;
+}
+.fa-market-filters button {
+  font-size: 10px;
+  line-height: 1;
+  padding: 6px 12px;
+  border-radius: 5px;
+  color: #839bb9;
+  background: transparent;
+  border: 0;
+}
+.fa-market-filters button.active {
+  background: #cfb0711c;
+  color: #f1cc7c;
+}
+.fa-assets {
+  display: flex;
+  align-items: stretch;
+  gap: 7px;
+  overflow: auto;
+  padding: 8px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #334d6b transparent;
+}
+.fa-assets > button {
+  border: 1px solid #2a3b50;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 133px;
+  border-radius: 8px;
+  background: #122137;
+  padding: 8px 11px;
+  text-align: left;
+}
+.fa-assets > button.selected {
+  border-color: #e2bd65;
+  background: linear-gradient(115deg, #9d7e3126, #e2bd6508);
+  box-shadow: inset 0 0 15px #e2bd6509;
+}
+.fa-asset-symbol {
+  height: 30px;
+  width: 30px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  border: 1px solid color-mix(in srgb, var(--asset-color) 28%, transparent);
+  color: var(--asset-color);
+  background: color-mix(in srgb, var(--asset-color) 9%, transparent);
+  display: grid;
+  place-items: center;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 600;
+}
+.fa-assets > button > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.fa-assets b {
+  font-size: 11px;
+  color: #e0e9f5;
+  font-weight: 600;
+}
+.fa-assets small {
+  font-size: 10px;
+  font-family: Consolas, monospace;
+}
+.fa-play-area {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+}
+.fa-chart-board {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #2c4159;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #13243a, #0c192b 60%);
+  box-shadow: 0 10px 28px #0003;
+}
+.fa-chart-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 17px 19px;
+  flex-shrink: 0;
+}
+.fa-instrument {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.fa-large-symbol {
+  width: 43px;
+  height: 43px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--asset-color) 40%, transparent);
+  background: color-mix(in srgb, var(--asset-color) 14%, transparent);
+  color: var(--asset-color);
+  font-family: Georgia, serif;
+  font-size: 23px;
+  flex-shrink: 0;
+}
+.fa-instrument h2 {
+  font-size: 21px;
+  line-height: 1.2;
+  font-weight: 650;
+}
+.fa-instrument h2 small {
+  font-size: 10px;
+  font-weight: 400;
+  color: #8195af;
+  margin-left: 5px;
+}
+.fa-instrument > div > span {
+  font-size: 10px;
+  color: #8ca0ba;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+}
+.fa-instrument i {
+  background: #f28493;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.fa-instrument i.online {
+  background: #55d7b1;
+}
+.fa-quote {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.fa-quote strong {
+  font-size: 28px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.fa-quote small {
+  font-size: 10px;
+}
+.fa-chart-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 16px;
+  border-block: 1px solid #24364d;
+  flex-shrink: 0;
+}
+.fa-chart-tools > div {
+  display: flex;
+  gap: 5px;
+}
+.fa-chart-tools button {
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  color: #8a9eb7;
+  min-width: 31px;
+  min-height: 27px;
+  font-size: 10px;
+}
+.fa-chart-tools button.active {
+  background: #d0ae5e1a;
+  color: #edc776;
+}
+.fa-chart-tools > span {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #627d9f;
+}
+.fa-chart-view {
+  margin-left: auto;
+}
+.fa-chart-surface.fx-app {
+  height: 0;
+  min-height: 0;
+  flex: 1;
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+}
+.fa-chart-surface .fx-chart {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+}
+.fa-chart-surface .fx-ohlc {
+  flex-shrink: 0;
+  min-height: 20px;
+  font-size: 9px;
+}
+.fa-chart-surface .fx-chart-note {
+  margin-top: auto;
+  white-space: nowrap;
+  font-size: 7px;
+  padding: 4px 15px 7px;
+  min-height: 18px;
+}
+.fa-chart-surface .fx-chart > svg {
+  min-height: 0;
+  max-width: 100%;
+}
+.fa-chart-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid #263c53;
+  padding: 12px 18px;
+  font-size: 10px;
+  color: #7c95b2;
+  flex-shrink: 0;
+}
+.fa-chart-bottom b {
+  margin-left: 5px;
+  color: #dbe6f5;
+  font-family: Consolas, monospace;
+  font-size: 11px;
+}
+.fa-loading {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  color: #93aac6;
+  font-size: 13px;
+  text-align: center;
+}
+.fa-betting-panel {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #36506a;
+  border-radius: 15px;
+  background: linear-gradient(160deg, #1b2b43, #102137 55%, #132339);
+  padding: 16px;
+  min-width: 0;
+  min-height: 0;
+  box-shadow: 0 10px 28px #0003;
+}
+.fa-round-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fa-round-banner > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.fa-round-banner > div > span {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #f3ce81;
+}
+.fa-round-banner small {
+  color: #7892b0;
+  font-size: 10px;
+}
+.fa-timer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.fa-timer b {
+  font-size: 30px;
+  font-weight: 650;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #f1d593;
+}
+.fa-timer > span {
+  max-width: 26px;
+  font-size: 8px !important;
+  font-weight: 400 !important;
+  color: #a99e8a !important;
+  letter-spacing: 0 !important;
+  line-height: 1.25;
+}
+.fa-round-banner.locked .fa-timer b,
+.fa-round-banner.locked > div > span {
+  color: #ef9ba6;
+}
+.fa-round-progress {
+  height: 3px;
+  background: #283a52;
+  border-radius: 2px;
+  margin: 12px 0 15px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.fa-round-progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #8c7345, #f3d285);
+  transition: width 0.2s linear;
+}
+.fa-prediction-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.fa-prediction-title > b {
+  font-size: 9px;
+  border: 1px solid #d8b57450;
+  border-radius: 5px;
+  background: #c4a06512;
+  color: #e9c57e;
+  padding: 3px 5px;
+}
+.fa-bet-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.fa-game .fa-bet-buttons button[data-game-bet] {
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 10px;
+  min-height: 64px;
+  line-height: 1.2;
+  box-shadow:
+    inset 0 1px #fff3,
+    0 5px 10px #0002;
+}
+.fa-game .fa-bet-buttons button[data-game-bet] > svg {
+  width: 29px;
+  height: 29px;
+}
+.fa-game .fa-bet-buttons button[data-game-bet] > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fa-bet-buttons strong {
+  font-size: 20px;
+  letter-spacing: 0.7px;
+  font-weight: 800;
+}
+.fa-game .fa-bet-buttons button[data-game-bet] span {
+  font-size: 9px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+.fa-buy {
+  border: 1px solid #68f4b9;
+  background: linear-gradient(#48d99b, #1fad77);
+  color: #042d22;
+}
+.fa-sell {
+  border: 1px solid #fa97a2;
+  background: linear-gradient(#f38291, #db536c);
+  color: #3e0f22;
+}
+.fa-amount-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  padding: 10px 0;
+  border-block: 1px solid #33465b;
+}
+.fa-amount-summary > span {
+  font-size: 9px;
+  color: #8ba2bf;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.fa-amount-summary > span:last-child {
+  text-align: right;
+}
+.fa-amount-summary b {
+  font-size: 19px;
+  font-weight: 600;
+  color: #e2edfc;
+  line-height: 1.1;
+}
+.fa-amount-summary b small {
+  font-size: 9px;
+  font-weight: 400;
+  color: #839cb9;
+}
+.fa-gold {
+  color: #f1cf83 !important;
+}
+.fa-coin-label {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #c1d0e3;
+}
+.fa-coin-label > small {
+  font-size: 7px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #8198b5;
+  margin-left: auto;
+}
+.fa-coins {
+  margin-top: 9px;
+}
+.fa-coins .table-coin-controls {
+  align-items: center;
+}
+.fa-coins .coin-rack-options {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px !important;
+}
+.fa-coins [data-game-coin] {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  flex-basis: 40px !important;
+}
+.fa-coins .coin-rack-custom {
+  height: 40px;
+  font-size: 10px;
+  min-width: 0;
+  padding: 0 3px;
+  border-radius: 7px;
+}
+.fa-coins [data-testid="coin-settings-button"] {
+  width: 32px;
+  height: 40px;
+  border-color: #536846;
+  background: #6d8a4e12;
+  color: #d0c28b;
+}
+.fa-bet-hint {
+  font-size: 9px;
+  color: #829bb8;
+  line-height: 1.4;
+  min-height: 24px;
+  text-align: center;
+  padding-top: 8px;
+}
+.fa-pressure {
+  border: 1px solid #314560;
+  border-radius: 8px;
+  padding: 10px 11px;
+  margin-top: auto;
+  background: #0b172777;
+}
+.fa-pressure > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  font-size: 10px;
+}
+.fa-pressure > div > span {
+  color: #819abb;
+}
+.fa-pressure b {
+  display: block;
+  color: #d1dced;
+  font-size: 12px;
+  margin-top: 2px;
+  font-weight: 500;
+}
+.fa-pressure strong {
+  font-size: 14px;
+  font-family: Consolas, monospace;
+}
+.fa-pressure p {
+  font-size: 10px;
+  margin: 8px 0 3px;
+  color: #d3bb85;
+}
+.fa-pressure > small {
+  font-size: 8px;
+  line-height: 1.4;
+  color: #758caa;
+  display: block;
+}
+.fa-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  gap: 5px;
+  font-size: 9px;
+  color: #7a94b4;
+}
+.fa-session > span,
+.fa-session > button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.fa-session > button {
+  background: none;
+  border: 0;
+  color: #adbfda;
+  padding: 0;
+}
+.fa-result-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 37px;
+  flex-shrink: 0;
+  padding: 0 6px;
+}
+.fa-result-strip > span {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #91a6be;
+  white-space: nowrap;
+}
+.fa-result-strip > div {
+  display: flex;
+  gap: 6px;
+  overflow: hidden;
+  flex: 1;
+  align-items: center;
+}
+.fa-result-strip > div > button {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  background: #19332f;
+  border: 1px solid #315447;
+  border-radius: 15px;
+  padding: 4px 9px;
+  font-size: 9px;
+  font-weight: 600;
+}
+.fa-result-strip .result-up {
+  color: #65deb1;
+}
+.fa-result-strip .result-down {
+  color: #f18c9c;
+  background: #362636;
+  border-color: #644251;
+}
+.fa-result-strip .result-flat {
+  color: #a8b7c8;
+  background: #1a2a3f;
+  border-color: #34465e;
+}
+.fa-result-strip small {
+  font-size: 10px;
+  color: #6a84a2;
+}
+.fa-history-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 0;
+  color: #94aac6;
+  font-size: 10px !important;
+  flex-shrink: 0;
+}
+.fa-footer {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 8px;
+  color: #667f9d;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+.fa-footer-rule {
+  margin-left: auto;
+}
+.fa-toast {
+  position: absolute;
+  z-index: 60;
+  left: 50%;
+  top: 76px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 14px;
+  border: 1px solid #5aa080;
+  border-radius: 9px;
+  background: #173b2e;
+  box-shadow: 0 10px 35px #0008;
+  font-size: 12px;
+  max-width: calc(100% - 24px);
+  width: max-content;
+  color: #ceffe6;
+}
+.fa-toast.error {
+  background: #44253a;
+  border-color: #a2657b;
+  color: #ffd4df;
+}
+.fa-toast > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  margin-left: 9px;
+}
+.fa-information {
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+.fa-info-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid #2e425b;
+  padding-bottom: 12px;
+  margin: 8px 0 12px;
+}
+.fa-info-tabs > button {
+  min-height: 40px;
+  flex: 1;
+  border-radius: 7px;
+  border: 1px solid #2c4562;
+  font-size: 12px;
+  background: #14253a;
+  color: #9fb4cf;
+}
+.fa-info-tabs > button[aria-selected="true"] {
+  background: #f2ce8020;
+  border-color: #af9156;
+  color: #f5d490;
+}
+.fa-info-content {
+  font-size: 13px;
+  color: #a4b7cf;
+  line-height: 1.7;
+}
+.fa-info-content h2 {
+  font-size: 18px;
+  font-weight: 650;
+  color: #e7effc;
+  margin: 5px 0 12px;
+}
+.fa-info-content ol {
+  padding-left: 22px;
+  list-style: decimal;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fa-info-content b {
+  color: #dfe9f9;
+}
+.fa-info-example {
+  border: 1px solid #a88e5444;
+  background: #a88e5412;
+  border-radius: 8px;
+  padding: 14px;
+  color: #dbca9a;
+  margin: 18px 0;
+}
+.fa-info-content > p {
+  margin: 12px 0;
+}
+.fa-refill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1px solid #ad9559;
+  border-radius: 8px;
+  background: #cfad601f;
+  color: #eacd8d;
+  width: 100%;
+  margin: 15px 0 6px;
+}
+.fa-info-content > small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #7f97b4;
+}
+.fa-trade-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 14px 0;
+  border-bottom: 1px solid #2b4059;
+}
+.fa-trade-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fa-trade-row > div:last-child {
+  text-align: right;
+}
+.fa-trade-row b {
+  font-size: 12px;
+  font-weight: 600;
+}
+.fa-trade-row b span {
+  font-size: 10px;
+  margin-left: 6px;
+}
+.fa-trade-row small {
+  font-size: 10px;
+  color: #839abb;
+}
+.fa-info-empty {
+  text-align: center;
+  padding: 35px 10px;
+  color: #8da3bf;
+}
+.fa-info-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #344760;
+  border-radius: 7px;
+  padding: 12px;
+  margin: 15px 0;
+  font-size: 11px;
+}
+@media (max-width: 1050px) {
+  .fa-game {
+    padding: 10px 12px 7px;
+    gap: 9px;
+  }
+  .fa-play-area {
+    grid-template-columns: minmax(0, 1fr) 315px;
+    gap: 10px;
+  }
+  .fa-title h1 {
+    font-size: 20px;
+  }
+  .fa-betting-panel {
+    padding: 13px;
+  }
+  .fa-coin-label > small {
+    font-size: 6px;
+  }
+  .fa-coins .coin-rack-options {
+    gap: 4px !important;
+  }
+  .fa-coins [data-game-coin] {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+  }
+  .fa-chart-heading {
+    padding: 14px;
+  }
+  .fa-instrument h2 {
+    font-size: 19px;
+  }
+  .fa-instrument h2 small {
+    display: block;
+    margin: 3px 0 0;
+  }
+  .fa-quote strong {
+    font-size: 24px;
+  }
+}
+@media (max-width: 700px) and (min-height: 501px) {
+  .fa-game {
+    gap: 7px;
+    padding: 8px 10px 5px;
+  }
+  .fa-header {
+    gap: 7px;
+    min-height: 43px;
+  }
+  .fa-icon {
+    width: 34px;
+    height: 37px;
+    border-radius: 9px;
+  }
+  .fa-title {
+    gap: 0;
+  }
+  .fa-emblem {
+    display: none;
+  }
+  .fa-title h1 {
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+  .fa-title h1 em {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-top: 2px;
+  }
+  .fa-title small {
+    display: none;
+  }
+  .fa-balance {
+    padding: 6px 9px;
+    min-width: 100px;
+    gap: 5px;
+    border-radius: 8px;
+  }
+  .fa-balance > svg {
+    width: 16px;
+  }
+  .fa-balance small {
+    font-size: 7px;
+  }
+  .fa-balance strong {
+    font-size: 15px;
+  }
+  .fa-sound {
+    width: 31px;
+  }
+  .fa-market-filters {
+    padding: 4px 7px;
+    gap: 2px;
+  }
+  .fa-market-filters button {
+    padding: 5px 11px;
+    font-size: 9px;
+  }
+  .fa-assets {
+    padding: 6px 7px;
+    gap: 5px;
+  }
+  .fa-assets > button {
+    padding: 6px 8px;
+    min-width: 106px;
+    gap: 7px;
+  }
+  .fa-asset-symbol {
+    height: 25px;
+    width: 25px;
+    font-size: 14px;
+  }
+  .fa-assets b {
+    font-size: 10px;
+  }
+  .fa-assets small {
+    font-size: 9px;
+  }
+  .fa-play-area {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(180px, 1fr) auto;
+    gap: 7px;
+    flex: 1;
+    min-height: 470px;
+  }
+  .fa-chart-board {
+    flex: 1;
+    min-height: 180px;
+    border-radius: 11px;
+  }
+  .fa-chart-heading {
+    padding: 9px 12px;
+  }
+  .fa-instrument {
+    gap: 8px;
+  }
+  .fa-large-symbol {
+    width: 31px;
+    height: 31px;
+    border-radius: 7px;
+    font-size: 18px;
+  }
+  .fa-instrument h2 {
+    font-size: 15px;
+  }
+  .fa-instrument h2 small {
+    display: inline;
+    font-size: 8px;
+    margin-left: 4px;
+  }
+  .fa-instrument > div > span {
+    font-size: 8px;
+    margin-top: 3px;
+  }
+  .fa-quote strong {
+    font-size: 20px;
+  }
+  .fa-quote small {
+    font-size: 8px;
+  }
+  .fa-chart-tools {
+    padding: 3px 10px;
+  }
+  .fa-chart-tools button {
+    font-size: 9px;
+    min-height: 22px;
+    min-width: 28px;
+  }
+  .fa-chart-tools > span {
+    font-size: 7px;
+  }
+  .fa-chart-surface .fx-chart {
+    padding-top: 4px;
+  }
+  .fa-chart-surface .fx-ohlc {
+    display: none;
+  }
+  .fa-chart-surface .fx-chart-note {
+    padding: 2px 8px 3px;
+    font-size: 6px;
+    min-height: 12px;
+  }
+  .fa-chart-surface .fx-chart-note > span:first-child {
+    font-size: 6px;
+  }
+  .fa-chart-bottom {
+    padding: 6px 10px;
+    font-size: 8px;
+  }
+  .fa-chart-bottom b {
+    font-size: 9px;
+    margin-left: 3px;
+  }
+  .fa-betting-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 10px;
+    flex-shrink: 0;
+    min-height: min-content;
+    gap: 0 9px;
+    border-radius: 11px;
+  }
+  .fa-round-banner {
+    grid-column: 1/-1;
+  }
+  .fa-round-banner > div > span {
+    font-size: 8px;
+    letter-spacing: 0.3px;
+  }
+  .fa-round-banner small {
+    font-size: 8px;
+  }
+  .fa-round-banner > div:first-child {
+    gap: 2px;
+  }
+  .fa-timer b {
+    font-size: 25px;
+  }
+  .fa-timer > span {
+    font-size: 7px !important;
+  }
+  .fa-round-progress {
+    grid-column: 1/-1;
+    margin: 7px 0 8px;
+    height: 2px;
+  }
+  .fa-prediction-title {
+    grid-column: 1/-1;
+    margin-bottom: 7px;
+    font-size: 10px;
+  }
+  .fa-prediction-title > b {
+    font-size: 7px;
+    padding: 2px 4px;
+  }
+  .fa-bet-buttons {
+    grid-column: 1/-1;
+    flex-direction: row;
+    gap: 8px;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] {
+    flex: 1;
+    min-height: 51px;
+    gap: 5px;
+    border-radius: 8px;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] > svg {
+    width: 23px;
+    height: 23px;
+  }
+  .fa-bet-buttons strong {
+    font-size: 15px;
+    letter-spacing: 0.2px;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] span {
+    font-size: 7px;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] > div {
+    gap: 3px;
+  }
+  .fa-amount-summary {
+    grid-column: 1/-1;
+    margin: 8px 0;
+    padding: 6px 0;
+  }
+  .fa-amount-summary > span {
+    flex-direction: row;
+    align-items: center;
+    gap: 7px;
+    font-size: 8px;
+  }
+  .fa-amount-summary b {
+    font-size: 16px;
+  }
+  .fa-amount-summary b small {
+    font-size: 7px;
+  }
+  .fa-coin-label {
+    grid-column: 1/-1;
+    font-size: 8px;
+  }
+  .fa-coin-label > small {
+    font-size: 7px;
+  }
+  .fa-coins {
+    grid-column: 1/-1;
+    margin-top: 6px;
+  }
+  .fa-coins .coin-rack-options {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px !important;
+  }
+  .fa-coins [data-game-coin] {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    max-width: 40px !important;
+    max-height: 40px !important;
+  }
+  .fa-coins .coin-rack-custom {
+    height: 40px;
+  }
+  .fa-bet-hint {
+    grid-column: 1/-1;
+    font-size: 8px;
+    min-height: 18px;
+    padding-top: 6px;
+  }
+  .fa-pressure {
+    display: none;
+  }
+  .fa-session {
+    grid-column: 1/-1;
+    font-size: 8px;
+    padding-top: 6px;
+  }
+  .fa-result-strip {
+    min-height: 26px;
+    gap: 7px;
+    padding: 0 2px;
+  }
+  .fa-result-strip > span {
+    font-size: 7px;
+    letter-spacing: 0.5px;
+  }
+  .fa-result-strip > div > button {
+    padding: 3px 6px;
+    font-size: 8px;
+  }
+  .fa-result-strip small {
+    font-size: 8px;
+    white-space: nowrap;
+  }
+  .fa-history-link > span {
+    display: none;
+  }
+  .fa-footer {
+    font-size: 6px;
+    gap: 4px;
+  }
+  .fa-footer-rule {
+    font-size: 6px;
+  }
+  .fa-toast {
+    top: 57px;
+    font-size: 10px;
+    padding: 9px 11px;
+  }
+  .fa-toast > span {
+    max-width: 220px;
+  }
+}
+@media (max-width: 700px) and (min-height: 501px) and (max-height: 720px) {
+  .fa-play-area {
+    min-height: 400px;
+    grid-template-rows: minmax(172px, 1fr) auto;
+  }
+  .fa-game {
+    gap: 4px;
+    padding-top: 5px;
+  }
+  .fa-header {
+    min-height: 37px;
+  }
+  .fa-market-filters {
+    padding-block: 2px;
+  }
+  .fa-assets {
+    padding-block: 4px;
+  }
+  .fa-assets > button {
+    padding-block: 4px;
+  }
+  .fa-chart-board {
+    min-height: 172px;
+  }
+  .fa-chart-heading {
+    padding: 6px 9px;
+  }
+  .fa-large-symbol {
+    width: 26px;
+    height: 26px;
+    font-size: 15px;
+  }
+  .fa-instrument > div > span {
+    display: none;
+  }
+  .fa-quote strong {
+    font-size: 17px;
+  }
+  .fa-chart-tools {
+    padding: 2px 7px;
+  }
+  .fa-chart-tools > span {
+    display: none;
+  }
+  .fa-chart-surface .fx-chart-note {
+    display: none;
+  }
+  .fa-chart-surface .fx-chart {
+    padding: 0;
+  }
+  .fa-chart-bottom {
+    padding: 4px 8px;
+  }
+  .fa-chart-surface .fx-chart > svg {
+    max-height: 100%;
+  }
+  .fa-betting-panel {
+    padding: 8px;
+  }
+  .fa-round-banner small {
+    display: none;
+  }
+  .fa-round-progress {
+    margin: 5px 0;
+  }
+  .fa-prediction-title {
+    margin-bottom: 5px;
+    font-size: 9px;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] {
+    min-height: 45px;
+  }
+  .fa-amount-summary {
+    margin: 5px 0;
+    padding: 4px 0;
+  }
+  .fa-coin-label {
+    font-size: 7px;
+  }
+  .fa-coin-label > small {
+    font-size: 6px;
+  }
+  .fa-coins {
+    margin-top: 4px;
+  }
+  .fa-coins .coin-rack-options {
+    gap: 3px !important;
+  }
+  .fa-coins [data-game-coin] {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
+  }
+  .fa-coins .coin-rack-custom {
+    height: 34px;
+  }
+  .fa-session {
+    display: none;
+  }
+  .fa-bet-hint {
+    min-height: 14px;
+    font-size: 7px;
+    padding-top: 3px;
+  }
+  .fa-result-strip {
+    display: none;
+  }
+  .fa-footer-rule {
+    display: none;
+  }
+}
+@media (max-width: 370px) {
+  .fa-game {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+  .fa-header {
+    gap: 5px;
+  }
+  .fa-icon {
+    width: 31px;
+  }
+  .fa-title h1 {
+    font-size: 12px;
+  }
+  .fa-title h1 em {
+    font-size: 10px;
+    letter-spacing: 1.2px;
+  }
+  .fa-balance {
+    min-width: 91px;
+    padding: 5px 7px;
+  }
+  .fa-balance > svg {
+    width: 14px;
+  }
+  .fa-balance strong {
+    font-size: 14px;
+  }
+  .fa-sound {
+    width: 28px;
+  }
+  .fa-market-filters button {
+    padding-inline: 10px;
+  }
+  .fa-instrument h2 small {
+    font-size: 7px;
+  }
+  .fa-bet-buttons strong {
+    font-size: 13px;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] span {
+    font-size: 6px;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] > svg {
+    width: 19px;
+  }
+  .fa-coins [data-testid="coin-settings-button"] {
+    width: 27px;
+  }
+  .fa-coin-label > small {
+    font-size: 6px;
+  }
+}
+@media (min-width: 701px) and (max-height: 850px) {
+  .fa-game {
+    gap: 8px;
+  }
+  .fa-market-filters {
+    padding: 4px 8px;
+  }
+  .fa-assets {
+    padding: 6px 8px;
+  }
+  .fa-assets > button {
+    padding: 6px 9px;
+  }
+  .fa-betting-panel {
+    padding: 12px;
+  }
+  .fa-round-banner > div > span {
+    font-size: 9px;
+  }
+  .fa-round-progress {
+    margin: 8px 0;
+  }
+  .fa-bet-buttons {
+    gap: 7px;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] {
+    min-height: 50px;
+  }
+  .fa-bet-buttons strong {
+    font-size: 17px;
+  }
+  .fa-amount-summary {
+    margin: 8px 0;
+    padding: 7px 0;
+  }
+  .fa-pressure {
+    padding: 8px;
+    margin-top: 6px;
+  }
+  .fa-pressure p {
+    font-size: 9px;
+    margin-top: 4px;
+  }
+  .fa-pressure > small {
+    display: none;
+  }
+  .fa-session {
+    padding-top: 8px;
+  }
+  .fa-result-strip {
+    min-height: 30px;
+  }
+}
+@media (min-width: 560px) and (max-height: 600px) {
+  .fa-game {
+    gap: 5px;
+    padding: 6px 10px;
+  }
+  .fa-header {
+    min-height: 38px;
+  }
+  .fa-icon {
+    height: 33px;
+    width: 34px;
+    border-radius: 8px;
+  }
+  .fa-emblem {
+    width: 32px;
+    height: 32px;
+  }
+  .fa-title h1 {
+    font-size: 17px;
+  }
+  .fa-title small {
+    font-size: 6px;
+    margin-top: 2px;
+  }
+  .fa-balance {
+    padding: 3px 10px;
+    min-width: 120px;
+  }
+  .fa-balance strong {
+    font-size: 15px;
+  }
+  .fa-balance small {
+    font-size: 7px;
+  }
+  .fa-market-bar {
+    display: flex;
+    border-radius: 9px;
+  }
+  .fa-market-filters {
+    flex-shrink: 0;
+    border-bottom: 0;
+    border-right: 1px solid #263c53;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    padding: 3px;
+  }
+  .fa-market-filters button {
+    font-size: 8px;
+    padding: 3px 6px;
+  }
+  .fa-market-filters button:first-child {
+    grid-column: 1/-1;
+  }
+  .fa-assets {
+    padding: 4px;
+    gap: 5px;
+  }
+  .fa-assets > button {
+    padding: 4px 7px;
+    min-width: 105px;
+  }
+  .fa-asset-symbol {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+  .fa-assets b {
+    font-size: 9px;
+  }
+  .fa-assets small {
+    font-size: 8px;
+  }
+  .fa-play-area {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 7px;
+  }
+  .fa-chart-heading {
+    padding: 8px 10px;
+  }
+  .fa-large-symbol {
+    width: 30px;
+    height: 30px;
+    font-size: 17px;
+  }
+  .fa-instrument h2 {
+    font-size: 15px;
+  }
+  .fa-instrument h2 small {
+    font-size: 8px;
+  }
+  .fa-instrument > div > span {
+    display: none;
+  }
+  .fa-quote strong {
+    font-size: 20px;
+  }
+  .fa-quote small {
+    font-size: 8px;
+  }
+  .fa-chart-tools {
+    padding: 3px 8px;
+  }
+  .fa-chart-tools button {
+    min-height: 22px;
+  }
+  .fa-chart-tools > span {
+    display: none;
+  }
+  .fa-chart-bottom {
+    padding: 6px 9px;
+    font-size: 8px;
+  }
+  .fa-chart-bottom b {
+    font-size: 9px;
+  }
+  .fa-betting-panel {
+    padding: 9px;
+    border-radius: 10px;
+  }
+  .fa-round-banner > div > span {
+    font-size: 8px;
+  }
+  .fa-round-banner small {
+    display: none;
+  }
+  .fa-timer b {
+    font-size: 23px;
+  }
+  .fa-round-progress {
+    margin: 6px 0;
+  }
+  .fa-prediction-title {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  .fa-prediction-title > b {
+    font-size: 7px;
+  }
+  .fa-bet-buttons {
+    flex-direction: row;
+    gap: 7px;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] {
+    min-height: 44px;
+    flex: 1;
+    gap: 5px;
+    border-radius: 7px;
+  }
+  .fa-bet-buttons strong {
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] > svg {
+    width: 20px;
+    height: 20px;
+  }
+  .fa-game .fa-bet-buttons button[data-game-bet] span {
+    font-size: 6px;
+  }
+  .fa-amount-summary {
+    margin: 6px 0;
+    padding: 5px 0;
+  }
+  .fa-amount-summary > span {
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    font-size: 8px;
+  }
+  .fa-amount-summary b {
+    font-size: 15px;
+  }
+  .fa-amount-summary b small {
+    display: none;
+  }
+  .fa-coin-label {
+    font-size: 7px;
+  }
+  .fa-coin-label > small {
+    font-size: 6px;
+  }
+  .fa-coins {
+    margin-top: 5px;
+  }
+  .fa-coins [data-game-coin] {
+    width: 33px !important;
+    height: 33px !important;
+    min-width: 33px !important;
+    min-height: 33px !important;
+    max-width: 33px !important;
+    max-height: 33px !important;
+  }
+  .fa-coins .coin-rack-custom {
+    height: 33px;
+    font-size: 8px;
+  }
+  .fa-coins .coin-rack-options {
+    gap: 3px !important;
+  }
+  .fa-bet-hint {
+    font-size: 7px;
+    min-height: 15px;
+    padding-top: 4px;
+  }
+  .fa-pressure,
+  .fa-session {
+    display: none;
+  }
+  .fa-result-strip {
+    min-height: 24px;
+  }
+  .fa-result-strip > span {
+    font-size: 7px;
+  }
+  .fa-footer {
+    font-size: 6px;
+  }
+  .fa-chart-surface .fx-ohlc,
+  .fa-chart-surface .fx-chart-note {
+    display: none;
+  }
+  .fa-chart-surface .fx-chart {
+    padding: 0;
+  }
+  .fa-chart-surface .fx-chart > svg {
+    max-height: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fa-game * {
+    transition: none !important;
+  }
+}

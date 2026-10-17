@@ -1,0 +1,25 @@
+{
+  "referencePrompt": "Use case: photorealistic-natural. Asset type: FIRST AND LAST KEYFRAME of one locked-camera Lucky 7 casino-dealer video, 16:9 landscape, high-resolution 2K. Create one lifelike editorial photograph, not a collage. An attractive adult Indian woman about 28 years old with natural warm medium skin, neatly styled dark hair, refined natural makeup, wearing an elegant fitted burgundy satin professional evening blouse with a modest neckline, sits immediately behind a rectangular matte emerald-green felt casino dice table. Her expression is calm and neutral, lips softly closed, eyes naturally open looking forward. Carefully composed waist-up medium shot: her COMPLETE head and hair must fit comfortably inside the image with 6% clear headroom, her face occupies roughly 25% of image height, shoulders occupy about 43% of image width, both elbows and forearms entirely visible. Her torso occupies the upper two thirds; the table occupies the lower third. The table is close to her, not a distant full-body shot. Both hands rest separately and naturally near the back of the felt, at x35% and65%, y68%, all five fingers of each hand visible and anatomically correct. Exactly TWO ivory casino dice with black recessed pips rest on the CENTER of the felt at x46% and54%, y83%; clearly readable medium-sized real dice about 3% of frame width each, no extra dice anywhere. Plenty of clear flat felt in the middle for her to pick up and throw them. The rectangular table front edge is near the image bottom. Warm realistic upscale walnut-and-brass casino room behind her, balanced warm practical lamps, believable furnishings, no distracting objects. Soft broad frontal studio fill makes her face, dark hair, outfit details and all fingers sharp and bright. Photograph with 50mm lens at f/8, natural texture and correct proportions, both FACE AND HANDS AND DICE IN SHARP FOCUS. Soft physically plausible short contact shadows only, no hard sunlight or long black hand/dice shadows, no gloss or mirror reflections on the felt. No forehead crop, no cropped wrists or fingers, no giant chandelier directly over her head, no skin airbrushing, no artificial facial smile, no exaggerated expression, no makeup doll appearance, no bokeh blur on the subject, no motion blur, no camera tilt, no text, no logo, no watermark or game UI. This image will lock the entire composition for an understated natural dice-shaking video.",
+  "video": {
+    "model": "minimax_h3",
+    "resolution": "2K",
+    "aspect_ratio": "16:9",
+    "duration": 7,
+    "count": 1,
+    "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+    "medias": [
+      {
+        "role": "start_image",
+        "value": "feddf08f-5b59-491b-b974-2ce7bca26c11"
+      },
+      {
+        "role": "end_image",
+        "value": "feddf08f-5b59-491b-b974-2ce7bca26c11"
+      }
+    ],
+    "prompt": "One continuous locked-camera live casino dealer shot, same exact composition and adult woman as the reference. Preserve the whole head, shoulders, both forearms and entire central felt area inside the frame for all seven seconds. Native crisp 2K detail, realistic skin and fingers, even warm studio exposure, deep focus on face AND hands. No camera move, zoom, reframing, cuts or focus breathing. At the start she calmly reaches to the TWO ivory dice at the exact CENTER of the felt, gathers both in her palms at center. Between 1 and 2.7 seconds, two small gentle controlled wrist shakes with loosely cupped hands, dice visibly physically inside the hands, no exaggerated shaking. By 3 seconds she opens her hands a few centimeters over the middle of the table, gently releases BOTH dice forward onto the center felt. Dice naturally tumble briefly and stop close to their original central spots. Both hands smoothly return to the starting resting pose by 4.5 seconds, and she holds that calm pose until the end. Subtle natural eye glance down to her hands and back, one ordinary blink. Quiet neutral closed mouth, no speaking, grinning, head bobbing, nodding, exaggerated chest breathing, waving, namaste or clapping. The ONLY noticeable motion is the small purposeful hand action and a normal eye glance. Real time, normal human speed, short crisp exposure, no motion trails or artificial blur. Exactly two dice, two hands, five fingers on each hand, physically coherent grip and release. Keep blouse, background, lighting, table texture, dealer face and all proportions consistent. Final pose matches the initial image."
+  },
+  "jobId": "a5ea6076-972f-4281-a6f2-44217e8aa5fe",
+  "referenceImageMode": "Built-in imagegen",
+  "referenceMediaId": "feddf08f-5b59-491b-b974-2ce7bca26c11"
+}

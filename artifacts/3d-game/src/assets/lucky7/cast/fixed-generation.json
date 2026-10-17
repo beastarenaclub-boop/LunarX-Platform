@@ -1,0 +1,48 @@
+{
+  "date": "2026-09-27",
+  "generationCredits": 0,
+  "source": "Native 720p Asha quiet waiting and closed-cup throw takes; same sources as hd-generation.json",
+  "outputs": [
+    {
+      "media_id": "a40dbc07-1c19-4482-8753-4cc2b508cfa4",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/a40dbc07-1c19-4482-8753-4cc2b508cfa4.mp4"
+    },
+    {
+      "media_id": "8475cfc3-da26-4ef0-baef-68db7add0faf",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/8475cfc3-da26-4ef0-baef-68db7add0faf.jpg"
+    }
+  ],
+  "processingScript": "scripts/prepare-lucky7-fixed.py",
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "durationSeconds": 10.5,
+  "idle": {
+    "startMs": 0,
+    "endMs": 6000
+  },
+  "roll": {
+    "startMs": 6000,
+    "endMs": 10500,
+    "releaseMs": 8625,
+    "x": 0.513197,
+    "y": 0.812924,
+    "dieWidth": 0.02331
+  },
+  "normalPlaybackRate": 1,
+  "maxPlaybackRate": 1.1,
+  "changes": [
+    "One fixed photographed felt surface throughout waiting and throw",
+    "Removed the generated vertical hand reflection and detached source dice after release",
+    "Foreground matte preserves shaded wrists, sleeves, fingers and held props",
+    "Spatial detail restoration on dealer only; no temporal blur, frame blends or face replacement",
+    "Both source takes stabilized to the same studio architecture",
+    "Same player, source motion, round duration and server outcome handoff"
+  ],
+  "verification": {
+    "unobstructedFeltBeforeEncodePixelVariance": 0,
+    "faceLaplacianVarianceBefore": 36.652252197265625,
+    "faceLaplacianVarianceAfter": 81.9726791381836
+  },
+  "limitation": "Restores moderate source softness; does not reconstruct detail absent from fast-moving source hands."
+}

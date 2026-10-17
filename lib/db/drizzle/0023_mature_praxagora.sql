@@ -1,0 +1,1 @@
+ALTER TYPE "public"."bonus_event_type" ADD VALUE 'bonus_credit_overflow';

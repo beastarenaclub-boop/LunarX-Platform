@@ -1,0 +1,74 @@
+UNITY HORSE RACING - VISUAL REVISION 3 VALIDATION
+15 October 2026
+
+Open http://127.0.0.1:5293/horse-racing using START-HORSE-RACING.cmd.
+The existing API services on port 5200 provide authentication and live betting.
+
+Final Unity WebGL build: successful, 80,377,893 bytes.
+Production React UI build: successful (existing sourcemap/chunk-size warnings).
+Targeted Playwright suite: 6 passed, using intercepted test API responses.
+Checks cover unrevealed/wrong-venue races, server progress and clock offset,
+exact winner timing, camera selection, accepted test bet and wallet debit,
+betting cutoff, server-winner payout, and the full-width Unity viewport.
+No real funds or live bets were used by these tests.
+
+Visual review: animated race, five cameras, pause, daylight/floodlights and
+mobile landscape passed. 4,885 seated crowd instances use three scanned
+characters, with mesh and cutout distance detail. Final betting screenshot
+confirms the viewport fills its panel and tall advertising screens no longer
+obstruct the infield rail camera. Screens are now outside the oval.
+
+PERFORMANCE
+Chrome, Intel Iris Xe / D3D11, 1280 x 720 canvas. Versions ran sequentially,
+after the Unity compiler exited. One 10-second window per camera after a
+6.5-second warm-up. FPS is rendered frames divided by actual wall time;
+long stalls are included. Camera restarts use the same exhibition course.
+The revised game enables automatic internal render-scale adjustment.
+These are local observations under the current desktop workload, not a
+guaranteed framerate on every device or a controlled laboratory benchmark.
+
+Camera       V2 FPS   V3 FPS   V2 draw calls   V3 draw calls
+Rail          12.7     32.2        1082             406
+Broadcast     14.8     38.4        1131             381
+Grandstand    15.9     36.9        1104             433
+
+Rail triangles per rendered frame: 13,039,607 -> 1,549,907 (about 88% lower).
+Rail p95 frame interval: 145.7 ms -> 55.7 ms.
+Frames over 250 ms in the sampled windows: V2 4 total; V3 0 total.
+Observed Unity heap usage increased from about 129 MB to about 147 MB due to
+the scanned models and textures. The raw browser download remains about 80 MB.
+
+Evidence in tmp/unity-horse/review:
+  performance-before-verified.json
+  performance-after-verified.json
+  betting-race-v3.png
+  report.json and the standalone camera/day/night screenshots
+Earlier performance-before.json / performance-after.json are preliminary;
+use the verified reports above for the final comparison.
+
+Player-only archive: exports/unity-horse-player-v3.zip, 53,492,540 bytes.
+Inspected 10 entries: compiled player and launch/license files only, no raw
+FBX, GLB, Blender or Unity package assets. This archive is an exhibition;
+the complete betting screen runs in the workspace at the address above.
+
+REMAINING VISUAL LIMITS
+The horse base mesh is unchanged and is not a scan of a real animal.
+The mounted jockey uses a scanned head with the existing racewear body.
+The audience repeats three static seated characters; it is not 4,885 unique
+animated people. The stadium is original procedural geometry, not a replica
+of a surveyed real venue. GTA-level photorealism has not been achieved.
+The user has a licensed horse asset; its exact link or local file path is
+still needed before replacing and verifying the animal model.
+
+Reproduce the targeted checks:
+  Set HORSE_GAME_URL=http://127.0.0.1:5293/horse-racing
+  Set PLAYWRIGHT_BASE_URL=http://127.0.0.1:5293
+  Set PLAYWRIGHT_CHROMIUM_PATH to the installed Chrome executable.
+  node artifacts/3d-game/node_modules/@playwright/test/cli.js test
+    --config artifacts/3d-game/playwright.config.ts
+    horse-unity-browser.spec.ts horse-unity-state.spec.ts --trace=off
+
+Reproduce the new-player benchmark:
+  Set HORSE_UNITY_URL=http://127.0.0.1:5293/unity-horse/index.html
+  node tools/horse-assets/benchmark-unity.mjs
+Final WebGL.wasm SHA256: CF36527203181B381B5072F68F2CBC118F7712A1F64BA8C06860BC248492E5B3

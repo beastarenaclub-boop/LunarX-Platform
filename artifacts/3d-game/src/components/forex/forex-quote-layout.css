@@ -1,0 +1,6 @@
+/* A definite chart height breaks the SVG/ResizeObserver size loop in the
+   shared native-scrolling game viewport. Controls keep their touch size. */
+.game-viewport[data-game-layout="forex"] .fa-chart-surface.fx-app {
+  flex: none;
+  height: clamp(180px, 42dvh, 420px);
+}

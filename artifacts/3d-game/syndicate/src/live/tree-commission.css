@@ -1,0 +1,217 @@
+.tree-inputs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.tree-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.tree-summary article,
+.tree-branch-totals > * {
+  background: linear-gradient(135deg, #c3af7210, #1d251500);
+  border: 1px solid #bfae7340;
+  border-radius: 10px;
+  padding: 20px;
+  min-width: 0;
+}
+.tree-summary span,
+.tree-branch-totals small {
+  color: #a4ad98;
+  font-size: 12px;
+  display: block;
+}
+.tree-summary strong {
+  display: block;
+  margin-top: 10px;
+  color: #e3d49e;
+  font-size: clamp(21px, 2vw, 30px);
+  overflow-wrap: anywhere;
+}
+.tree-summary article:last-child {
+  border-color: #ddc47880;
+  background-color: #b9a45513;
+}
+.tree-visual {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  gap: 45px;
+  margin: 12px auto 30px;
+  max-width: 860px;
+}
+.tree-visual > svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  pointer-events: none;
+}
+.tree-visual > svg path {
+  fill: none;
+  stroke: #bcb27885;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.tree-visual-row {
+  display: flex;
+  justify-content: space-around;
+  gap: 12px;
+  position: relative;
+  min-width: 0;
+}
+.tree-visual button {
+  min-width: 0;
+  width: 168px;
+  max-width: 24%;
+  border: 1px solid #a4ad9850;
+  border-radius: 12px;
+  color: #d8dfca;
+  background: #182015;
+  padding: 14px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+.tree-visual button.selected,
+.tree-level-table tr.selected,
+.tree-trace tr.selected {
+  background: #a99c4625;
+  border-color: #dac47b;
+}
+.tree-visual button:focus-visible {
+  outline: 2px solid #e3d49e;
+  outline-offset: 4px;
+}
+.tree-visual button span {
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.tree-visual button strong {
+  font-size: 18px;
+  color: #e3d49e;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.tree-visual button small {
+  font-size: 10px;
+}
+.tree-branch-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.tree-branch-totals strong {
+  display: block;
+  font-size: 23px;
+  color: #e3d49e;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.tree-branch-totals p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.tree-calculator .table-scroll {
+  margin-top: 20px;
+}
+.tree-audit > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 0;
+  border-bottom: 1px solid #a4ad9820;
+}
+.tree-audit strong {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1050px) {
+  .tree-inputs,
+  .tree-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .tree-level-table,
+  .tree-trace,
+  .actual-tree-levels {
+    table-layout: fixed;
+    white-space: normal;
+  }
+  .tree-level-table th,
+  .tree-level-table td,
+  .tree-trace th,
+  .tree-trace td,
+  .actual-tree-levels th,
+  .actual-tree-levels td {
+    padding: 12px 7px;
+    overflow-wrap: anywhere;
+  }
+  .tree-level-table .btn {
+    min-width: 0;
+    padding: 8px 2px;
+    white-space: normal;
+  }
+  .tree-level-table th:nth-child(3),
+  .tree-level-table td:nth-child(3),
+  .tree-level-table th:nth-child(4),
+  .tree-level-table td:nth-child(4),
+  .tree-level-table th:nth-child(6),
+  .tree-level-table td:nth-child(6),
+  .tree-trace th:nth-child(2),
+  .tree-trace td:nth-child(2),
+  .actual-tree-levels th:nth-child(2),
+  .actual-tree-levels td:nth-child(2),
+  .actual-tree-levels th:nth-child(4),
+  .actual-tree-levels td:nth-child(4),
+  .actual-tree-levels th:nth-child(5),
+  .actual-tree-levels td:nth-child(5),
+  .actual-tree-levels th:nth-child(6),
+  .actual-tree-levels td:nth-child(6),
+  .actual-tree-levels th:nth-child(7),
+  .actual-tree-levels td:nth-child(7) {
+    display: none;
+  }
+  .tree-trace th:first-child {
+    width: 44%;
+  }
+  .tree-branch-totals,
+  .tree-inputs {
+    grid-template-columns: 1fr;
+  }
+  .tree-summary {
+    gap: 9px;
+  }
+  .tree-summary article {
+    padding: 14px;
+  }
+  .tree-visual-row {
+    gap: 5px;
+  }
+  .tree-visual button {
+    padding: 10px 3px;
+    max-width: 28%;
+  }
+  .tree-visual-row:last-child button {
+    max-width: 24%;
+  }
+  .tree-visual button strong {
+    font-size: 13px;
+  }
+  .tree-visual button span,
+  .tree-visual button small {
+    font-size: 9px;
+    letter-spacing: 0;
+  }
+  .tree-audit > div {
+    font-size: 12px;
+  }
+}

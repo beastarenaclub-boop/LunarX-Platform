@@ -1,0 +1,130 @@
+services:
+  network-test-db:
+    profiles: ["network-test"]
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: aviator_network_test
+      POSTGRES_USER: aviator
+      POSTGRES_PASSWORD: aviator_local
+    ports:
+      - "127.0.0.1:5449:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aviator -d aviator_network_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aviator
+      POSTGRES_USER: aviator
+      POSTGRES_PASSWORD: aviator_local
+    volumes:
+      - aviator-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aviator -d aviator"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: artifacts/api-server/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://aviator:aviator_local@db:5432/aviator
+      CORS_ORIGINS: http://localhost:5200,http://localhost:5202,http://localhost:5175,http://localhost:5176,http://127.0.0.1:5200,http://127.0.0.1:5202,http://127.0.0.1:5175,http://127.0.0.1:5176
+      B2B_HOSTS: ${B2B_HOSTS:-localhost:5202,127.0.0.1:5202}
+      OPERATOR_HOSTS: ${OPERATOR_HOSTS:-localhost:5176,127.0.0.1:5176}
+      GAME_BASE_URL: http://localhost:5200
+      TRUST_PROXY: "1"
+      COOKIE_SECURE: "false"
+      WINGO_DB: /app/data/wingo.sqlite
+      FOREX_DB: /app/data/forex.sqlite
+      SUPER_ADMIN_EMAIL: ${SUPER_ADMIN_EMAIL:-admin@local.test}
+      SUPER_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD:-Admin@12345}
+    volumes:
+      - wingo-practice:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/api/healthz').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  web:
+    image: aviator-game-web
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: artifacts/3d-game/Dockerfile
+    ports:
+      - "5200:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  b2b:
+    image: aviator-game-web
+    restart: unless-stopped
+    ports:
+      - "5202:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  operator:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: artifacts/agent-panel/Dockerfile
+    ports:
+      - "5176:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  admin:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: artifacts/admin-panel/Dockerfile
+    ports:
+      - "5175:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  wingo-practice:
+  aviator-postgres:

@@ -1,0 +1,16 @@
+{
+  "created": "2026-10-14",
+  "tool": "Built-in image_gen",
+  "reference": "User-supplied Screen Recording 2026-10-14 042348.mp4 (visual reference only)",
+  "assets": [
+    {
+      "file": "tropical-bay.png",
+      "prompt": "Use case: stylized-concept. Asset type: wide 1536x864 landscape background for a cheerful side-view pirate chicken stepping-platform browser game. Polished colorful hand-painted 2D mobile game art. Bright cyan blue sky with soft chunky white clouds occupies top 48 percent, distant tiny rocky tropical islands at the horizon. Brilliant turquoise shallow Caribbean sea fills bottom 52 percent with delicate soft ripples, uninterrupted open water across center and right for separately rendered platforms. On the far LEFT ONLY a small sandy rocky island ledge with lush green tropical bushes, two tall curved palm trees reaching toward top left. The island protrudes no more than 23 percent of image width; its flat sandy top is at 73 percent image height, cliff base at 86 percent. Behind the island to its right, a beautiful small muted blue gray pirate sailing ship in the middle distance at x=22 percent y=40 percent, skull and crossed bones sails. Sunny happy adventurous colors, rounded friendly shapes, rich painted detail but clean readability, crisp mobile game production art. No chicken, no characters, no rafts, no stepping stones, no coins, no interface, no text, no frames. Keep right two-thirds mostly clear sky and water."
+    },
+    {
+      "file": "chicken-captain.png",
+      "transparent": true,
+      "prompt": "Use case: stylized-concept. Asset type: one isolated full-body game character sprite on a truly transparent background. A charming brave plump cream-white chicken pirate, facing RIGHT in three-quarter side view, standing upright ready to hop. Big expressive glossy brown eyes, short golden orange beak, orange feet, small red comb and wattle. Wears a large dark brown tricorn pirate hat with warm gold edging, a tiny skull motif and orange feather, red bandanna tied behind its head, a brown belt with shiny square brass buckle and small round compass attached on the hip. Wings tucked, whole body and both feet visible. Cute hand-painted 2D mobile game character with softly modeled volumes, clean crisp silhouette, appealing high-quality casual game art. Single character centered, fills 90 percent of canvas height. No background, no scenery, no floor, no shadow outside silhouette, no text, no extra objects."
+    }
+  ]
+}

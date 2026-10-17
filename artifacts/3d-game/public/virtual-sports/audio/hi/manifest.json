@@ -1,0 +1,392 @@
+{
+  "language": "hi-IN",
+  "engine": "Kokoro v1.0 ONNX",
+  "voice": "hm_omega",
+  "clips": [
+    {
+      "id": "welcome",
+      "seconds": 6.36,
+      "bytes": 44261
+    },
+    {
+      "id": "betting",
+      "seconds": 6.36,
+      "bytes": 44074
+    },
+    {
+      "id": "start-football",
+      "seconds": 6.12,
+      "bytes": 41309
+    },
+    {
+      "id": "start-cricket",
+      "seconds": 5.29,
+      "bytes": 36783
+    },
+    {
+      "id": "start-basketball",
+      "seconds": 5.08,
+      "bytes": 35900
+    },
+    {
+      "id": "start-tennis",
+      "seconds": 4.86,
+      "bytes": 34142
+    },
+    {
+      "id": "start-formula",
+      "seconds": 4.86,
+      "bytes": 36069
+    },
+    {
+      "id": "goal",
+      "seconds": 5.96,
+      "bytes": 43487
+    },
+    {
+      "id": "save",
+      "seconds": 5.12,
+      "bytes": 39154
+    },
+    {
+      "id": "possession",
+      "seconds": 5.27,
+      "bytes": 39924
+    },
+    {
+      "id": "six",
+      "seconds": 4.28,
+      "bytes": 30300
+    },
+    {
+      "id": "four",
+      "seconds": 5.06,
+      "bytes": 38617
+    },
+    {
+      "id": "dot",
+      "seconds": 4.48,
+      "bytes": 35001
+    },
+    {
+      "id": "one",
+      "seconds": 4.42,
+      "bytes": 33582
+    },
+    {
+      "id": "two",
+      "seconds": 3.9,
+      "bytes": 29480
+    },
+    {
+      "id": "three",
+      "seconds": 4.97,
+      "bytes": 36420
+    },
+    {
+      "id": "basket",
+      "seconds": 4.59,
+      "bytes": 34432
+    },
+    {
+      "id": "point",
+      "seconds": 3.5,
+      "bytes": 26967
+    },
+    {
+      "id": "lap",
+      "seconds": 4.48,
+      "bytes": 34183
+    },
+    {
+      "id": "draw",
+      "seconds": 7.08,
+      "bytes": 52544
+    },
+    {
+      "id": "finish",
+      "seconds": 5.95,
+      "bytes": 44648
+    },
+    {
+      "id": "break",
+      "seconds": 5.67,
+      "bytes": 39485
+    },
+    {
+      "id": "intro-football-classic",
+      "seconds": 6.57,
+      "bytes": 48687
+    },
+    {
+      "id": "win-football-classic-0",
+      "seconds": 8.36,
+      "bytes": 59805
+    },
+    {
+      "id": "win-football-classic-1",
+      "seconds": 8.15,
+      "bytes": 57432
+    },
+    {
+      "id": "intro-cricket-classic",
+      "seconds": 6.61,
+      "bytes": 48529
+    },
+    {
+      "id": "win-cricket-classic-0",
+      "seconds": 8.42,
+      "bytes": 58341
+    },
+    {
+      "id": "win-cricket-classic-1",
+      "seconds": 8.34,
+      "bytes": 57978
+    },
+    {
+      "id": "intro-basketball-classic",
+      "seconds": 6.38,
+      "bytes": 46645
+    },
+    {
+      "id": "win-basketball-classic-0",
+      "seconds": 8.27,
+      "bytes": 57157
+    },
+    {
+      "id": "win-basketball-classic-1",
+      "seconds": 8.12,
+      "bytes": 55729
+    },
+    {
+      "id": "intro-tennis-classic",
+      "seconds": 6.38,
+      "bytes": 48302
+    },
+    {
+      "id": "win-tennis-classic-0",
+      "seconds": 8.3,
+      "bytes": 59303
+    },
+    {
+      "id": "win-tennis-classic-1",
+      "seconds": 8.01,
+      "bytes": 57394
+    },
+    {
+      "id": "intro-formula-classic",
+      "seconds": 4.91,
+      "bytes": 36835
+    },
+    {
+      "id": "win-formula-classic-0",
+      "seconds": 8.39,
+      "bytes": 58576
+    },
+    {
+      "id": "win-formula-classic-1",
+      "seconds": 8.06,
+      "bytes": 57739
+    },
+    {
+      "id": "win-formula-classic-2",
+      "seconds": 8.6,
+      "bytes": 60058
+    },
+    {
+      "id": "win-formula-classic-3",
+      "seconds": 8.25,
+      "bytes": 58119
+    },
+    {
+      "id": "intro-football-brazil-argentina",
+      "seconds": 6.1,
+      "bytes": 45299
+    },
+    {
+      "id": "win-football-brazil-argentina-0",
+      "seconds": 7.84,
+      "bytes": 53517
+    },
+    {
+      "id": "win-football-brazil-argentina-1",
+      "seconds": 8.04,
+      "bytes": 57231
+    },
+    {
+      "id": "intro-football-france-portugal",
+      "seconds": 5.59,
+      "bytes": 42749
+    },
+    {
+      "id": "win-football-france-portugal-0",
+      "seconds": 7.69,
+      "bytes": 53299
+    },
+    {
+      "id": "win-football-france-portugal-1",
+      "seconds": 7.86,
+      "bytes": 56081
+    },
+    {
+      "id": "intro-football-england-spain",
+      "seconds": 5.46,
+      "bytes": 40983
+    },
+    {
+      "id": "win-football-england-spain-0",
+      "seconds": 7.74,
+      "bytes": 53388
+    },
+    {
+      "id": "win-football-england-spain-1",
+      "seconds": 7.62,
+      "bytes": 53966
+    },
+    {
+      "id": "intro-cricket-india-australia",
+      "seconds": 5.89,
+      "bytes": 42858
+    },
+    {
+      "id": "win-cricket-india-australia-0",
+      "seconds": 7.82,
+      "bytes": 54146
+    },
+    {
+      "id": "win-cricket-india-australia-1",
+      "seconds": 8.04,
+      "bytes": 56647
+    },
+    {
+      "id": "intro-cricket-india-pakistan",
+      "seconds": 5.74,
+      "bytes": 43373
+    },
+    {
+      "id": "win-cricket-india-pakistan-0",
+      "seconds": 7.82,
+      "bytes": 55134
+    },
+    {
+      "id": "win-cricket-india-pakistan-1",
+      "seconds": 8.01,
+      "bytes": 56243
+    },
+    {
+      "id": "intro-cricket-england-southafrica",
+      "seconds": 6.21,
+      "bytes": 46602
+    },
+    {
+      "id": "win-cricket-england-southafrica-0",
+      "seconds": 7.74,
+      "bytes": 54758
+    },
+    {
+      "id": "win-cricket-england-southafrica-1",
+      "seconds": 8.57,
+      "bytes": 60729
+    },
+    {
+      "id": "intro-basketball-usa-france",
+      "seconds": 5.72,
+      "bytes": 43607
+    },
+    {
+      "id": "win-basketball-usa-france-0",
+      "seconds": 8.0,
+      "bytes": 56644
+    },
+    {
+      "id": "win-basketball-usa-france-1",
+      "seconds": 7.69,
+      "bytes": 53488
+    },
+    {
+      "id": "intro-basketball-spain-serbia",
+      "seconds": 5.57,
+      "bytes": 41480
+    },
+    {
+      "id": "win-basketball-spain-serbia-0",
+      "seconds": 7.62,
+      "bytes": 53899
+    },
+    {
+      "id": "win-basketball-spain-serbia-1",
+      "seconds": 7.76,
+      "bytes": 53374
+    },
+    {
+      "id": "intro-basketball-canada-germany",
+      "seconds": 5.74,
+      "bytes": 44395
+    },
+    {
+      "id": "win-basketball-canada-germany-0",
+      "seconds": 7.71,
+      "bytes": 56083
+    },
+    {
+      "id": "win-basketball-canada-germany-1",
+      "seconds": 7.8,
+      "bytes": 54476
+    },
+    {
+      "id": "intro-tennis-kato-alvarez",
+      "seconds": 5.72,
+      "bytes": 43787
+    },
+    {
+      "id": "win-tennis-kato-alvarez-0",
+      "seconds": 7.67,
+      "bytes": 53366
+    },
+    {
+      "id": "win-tennis-kato-alvarez-1",
+      "seconds": 8.0,
+      "bytes": 55182
+    },
+    {
+      "id": "intro-tennis-marino-reed",
+      "seconds": 5.44,
+      "bytes": 42088
+    },
+    {
+      "id": "win-tennis-marino-reed-0",
+      "seconds": 7.74,
+      "bytes": 53701
+    },
+    {
+      "id": "win-tennis-marino-reed-1",
+      "seconds": 7.59,
+      "bytes": 52931
+    },
+    {
+      "id": "intro-formula-grand-prix",
+      "seconds": 4.91,
+      "bytes": 37006
+    },
+    {
+      "id": "win-formula-grand-prix-0",
+      "seconds": 8.39,
+      "bytes": 58149
+    },
+    {
+      "id": "win-formula-grand-prix-1",
+      "seconds": 8.06,
+      "bytes": 57441
+    },
+    {
+      "id": "win-formula-grand-prix-2",
+      "seconds": 8.6,
+      "bytes": 59058
+    },
+    {
+      "id": "win-formula-grand-prix-3",
+      "seconds": 8.25,
+      "bytes": 59137
+    }
+  ]
+}

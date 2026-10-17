@@ -1,0 +1,194 @@
+/* Mobile reflow keeps controls at their native size, including when a keyboard is open. */
+.lobby-search-collapsed { display: none; }
+.site-mobile-signout { display: none; }
+.roulette-mobile-hint { display: none; }
+@media (max-width: 1023px) {
+  .casino-lobby, .site-shell { -webkit-text-size-adjust: 100%; }
+  :is(.casino-lobby, .site-shell, .lobby-drawer) :is(button, a, input, select) { touch-action: manipulation; }
+  :is(.casino-lobby, .site-shell, .lobby-drawer, [role="dialog"]) :is(input, select, textarea) { font-size: 16px; }
+  .lobby-main { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+  .lobby-header { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+  .lobby-game-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .lobby-game { border-radius: 12px; }
+  .lobby-game-art { border-radius: 11px 11px 0 0; }
+  .lobby-game-caption { min-height: 56px; padding: 7px 43px 7px 10px; }
+  .lobby-game-caption > span { font-size: 13px; line-height: 1.35; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .lobby-save { width: 44px; height: 44px; right: 0; bottom: 5px; border-radius: 10px; }
+  .lobby-save svg { width: 17px; height: 17px; }
+  .lobby-save.is-saved { background: #eaf6f1; }
+  .lobby-game-badge { top: 8px; left: 8px; padding: 4px 5px; font-size: 9px; border-radius: 4px; }
+  .lobby-icon-button, .lobby-header-actions .lobby-icon-button { width: 44px; height: 44px; }
+  .lobby-button, .lobby-provider, .lobby-nav-item.is-highlighted { min-height: 44px; }
+  .lobby-text-button { min-height: 44px; }
+  .lobby-drawer { width: min(360px, calc(100vw - 24px)); max-width: 100%; max-height: 100dvh; overflow-y: auto; padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom)); }
+  .lobby-drawer-title { padding-right: 36px; }
+  .lobby-drawer-links :is(a, button) { min-height: 48px; font-size: 14px; }
+  .lobby-saved-list button { min-width: 44px; min-height: 44px; }
+  .photo-banners-controls > button { width: 44px; height: 44px; }
+  .photo-banners-dots > button { width: 36px; height: 44px; }
+  .photo-banners .photo-banners-play { min-height: 46px; }
+  .photo-banners-thumbnails > button { min-height: 44px; }
+  .site-shell:has(> .mobile-navigation) { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .site-header-actions { min-width: 0; }
+  .site-header-balance { min-width: 0; min-height: 44px; max-width: 155px; }
+  .site-header-balance span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .site-action, .site-avatar, .site-brand { min-height: 44px; }
+  .site-header .site-action-primary { background: var(--site-primary-gradient); color: white; border-color: var(--site-primary); }
+  .site-brand { align-items: center; }
+  .site-shell [role="tablist"] { height: auto; min-height: 54px; }
+  .site-shell [role="tab"] { min-height: 44px; white-space: normal; }
+  .site-shell :is(form button, button[type="submit"], [role="combobox"]) { min-height: 44px; }
+  .site-content { overflow-wrap: anywhere; }
+  .site-content :is(form, form > *, [data-slot="card-content"] > *) { min-width: 0; }
+  .site-footer > div { flex-wrap: wrap; gap: 8px 20px; }
+  .site-footer a { display: inline-flex; align-items: center; min-height: 44px; }
+  .site-content :is([data-testid="list-bets"], [data-testid="list-wallet"], [data-testid="list-kyc"]) > div { flex-wrap: wrap; gap: 12px; }
+  .site-content :is([data-testid="list-bets"], [data-testid="list-wallet"], [data-testid="list-kyc"]) > div > * { min-width: 0; max-width: 100%; }
+  .game-dialog-screen > [role="dialog"] { max-height: calc(100% - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+  .game-dialog-screen > [role="dialog"] > h2 { padding-right: 40px; }
+  .game-dialog-screen > .game-information-drawer { max-height: 100%; }
+  .game-viewport :is([data-testid="input-dice-target"], [data-testid="slider-dice-target"]) { min-height: 44px; }
+  .game-viewport :is(.instant-icon, .instant-text-button, .instant-amount input, .instant-amount button, .instant-segment button) { min-height: 44px; }
+  .game-viewport .instant-icon { min-width: 44px; }
+  .game-viewport [data-testid^="btn-tiny-panel-"] { min-height: 44px; }
+  .game-viewport :is([data-testid="button-round-history"], button[aria-label="Notifications"]) { min-width: 44px; min-height: 44px; }
+  .game-viewport :is(.ic-icon, .ic-arena-heading button, .ic-footer button, .ic-stake input, .ic-options select, .ic-choice-group button) { min-height: 44px; }
+  .game-viewport .ic-icon { width: 44px; height: 44px; min-width: 44px; }
+  .game-viewport .ic-arena-heading { height: auto; min-height: 48px; }
+  .game-viewport .ic-stake > div > button { min-height: 44px !important; min-width: 44px; font-size: 12px !important; }
+  .game-viewport .ic-control-bar label { font-size: 11px; letter-spacing: .6px; }
+  .game-viewport .ic-options select { font-size: 16px; }
+  .game-viewport .ic-choice-group button { font-size: 12px; }
+  .game-viewport .ic-footer { flex-wrap: wrap; }
+  .game-viewport .ic-footer-tools { flex: 1; justify-content: flex-end; flex-wrap: wrap; gap: 4px 10px; }
+  .game-viewport .ic-footer button { font-size: 11px; min-width: 44px; }
+  .game-viewport .ic-stage-status span { font-size: 12px; }
+  .game-viewport .ic-floor button { height: 44px; min-height: 44px; }
+  .game-viewport .ic-tower { max-width: 100%; }
+  .game-viewport :is(.ct-icon-btn, .cr-icon-button, .fa-icon, .od-icon, .rm-back) { width: 44px; min-width: 44px; height: 44px; }
+  .game-viewport :is(.ct-result-strip, .fa-result-strip) { min-width: 0; }
+  .game-viewport :is(.ct-result-strip, .fa-result-strip) > div { min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; padding-block: 4px; }
+  .game-viewport :is(.ct-result-strip, .fa-result-strip) button { min-width: 44px; min-height: 44px; flex-shrink: 0; }
+  .game-viewport :is(.ct-studio-sound, .rm-quiet-btn, .rm-drop, .rm-discard, .rm-declare, .rm-refill, .fa-history-link, .fa-session button) { min-height: 44px; }
+  .game-viewport :is(.fa-chart-tools, .fa-market-filters) button { min-width: 44px; min-height: 44px; }
+  .game-viewport .fa-chart-tools { flex-wrap: wrap; height: auto; }
+  .game-viewport .fa-market-filters { overflow-x: auto; }
+  .game-viewport .rm-header { min-height: 56px; height: auto; }
+  .game-viewport .od-camera-controls { flex-wrap: wrap; }
+  .game-viewport .od-camera-controls :is(button, input), .game-viewport .od-voice-loud { min-height: 44px; }
+  .game-viewport .od-camera-controls button { min-width: 44px; }
+  .game-viewport :is(.hr-header-actions, .hr-camera-controls, .hr-auto-controls) :is(button, select) { min-height: 44px; }
+  .game-viewport .hr-header-actions button { min-width: 44px; }
+  .game-viewport .hr-meeting select { min-height: 44px; }
+  .game-viewport .hr-broadcast > button { min-width: 44px; min-height: 44px; }
+  .game-viewport .lucky7-wallet { min-height: 44px; display: inline-flex; align-items: center; }
+  .game-viewport .od-topbar .od-icon { min-height: 44px; }
+  .game-viewport :is(.vb-back, .vb-icon-btn) { min-width: 44px; min-height: 44px; }
+  .game-viewport .vb-wallet { min-height: 44px; }
+  .game-viewport .vb-page { min-width: 0; width: 100%; }
+  .game-viewport .vb-header { min-width: 0; max-width: 100%; height: auto; min-height: 64px; flex-wrap: wrap; gap: 8px; padding-block: 8px; }
+  .game-viewport .vb-header-actions { min-width: 0; flex: 1; justify-content: flex-end; }
+  .game-viewport [data-testid^="tpl-camera-"] { min-height: 44px; min-width: 44px; }
+  .game-viewport :is(.ct-rebet, .ct-footer button, .ct-bet-hint button) { min-height: 44px; min-width: 44px; }
+  .lottery-connected :is(.player-brand, .player-rules-button, .player-number-pages button, .player-selection-summary button) { min-height: 44px; }
+  .lottery-connected .player-rules-button { min-width: 44px; }
+  .lottery-connected :is(input, select, textarea), .prize-game :is(input, select, textarea) { font-size: 16px; min-height: 44px; }
+  .prize-game :is(.pl-section-heading button, button[aria-label="Coin settings"]) { min-height: 44px; min-width: 44px; }
+  .game-viewport :is(.cr-stake, .cr-history-bar, .cr-controls) :is(button, select, input) { min-height: 44px; }
+}
+@media (max-width: 850px) {
+  .lobby-game-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .site-sidebar { margin-bottom: 20px; }
+  .site-account-nav { scroll-padding-inline: 16px; padding-block: 0 10px; }
+  .site-account-nav a { min-height: 44px; }
+  .site-mobile-signout { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; width: 100%; margin-top: 24px; border: 1px solid #dbe3e8; border-radius: 12px; color: #52606c; background: #f8fafb; }
+}
+@media (max-width: 767px) {
+  .game-viewport .roulette-number-board { min-width: 624px; }
+  .game-viewport .roulette-number-cell { height: 48px; }
+  .game-viewport .roulette-street-cell { height: 44px; }
+  .game-viewport :is(.roulette-zero-cell, .roulette-column-bets) { width: 48px; flex-shrink: 0; }
+  .game-viewport .roulette-outside-row { margin-inline: 48px; }
+  .roulette-mobile-hint { display: block; margin: 0 0 8px; color: #acc3b4; font-size: 12px; }
+  .roulette-board-scroll { scrollbar-width: thin; scrollbar-color: #e2c58366 transparent; scroll-padding-inline: 10px; }
+}
+@media (max-width: 700px) {
+  .lobby-game-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lobby-game-caption { font-size: 12px; }
+}
+@media (max-width: 640px) {
+  .game-viewport .ic-control-bar { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 18px 14px; }
+  .game-viewport .ic-stake input { font-size: 16px; }
+  .game-viewport .ic-header { flex-wrap: wrap; padding-block: 12px; }
+  .game-viewport .ic-brand h1 { font-size: 16px; overflow-wrap: anywhere; }
+  .game-viewport .ic-wallet { max-width: 112px; overflow-wrap: anywhere; }
+  .game-viewport .ic-footer > span { max-width: none; width: 100%; font-size: 10px; }
+  .game-viewport .ic-footer-tools { justify-content: space-between; }
+  .game-viewport :is(.ct-header, .cr-header, .fa-header, .od-header) { min-height: 64px; height: auto; flex-wrap: wrap; padding-block: 8px; }
+  .site-header { gap: 8px; padding-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right)); }
+  .site-header-actions { gap: 6px; flex: 1; justify-content: flex-end; }
+  .site-header-balance { max-width: 100px; }
+  .site-action { min-height: 44px; padding-inline: 12px; border-radius: 10px; }
+  .site-workspace { padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right)); }
+  .site-page-heading h1 { font-size: 28px; }
+  .site-page-heading > p:last-child { font-size: 14px; }
+  .site-shell [data-slot="card"] { border-radius: 14px; }
+  .site-shell label { font-size: 13px; }
+  .wallet-overview { border-radius: 16px; }
+  .wallet-balance-amount { font-size: clamp(28px, 8vw, 36px); overflow-wrap: anywhere; }
+  .wallet-balance-meta { flex-wrap: wrap; }
+  .wallet-panel [data-testid="coin-pack-grid"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wallet-qr { max-width: 100%; }
+  .site-auth-main { gap: 24px; padding: 24px 20px; }
+  .site-auth-form { order: -1; width: 100%; }
+  .site-auth-story, .site-auth-story-copy { min-height: 145px; }
+  .site-auth-story h1 { font-size: 30px; }
+  .site-auth-form [data-slot="card-title"] { font-size: 28px; }
+  .photo-banners-thumbnails { display: flex; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 6px; }
+  .photo-banners-thumbnails > button { flex: 0 0 110px; scroll-snap-align: start; }
+  .photo-banners-thumbnails span { display: block; font-size: 10px; }
+  .photo-banners-caption > strong { font-size: 13px; }
+  .photo-banners-dots { bottom: 0; }
+}
+@media (max-width: 540px) {
+  .casino-lobby { --lobby-header-height: 116px; }
+  .lobby-header { height: var(--lobby-header-height); gap: 0 8px; padding-top: 4px; }
+  .lobby-brand-group, .lobby-header-actions { height: 54px; }
+  .lobby-brand-group { gap: 2px; min-width: 0; }
+  .lobby-brand { min-height: 44px; align-items: center; font-size: 23px; gap: 3px; }
+  .lobby-brand span { font-size: 15px; }
+  .lobby-header-actions { gap: 6px; min-width: 0; }
+  .lobby-header-actions .lobby-search-toggle { display: none; }
+  .lobby-balance { display: flex; min-height: 44px; max-width: 94px; min-width: 0; font-size: 12px; }
+  .lobby-balance span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lobby-deposit { width: 44px; min-height: 44px; border-radius: 12px; }
+  .lobby-primary-nav { height: 54px; gap: 18px; padding: 3px 0 5px; scroll-padding-inline: 12px; }
+  .lobby-nav-item { min-height: 44px; font-size: 13px; flex-shrink: 0; }
+  .lobby-primary-nav > a:first-child { display: none; }
+  .lobby-main { width: calc(100% - 28px); padding-top: 16px; }
+  .lobby-section-heading :is(h1, h2) { font-size: 19px; }
+  .lobby-section-heading { margin-bottom: 8px; }
+  .lobby-search, .lobby-search-collapsed { display: flex; min-height: 48px; border-radius: 12px; margin-bottom: 18px; background: #f5f8f7; }
+  .lobby-search input { min-width: 0; height: 46px; font-size: 16px; }
+  .lobby-search button[hidden] { display: none; }
+  .lobby-section { margin-bottom: 26px; }
+  .lobby-provider { min-height: 46px; border-radius: 10px; }
+  .lobby-footer nav { flex-wrap: wrap; gap: 4px 16px; }
+  .lobby-footer nav a { min-height: 44px; display: inline-flex; align-items: center; }
+}
+@media (max-width: 479px) {
+  .lobby-game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+}
+@media (max-width: 359px) {
+  .lobby-brand { font-size: 21px; }
+  .lobby-brand span { font-size: 13px; }
+  .lobby-balance { max-width: 69px; font-size: 11px; }
+  .site-header-balance { max-width: 92px; }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .lobby-header { position: relative; }
+  .site-header { position: relative; }
+  .lobby-main, .site-shell:has(> .mobile-navigation) { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
+  .site-auth-main { grid-template-columns: minmax(0, 1fr); }
+  .site-auth-story { display: none; }
+}

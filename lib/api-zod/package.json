@@ -1,0 +1,27 @@
+{
+  "name": "@workspace/api-zod",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./wheel20-live": "./src/wheel20-live.ts",
+    "./andar-bahar-live": "./src/andar-bahar-live.ts",
+    "./lucky7-live": "./src/lucky7-live.ts",
+    "./prize-lotto": "./src/prize-lotto.ts",
+    "./roulette-game": "./src/roulette-game.ts",
+    "./game-economics": "./src/game-economics.ts",
+    "./dragon-tiger-one-day": "./src/dragon-tiger-one-day.ts",
+    ".": "./src/index.ts",
+    "./rummy": "./src/rummy.ts",
+    "./rummy-session": "./src/rummy-session.ts",
+    "./horse-racing-game": "./src/horse-racing-game.ts",
+    "./bike-racing-game": "./src/bike-racing-game.ts",
+    "./vegetable-game": "./src/vegetable-game.ts",
+    "./crazy-time-game": "./src/crazy-time-game.ts",
+    "./chicken-road-game": "./src/chicken-road-game.ts",
+    "./instant-collection": "./src/instant-collection.ts"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  }
+}

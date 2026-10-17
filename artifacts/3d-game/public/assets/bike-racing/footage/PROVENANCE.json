@@ -1,0 +1,16 @@
+{
+  "asset": "superbike-race.mp4",
+  "kind": "AI-generated cinematic race footage",
+  "provider": "Higgsfield",
+  "model": "minimax_h3_max",
+  "jobId": "f5449419-d3e9-4bf1-a8e8-8ca01c634c9c",
+  "sourceURL": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261002_223746_f5449419-d3e9-4bf1-a8e8-8ca01c634c9c.mp4",
+  "generatedAt": "2026-10-02T22:37:46Z",
+  "durationSeconds": 10.144,
+  "width": 1344,
+  "height": 768,
+  "costCredits": 25,
+  "prompt": "A continuous photorealistic sports broadcast shot, 10 seconds, wide 16:9, dry sunny Grand Prix motorcycle circuit. SIX modern BMW M1000RR-style superbikes racing tightly together, full black carbon-fibre fairings with vivid sky-blue/cyan lower panels and red racing stripes, dark windscreens with subtle outline number 60, bright headlights, big slick tyres, drilled brake rotors. Adult riders in black leather racing suits with red accents, black/red full-face helmets with black visors, armored gloves and boots, tucked over their tanks. Every vehicle and rider is filmed as natural moving physical footage. Low front-left three-quarter tracking camera travelling alongside the six-bike pack. From the first frame the motorcycles are already racing at speed. Clearly visible wheels rotate continuously, brake discs rotate and spokes blur naturally; tyre contact sticks to the rapidly moving asphalt, suspension compresses over road undulations; riders flex elbows and adjust their body weight as all bikes gently lean through a long sweeping bend and straighten. Natural speed, no slow motion, no freeze frames. Closest lead bike stays clearly framed with both wheels visible; the five other riders race slightly behind, separated with believable depth, no collisions or merges. White guardrails, mesh safety fence, green trees and blue sky pass in natural parallax with subtle background motion blur. Bright realistic midday daylight and coherent moving shadows, detailed black leather and carbon surfaces. Maintain the same viewing angle, camera distance, overall six-rider pack formation and sustained speed at the beginning and end so this is usable as a smooth looping racing shot. No finish stripe, no claimed winner, no captions, no logos added, no user interface, no HUD, no text overlays, no borders, no watermarks. NOT a still image panning or sliding across a backdrop; actual rotating wheels, articulating riders and continuous physical cornering movement. No cartoon, no low-poly rendering, no floating or skating bikes, no deformed bikes or extra limbs.",
+  "imageReferenceProvided": false,
+  "notes": "Text-to-video inspired by the user-supplied bike image, not footage from the linked YouTube video or an official BMW asset. Repeats as an illustrative broadcast background. It does not depict the independently drawn official winning entry. Playback is muted; existing optional game engine effects remain."
+}

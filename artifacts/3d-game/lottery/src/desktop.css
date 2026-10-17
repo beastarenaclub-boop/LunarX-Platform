@@ -1,0 +1,993 @@
+.player-checkout {
+  padding: 0 20px;
+}
+.slip-checkout {
+  padding: 0 19px 5px;
+}
+
+/* A desktop work area with a visible checkout and scrollable long selections.
+   Smaller windows keep the normal document flow, including browser zoom. */
+@media screen and (min-width: 1100px) and (min-height: 640px) {
+  .player-shell:has(.player-main-game),
+  .role-shop:has(.shop-terminal) {
+    height: 100dvh;
+    min-height: 0;
+  }
+  .player-shell:has(.player-main-game) .player-header {
+    flex: none;
+  }
+  .player-shell:has(.player-main-game) .player-header-inner {
+    max-width: none;
+    min-height: 46px;
+    padding: 0 14px;
+  }
+  .player-shell:has(.player-main-game) .player-brand {
+    font-size: 18px;
+  }
+  .player-shell:has(.player-main-game) .player-brand-icon {
+    width: 29px;
+    height: 29px;
+  }
+  .player-shell:has(.player-main-game)
+    :is(.player-wallet, .player-account-button) {
+    min-height: 32px;
+  }
+  .player-main.player-main-game {
+    max-width: none;
+    min-height: 0;
+    padding: 8px 12px;
+    overflow: auto;
+  }
+  .player-shell:has(.player-main-game) .player-footer {
+    flex: none;
+    max-width: none;
+    min-height: 22px;
+    padding: 2px 14px;
+    margin: 0;
+    font-size: 10px;
+  }
+  .player-shell:has(.player-main-game) .player-footer > button {
+    padding: 0;
+    font-size: 10px;
+  }
+  .player-main-game .player-game {
+    display: grid;
+    height: 100%;
+    min-height: 548px;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: 32px 78px 30px 252px minmax(178px, 1fr);
+    gap: 6px 10px;
+  }
+  .player-game > .player-greeting {
+    grid-column: 1 / 5;
+    grid-row: 1;
+    margin: 0;
+  }
+  .player-game .player-greeting h1 {
+    font-size: 18px;
+  }
+  .player-game .player-greeting p {
+    display: none;
+  }
+  .player-game .player-rules-button {
+    font-size: 11px;
+    padding: 0;
+  }
+  .player-game > .easy-draw-bar {
+    grid-column: 5 / -1;
+    grid-row: 1;
+    margin: 0;
+    padding: 4px 10px;
+    font-size: 11px;
+    gap: 12px;
+  }
+  .player-game .easy-draw-bar > b {
+    padding: 3px 7px;
+    font-size: 11px;
+  }
+  .player-game > .player-home-results {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 0;
+    padding: 6px 10px;
+    display: grid;
+    grid-template-columns: 165px minmax(0, 1fr) 148px;
+    align-items: center;
+    gap: 12px;
+  }
+  .player-home-results-heading {
+    display: block;
+  }
+  .player-home-results-heading h2 {
+    font-size: 13px;
+  }
+  .player-home-results-heading time {
+    font-size: 10px;
+  }
+  .player-results-link {
+    min-height: 22px;
+    font-size: 10px;
+  }
+  .player-home-results-toolbar {
+    grid-column: 3;
+    grid-row: 1;
+    margin: 0;
+    gap: 4px;
+  }
+  .player-home-results-toolbar > span {
+    font-size: 10px;
+  }
+  .player-home-results > [aria-live] {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+  .player-result-games button {
+    min-height: 28px;
+    min-width: 40px;
+    padding: 4px 8px;
+  }
+  .player-home-results-grid {
+    gap: 5px;
+  }
+  .player-home-results-grid > [data-series] {
+    padding: 5px 2px;
+  }
+  .player-home-results-grid dt {
+    font-size: 10px;
+  }
+  .player-home-results-grid dd {
+    font-size: 22px;
+    margin-top: 1px;
+  }
+  .player-home-results-grid dd.symbol-result {
+    font-size: 10px;
+    min-height: 28.6px;
+  }
+  .player-game > .easy-options {
+    grid-column: 1 / 10;
+    grid-row: 3;
+    margin: 0;
+    position: relative;
+  }
+  .player-game .easy-options summary {
+    padding: 6px 10px;
+    height: 28px;
+  }
+  .player-game .easy-options summary > span {
+    min-width: 0;
+    flex-wrap: nowrap;
+  }
+  .player-game .easy-options summary strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+  }
+  .player-game .easy-options summary small {
+    white-space: nowrap;
+    font-size: 11px;
+  }
+  .player-game .easy-options[open] {
+    z-index: 5;
+  }
+  .player-game .easy-options-body {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 0 0 7px 7px;
+    background: #fff;
+    box-shadow: 0 8px 18px #20392d20;
+  }
+  .player-game .easy-options .player-game-modes {
+    margin-bottom: 10px;
+  }
+  .player-game > .nice-ticket-picker {
+    grid-column: 1 / 10;
+    grid-row: 4;
+  }
+  .player-easy .player-game-layout {
+    display: contents;
+  }
+  .player-game .player-right-rail {
+    grid-column: 10 / -1;
+    grid-row: 3 / 6;
+    min-height: 0;
+  }
+  .player-easy .player-betslip {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    padding-top: 10px;
+  }
+  .player-easy .player-betslip > .easy-step-title {
+    padding: 0 12px 8px;
+    flex: none;
+  }
+  .player-easy .player-slip-body {
+    padding: 4px 12px 0;
+    min-height: 0;
+    flex: 1;
+    overflow: auto;
+  }
+  .player-checkout {
+    padding: 0 12px;
+    flex: none;
+    background: #fff;
+  }
+  .player-easy .easy-step-title h2 {
+    font-size: 13px;
+  }
+  .player-easy .easy-step-title > span {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+  .player-easy .easy-amount-label {
+    font-size: 11px;
+  }
+  .player-easy .player-chips {
+    margin: 10px 0;
+  }
+  .player-easy .player-chip {
+    min-height: 32px;
+    font-size: 12px;
+  }
+  .player-easy .player-custom-quantity label {
+    font-size: 11px;
+  }
+  .player-easy .player-custom-quantity label small {
+    font-size: 10px;
+  }
+  .player-game .series-price-breakdown {
+    margin-top: 12px;
+    gap: 8px;
+    font-size: 11px;
+  }
+  .player-game .easy-bet-math {
+    margin-top: 8px;
+    padding-top: 8px;
+    font-size: 11px;
+  }
+  .player-easy .player-total {
+    margin-top: 8px;
+    padding: 8px 10px;
+  }
+  .player-easy .player-total > span {
+    font-size: 12px;
+  }
+  .player-easy .player-total > strong {
+    font-size: 24px;
+  }
+  .player-easy .player-buy {
+    min-height: 38px;
+    margin-top: 8px;
+    font-size: 13px;
+  }
+  .player-easy .player-slip-note {
+    margin: 6px 0 8px;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .player-game .player-error {
+    margin-top: 5px;
+    font-size: 11px;
+  }
+  .player-easy .player-numbers-panel {
+    grid-column: 1 / 10;
+    grid-row: 5;
+    padding: 8px 10px;
+    min-height: 0;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr) 290px;
+    grid-template-rows: 30px 30px minmax(66px, 1fr) 30px;
+    gap: 6px 10px;
+    align-items: center;
+  }
+  .player-numbers-panel > .easy-step-title {
+    grid-column: 1;
+    grid-row: 1;
+    gap: 6px;
+  }
+  .player-numbers-panel .easy-step-title > small {
+    font-size: 10px;
+  }
+  .player-numbers-panel .easy-number-entry {
+    grid-column: 2 / -1;
+    grid-row: 1;
+    margin: 0;
+  }
+  .player-numbers-panel:has(.easy-grid-label select) .easy-number-entry {
+    grid-column: 2;
+  }
+  .player-numbers-panel .easy-number-entry > input {
+    min-height: 30px;
+    padding: 5px 9px;
+    font-size: 12px;
+  }
+  .player-numbers-panel .easy-number-entry .btn {
+    min-height: 30px;
+    padding: 4px 9px;
+    font-size: 11px;
+  }
+  .player-numbers-panel .easy-grid-label {
+    grid-column: 3;
+    grid-row: 1;
+    margin: 0;
+    pointer-events: none;
+  }
+  .player-numbers-panel .easy-grid-label > span {
+    display: none;
+  }
+  .player-numbers-panel .easy-grid-label select {
+    width: 100%;
+    min-height: 30px;
+    padding: 4px 8px;
+    pointer-events: auto;
+  }
+  .player-numbers-panel .easy-parity-selection {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    margin: 0;
+  }
+  .player-numbers-panel .easy-parity-selection > div:first-child {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+  }
+  .player-numbers-panel .easy-parity-selection small {
+    font-size: 10px;
+  }
+  .player-numbers-panel .easy-parity-buttons > button {
+    min-height: 28px;
+    min-width: 44px;
+    padding: 4px 8px;
+  }
+  .player-easy .player-number-pages {
+    grid-column: 3;
+    grid-row: 2;
+    margin: 0;
+    gap: 4px;
+  }
+  .player-easy .player-number-pages > button {
+    min-height: 28px;
+    padding: 4px;
+    font-size: 11px;
+  }
+  .player-easy .player-number-grid {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    align-self: stretch;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 5px;
+    margin: 0;
+  }
+  .player-easy .player-number-grid > button {
+    min-height: 26px;
+    padding: 3px;
+    font-size: 14px;
+  }
+  .player-easy .player-symbol-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-row: 2 / 4;
+  }
+  .player-easy .player-symbol-grid > button {
+    min-height: 44px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .player-game .easy-picks {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 3px 0 0;
+    min-width: 0;
+  }
+  .player-game .easy-picks > div:first-child {
+    flex: none;
+    gap: 12px;
+    font-size: 11px;
+  }
+  .player-game .easy-picks > p {
+    margin: 0;
+    font-size: 11px;
+  }
+  .player-game .easy-picks .player-picked-numbers {
+    flex-wrap: nowrap;
+    padding: 0;
+    overflow: auto;
+    gap: 4px;
+  }
+  .player-game .player-picked-numbers > button {
+    flex: none;
+    min-height: 25px;
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  .player-numbers-panel > .player-error {
+    grid-column: 1 / -1;
+    grid-row: 5;
+  }
+  .player-numbers-panel:has(> .player-error) {
+    grid-template-rows: 30px 30px minmax(66px, 1fr) 30px 20px;
+  }
+
+  /* Shared compact paper tickets remain two rows of five on a monitor. */
+  :is(.player-main-game, .shop-terminal) .nice-ticket-picker {
+    min-height: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-picker-heading {
+    margin-bottom: 3px;
+    gap: 10px;
+    flex: none;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-picker-heading > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-picker-heading h2 {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-picker-heading p {
+    font-size: 10px;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-picker-heading > label {
+    font-size: 10px;
+    flex: none;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-scroll {
+    padding: 4px 3px;
+    min-height: 0;
+    flex: 1;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 7px 10px;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-paper-ticket[data-series] {
+    padding: 7px 10px 0;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-paper-ticket .nice-ticket-top {
+    font-size: 7px;
+    letter-spacing: 0.25px;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-check {
+    width: 13px;
+    height: 13px;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-paper-ticket .nice-ticket-name {
+    font-size: 23px;
+    margin: 3px 0 2px;
+    line-height: 1;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-paper-ticket .nice-ticket-draw {
+    font-size: 9px;
+    padding-bottom: 3px;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-serial {
+    font-size: 7px;
+    padding-bottom: 4px;
+    letter-spacing: 1px;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-paper-ticket .nice-ticket-stub {
+    min-height: 27px;
+    padding: 3px 5px;
+    margin: 0 -5px;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-stamp {
+    font-size: 7px;
+    letter-spacing: 0.2px;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-paper-ticket .nice-ticket-price {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 3px;
+    font-size: 16px;
+  }
+  :is(.player-main-game, .shop-terminal)
+    .nice-paper-ticket
+    .nice-ticket-price
+    small {
+    font-size: 7px;
+  }
+  :is(.player-main-game, .shop-terminal)
+    .nice-paper-ticket
+    .nice-ticket-engraving {
+    height: calc(100% - 27px);
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-thread {
+    bottom: 33px;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-paper-ticket::before,
+  :is(.player-main-game, .shop-terminal) .nice-paper-ticket::after {
+    bottom: 21px;
+  }
+  :is(.player-main-game, .shop-terminal)
+    :is(.nice-ticket-hint, .nice-ticket-counter-note) {
+    display: none;
+  }
+  :is(.player-main-game, .shop-terminal) .nice-ticket-multiple-note {
+    display: none;
+  }
+
+  /* Shop counter uses the same desktop grid, with its full 00–99 keypad. */
+  .role-shop:has(.shop-terminal) .sidebar {
+    width: 176px;
+    padding: 20px 12px 12px;
+  }
+  .role-shop:has(.shop-terminal) .sidebar .brand {
+    font-size: 18px;
+  }
+  .role-shop:has(.shop-terminal) .sidebar .workspace-selector {
+    margin: 18px 0;
+    padding: 8px;
+  }
+  .role-shop:has(.shop-terminal) .sidebar nav button {
+    padding: 10px 8px;
+    gap: 8px;
+    font-size: 11px;
+  }
+  .role-shop:has(.shop-terminal) .side-card {
+    display: none;
+  }
+  .role-shop:has(.shop-terminal) .main-shell {
+    margin-left: 176px;
+    min-height: 0;
+  }
+  .role-shop:has(.shop-terminal) .topbar {
+    height: 44px;
+    padding: 0 14px;
+    flex: none;
+  }
+  .role-shop:has(.shop-terminal) .app-footer {
+    min-height: 22px;
+    padding: 2px 14px;
+    flex: none;
+  }
+  .role-shop .main-shell main.shop-terminal {
+    max-width: none;
+    min-height: 0;
+    overflow: auto;
+    padding: 8px 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 266px;
+    grid-template-rows: 36px 62px 30px 252px minmax(200px, 1fr) 22px;
+    gap: 6px 10px;
+  }
+  .shop-terminal > .page-heading {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    gap: 12px;
+  }
+  .shop-terminal .page-heading :is(.eyebrow, p) {
+    display: none;
+  }
+  .shop-terminal .page-heading h1 {
+    font-size: 18px;
+    margin: 0;
+  }
+  .shop-terminal .balance-card {
+    padding: 3px 8px;
+    gap: 6px;
+  }
+  .shop-terminal .balance-card .balance-icon {
+    display: none;
+  }
+  .shop-terminal .balance-card strong {
+    font-size: 15px;
+  }
+  .shop-terminal .balance-card small {
+    font-size: 8px;
+  }
+  .shop-terminal > .draw-banner {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin: 0;
+  }
+  .shop-terminal .draw-banner-title,
+  .shop-terminal .banner-lines {
+    display: none;
+  }
+  .shop-terminal .draw-countdown {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2px 8px;
+    width: 100%;
+    padding: 0;
+    border: 0;
+  }
+  .shop-terminal .draw-countdown > div {
+    font-size: 8px;
+  }
+  .shop-terminal .draw-countdown > strong {
+    font-size: 18px;
+    margin: 0;
+    line-height: 1;
+  }
+  .shop-terminal .draw-countdown > small {
+    font-size: 8px;
+    width: 100%;
+    text-align: right;
+  }
+  .shop-terminal > .results-ribbon {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-width: 0;
+    margin: 0;
+    padding: 5px 8px;
+    gap: 10px;
+  }
+  .shop-terminal .results-ribbon-label {
+    min-width: 104px;
+    font-size: 10px;
+    gap: 6px;
+  }
+  .shop-terminal .results-ribbon-grid {
+    min-width: 0;
+    gap: 5px;
+  }
+  .shop-terminal .results-ribbon-grid > [data-series] {
+    padding: 4px 2px;
+  }
+  .shop-terminal .results-ribbon-grid span {
+    font-size: 9px;
+  }
+  .shop-terminal .results-ribbon-grid strong {
+    font-size: 19px;
+  }
+  .shop-terminal > .shop-ticket-selection {
+    display: contents;
+  }
+  .shop-terminal .shop-ticket-selection > .game-toolbar {
+    grid-column: 1;
+    grid-row: 3;
+    margin: 0;
+    padding: 0 8px;
+  }
+  .shop-terminal .game-tabs {
+    padding: 2px;
+  }
+  .shop-terminal .game-tabs button {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+  .shop-terminal .shop-ticket-selection > .nice-ticket-picker {
+    grid-column: 1;
+    grid-row: 4;
+  }
+  .shop-terminal .terminal-layout {
+    display: contents;
+  }
+  .shop-terminal .number-workspace {
+    grid-column: 1;
+    grid-row: 5;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .role-shop .shop-terminal .number-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+  .shop-terminal .number-main {
+    padding: 4px 8px;
+    min-width: 0;
+    min-height: 0;
+    width: 100%;
+    overflow: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 24px auto minmax(160px, 1fr) 22px;
+    gap: 3px 8px;
+  }
+  .shop-terminal .number-section-head {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+  }
+  .shop-terminal .number-filters {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+  }
+  .shop-terminal .segmented button {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+  .shop-terminal .quick-actions button {
+    font-size: 10px;
+  }
+  .shop-terminal .hundreds-selector {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 0;
+    gap: 3px;
+  }
+  .shop-terminal .hundreds-selector button {
+    padding: 4px;
+  }
+  .shop-terminal .number-grid-wrap {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    min-height: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .shop-terminal .column-picks {
+    flex: none;
+    gap: 3px;
+    margin-bottom: 3px;
+  }
+  .shop-terminal .column-picks > button {
+    padding: 1px 0;
+  }
+  .shop-terminal .number-grid {
+    flex: 1;
+    display: grid;
+    grid-template-rows: repeat(10, minmax(14px, 1fr));
+    gap: 3px;
+    min-height: 0;
+  }
+  .shop-terminal .number-grid-row {
+    gap: 3px;
+    min-height: 0;
+  }
+  .shop-terminal .number-cell {
+    height: 100%;
+    min-height: 14px;
+    font-size: 12px;
+    padding: 0;
+  }
+  .shop-terminal .grid-footer {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    padding: 0;
+    margin: 0;
+  }
+  .shop-terminal .terminal-note {
+    display: none;
+  }
+  .shop-terminal .symbol-grid {
+    grid-column: 1 / -1;
+    grid-row: 2 / 4;
+    padding: 0;
+    gap: 6px;
+  }
+  .shop-terminal .symbol-grid > button {
+    min-height: 44px;
+  }
+  .shop-terminal .ticket-slip {
+    grid-column: 2;
+    grid-row: 3 / 6;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .shop-terminal .slip-heading {
+    padding: 9px 12px;
+    flex: none;
+  }
+  .shop-terminal .slip-content {
+    padding: 8px 12px 0;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  .shop-terminal .draw-select-label select {
+    min-height: 30px;
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+  .shop-terminal .slip-section-title {
+    margin-top: 8px;
+    font-size: 9px;
+  }
+  .shop-terminal .slip-empty {
+    min-height: 64px;
+    padding: 8px 0;
+  }
+  .shop-terminal .mini-ticket {
+    display: none;
+  }
+  .shop-terminal .slip-empty strong {
+    font-size: 11px;
+  }
+  .shop-terminal .slip-empty p {
+    font-size: 10px;
+    line-height: 1.3;
+  }
+  .shop-terminal .slip-series {
+    margin: 6px 0;
+  }
+  .shop-terminal .slip-series > span {
+    font-size: 9px;
+  }
+  .shop-terminal .selected-numbers {
+    min-height: 26px;
+    max-height: 60px;
+    margin-bottom: 8px;
+  }
+  .shop-terminal .quantity-section {
+    padding: 8px 0;
+  }
+  .shop-terminal .quantity-control {
+    margin: 6px 0;
+    height: 30px;
+  }
+  .shop-terminal .quantity-presets button {
+    font-size: 11px;
+    padding: 4px;
+  }
+  .shop-terminal .customer-label {
+    margin-top: 8px;
+    font-size: 10px;
+  }
+  .shop-terminal .customer-label input {
+    min-height: 28px;
+    margin-top: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  .shop-terminal .slip-calculations {
+    margin-top: 9px;
+    gap: 5px;
+  }
+  .shop-terminal .slip-calculations > div,
+  .shop-terminal .slip-calculations strong {
+    font-size: 10px;
+  }
+  .shop-terminal .slip-checkout {
+    padding: 0 12px;
+    flex: none;
+    background: #fff;
+  }
+  .shop-terminal .slip-total {
+    margin: 8px 0;
+    padding-top: 7px;
+  }
+  .shop-terminal .slip-total strong {
+    font-size: 23px;
+  }
+  .shop-terminal .sale-button {
+    min-height: 36px;
+    font-size: 12px;
+  }
+  .shop-terminal .reset-ticket {
+    padding: 6px 0;
+    font-size: 10px;
+  }
+  .shop-terminal :is(.slip-perforation, .slip-bottom) {
+    display: none;
+  }
+  .shop-terminal > .terminal-bottom {
+    grid-column: 1 / -1;
+    grid-row: 6;
+    padding: 0;
+    font-size: 10px;
+  }
+  .shop-terminal .terminal-bottom button {
+    font-size: 10px;
+  }
+
+  @media (max-height: 800px) {
+    .player-main-game .player-game {
+      grid-template-rows: 32px 70px 28px 230px minmax(150px, 1fr);
+    }
+    .player-easy .player-numbers-panel {
+      grid-template-rows: 28px 28px minmax(58px, 1fr) 27px;
+      gap: 4px 8px;
+      padding: 5px 8px;
+    }
+    .player-easy .player-number-grid > button {
+      min-height: 20px;
+    }
+    .role-shop .main-shell main.shop-terminal {
+      grid-template-rows: 34px 56px 28px 180px minmax(198px, 1fr) 22px;
+    }
+    .shop-terminal .nice-ticket-serial,
+    .shop-terminal .nice-paper-ticket .nice-ticket-draw {
+      display: none;
+    }
+    .player-main-game .nice-paper-ticket[data-series] {
+      display: grid;
+      height: 92px;
+      grid-template-rows: 12px 23px 11px 9px 26px;
+      padding: 5px 8px 0;
+      gap: 1px;
+    }
+    .player-main-game .nice-paper-ticket .nice-ticket-name {
+      margin: 0;
+      font-size: 22px;
+    }
+    .player-main-game .nice-paper-ticket .nice-ticket-draw {
+      padding: 0;
+      line-height: 11px;
+    }
+    .player-main-game .nice-ticket-serial {
+      padding: 0;
+      line-height: 9px;
+    }
+    .player-main-game .nice-paper-ticket .nice-ticket-stub {
+      min-height: 26px;
+      padding-block: 2px;
+    }
+    .shop-terminal .nice-paper-ticket[data-series] {
+      display: grid;
+      height: 68px;
+      grid-template-rows: 10px 22px 24px;
+      padding: 4px 8px 0;
+      gap: 2px;
+    }
+    .shop-terminal .nice-paper-ticket .nice-ticket-name {
+      margin: 0;
+      font-size: 21px;
+    }
+    .shop-terminal .nice-ticket-check {
+      width: 11px;
+      height: 11px;
+    }
+    .shop-terminal .nice-paper-ticket .nice-ticket-stub {
+      min-height: 24px;
+      padding: 2px 4px;
+    }
+    .shop-terminal .nice-paper-ticket .nice-ticket-price {
+      font-size: 15px;
+    }
+    .shop-terminal .nice-ticket-stamp {
+      white-space: nowrap;
+      font-size: 6px;
+    }
+    .shop-terminal .number-grid,
+    .shop-terminal .number-grid-row {
+      gap: 2px;
+    }
+  }
+  @media (min-height: 900px) {
+    .player-easy .player-number-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+}
+
+/* Keep the complete series name readable on the existing paper cards. */
+.nice-paper-ticket[data-series] { container-type: inline-size; }
+:is(.player-main-game, .shop-terminal) .nice-paper-ticket[data-series] .nice-ticket-name {
+  font-size: clamp(12px, 8cqi, 22px);
+  letter-spacing: 0;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.player-home-results-grid dt {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 9px;
+  line-height: 1.1;
+}
+.shop-terminal .results-ribbon-grid span { white-space: normal; font-size: 9px; }

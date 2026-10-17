@@ -1,0 +1,213 @@
+/* JetX: recording-matched continuous scene. All rules are scoped to this game. */
+.game-viewport[data-game-viewport="jetx"] { --game-screen-width: 1800px; background: #000; }
+.game-viewport .jetx-page {
+  --primary: 55 100% 59%; --primary-foreground: 230 20% 10%;
+  --accent: 55 100% 59%; --accent-foreground: 230 20% 10%;
+  --muted-foreground: 230 8% 68%; --border: 230 10% 28%; --card-border: 230 10% 28%;
+  --input: 230 10% 28%; --ring: 55 100% 59%;
+  min-height: var(--fit-height, 100dvh); color: #fff; background: #000; font-family: Arial, Helvetica, sans-serif;
+}
+.jetx-layout { display: grid; grid-template-columns: minmax(0, 1fr) clamp(285px, 23.5vw, 372px); min-height: max(600px, var(--fit-height, 100dvh)); }
+.jetx-stage { position: relative; min-width: 0; min-height: max(600px, var(--fit-height, 100dvh)); overflow: hidden; isolation: isolate; }
+.jetx-scene, .jetx-backdrop { position: absolute; inset: 0; overflow: hidden; }
+.jetx-scene { container-type: inline-size; background: #1a182a; }
+.jetx-background { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; transition: opacity 2.5s ease; user-select: none; pointer-events: none; }
+.jetx-airport-background { transition: opacity 2.5s, transform 4s; }
+.jetx-scene[data-phase="flying"] .jetx-airport-background { transform: translateY(15%); }
+.jetx-cloud-background { transform: scale(1.06); }
+.jetx-scene[data-phase="flying"] .jetx-cloud-background { animation: jetx-cloud-drift 50s linear infinite alternate; }
+.jetx-background-shade { position: absolute; inset: 0; background: linear-gradient(#080714c9, #17122610 18%, transparent 47%, #100e1810 65%, #020205b8 83%, #000 100%); }
+.game-viewport .jetx-page .crash-header { position: absolute; top: 0; left: 0; right: 0; z-index: 5; min-height: 65px; padding: 14px 25px 8px; background: transparent; border: 0; backdrop-filter: none; gap: 8px; }
+.jetx-page .crash-header > div:first-child { gap: 0; }
+.jetx-page .crash-header > div:first-child > div:first-of-type,
+.jetx-page .crash-header > div:first-child > div:last-child > div:last-child,
+.jetx-page .crash-header [data-testid="badge-online-players"],
+.jetx-page .crash-header button[aria-label="Stats"],
+.jetx-page .crash-header button[aria-label="Provably Fair"] { display: none; }
+.jetx-back { position: absolute; inset: 12px auto auto 16px; width: 96px; height: 46px; z-index: 1; opacity: 0; }
+.jetx-back:focus-visible { opacity: 1; background: #222; display: grid; place-items: center; }
+.jetx-wordmark { font-size: 31px; font-weight: 900; font-style: italic; letter-spacing: -2px; line-height: 1; }
+.jetx-wordmark span { color: #f9e827 !important; }
+.game-viewport .jetx-page .crash-header [data-testid="btn-balance"] { height: 30px; min-height: 30px; padding: 0 10px; gap: 5px; border-radius: 18px; background: #ffffff16; border: 1px solid #ffffff17; }
+.jetx-page .crash-header [data-testid="btn-balance"] span { font-family: inherit; font-size: 14px; }
+.jetx-page .crash-header [data-testid="btn-balance"] svg { width: 14px; height: 14px; color: #d0cfd5; }
+.game-viewport .jetx-page .crash-header button[aria-label="Settings"],
+.game-viewport .jetx-page .crash-header [data-testid="btn-game-rules"] { width: 32px; height: 32px; min-height: 32px; min-width: 32px; border: 1px solid #ffffff12; border-radius: 50%; background: #ffffff0e; color: #d5d3dd; }
+.jetx-page .crash-history { position: absolute; top: 66px; left: 24px; right: 24px; z-index: 4; min-height: 28px; padding: 0; gap: 7px; background: transparent; border: 0; }
+.jetx-history-label { display: none; }
+.jetx-page .crash-history > div { gap: 5px; scrollbar-width: none; mask-image: linear-gradient(to right, #000 94%, transparent); }
+.jetx-page .crash-history [data-multiplier-tier] { min-width: 49px; padding: 3px 7px; text-align: center; border: 1px solid #ffffff08; border-radius: 20px; font-size: 12px; font-weight: 500; font-family: inherit; }
+.jetx-page [data-multiplier-tier="low"] { color: #ddd9e4; background: #ffffff0e; }
+.jetx-page [data-multiplier-tier="medium"] { color: #13ed42; background: #5fc78508; }
+.jetx-page [data-multiplier-tier="high"] { color: #ffed20; background: #dcc73610; }
+.jetx-page .crash-history [data-testid="button-round-history"] { width: 27px; height: 27px; border-radius: 50%; background: #ffffff0c; color: #dad6e2; }
+.jetx-flight-center { position: absolute; top: 57%; left: 50%; width: 330px; max-width: 92%; transform: translateX(-50%); text-align: center; z-index: 3; }
+.jetx-aircraft { position: absolute; width: clamp(150px, 20cqw, 235px); left: 50%; top: -64px; transform: translateX(-50%) rotate(-12deg); transition: opacity .2s, translate .5s; }
+.jetx-aircraft img { display: block; position: relative; width: 100%; z-index: 1; }
+.jetx-exhaust { position: absolute; top: 51%; right: 87%; height: 10%; width: 32%; transform: rotate(-2deg); transform-origin: right; border-radius: 100% 0 0 100%; background: linear-gradient(90deg, transparent, #a0caff66 22%, #fc852b 60%, #fff7a6 83%, white); filter: blur(1px); animation: jetx-thrust .15s ease-in-out infinite alternate; }
+.jetx-scene[data-phase="betting"] .jetx-aircraft { transform: translateX(-50%); top: -38px; }
+.jetx-scene[data-phase="betting"] .jetx-exhaust { width: 17%; height: 7%; }
+.jetx-scene[data-phase="flying"] .jetx-aircraft { animation: jetx-cruise 3s ease-in-out infinite; }
+.jetx-scene[data-phase="crashed"] .jetx-aircraft { opacity: 0; translate: 150% -100%; }
+.jetx-readout { position: relative; min-height: 94px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; pointer-events: none; }
+.jetx-multiplier { font-size: clamp(58px, 7cqw, 82px); font-weight: 750; line-height: 1.02; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.jetx-multiplier > span { font-size: .76em; font-style: italic; font-weight: 400; margin-left: 12px; }
+.jetx-countdown { width: 51px; height: 51px; border-radius: 50%; padding: 2px; background: conic-gradient(white var(--jetx-countdown), #ffffff25 0); position: relative; margin-top: -18px; }
+.jetx-countdown > span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: inherit; background: #202032ac; font-size: 26px; font-weight: 700; }
+.jetx-place-bet { font-size: 32px; font-weight: 700; line-height: 1.2; margin-top: 4px; }
+.jetx-bet-count { display: inline-flex; align-items: center; justify-content: center; min-width: 82px; height: 30px; padding: 0 12px; border: 1px solid #ffffff30; border-radius: 22px; background: #ffffff0c; color: #fff; font-size: 14px; font-weight: 600; margin-top: 8px; }
+.jetx-flew-away { font-size: 29px; font-weight: 700; margin-bottom: 4px; }
+.jetx-scene[data-phase="crashed"] .jetx-multiplier { color: #ff608a; font-size: clamp(49px, 6cqw, 72px); }
+.jetx-parachute { position: absolute; width: clamp(40px, 7cqw, 88px); animation: jetx-parachute 12s linear both; pointer-events: none; }
+.jetx-parachute img { width: 100%; display: block; }
+.jetx-parachute span { position: relative; display: block; white-space: nowrap; width: max-content; max-width: 155px; margin: 0 auto -5px; padding: 3px 12px; background: #fff; color: #59aa57; border-radius: 20px; font-size: 14px; font-weight: 700; z-index: 1; }
+.jetx-betting-dock { position: absolute; z-index: 6; left: 50%; bottom: 16px; transform: translateX(-50%); width: min(820px, calc(100% - 44px)); }
+.jetx-dock-message { height: 24px; display: flex; align-items: center; justify-content: center; margin: 0 8px 4px; border-radius: 16px; background: #3c3818; color: #f5e724; font-size: 12px; font-weight: 700; }
+.jetx-dual-bets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 1px solid #3c3a45; border-radius: 25px; background: linear-gradient(#36343f, #1c1b24 28%); overflow: hidden; padding: 15px 0; box-shadow: 0 3px 8px #0004; }
+.jetx-bet-panel { min-width: 0; padding: 0 16px; }
+.jetx-bet-panel + .jetx-bet-panel { border-left: 1px solid #ffffff1c; }
+.jetx-bet-toolbar { display: flex; align-items: center; gap: 5px; height: 22px; margin-bottom: 12px; }
+.jetx-bet-toolbar > label { color: #b8b6bf; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.jetx-bet-toolbar > [role="switch"] { width: 30px; height: 18px; border: 0; background: #5d5b65; flex-shrink: 0; }
+.jetx-bet-toolbar > [role="switch"] > span { height: 16px; width: 16px; background: #b6b5bc; translate: none; transform: translateX(1px); }
+.jetx-bet-toolbar > [role="switch"][data-state="checked"] { background: #a39a20; }
+.jetx-bet-toolbar > [role="switch"][data-state="checked"] > span { transform: translateX(13px); background: #f8e928; }
+.jetx-bet-toolbar .jetx-auto-multiplier { min-width: 0; width: 57px; height: 24px; padding: 0 4px; border: 1px solid #55515f; border-radius: 6px; background: #1d1c25; color: white; text-align: center; font-size: 12px; }
+.jetx-repeat { margin-left: auto; color: #aaa8b4; padding: 2px; display: grid; place-items: center; }
+.jetx-repeat[aria-pressed="true"] { color: #f9e72a; }
+.jetx-bet-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr); gap: 12px; }
+.jetx-stake { min-width: 0; }
+.jetx-stake-input { display: flex; align-items: center; border: 1px solid #514e5a; background: #32303b; border-radius: 22px; height: 32px; overflow: hidden; }
+.jetx-stake-input > button { display: grid; place-items: center; width: 31px; min-width: 31px; height: 30px; color: #bcbac4; }
+.jetx-stake-input input { background: transparent; border: 0; text-align: center; width: 100%; min-width: 0; font-size: 16px; font-weight: 700; padding: 0; color: white; height: 30px; appearance: textfield; }
+.jetx-page input::-webkit-inner-spin-button, .jetx-page input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.jetx-quick-stakes { display: flex; gap: 4px; margin-top: 8px; }
+.jetx-quick-stakes button { flex: 1; min-width: 0; height: 32px; padding: 0 3px; border-radius: 20px; background: #302e39; color: #b9b6c3; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.jetx-quick-stakes button:hover, .jetx-stake-input > button:hover { background: #45414f; color: white; }
+.game-viewport .jetx-page .jetx-bet-action { width: 100%; min-width: 0; min-height: 72px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 1px solid #fff877; border-radius: 16px; background: linear-gradient(#fff452, #f1df0b); color: #100e00; box-shadow: 0 2px 3px #0004; padding: 8px 4px; }
+.jetx-bet-action > strong { font-size: 20px; line-height: 1.1; overflow-wrap: anywhere; max-width: 100%; }
+.jetx-bet-action > span { font-size: 14px; color: #716712; }
+.jetx-bet-action:disabled { cursor: default; }
+.jetx-bet-action[data-state="accepted"] { background: #383641; color: #eee; border-color: #55515e; }
+.jetx-bet-action[data-state="accepted"] > span { color: #b8b4c5; }
+.jetx-bet-action[data-state="cashout"] { background: linear-gradient(#fff663, #f4dc09); }
+.jetx-bet-panel button:disabled:not(.jetx-bet-action) { opacity: .42; cursor: default; }
+.jetx-stop-auto { width: 100%; color: #ffe639; font-size: 11px; padding-top: 8px; }
+.jetx-free-bet { display: flex; align-items: center; gap: 7px; font-size: 11px; margin-top: 9px; color: #e4dfa8; }
+.jetx-mobile-panel-tabs { display: none; }
+.jetx-auto-dialog { background: #24212f; color: #fff; border-color: #4c465d; }
+.jetx-auto-dialog > label { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; }
+.jetx-auto-dialog input { width: 110px; min-width: 0; height: 40px; border: 1px solid #514c60; border-radius: 8px; background: #17151f; padding: 8px; color: white; }
+.jetx-auto-start { min-height: 46px; background: #f7e329; border-radius: 10px; color: #161303; padding: 10px; font-size: 13px; font-weight: 700; }
+.jetx-auto-start:disabled { opacity: .5; }
+.jetx-activity-column { position: relative; min-height: 0; background: #191823; border-left: 1px solid #ffffff13; }
+.jetx-activity { position: absolute; inset: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: radial-gradient(ellipse at 20% 0, #38353f, transparent 35%), #191823; padding: 20px 18px; }
+.jetx-activity-tabs[role="tablist"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #17161f88; border-radius: 24px; padding: 2px; height: 32px; flex-shrink: 0; }
+.jetx-activity-tabs [role="tab"] { font-size: 12px; font-weight: 700; height: 27px; border-radius: 22px; color: #b6b1be; }
+.jetx-activity-tabs [role="tab"][data-state="active"] { border: 1px solid #59565e; background: #35323a; color: white; box-shadow: 0 1px 4px #0008; }
+.jetx-activity-content { flex: 1; min-height: 0; margin: 20px 0 0; }
+.jetx-activity-content[data-state="active"] { display: flex; flex-direction: column; }
+.jetx-players-summary { display: flex; gap: 10px; align-items: center; background: linear-gradient(110deg, #3c3845, #37343e); border-radius: 35px; padding: 11px 17px; margin-bottom: 24px; min-height: 56px; }
+.jetx-players-icon { color: #cfbf71; display: grid; place-items: center; width: 26px; height: 28px; }
+.jetx-players-summary > div:last-child { margin-left: auto; text-align: right; }
+.jetx-players-summary strong { display: block; font-size: 14px; }
+.jetx-players-summary span { display: block; font-size: 12px; color: #bfb9c9; margin-top: 2px; }
+.jetx-player-row { display: grid; grid-template-columns: minmax(0, .95fr) 1fr .65fr 1fr; gap: 5px; align-items: center; padding: 5px 6px; border-radius: 18px; background: #26232e; margin-bottom: 4px; min-height: 29px; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.jetx-player-row > span { min-width: 0; overflow-wrap: anywhere; }
+.jetx-player-row > span:not(:first-child) { text-align: right; }
+.jetx-table-heading { margin-bottom: 8px; padding: 0 4px; background: transparent; color: #a09cae; font-size: 12px; font-weight: 400; }
+.jetx-player-name { display: flex; align-items: center; gap: 4px; }
+.jetx-player-name i { display: grid; place-items: center; flex-shrink: 0; width: 20px; height: 20px; border: 1px solid #ffffff29; border-radius: 50%; color: #fff; font-size: 9px; font-style: normal; }
+.jetx-won { color: #54ef50; }
+.jetx-activity-scroll { min-height: 0; overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: #555160 transparent; }
+.jetx-activity-empty { padding: 36px 14px; text-align: center; color: #8e899d; }
+.jetx-activity-empty svg { display: none; }
+.jetx-activity-empty strong { font-size: 12px; font-weight: 400; }
+.jetx-activity-empty p { font-size: 11px; line-height: 1.6; max-width: 200px; margin: 6px auto 0; }
+.jetx-list-heading { display: flex; justify-content: space-between; gap: 8px; padding: 8px 4px 16px; font-size: 12px; }
+.jetx-list-heading > span { color: #a29aac; font-size: 11px; }
+.jetx-history-row, .jetx-personal-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #ffffff08; font-size: 12px; }
+.jetx-history-row > span { display: flex; gap: 8px; align-items: center; color: #b0aabb; }
+.jetx-history-row > strong { padding: 5px 9px; border-radius: 20px; }
+.jetx-personal-row > div:last-child { text-align: right; }
+.jetx-personal-row strong { display: block; font-size: 12px; }
+.jetx-personal-row span { display: block; color: #aba2b7; font-size: 11px; margin-top: 4px; }
+@keyframes jetx-thrust { to { transform: scaleX(.78); opacity: .7; } }
+@keyframes jetx-cruise { 0%, 100% { transform: translateX(-50%) rotate(-12deg); } 50% { transform: translate(-49%, -4px) rotate(-10deg); } }
+@keyframes jetx-cloud-drift { to { transform: scale(1.14) translate(-2%, 2%); } }
+@keyframes jetx-parachute { 0% { transform: translate(40px, -15px); opacity: 0; } 8%, 75% { opacity: 1; } 100% { transform: translate(-120px, 180px); opacity: 0; } }
+@media (min-width: 1000px) and (max-height: 700px) {
+  .jetx-layout, .jetx-stage { min-height: max(540px, var(--fit-height, 100dvh)); }
+  .jetx-flight-center { top: 51%; }
+  .jetx-betting-dock { bottom: 10px; }
+}
+@media (max-width: 1199px) {
+  .jetx-layout { grid-template-columns: minmax(0, 1fr) 280px; }
+  .jetx-betting-dock { width: calc(100% - 24px); }
+  .jetx-bet-panel { padding-inline: 10px; }
+  .jetx-bet-body { gap: 7px; }
+  .jetx-bet-action > strong { font-size: 17px; }
+  .jetx-bet-toolbar > label { font-size: 10px; }
+  .jetx-quick-stakes button { font-size: 9px; padding: 0 1px; }
+  .jetx-activity { padding: 18px 12px; }
+  .jetx-player-row { font-size: 10px; }
+  .jetx-players-summary { padding-inline: 13px; gap: 6px; }
+  .jetx-players-summary strong { font-size: 12px; }
+}
+@media (max-width: 999px) {
+  .jetx-layout { grid-template-columns: minmax(0, 1fr); }
+  .jetx-stage { min-height: max(610px, var(--fit-height, 100dvh)); }
+  .jetx-activity-column { height: 400px; border-top: 1px solid #ffffff15; border-left: 0; }
+  .jetx-flight-center { top: 54%; }
+  .jetx-activity { padding: 16px 20px; }
+  .jetx-betting-dock { width: min(820px, calc(100% - 30px)); }
+}
+@media (max-width: 699px) {
+  .jetx-stage { min-height: max(610px, var(--fit-height, 100dvh)); }
+  .game-viewport .jetx-page .crash-header { min-height: 62px; padding: 10px 14px; flex-wrap: nowrap; }
+  .jetx-wordmark { font-size: 28px; }
+  .game-viewport .jetx-page .crash-header > div:last-of-type { flex: 1; width: auto; justify-content: flex-end; gap: 5px; }
+  .game-viewport .jetx-page .crash-header [data-testid="btn-balance"] { max-width: 130px; padding-inline: 7px; height: 40px; min-height: 40px; }
+  .jetx-page .crash-header [data-testid="btn-balance"] span { font-size: 12px; }
+  .jetx-page .crash-header [data-testid="btn-balance"] svg { display: none; }
+  .game-viewport .jetx-page .crash-header button[aria-label="Settings"],
+  .game-viewport .jetx-page .crash-header [data-testid="btn-game-rules"] { height: 44px; width: 38px; min-height: 44px; min-width: 38px; }
+  .jetx-page .crash-history { left: 12px; right: 12px; top: 63px; }
+  .jetx-page .crash-history [data-multiplier-tier] { font-size: 11px; min-width: 46px; }
+  .jetx-background { width: 170%; max-width: none; left: -35%; }
+  .jetx-flight-center { top: 47%; }
+  .jetx-aircraft { width: 185px; top: -58px; }
+  .jetx-multiplier { font-size: 64px; }
+  .jetx-place-bet { font-size: 27px; }
+  .jetx-betting-dock { bottom: 14px; width: calc(100% - 22px); }
+  .jetx-dock-message { font-size: 11px; margin-inline: 5px; }
+  .jetx-mobile-panel-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 5px; border-radius: 20px; background: #211e2a; padding: 3px; }
+  .jetx-mobile-panel-tabs button { min-height: 40px; border-radius: 18px; color: #b5aebf; font-size: 12px; }
+  .jetx-mobile-panel-tabs button[aria-selected="true"] { background: #393440; color: white; }
+  .jetx-dual-bets { display: block; padding-block: 12px; border-radius: 21px; }
+  .jetx-dual-bets[data-mobile-panel="0"] > :nth-child(2),
+  .jetx-dual-bets[data-mobile-panel="1"] > :nth-child(1) { display: none; }
+  .jetx-bet-panel, .jetx-bet-panel + .jetx-bet-panel { padding-inline: 12px; border: 0; }
+  .jetx-bet-toolbar { height: 28px; margin-bottom: 8px; gap: 7px; }
+  .jetx-bet-toolbar > label { font-size: 12px; }
+  .jetx-bet-toolbar > [role="switch"] { min-height: 24px; width: 38px; }
+  .jetx-bet-toolbar > [role="switch"] > span { width: 20px; height: 20px; }
+  .jetx-bet-toolbar > [role="switch"][data-state="checked"] > span { transform: translateX(17px); }
+  .jetx-repeat { width: 38px; min-height: 38px; }
+  .jetx-bet-toolbar .jetx-auto-multiplier { height: 30px; width: 56px; }
+  .jetx-bet-body { gap: 9px; }
+  .jetx-stake-input { height: 40px; }
+  .jetx-stake-input > button { height: 40px; width: 32px; min-width: 32px; }
+  .jetx-stake-input input { height: 38px; }
+  .jetx-quick-stakes { gap: 3px; margin-top: 6px; }
+  .jetx-quick-stakes button { height: 38px; font-size: 9px; }
+  .jetx-bet-action > strong { font-size: 19px; }
+  .jetx-bet-action > span { font-size: 13px; }
+  .jetx-parachute { width: 43px; }
+  .jetx-parachute span { font-size: 9px; padding: 3px 6px; }
+  .jetx-activity-tabs[role="tablist"] { height: 44px; }
+  .jetx-activity-tabs [role="tab"] { height: 38px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jetx-page *, .jetx-page *::before, .jetx-page *::after { animation: none !important; transition-duration: .01ms !important; }
+}

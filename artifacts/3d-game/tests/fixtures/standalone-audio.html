@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><title>Standalone audio verification</title></head><body>
+<div id="root"></div><script type="module">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { useStandaloneGameAudio } from '/src/game/useStandaloneGameAudio.ts';
+window.audioEvents = [];
+window.audioLoops = [];
+const start = AudioBufferSourceNode.prototype.start;
+AudioBufferSourceNode.prototype.start = function(...args) {
+  const event = { ended: false };
+  (this.loop ? window.audioLoops : window.audioEvents).push(event);
+  this.addEventListener('ended', () => event.ended = true);
+  return start.apply(this, args);
+};
+function Controls() {
+  const audio = useStandaloneGameAudio('lottery-titli', 'test:standalone-sound');
+  return React.createElement('div', {},
+    React.createElement('button', { id: 'mute', 'aria-pressed': audio.enabled, onClick: audio.toggle }, 'Sound'),
+    React.createElement('button', { id: 'cue', onClick: () => audio.play('win') }, 'Play'));
+}
+createRoot(document.getElementById('root')).render(React.createElement(Controls));
+</script></body></html>

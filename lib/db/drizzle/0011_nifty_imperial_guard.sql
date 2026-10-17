@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "mines_rounds_one_active_per_user_idx" ON "mines_rounds" USING btree ("user_id") WHERE "mines_rounds"."status" = 'active';

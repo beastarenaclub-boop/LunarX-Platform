@@ -1,0 +1,9 @@
+{
+  "asset": "host-poses.png",
+  "generator": "Built-in image_gen",
+  "transparent_background": true,
+  "generated_on": "2026-10-03",
+  "character": "Maya, fictional adult virtual wheel host",
+  "animation": "Two generated poses, cross-faded with a small body movement when the server starts a wheel spin. This is an animated image asset, not live video.",
+  "prompt": "A family television quiz show presenter character sheet on transparent background. Two full-body photographs of the SAME fictional adult woman age 30, with shoulder length dark hair, wearing a professional forest-green long-sleeved pantsuit with gold buttons, cream high-neck blouse, and closed shoes. Friendly confident smile. LEFT half: she stands facing camera, extends her right hand towards the left edge of the image at shoulder height to turn an imaginary upright prize wheel. RIGHT half: same person standing, same camera and scale, her right arm extends towards the left edge at waist height after turning the wheel. Both whole bodies contained in their respective halves with large transparent gap. Equal size, feet aligned, realistic anatomy, warm studio lighting. No actual wheel, no background, no text, no objects. Professional television production sprite asset."
+}

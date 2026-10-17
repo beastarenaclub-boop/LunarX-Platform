@@ -1,0 +1,31 @@
+{
+  "version": "higgsfield-thoroughbred-v1",
+  "provider": "Higgsfield",
+  "mediaProjectId": "4bfdd7d8-e9de-4727-bacc-87ff13a7de59",
+  "reference": {
+    "file": "thoroughbred-reference.png",
+    "model": "gpt_image_2_5",
+    "jobId": "d8adf8f5-1270-4a47-bfb6-3da9e205ed24",
+    "purpose": "Anatomical reference for leaner torso, tucked flank and smaller hooves; not a runtime race frame."
+  },
+  "coatTexture": {
+    "file": "coat-detail-v1.png",
+    "model": "gpt_image_2_5",
+    "jobId": "1ed7001f-940f-4b98-a5e2-89b608654d64",
+    "purpose": "Generated short horse-coat detail used by the live 3D material for diffuse variation and a secondary bump layer."
+  },
+  "horse": {
+    "file": "thoroughbred-v1.glb",
+    "source": "Existing CC0 horse and local racing-form-v2 rig; see ../CREDITS.md.",
+    "preparation": "tools/horse-assets/refine-thoroughbred.py",
+    "changes": "Torso and hoof mesh refinement guided by the generated reference. Existing 23-bone skeleton, skin weights, Idle/Gallop clips and timing preserved.",
+    "validation": "62 frames checked for finite geometry and constant bone lengths.",
+    "notGeneratedMesh": true
+  },
+  "catalogReview": {
+    "projectId": "d17e24e2-29ab-4288-84db-178c15163945",
+    "assetId": "c2a3f3f1-e03d-4f58-a475-7b0d447aff0d",
+    "usedInGame": false,
+    "reason": "Catalog horse is low-poly and has no animation clips; unsuitable for the requested realism."
+  }
+}

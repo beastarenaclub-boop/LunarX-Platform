@@ -1,0 +1,85 @@
+.br-game { background: #09121d; color: #edf5ff; }
+.br-scene canvas[hidden] { display: none; }
+.br-game .hr-scene { aspect-ratio: auto; height: clamp(250px, 38dvh, 440px); }
+.br-game .hr-stage-wrap:not(:fullscreen) { background: #0c1927; }
+/* A canvas has no intrinsic width; do not inherit the horse scene's height-based sizing. */
+.br-game .hr-stage-wrap:not(:fullscreen) > .hr-race-picture,
+.br-game .hr-stage-wrap:not(:fullscreen) > .hr-camera-controls,
+.br-game .hr-stage-wrap:not(:fullscreen) > .br-follow-bikes { width: 100%; }
+.br-game .hr-countdown { inset: 48px 14px auto auto; min-width: 112px; padding: 10px 15px; gap: 4px; border-radius: 9px; border: 1px solid #8cd4f444; background: #071a2be6; text-shadow: none; }
+.br-game .hr-countdown span { font-size: 8px; letter-spacing: 1px; }
+.br-game .hr-countdown strong { font: 800 32px/1 Arial, sans-serif; color: #a4eaff; }
+.br-game .hr-brand-mark { background: linear-gradient(135deg, #2271d9, #3dd5ec); }
+.br-game .hr-betting-dock, .br-game .hr-sidebar section { background: #111e2d; border-color: #334c69; }
+.br-game .hr-meeting select, .br-game .hr-camera-controls { background: #122235; }
+.br-game .hr-camera-controls button[aria-pressed=true] { color: #071b29; background: #68d7f2; }
+.br-game .hr-bet-hint { color: #a2b7cc; }
+.hr-bike-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.hr-bike-grid > button { display: flex; position: relative; align-items: center; gap: 10px; text-align: left; min-height: 67px; padding: 10px; border-radius: 9px; border: 1px solid #38516d; background: linear-gradient(125deg, #162a3f, #102033); transition: border-color .15s, background .15s; }
+.hr-bike-grid > button:not(:disabled):hover { border-color: #8cdeff; background: #1d3954; }
+.hr-bike-grid > button[data-selected=true] { border-color: #6adfff; box-shadow: inset 0 0 0 1px #6adfff; }
+.hr-bike-grid > button[data-winner=true] { border-color: #e6ca68; background: #34341d; }
+.hr-bike-grid > button:disabled { cursor: default; }
+.hr-bike-grid > button > span { min-width: 0; }
+.hr-bike-grid strong { display: block; font-size: 13px; }
+.hr-bike-grid small { display: block; margin-top: 3px; color: #a8d7ee; font-size: 12px; }
+.hr-bike-grid em { font-style: normal; color: #fff; }
+.hr-bike-number { display: grid; place-items: center; width: 35px; height: 37px; border-radius: 7px; color: #091725; font-size: 22px; font-style: italic; flex-shrink: 0; }
+.hr-winning-bike { position: absolute; right: 5px; top: 5px; color: #ffe37c; }
+.br-bike-icon { width: 42px; height: 34px; display: inline-flex; align-items: center; }
+.br-bike-icon img { width: 100%; height: 100%; object-fit: contain; }
+.br-game .hr-scene-loading { background: #122235; }
+.br-game .hr-follow-controls { background: #071a2beb; }
+.br-game .hr-winner-shot { left: auto; right: 14px; top: 48px; bottom: auto; transform: none; min-width: 0; padding: 9px 14px; background: #091b2bed; }
+.br-game .hr-winner-shot strong { font-size: clamp(13px, 1.5vw, 20px); }
+.br-game .hr-stage-wrap:fullscreen .hr-scene { height: min(80dvh, 65vw); }
+@media (min-width: 1024px) and (min-height: 701px) {
+  .br-game .hr-stage-wrap:not(:fullscreen) > .hr-race-picture { width: 100%; }
+  .br-game .hr-stage-wrap:not(:fullscreen) .hr-scene { height: auto; aspect-ratio: 16 / 9; }
+  .br-game .hr-stage-wrap:not(:fullscreen) > .hr-camera-controls { width: 100%; }
+}
+.br-fallback { background: repeating-linear-gradient(#17242b 0 16%, #384649 16% 16.5%); position: absolute; inset: 0; padding: 65px 25px 35px; }
+.br-fallback > small { display: block; margin-bottom: 20px; font-size: 11px; color: #b7c5d2; }
+.br-timing-lane { display: flex; align-items: center; gap: 10px; height: 12%; }
+.br-timing-lane > span { font-size: 11px; width: 80px; }
+.br-timing-lane > div { flex: 1; height: 28px; position: relative; border-bottom: 1px dashed #91a1ad50; }
+.br-timing-lane b { position: absolute; width: 28px; height: 24px; border-radius: 7px 10px 3px 3px; text-align: center; color: #071725; transition: left .1s linear; }
+@media(max-width: 580px) { .hr-bike-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; } .hr-bike-grid > button { min-height: 58px; padding: 7px; gap: 7px; } .hr-bike-grid strong { font-size: 12px; } }
+@media(max-width: 580px) {
+  .br-game .hr-scene { height: auto; aspect-ratio: 16/10; }
+  .br-game .hr-bike-grid > button { gap: 5px; }
+  .br-game .hr-bike-number { width: 24px; height: 30px; font-size: 17px; }
+  .br-game .hr-bike-grid strong { font-size: 11px; overflow-wrap: normal; line-height: 1.15; }
+  .br-game .hr-countdown { inset: 34px 8px auto auto; min-width: 82px; padding: 6px 8px; }
+  .br-game .hr-countdown span { font-size: 6px; letter-spacing: .5px; }
+  .br-game .hr-countdown strong { font-size: 23px; }
+  .br-game .hr-winner-shot { top: 35px; right: 8px; padding: 5px 8px; }
+}
+
+.br-scene { background: #060c13; }
+.br-live-order { position: absolute; top: 46px; left: 12px; display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; pointer-events: none; }
+.br-live-order li { display: flex; align-items: center; gap: 7px; padding: 3px 8px 3px 5px; border: 1px solid #b7dfff25; border-radius: 4px; background: #081725dd; color: #eaf6ff; font-size: 10px; }
+.br-live-order li[data-selected=true] { border-color: #a5edff; }
+.br-live-order small { color: #adc0d3; width: 8px; }
+.br-live-order b { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 3px; color: #06111d; font-size: 12px; }
+.br-follow-bikes { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 6px 10px; background: #122235; font-size: 11px; }
+.br-follow-bikes button { width: 30px; height: 28px; border: 1px solid; border-radius: 4px; }
+.br-follow-bikes button[aria-pressed=true] { background: #e0f6ff; color: #071323; }
+.br-sync-status { position: absolute; bottom: 38px; left: 50%; transform: translateX(-50%); background: #071323db; padding: 8px 14px; border-radius: 5px; font-size: 12px; }
+.br-timing-fallback { position: absolute; inset: 0; padding: 48px 20px 28px 160px; background: #102235; }
+.br-fallback-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11px; }
+.br-fallback-heading button { display: flex; align-items: center; gap: 4px; border: 1px solid #739fba; border-radius: 4px; padding: 5px 7px; }
+.br-timing-fallback .br-timing-lane { height: 11%; }
+.br-game .hr-field-row { cursor: default; }
+@media (max-width: 580px) {
+  .br-live-order { top: 35px; left: 7px; gap: 2px; }
+  .br-live-order li { gap: 3px; padding: 1px 3px; }
+  .br-live-order b { width: 17px; height: 17px; font-size: 10px; }
+  .br-live-order span { display: none; }
+  .br-timing-fallback { padding: 72px 8px 22px 47px; }
+  .br-fallback-heading { position: absolute; bottom: 25px; left: 47px; margin: 0; font-size: 8px; gap: 4px; }
+  .br-fallback-heading button { padding: 3px; }
+  .br-timing-lane > span { font-size: 8px; width: 50px; }
+  .br-timing-lane > div { height: 15px; }
+  .br-timing-lane b { width: 18px; height: 14px; font-size: 10px; }
+}

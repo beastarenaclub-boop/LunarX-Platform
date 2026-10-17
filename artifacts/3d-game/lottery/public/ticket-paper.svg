@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+  <filter id="grain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="3" seed="17" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer>
+      <feFuncR type="linear" slope=".55" intercept=".25"/>
+      <feFuncG type="linear" slope=".55" intercept=".22"/>
+      <feFuncB type="linear" slope=".55" intercept=".17"/>
+      <feFuncA type="linear" slope=".22"/>
+    </feComponentTransfer>
+  </filter>
+  <path fill="#fff" filter="url(#grain)" d="M0 0h180v180H0z"/>
+  <g fill="none" stroke="#837d61" stroke-width=".45" opacity=".16">
+    <path d="m12 18 3 5m24 11 5-2m31-21-2 6m42 28 5 3m26-29-2 6M20 79l4-2m36-12 2 6m29 18 4 2m40-23 2-5m28 35 3 3M7 128l4 4m36-20-1 5m31 32 5-1m28-19 3 4m31-9 4-2M22 163l4-2m38 9 4-3m43-9-2 5m44-2 3 4"/>
+  </g>
+</svg>

@@ -1,0 +1,63 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { randomUUID } from "node:crypto";
+import { sevenPayout, type SevenBet } from "@workspace/api-zod/instant-collection";
+
+test("continuous 7 Up 7 Down: atomic admission, exact settlement, spectator rounds and restart recovery", { skip: !process.env.SEVEN_UP_DOWN_INTEGRATION }, async () => {
+  assert.match(new URL(process.env.DATABASE_URL!).pathname, /^\/seven_up_down_test_/);
+  const { db, pool, usersTable, gameConfigTable, betsTable, tableRoundBetsTable, tableRoundsTable, walletLedgerTable } = await import("@workspace/db");
+  const { eq } = await import("drizzle-orm");
+  const { placeSevenLive, settleSevenLive, sevenLiveHistory } = await import("../sevenUpDownLive");
+  const { createTableRound, revealTableRound, settleTableRound, finishTableRound, recoverTableRound, getTableRoundSnapshot } = await import("../tableRounds");
+  const { cashOutBet, settleLoss, placeBet } = await import("../bets");
+  const { instantState } = await import("../instantCollection");
+  const { postEntry, getBalanceByUser } = await import("../wallet");
+  const userId = `seven-live-${randomUUID()}`, poorId = `seven-poor-${randomUUID()}`;
+  try {
+    for (const id of [userId, poorId]) await db.insert(usersTable).values({ id, email: `${id}@example.test`, emailNormalized: `${id}@example.test`, passwordHash: "test-only" });
+    await db.insert(gameConfigTable).values({ gameCode: "7up7down", enabled: true, houseEdge: .03, minStakePaise: 100n, maxStakePaise: 1000000n, maxMultiplier: 1000, bettingWindowMs: 12000, revealDurationMs: 3000, settleDurationMs: 4000 });
+    await postEntry({ userId, type: "deposit", amount: 100000n });
+    const bets: SevenBet[] = [{ spot: "up", amount: "101" }, { spot: "down", amount: "101" }, { spot: "seven", amount: "101" }, { spot: "8", amount: "101" }];
+    const first = await createTableRound("7up7down");
+    assert.equal((await getTableRoundSnapshot("7up7down", userId))?.outcome, null);
+    const [a, b] = await Promise.all([placeSevenLive(userId, first.id, bets), placeSevenLive(userId, first.id, [...bets].reverse())]);
+    assert.equal(a.slipId, b.slipId);
+    assert.equal((await getBalanceByUser(userId)).balance, 99596n);
+    await assert.rejects(placeSevenLive(userId, first.id, [{ spot: "up", amount: "404" }]), /already confirmed/);
+    await assert.rejects(placeSevenLive(poorId, first.id, bets), /Insufficient/);
+    const [slip] = await db.select().from(tableRoundBetsTable).where(eq(tableRoundBetsTable.id, a.slipId));
+    await assert.rejects(cashOutBet({ betId: slip.betId, userId, multiplier: 100 }), /game server/);
+    await assert.rejects(settleLoss(slip.betId, userId), /game server/);
+    await assert.rejects(placeBet({ userId, gameCode: "7up7down", stakeAmount: 100n }), /table/);
+    assert.equal((await instantState(userId, "7up7down")).history.length, 0);
+    const revealed = await revealTableRound(first);
+    const outcome = revealed.outcome as { dice: number[]; total: number };
+    assert.equal(outcome.dice.length, 2);
+    assert.equal((await getTableRoundSnapshot("7up7down", userId))?.outcome, null, "outcome stays hidden until landing");
+    await assert.rejects(placeSevenLive(poorId, first.id, bets), /closed/);
+    const expected = sevenPayout(bets, outcome.dice, .97);
+    await Promise.all([settleSevenLive(revealed), settleSevenLive(revealed)]);
+    const settled = await settleTableRound(revealed);
+    await finishTableRound(settled);
+    assert.equal((await getBalanceByUser(userId)).balance, 99596n + expected);
+    const ledger = await db.select().from(walletLedgerTable).where(eq(walletLedgerTable.userId, userId));
+    assert.equal(ledger.filter(r => r.type === "bet").length, 1);
+    assert.equal(ledger.filter(r => r.type === "win").length, 1);
+    assert.equal((await sevenLiveHistory(userId))[0].payoutAmount, String(expected));
+    assert.equal((await placeSevenLive(userId, first.id, bets)).slipId, a.slipId, "late retries return original receipt");
+
+    const empty = await createTableRound("7up7down");
+    await finishTableRound(await settleTableRound(await revealTableRound(empty)));
+    assert.equal((await getBalanceByUser(userId)).balance, 99596n + expected, "spectator rounds never debit wallet");
+    const interrupted = await createTableRound("7up7down");
+    await placeSevenLive(userId, interrupted.id, bets);
+    await recoverTableRound(interrupted);
+    await recoverTableRound(interrupted);
+    assert.equal((await getBalanceByUser(userId)).balance, 99596n + expected, "unrevealed restart refunds once");
+    const expired = await createTableRound("7up7down");
+    await db.update(tableRoundsTable).set({ bettingEndsAt: new Date(Date.now() - 1) }).where(eq(tableRoundsTable.id, expired.id));
+    await assert.rejects(placeSevenLive(userId, expired.id, bets), /closed/);
+    const poorBets = await db.select().from(betsTable).where(eq(betsTable.userId, poorId));
+    assert.equal(poorBets.length, 0, "failed placement rolls the whole transaction back");
+  } finally { await pool.end(); }
+});

@@ -1,0 +1,5 @@
+Original Hindi Baccarat scripts; locally generated with Kokoro v1.0 (Apache-2.0), stock hf_alpha voice.
+No real dealer voice was cloned. Commentary is independent of the reference video.
+Model: https://huggingface.co/hexgrad/Kokoro-82M
+Runtime: https://github.com/thewh1teagle/kokoro-onnx (MIT)
+Music: original composition and synthesis in scripts/prepare-baccarat-audio.py.

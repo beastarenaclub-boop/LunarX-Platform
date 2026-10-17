@@ -1,0 +1,55 @@
+{
+  "date": "2026-09-27",
+  "model": "seedance_2_5",
+  "credits": 42,
+  "params": {
+    "model": "seedance_2_5",
+    "mode": "omni_reference",
+    "duration": 6,
+    "resolution": "720p",
+    "aspect_ratio": "16:9",
+    "count": 1,
+    "bitrate_mode": "standard",
+    "generate_audio": false,
+    "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+    "medias": [
+      {
+        "role": "start_image",
+        "value": "ab05e372-3455-4ff8-86f9-0a17171b258e"
+      },
+      {
+        "role": "end_image",
+        "value": "ab05e372-3455-4ff8-86f9-0a17171b258e"
+      }
+    ],
+    "prompt": "One uninterrupted photorealistic casino dice-dealing shot, locked camera exactly matching this reference photograph. Same adult Indian woman Asha in burgundy waistcoat, same distance and seated position, same rectangular emerald felt, brass tray on viewer RIGHT, same background and lighting. The table and framing must NEVER change or move. Action is genuine small dice handling, not empty-hand mime. There are exactly TWO small ivory casino dice, 16 mm across, with black pips, obeying gravity. 0-1 seconds: her left hand picks up the TWO dice from the brass tray on viewer RIGHT and brings them toward her centre. 1-1.5 seconds: BOTH dice are visibly nestled low INSIDE her left cupped palm, supported by skin; they are much smaller than the palm. 1.5-3.2 seconds: her right hand closes over her left, forming ONE enclosed cup with BOTH hands held TOGETHER. Her fingers COMPLETELY conceal both dice. She shakes this joined closed cup twice in short natural side-to-side movements, dice enclosed inside throughout. Never separate hands during the shake. 3.2-4 seconds: hands still together, she brings the closed cup forward low above the CENTER of the felt, only 8 cm above it. At exactly 4 seconds she turns the cup forward, opens her fingers downward and releases BOTH dice together onto the center felt. BOTH dice fall out FROM INSIDE the opening between her hands, never from above her fingers, sleeves, wrist or thin air. 4-5 seconds: both small dice bounce forward briefly on the felt; hands withdraw UP and BACK, remaining entirely above the back edge of the table. 5-6 seconds: her hands rest naturally together as in the ending reference. No talking, no clapping, no greeting, no camera cuts, no camera movement, no large body movement, no deep breathing, no glowing or floating objects. Anatomically correct hands and fingers, convincing real physical grip and contact. The subject remains attentive, professional and calm."
+  },
+  "source": {
+    "index": 1,
+    "job_id": "1dde3663-b21d-4d0f-8e1d-070e0269297d",
+    "status": "completed",
+    "type": "video",
+    "model": "seedance_2_5",
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260926_223616_1dde3663-b21d-4d0f-8e1d-070e0269297d.mp4",
+    "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/ab05e372-3455-4ff8-86f9-0a17171b258e.jpg"
+  },
+  "outputs": [
+    {
+      "media_id": "94acfa5c-5da8-4145-9c40-945e41881ca1",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/94acfa5c-5da8-4145-9c40-945e41881ca1.mp4"
+    },
+    {
+      "media_id": "0ba290c7-cddc-4840-87d7-279bd18a78ab",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/0ba290c7-cddc-4840-87d7-279bd18a78ab.mp4"
+    }
+  ],
+  "handoff": {
+    "sourceFrame": 111,
+    "sourceMs": 4625,
+    "compositeMs": 8125,
+    "x": 0.504,
+    "y": 0.796,
+    "dieWidth": 0.023
+  },
+  "assembly": "Original greeting 0..3.5s + cleaned closed-cup take 0..6s + calm idle 0..1s + original clap 8.25s onward. Separate original audio uses an explicit 8.25s start for the clap."
+}

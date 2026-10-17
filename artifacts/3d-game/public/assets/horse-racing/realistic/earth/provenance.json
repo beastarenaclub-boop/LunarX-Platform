@@ -1,0 +1,28 @@
+{
+  "version": "horse-earth-v3",
+  "created": "2026-10-02",
+  "horse": {
+    "file": "thoroughbred-v2.glb",
+    "source": "../higgsfield/thoroughbred-v1.glb",
+    "license": "CC0 source horse (Realtime Ranchers / ChadM), locally refined mesh",
+    "generated3D": false,
+    "script": "tools/horse-assets/refine-racehorse-v2.py",
+    "changes": [
+      "Tapered throat and neck; more defined shoulder and leaner hindquarter",
+      "UVs, 23-bone skeleton and Idle/Gallop clip timing preserved",
+      "Runtime coat masks now use scaled horse rest coordinates; natural coats, facial detail, dark horn hooves and dust on lower legs",
+      "Anatomical normal map and generated short-coat grain retained; restrained coat sheen and glossy eyes"
+    ],
+    "validation": "anatomy-validation.json"
+  },
+  "images": [
+    {
+      "file": "racing-loam-v1.png",
+      "mode": "built-in image_gen, generate",
+      "source": "C:/Users/hacker/.codex/generated_images/01a0f94e-4da8-7423-8a22-cd1e2a708f35/exec-19752980-d86f-4b3b-8663-814e45adb06b.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: seamless square albedo / base-color ground texture for a realistic 3D horse racing dirt track. Straight-down orthographic close photograph of 2 by 2 meters of professionally maintained fine sandy loam racing soil. Rich natural medium warm umber and muted cinnamon brown, NOT pale beige concrete. Dense small irregular earth aggregates and crumbling moist clods 5-25 mm across mixed with fine dry grains. Subtle organically distributed darker compacted damp patches, shallow incomplete hoof scuffs and disturbed earth, tiny granular depressions. Full edge-to-edge soil only. Physically plausible microdetail, realistic natural variation at several scales. Uniform overcast diffuse illumination, no cast shadows, no specular highlights, no baked directional light, no vignette. Truly tileable seamlessly across both axes; edges continuous and consistent. No large rocks, no leaves, no grass, no straight man-made grid, no obvious repeated motifs, no deep cracks, no whole horses, no tools, no text, no border. 2048 by 2048 square material texture.",
+      "usage": "Ground colour and shader-derived granular relief, blended at two rotated scales; generated artwork, not a calibrated scanned PBR material."
+    }
+  ],
+  "runtime": "World-space soil compaction and furrows, instanced clods/hoof scuffs, contact-triggered world-space dust and ballistic clods. Turf remains available at the Alpine venue."
+}

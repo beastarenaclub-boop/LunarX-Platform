@@ -1,0 +1,24 @@
+{
+  "revision": "derby-broadcast-v1",
+  "date": "2026-10-02",
+  "reference": {
+    "url": "https://www.youtube.com/watch?v=aUDgaN6iHFc",
+    "title": "Kentucky Derby 2023 (FULL RACE) | NBC Sports",
+    "use": "Visual reference only. Source footage is not bundled.",
+    "inspection": "Thumbnail inspected directly; full playback and remote scene analysis unavailable during implementation."
+  },
+  "assets": [
+    {
+      "path": "grandstand-crowd-v1.png",
+      "method": "Built-in image_gen tool",
+      "prompt": "Use case: photorealistic-natural. Asset type: local texture for a real-time 3D horse-racing grandstand, not a whole scene. Create one wide 3:1 landscape image: a perfectly frontal orthographic architectural elevation of packed spectator seating at a prestigious American thoroughbred racecourse on a bright softly overcast race day. Exactly six gently ascending straight horizontal rows of tightly packed adult spectators, men and women in varied smart casual clothes, spring dresses, subtle derby hats, caps; candid natural poses watching a race toward camera, some arms raised. All people at the same consistent scale, about 30 adults in each row across image; realistic skin, textiles, shadows in gaps; muted navy, cream, dusty coral, sky blue, white, forest green palette. Front waist-high dark racing-green railing and narrow off-white concrete step risers between the rows. Rows and crowd fill the entire rectangular image edge to edge, with no sky, no trees, no track, no buildings, no roof, no foreground lawn. Flat frontal view without perspective convergence, like a high-resolution telephoto crowd plate suitable to map onto a rectangular stadium surface. Natural documentary sports photography, high detail. No text, logos, watermarks, graphics or borders. Do not show horses.",
+      "usage": "Upper grandstand row texture; five visible rows mapped onto separate stepped geometry."
+    },
+    {
+      "path": "jockey-crouch-v1.glb",
+      "method": "Local Blender 4.2 asset authoring",
+      "source": "../jockey.glb source: Vitruvian / CharMorph CC0 character",
+      "script": "tools/horse-assets/prepare-derby-rider.py"
+    }
+  ]
+}

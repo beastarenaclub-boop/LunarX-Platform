@@ -1,0 +1,379 @@
+{
+  "bones": 23,
+  "vertices": 18611,
+  "maxVertexChangeMetres": 0.12046,
+  "frames": [
+    {
+      "clip": "Idle",
+      "frame": 1,
+      "minZ": 0.0,
+      "maxZ": 3.1894
+    },
+    {
+      "clip": "Idle",
+      "frame": 2,
+      "minZ": 0.0,
+      "maxZ": 3.1831
+    },
+    {
+      "clip": "Idle",
+      "frame": 3,
+      "minZ": 0.0,
+      "maxZ": 3.177
+    },
+    {
+      "clip": "Idle",
+      "frame": 4,
+      "minZ": 0.0,
+      "maxZ": 3.1714
+    },
+    {
+      "clip": "Idle",
+      "frame": 5,
+      "minZ": 0.0,
+      "maxZ": 3.1666
+    },
+    {
+      "clip": "Idle",
+      "frame": 6,
+      "minZ": 0.0,
+      "maxZ": 3.1628
+    },
+    {
+      "clip": "Idle",
+      "frame": 7,
+      "minZ": 0.0,
+      "maxZ": 3.1602
+    },
+    {
+      "clip": "Idle",
+      "frame": 8,
+      "minZ": 0.0,
+      "maxZ": 3.1589
+    },
+    {
+      "clip": "Idle",
+      "frame": 9,
+      "minZ": 0.0,
+      "maxZ": 3.1589
+    },
+    {
+      "clip": "Idle",
+      "frame": 10,
+      "minZ": 0.0,
+      "maxZ": 3.1602
+    },
+    {
+      "clip": "Idle",
+      "frame": 11,
+      "minZ": 0.0,
+      "maxZ": 3.1628
+    },
+    {
+      "clip": "Idle",
+      "frame": 12,
+      "minZ": 0.0,
+      "maxZ": 3.1666
+    },
+    {
+      "clip": "Idle",
+      "frame": 13,
+      "minZ": 0.0,
+      "maxZ": 3.1714
+    },
+    {
+      "clip": "Idle",
+      "frame": 14,
+      "minZ": 0.0,
+      "maxZ": 3.177
+    },
+    {
+      "clip": "Idle",
+      "frame": 15,
+      "minZ": 0.0,
+      "maxZ": 3.1831
+    },
+    {
+      "clip": "Idle",
+      "frame": 16,
+      "minZ": 0.0,
+      "maxZ": 3.1894
+    },
+    {
+      "clip": "Idle",
+      "frame": 17,
+      "minZ": 0.0,
+      "maxZ": 3.1958
+    },
+    {
+      "clip": "Idle",
+      "frame": 18,
+      "minZ": 0.0,
+      "maxZ": 3.2019
+    },
+    {
+      "clip": "Idle",
+      "frame": 19,
+      "minZ": 0.0,
+      "maxZ": 3.2074
+    },
+    {
+      "clip": "Idle",
+      "frame": 20,
+      "minZ": 0.0,
+      "maxZ": 3.2121
+    },
+    {
+      "clip": "Idle",
+      "frame": 21,
+      "minZ": 0.0,
+      "maxZ": 3.2158
+    },
+    {
+      "clip": "Idle",
+      "frame": 22,
+      "minZ": 0.0,
+      "maxZ": 3.2184
+    },
+    {
+      "clip": "Idle",
+      "frame": 23,
+      "minZ": 0.0,
+      "maxZ": 3.2197
+    },
+    {
+      "clip": "Idle",
+      "frame": 24,
+      "minZ": 0.0,
+      "maxZ": 3.2197
+    },
+    {
+      "clip": "Idle",
+      "frame": 25,
+      "minZ": 0.0,
+      "maxZ": 3.2184
+    },
+    {
+      "clip": "Idle",
+      "frame": 26,
+      "minZ": 0.0,
+      "maxZ": 3.2158
+    },
+    {
+      "clip": "Idle",
+      "frame": 27,
+      "minZ": 0.0,
+      "maxZ": 3.2121
+    },
+    {
+      "clip": "Idle",
+      "frame": 28,
+      "minZ": 0.0,
+      "maxZ": 3.2074
+    },
+    {
+      "clip": "Idle",
+      "frame": 29,
+      "minZ": 0.0,
+      "maxZ": 3.2019
+    },
+    {
+      "clip": "Idle",
+      "frame": 30,
+      "minZ": 0.0,
+      "maxZ": 3.1958
+    },
+    {
+      "clip": "Idle",
+      "frame": 31,
+      "minZ": 0.0,
+      "maxZ": 3.1894
+    },
+    {
+      "clip": "Gallop",
+      "frame": 1,
+      "minZ": 0.0192,
+      "maxZ": 3.2119
+    },
+    {
+      "clip": "Gallop",
+      "frame": 2,
+      "minZ": 0.0193,
+      "maxZ": 3.1963
+    },
+    {
+      "clip": "Gallop",
+      "frame": 3,
+      "minZ": 0.0168,
+      "maxZ": 3.1804
+    },
+    {
+      "clip": "Gallop",
+      "frame": 4,
+      "minZ": 0.0163,
+      "maxZ": 3.1647
+    },
+    {
+      "clip": "Gallop",
+      "frame": 5,
+      "minZ": 0.0391,
+      "maxZ": 3.15
+    },
+    {
+      "clip": "Gallop",
+      "frame": 6,
+      "minZ": 0.0694,
+      "maxZ": 3.137
+    },
+    {
+      "clip": "Gallop",
+      "frame": 7,
+      "minZ": 0.1081,
+      "maxZ": 3.1263
+    },
+    {
+      "clip": "Gallop",
+      "frame": 8,
+      "minZ": 0.1778,
+      "maxZ": 3.1183
+    },
+    {
+      "clip": "Gallop",
+      "frame": 9,
+      "minZ": 0.2454,
+      "maxZ": 3.1135
+    },
+    {
+      "clip": "Gallop",
+      "frame": 10,
+      "minZ": 0.1619,
+      "maxZ": 3.112
+    },
+    {
+      "clip": "Gallop",
+      "frame": 11,
+      "minZ": 0.0832,
+      "maxZ": 3.1139
+    },
+    {
+      "clip": "Gallop",
+      "frame": 12,
+      "minZ": 0.0168,
+      "maxZ": 3.1192
+    },
+    {
+      "clip": "Gallop",
+      "frame": 13,
+      "minZ": -0.0227,
+      "maxZ": 3.1276
+    },
+    {
+      "clip": "Gallop",
+      "frame": 14,
+      "minZ": -0.0219,
+      "maxZ": 3.1387
+    },
+    {
+      "clip": "Gallop",
+      "frame": 15,
+      "minZ": -0.0196,
+      "maxZ": 3.1519
+    },
+    {
+      "clip": "Gallop",
+      "frame": 16,
+      "minZ": -0.0166,
+      "maxZ": 3.1668
+    },
+    {
+      "clip": "Gallop",
+      "frame": 17,
+      "minZ": -0.0222,
+      "maxZ": 3.1825
+    },
+    {
+      "clip": "Gallop",
+      "frame": 18,
+      "minZ": -0.0205,
+      "maxZ": 3.1985
+    },
+    {
+      "clip": "Gallop",
+      "frame": 19,
+      "minZ": -0.0177,
+      "maxZ": 3.214
+    },
+    {
+      "clip": "Gallop",
+      "frame": 20,
+      "minZ": -0.0146,
+      "maxZ": 3.2283
+    },
+    {
+      "clip": "Gallop",
+      "frame": 21,
+      "minZ": -0.0116,
+      "maxZ": 3.2409
+    },
+    {
+      "clip": "Gallop",
+      "frame": 22,
+      "minZ": -0.0097,
+      "maxZ": 3.2512
+    },
+    {
+      "clip": "Gallop",
+      "frame": 23,
+      "minZ": 0.0656,
+      "maxZ": 3.2588
+    },
+    {
+      "clip": "Gallop",
+      "frame": 24,
+      "minZ": 0.1791,
+      "maxZ": 3.2634
+    },
+    {
+      "clip": "Gallop",
+      "frame": 25,
+      "minZ": 0.2362,
+      "maxZ": 3.2648
+    },
+    {
+      "clip": "Gallop",
+      "frame": 26,
+      "minZ": 0.1341,
+      "maxZ": 3.263
+    },
+    {
+      "clip": "Gallop",
+      "frame": 27,
+      "minZ": 0.052,
+      "maxZ": 3.258
+    },
+    {
+      "clip": "Gallop",
+      "frame": 28,
+      "minZ": 0.02,
+      "maxZ": 3.25
+    },
+    {
+      "clip": "Gallop",
+      "frame": 29,
+      "minZ": 0.0183,
+      "maxZ": 3.2393
+    },
+    {
+      "clip": "Gallop",
+      "frame": 30,
+      "minZ": 0.016,
+      "maxZ": 3.2265
+    },
+    {
+      "clip": "Gallop",
+      "frame": 31,
+      "minZ": 0.0192,
+      "maxZ": 3.2119
+    }
+  ]
+}

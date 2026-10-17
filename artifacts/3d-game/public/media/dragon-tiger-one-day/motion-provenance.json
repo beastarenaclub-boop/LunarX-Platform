@@ -1,0 +1,39 @@
+{
+  "provider": "Higgsfield",
+  "model": "seedance_2_5",
+  "resolution": "1920x1080",
+  "generatedAt": "2026-10-04",
+  "referenceMediaId": "4602ec35-7db3-4bde-a521-8029bf6008b1",
+  "referenceSource": "Frame at 1.0s of original dealer-studio.mp4; same dealer identity and set.",
+  "usage": "Steady idle plus non-looping game event gestures. The server supplies all card faces and results.",
+  "takes": [
+    {
+      "name": "idle",
+      "duration": 6,
+      "direction": "Quiet waiting take. She maintains relaxed eye contact with the camera, makes one small natural blink and an almost imperceptible calm smile. Hands and shoulders remain settled for the whole shot. Minimal natural life, no other action.",
+      "jobId": "b0c8c3d3-9bd7-4eb8-aa65-17c61aa28d53",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261003_213807_b0c8c3d3-9bd7-4eb8-aa65-17c61aa28d53.mp4"
+    },
+    {
+      "name": "invite",
+      "duration": 4,
+      "direction": "One deliberate invitation gesture: during seconds 0.4 to 2.7, lift both hands slightly above the felt, open palms gracefully toward the player to invite bets, then smoothly return both hands to their exact resting positions by second 3.6. Only one gesture.",
+      "jobId": "ee30ff91-5953-408d-87d5-77a7cf0583cc",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261003_213807_ee30ff91-5953-408d-87d5-77a7cf0583cc.mp4"
+    },
+    {
+      "name": "dragon",
+      "duration": 4,
+      "direction": "One precise professional presentation gesture to the Dragon position on the VIEWER'S LEFT. During seconds 0.3 to 2.5, her RIGHT hand, on viewer's left, moves forward over the left felt with palm softly turned up; her eyes glance toward that side, as though presenting the game card that the UI will overlay. Do not touch or create cards. Return hand and gaze to the exact reference resting position by second 3.6. The other hand stays still.",
+      "jobId": "e677d875-a5e0-4b92-9c21-4a0cc60eaf95",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261003_213807_e677d875-a5e0-4b92-9c21-4a0cc60eaf95.mp4"
+    },
+    {
+      "name": "tiger",
+      "duration": 4,
+      "direction": "One precise professional presentation gesture to the Tiger position on the VIEWER'S RIGHT. During seconds 0.3 to 2.5, her LEFT hand, on viewer's right, moves forward over the right felt with palm softly turned up; her eyes glance toward that side, as though presenting the game card that the UI will overlay. Do not touch or create cards. Return hand and gaze to the exact reference resting position by second 3.6. The other hand stays still.",
+      "jobId": "54d64ec0-1332-4c51-ab87-967ef235def8",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261003_213807_54d64ec0-1332-4c51-ab87-967ef235def8.mp4"
+    }
+  ]
+}

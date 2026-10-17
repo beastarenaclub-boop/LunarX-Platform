@@ -1,0 +1,62 @@
+{
+  "provider": "Runway",
+  "taskId": "94116c85-5a02-4934-a932-c251d2795bf1",
+  "idleTaskId": "16eac4e9-4ce1-4a75-a114-55f9384be686",
+  "previousTaskId": "95a09a05-a8e3-4f23-a5e8-508f1b4bd32e",
+  "created": "2026-10-17",
+  "source": "Same AI dealer and studio. Pose-matched ten-second waiting take, existing uncut physical placement/turn, and a new natural waiting and physical card collection continuation.",
+  "generatedDurationSeconds": 30,
+  "durationSeconds": 30,
+  "width": 1920,
+  "height": 900,
+  "fps": 24,
+  "sourceCrop": {
+    "x": 0,
+    "y": 30,
+    "width": 1920,
+    "height": 900
+  },
+  "audio": false,
+  "files": [
+    "dealer-natural-v5.mp4",
+    "dealer-natural-mobile-v5.mp4",
+    "dealer-natural-poster-v5.jpg",
+    "dealer-hand-masks-v5.png",
+    "lounge-loop-v1.mp3"
+  ],
+  "edit": "Three ten-second takes joined at matching stationary poses. Restore the 21:9 continuations to the original camera coordinates with unchanged border pixels; no stretching of the dealer. All actions and the six-second result run at native 24fps speed. H.264 faststart, one-second keyframes, 1920x900 desktop and 1280x600 mobile.",
+  "cueSeconds": {
+    "idle": [
+      0,
+      10
+    ],
+    "prepare": [
+      11.2,
+      14.5
+    ],
+    "deal": [
+      14.5,
+      17.5
+    ],
+    "faceVisible": 16.208333,
+    "hold": [
+      17.5,
+      23.5
+    ],
+    "reset": [
+      23.5,
+      30
+    ]
+  },
+  "presentation": "Transparent server-authoritative card ink follows decoded frames through the turn and subsequent collection. 115 offline fingertip masks retain filmed paper, skin and shadows without per-frame pixel processing in the browser. Current result UI clears at the next round; the previous physical card retains its ink until turned toward the discard tray. Background tabs pause playback. Prolonged settlement holds the final result frame without repeated seeks.",
+  "music": {
+    "provider": "Runway",
+    "taskId": "e5552f2a-b686-4cbe-ae76-15518c7fa22d",
+    "file": "lounge-loop-v1.mp3",
+    "description": "Instrumental soft lounge jazz, Rhodes, bass and brushed drums",
+    "edit": "One-second wrap crossfade, loudness normalized to -22 LUFS",
+    "volume": 0.16,
+    "loop": true,
+    "control": "Existing sound toggle; first interaction unlocks playback; hidden tab and route exit pause it."
+  }
+}

@@ -1,0 +1,44 @@
+/* Runway artwork keeps its proportions at every screen size. */
+.jetx-backdrop {
+  background: #18182c;
+  pointer-events: none;
+}
+.jetx-backdrop .jetx-background {
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 56%;
+  transition: opacity 2.5s ease, transform 4s ease;
+}
+.jetx-backdrop .jetx-airport-background {
+  object-position: 43% 56%;
+  transform-origin: 50% 58%;
+}
+.jetx-scene[data-phase="flying"] .jetx-airport-background {
+  transform: translateY(9%) scale(1.06);
+}
+.jetx-backdrop .jetx-cloud-background {
+  transform: scale(1.04);
+  transform-origin: 50% 60%;
+}
+.jetx-scene[data-phase="flying"] .jetx-cloud-background {
+  animation: jetx-atmosphere-drift 45s ease-in-out infinite alternate;
+}
+.jetx-backdrop .jetx-night-background { object-position: 75% 42%; }
+.jetx-backdrop .jetx-background-shade {
+  background: linear-gradient(180deg, #090817b8 0%, #110f2520 20%, transparent 42%, #11102010 58%, #06060f9c 80%, #030307f2 100%);
+}
+.jetx-scene .jetx-readout { filter: drop-shadow(0 2px 8px #07091780); }
+@keyframes jetx-atmosphere-drift {
+  from { transform: scale(1.04) translate3d(1%, 0, 0); }
+  to { transform: scale(1.09) translate3d(-2%, 1%, 0); }
+}
+@media (max-width: 699px) and (orientation: portrait) {
+  .jetx-backdrop .jetx-airport-background { object-position: 43% 56%; }
+  .jetx-backdrop .jetx-night-background { object-position: 73% 42%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jetx-backdrop .jetx-background { animation: none !important; transition: none !important; transform: none !important; }
+}

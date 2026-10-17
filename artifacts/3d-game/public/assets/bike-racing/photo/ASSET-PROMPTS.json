@@ -1,0 +1,18 @@
+{
+  "generatedWith": "Built-in image_gen.imagegen (no CLI)",
+  "date": "2026-10-03",
+  "assets": [
+    {
+      "file": "reference-bike.png",
+      "source": "User-supplied bike/rider reference photograph, edited into a transparent cutout. Generative extraction may alter fine livery details.",
+      "prompt": "Edit the supplied reference photo into ONE game sprite asset: precisely isolate the entire existing photographic superbike AND its crouched rider as a transparent-background cutout. Keep the reference bike's exact front-left three-quarter orientation facing left, recognizable black carbon bodywork, blue/cyan and red stripes, number 60, both full wheels and tires, headlight, mirrors, helmet, rider's black and red racing suit, arms and legs. Preserve photographic realism and proportions; no illustration, no stylization, no low-poly or new 3D model, no redesign, no extra vehicle. Remove all racetrack, sky, trees, barriers, asphalt and ground shadow. The gaps around wheels and between subject parts must be transparent. Fit the whole bike and rider centrally inside the image with tight 3% transparent margin on all sides; nothing cropped, no labels, no decorative frame. This will be drawn as the actual moving bike in a 2D browser racing game.",
+      "transparentBackground": true
+    },
+    {
+      "file": "circuit.png",
+      "source": "Generated photographic background; not footage from the reference video.",
+      "prompt": "Create one photorealistic daytime motorsport circuit background plate for a 2D motorcycle racing game. Wide landscape 1536x1024. Trackside camera, low three-quarter side view, looking across a very wide empty asphalt racing straight. Road and white Armco guardrails extend across the entire image from left edge to right edge, rising very slightly towards the right, no bend, no vanishing point within frame. Top 12% clear soft blue sky, next 12% distant green tree line and wire safety fencing, next 9% silver/white guardrail and thin green grass verge. Bottom 67% entirely unobstructed textured medium charcoal grey asphalt, evenly lit with fine realistic aggregate grain, no road lane stripes. Single clean white track edge beside the far grass. Consistent sunny daylight from upper left, realistic photograph with muted natural colors, crisp asphalt foreground and slightly soft distant trees. Empty road, no vehicles, no bikes, no riders, no people, no buildings, no text, no logos, no graphic overlays, no dramatic sunset. Purpose: composite an isolated black blue/red sportbike and black-leather rider facing front-left on the foreground asphalt. Keep large empty asphalt for a field of six bikes.",
+      "transparentBackground": false
+    }
+  ]
+}

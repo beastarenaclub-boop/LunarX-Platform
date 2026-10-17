@@ -1,0 +1,321 @@
+/* Each game reflows its play surface and controls. Short windows scroll at
+   native size so text, betting controls and browser zoom remain usable. */
+.game-viewport[data-game-layout] { --game-coin-size: 44px; --game-bet-height: 56px; }
+@media (min-width: 1024px) and (min-height: 651px) {
+  .game-viewport[data-game-layout] { --game-coin-size: 48px; --game-bet-height: 60px; }
+}
+.game-viewport[data-game-layout="dice"] { --game-screen-width: 1120px; }
+.game-viewport[data-game-layout="mines"],
+.game-viewport[data-game-layout="plinko"] { --game-screen-width: 1240px; }
+.game-viewport[data-game-layout="dealer"] { --game-screen-width: 1600px; }
+.game-viewport[data-game-layout="racing"] { --game-screen-width: 1680px; }
+.game-viewport[data-game-layout="rummy"] { --game-screen-width: 1520px; }
+.game-viewport[data-game-layout="wingo"] { --game-screen-width: 1240px; }
+.game-viewport .crash-header { flex-wrap: wrap; gap: 8px; }
+.game-viewport .crash-header > div:last-of-type { min-width: 0; max-width: 100%; flex-wrap: wrap; }
+.game-viewport[data-game-layout="forex"] .fa-game {
+  height: auto;
+  min-height: var(--fit-height, 100dvh);
+}
+.game-viewport[data-game-layout="forex"] .fa-play-area { flex: 1 0 auto; }
+.game-viewport[data-game-layout="forex"] .fa-coins .coin-rack-options {
+  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+}
+.game-viewport[data-game-layout="forex"] .fa-coins [data-game-coin] {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+  flex-basis: 44px;
+}
+@media (max-width: 699px) {
+  .game-viewport .crash-header { padding: 8px; }
+  .game-viewport .crash-header > div:last-of-type { width: 100%; justify-content: space-between; flex-wrap: nowrap; }
+  .game-viewport .crash-header [data-testid="btn-balance"] { flex: 1; min-width: 0; padding-inline: 8px; }
+  .game-viewport .crash-header [data-testid="text-balance"] { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+}
+.game-viewport [data-testid="last-result-banner"] { height: auto; min-height: 34px; padding: 6px 10px; }
+.game-viewport [data-testid="round-phase-banner"] { padding-block: 7px; }
+
+/* Live dealer tables: a correctly proportioned stage beside a compact dock. */
+.game-viewport[data-game-layout="dealer"] .game-shell { min-height: var(--fit-height, 100dvh); }
+.game-viewport[data-game-layout="dealer"] :is(.lucky7-main, .tpl-game-content) { padding: 8px; flex: 1; }
+.game-viewport[data-game-layout="dealer"] :is(.lucky7-table-column, .tpl-main-column) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: none;
+  gap: 8px 12px;
+  align-self: stretch;
+  align-items: start;
+  width: 100%;
+}
+.game-viewport[data-game-layout="dealer"] [data-testid="last-result-banner"] { grid-column: 1; grid-row: 1; }
+.game-viewport[data-game-layout="dealer"] .live-game-scene { grid-column: 1; grid-row: 2; width: 100%; min-width: 0; align-self: center; }
+.game-viewport[data-game-layout="dealer"] :is(.lucky7-betting-dock, .tpl-mobile-dock) { grid-column: 2; grid-row: 1 / 3; width: 100%; align-self: center; }
+.game-viewport[data-game-layout="dealer"] .lucky7-studio-table { width: 100%; max-width: none; }
+.game-viewport[data-game-layout="dealer"] [data-testid="teen-patti-table"] { aspect-ratio: 30 / 19; width: 100%; }
+.game-viewport[data-game-layout="dealer"] .live-bet-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "status status" "spots spots" "coins coins" "summary summary" "actions actions";
+  gap: 8px;
+  padding: 10px;
+}
+.game-viewport[data-game-layout="dealer"] .live-bet-status { display: flex; flex-direction: row; justify-content: space-between; height: auto; font-size: 11px; }
+.game-viewport[data-game-layout="dealer"] .live-bet-spots { gap: 6px; }
+.game-viewport[data-game-layout="dealer"] [data-game-bet] { width: 100%; }
+.game-viewport[data-game-layout="dealer"] .live-bet-summary { min-height: 30px; padding: 0; border: 0; background: transparent; }
+.game-viewport[data-game-layout="dealer"] .live-bet-summary > div > span { display: inline; }
+.game-viewport[data-game-layout="dealer"] .live-bet-actions { min-width: 0; padding: 0; }
+.game-viewport[data-game-layout="dealer"] .coin-rack-options { gap: 6px; }
+.game-viewport[data-game-layout="dealer"] .auto-bet-status { min-height: 40px; }
+@media (max-width: 1023px) {
+  .game-viewport[data-game-layout="dealer"] :is(.lucky7-table-column, .tpl-main-column) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    align-content: start;
+  }
+  .game-viewport[data-game-layout="dealer"] :is(.lucky7-betting-dock, .tpl-mobile-dock) { grid-column: 1; grid-row: 3; }
+  .game-viewport[data-game-layout="dealer"] .live-game-scene { width: 100%; }
+  .game-viewport[data-game-layout="dealer"] .live-bet-layout {
+    grid-template-areas: "status status" "spots spots" "coins coins" "summary actions";
+    gap: 6px;
+    padding: 8px;
+  }
+}
+
+/* A tablet has room for the full table above the dock, while desktop keeps
+   the dock beside it. Preserve the scene aspect ratio without oversizing it. */
+@media (min-width: 700px) and (max-width: 1023px) and (min-height: 501px) {
+  .game-viewport[data-game-layout="dealer"] .live-game-scene {
+    width: min(100%, 760px);
+    justify-self: center;
+  }
+  .game-viewport[data-game-layout="dealer"] :is(.lucky7-betting-dock, .tpl-mobile-dock) {
+    max-width: 760px;
+    justify-self: center;
+  }
+}
+@media (min-width: 1024px) {
+  .game-viewport[data-game-layout="dealer"] .live-game-scene {
+    max-width: min(100%, max(420px, calc((var(--fit-height, 100dvh) - 170px) * 1.58)));
+    justify-self: center;
+  }
+}
+@media (min-width: 700px) and (max-height: 700px) {
+  .game-viewport[data-game-layout="dealer"] :is(.lucky7-table-column, .tpl-main-column) { grid-template-columns: minmax(0, 1fr) 330px; }
+  .game-viewport[data-game-layout="dealer"] .live-game-scene { max-width: calc((var(--fit-height) - 120px) * 1.5789); justify-self: center; }
+}
+
+/* Dice does not need a tall canvas; Mines and Plinko keep their own aspect. */
+.game-viewport[data-game-layout="dice"] [data-game-screen],
+.game-viewport[data-game-layout="mines"] [data-game-screen],
+.game-viewport[data-game-layout="plinko"] [data-game-screen] { align-items: center; }
+.game-viewport[data-game-layout="dice"] .game-canvas-frame--dice { aspect-ratio: auto; min-height: 0; max-height: none; gap: 16px; padding: 16px; }
+.game-viewport[data-game-layout="dice"] [data-game-screen] > div { width: 100%; }
+.game-viewport[data-game-layout="dice"] [data-game-screen] > div:first-child { align-self: center; }
+.game-viewport[data-game-layout="dice"] [data-game-screen] > div:last-child { max-width: 380px; }
+.game-viewport[data-game-layout="dice"] .game-shell,
+.game-viewport[data-game-layout="mines"] .game-shell,
+.game-viewport[data-game-layout="plinko"] .game-shell { min-height: var(--fit-height, 100dvh); }
+.game-viewport[data-game-layout="mines"] [data-game-screen] > div:first-child,
+.game-viewport[data-game-layout="plinko"] [data-game-screen] > div:first-child { width: 100%; align-self: stretch; }
+.game-viewport[data-game-layout="mines"] [data-game-screen] > div:last-child,
+.game-viewport[data-game-layout="plinko"] [data-game-screen] > div:last-child { width: 100%; }
+.game-viewport[data-game-layout="mines"] [data-testid="mines-board-frame"],
+.game-viewport[data-game-layout="plinko"] [data-testid="plinko-board-frame"] { min-height: 0; }
+.game-viewport[data-game-layout="mines"] .game-canvas-frame,
+.game-viewport[data-game-layout="plinko"] .game-canvas-frame { min-height: 0; max-height: none; }
+.game-viewport[data-game-layout="mines"] .mines-play-board {
+  flex: none; aspect-ratio: 1; align-self: center;
+  width: min(100%, max(210px, calc(var(--fit-height) - 400px)));
+}
+.game-viewport[data-game-layout="mines"] .mines-play-board > div { width: 100%; height: 100%; }
+.game-viewport[data-game-layout="plinko"] .plinko-play-board {
+  flex: none; aspect-ratio: 4 / 3; align-self: center;
+  width: min(100%, max(220px, calc((var(--fit-height) - 380px) * 1.333)));
+}
+@media (min-width: 800px) {
+  .game-viewport[data-game-layout="dice"] [data-game-screen],
+  .game-viewport[data-game-layout="mines"] [data-game-screen],
+  .game-viewport[data-game-layout="plinko"] [data-game-screen] { flex-direction: row; gap: 20px; }
+  .game-viewport[data-game-layout="dice"] [data-game-screen] > div:last-child,
+  .game-viewport[data-game-layout="mines"] [data-game-screen] > div:last-child,
+  .game-viewport[data-game-layout="plinko"] [data-game-screen] > div:last-child { width: 330px; flex: 0 0 330px; }
+  .game-viewport[data-game-layout="mines"] .mines-play-board { width: min(100%, max(210px, calc(var(--fit-height) - 160px))); }
+  .game-viewport[data-game-layout="plinko"] .plinko-play-board { width: min(100%, max(220px, calc((var(--fit-height) - 160px) * 1.333))); }
+}
+
+/* Shared card rounds retain the hands, live phase and bet grid only. */
+.game-viewport[data-game-layout="cards"] .game-bet-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.game-viewport[data-game-layout="cards"] .game-bet-grid [data-game-bet] { width: 100%; }
+.game-viewport[data-game-layout="cards"] [data-game-screen] { gap: 10px; }
+.game-viewport[data-game-layout="cards"] [data-game-screen] > div { min-width: 0; }
+.game-viewport[data-game-layout="cards"] .game-bottom-bar > div { padding-block: 8px; }
+@media (min-width: 700px) {
+  .game-viewport[data-game-layout="cards"] [data-game-screen] { flex-direction: row; align-items: center; }
+  .game-viewport[data-game-layout="cards"] [data-game-screen] > div { flex: 1 1 0; width: auto; }
+}
+@media (max-width: 699px) {
+  .game-viewport[data-game-layout="cards"] [data-game-screen] > div:first-child > div { padding: 10px; gap: 8px; }
+  .game-viewport[data-game-layout="cards"] [class~="min-h-[6rem]"] { min-height: 64px; }
+  .game-viewport[data-game-layout="blackjack"] [class~="min-h-[6rem]"] { min-height: 68px; }
+}
+
+/* A roulette wheel stays compact while all the numbers remain available. */
+.game-viewport[data-game-layout="roulette"] .roulette-wheel-space { height: clamp(140px, calc(var(--fit-height) - 470px), 240px); }
+.game-viewport[data-game-layout="roulette"] .roulette-wheel-placeholder { height: auto; }
+.game-viewport[data-game-layout="roulette"] .roulette-wheel-body { height: 100%; flex-direction: column; }
+.game-viewport[data-game-layout="roulette"] .roulette-wheel-body > div:first-child:not(.roulette-wheel-disc) { display: none; }
+.game-viewport[data-game-layout="roulette"] .roulette-wheel-disc { max-width: 100%; width: auto; height: 100%; }
+.game-viewport[data-game-layout="roulette"] .roulette-wheel-disc > * { width: 100%; height: 100%; }
+.game-viewport[data-game-layout="roulette"] .roulette-wheel-surface { position: relative; inset: auto; width: 100%; transform: none; padding: 8px; gap: 4px; }
+.game-viewport[data-game-layout="roulette"] .roulette-wheel-surface .h-8 { height: 24px; }
+@media (min-width: 900px) {
+  .game-viewport[data-game-layout="roulette"] [data-game-screen="roulette"] { flex-direction: row; }
+  .game-viewport[data-game-layout="roulette"] .roulette-wheel-space { height: clamp(220px, calc(var(--fit-height) - 260px), 420px); }
+}
+
+/* Rummy reserves the largest area for the player's hand; summaries use the drawer. */
+.game-viewport[data-game-layout="rummy"] .rm-header { height: 48px; }
+.game-viewport[data-game-layout="rummy"] .rm-titlebar { margin-bottom: 8px; }
+.game-viewport[data-game-layout="rummy"] .rm-stage { height: clamp(200px, calc(var(--fit-height) - 450px), 440px); }
+.game-viewport[data-game-layout="rummy"] .rm-hand-area { padding: 8px; }
+.game-viewport[data-game-layout="rummy"] .rm-hand-scroll { min-height: 94px; padding-block: 10px 4px; }
+.game-viewport[data-game-layout="rummy"] .rm-betting-dock { margin-top: 8px; }
+.game-viewport[data-game-layout="vegetable"] .vb-bottom-grid { grid-template-columns: minmax(0, 1fr); }
+.game-viewport[data-game-layout="vegetable"] .vb-coins { --game-coin-size: 44px; }
+
+/* Andar Bahar needs three card lanes, not a tall decorative alcove. */
+.game-viewport[data-game-viewport="andar-bahar"] .andar-table-content { display: grid; grid-template-columns: 56px minmax(0, 1fr); padding: 8px; gap: 8px; }
+.game-viewport[data-game-viewport="andar-bahar"] .andar-table-content > .absolute { display: none; }
+.game-viewport[data-game-viewport="andar-bahar"] .andar-table-content > :is(.relative:not(.andar-joker), [data-testid="deal-progress"]) { grid-column: 1 / -1; }
+.game-viewport[data-game-viewport="andar-bahar"] .andar-joker { grid-column: 1; min-width: 0; }
+.game-viewport[data-game-viewport="andar-bahar"] .andar-card-lanes { grid-column: 2; min-width: 0; }
+.game-viewport[data-game-viewport="andar-bahar"] [data-testid^="side-"] { min-height: 110px; padding: 8px; }
+.game-viewport[data-game-viewport="andar-bahar"] [data-testid^="side-"] .andar-lane-heading > div:first-child > div { display: none; }
+.game-viewport[data-game-viewport="andar-bahar"] [data-testid^="side-"] > .flex { margin-bottom: 4px; }
+.game-viewport[data-game-viewport="andar-bahar"] [data-testid^="side-"] [aria-live] { min-height: 76px; }
+.game-viewport[data-game-viewport="andar-bahar"] [data-testid^="side-"] [aria-live] > .relative + .relative { margin-left: -20px; }
+.game-viewport[data-game-viewport="andar-bahar"] .andar-side-bets { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.game-viewport[data-game-viewport="andar-bahar"] .andar-side-bets button { min-height: 44px; padding: 4px; }
+@media (min-width: 700px) {
+  .game-viewport[data-game-viewport="andar-bahar"] .andar-table-content { display: grid; grid-template-columns: 90px minmax(0, 1fr); }
+  .game-viewport[data-game-viewport="andar-bahar"] .andar-table-content > :is(.relative:not(.andar-joker), [data-testid="deal-progress"]) { grid-column: 1 / -1; }
+  .game-viewport[data-game-viewport="andar-bahar"] .andar-joker { grid-column: 1; }
+  .game-viewport[data-game-viewport="andar-bahar"] .andar-card-lanes { grid-column: 2; }
+  .game-viewport[data-game-viewport="andar-bahar"] .andar-side-bets { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .game-viewport[data-game-layout="dragon-tiger"] .dt-studio-scene { height: clamp(220px, calc(var(--fit-height) - 460px), 440px); }
+  .game-viewport[data-game-layout="dragon-tiger"] .dt-table-header { padding: 12px 16px; }
+}
+@media (min-width: 560px) and (max-height: 500px) {
+  .game-viewport[data-game-layout="rummy"] .rm-game { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .game-viewport[data-game-layout="rummy"] .rm-stage { height: 220px; }
+  .game-viewport[data-game-layout="rummy"] .rm-hand-area { min-width: 0; }
+  .game-viewport[data-game-layout="rummy"] .rm-chip-rack { gap: 4px; }
+  .game-viewport[data-game-layout="blackjack"] [data-game-screen] > div:first-child { display: grid; grid-template-columns: 1fr 1fr; }
+  .game-viewport[data-game-layout="blackjack"] [data-testid="text-result-banner"] { grid-column: 1 / -1; }
+  .game-viewport[data-game-layout="blackjack"] .game-bottom-bar > div { padding-block: 6px; }
+}
+
+@media (min-width: 700px) and (max-height: 600px) {
+  .game-viewport[data-game-layout="crash"] .crash-dual-bets { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-height: 650px) {
+  .game-viewport[data-game-layout="crash"] [data-testid^="bet-panel-"] { padding: 6px; gap: 6px; }
+  .game-viewport[data-game-layout="crash"] [role="tabpanel"] { margin-top: 6px; }
+  .game-viewport[data-game-layout="crash"] [role="tabpanel"] > * { margin-block: 0 6px; }
+  .game-viewport[data-game-layout="crash"] [data-testid^="btn-amount-"] { width: 36px; height: 36px; min-height: 36px; }
+  .game-viewport[data-game-layout="crash"] [data-testid^="input-amount-"] { height: 36px; }
+}
+
+/* Lunar Colour Trading uses native reflow instead of scaling touch controls. */
+.game-viewport[data-game-layout="wingo"] { height: auto; min-height: 100dvh; overflow: visible; max-width: none; }
+.game-viewport[data-game-layout="wingo"] > .game-fit-content { position: relative; left: auto; transform: none; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .shell { width: 100%; max-width: 1240px; padding: 20px 24px 32px; margin: auto; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .topbar { height: auto; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .topbar-inner { height: auto; min-height: 76px; padding: 12px 24px; max-width: 1240px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .overview { display: block; padding: 0; margin: 0 0 18px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .wallet-overview { width: 100%; padding: 16px 20px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .game-layout { display: block; margin: 0; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .game-column { gap: 16px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .mode-picker { margin: 0; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .mode-picker button { min-height: 48px; padding: 12px 4px; gap: 5px; flex-direction: column; text-align: center; justify-content: center; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .mode-picker small { display: none; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .mode-picker b { margin: 0; font-size: 12px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .mode-icon { display: none; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .round-ticket { margin: 0; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .prediction-panel { padding: 20px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .section-heading { margin-bottom: 12px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme :is(.option-divider, .bet-divider) { margin-block: 14px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .color-options { margin-top: 8px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .size-options { margin-top: 14px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .number-options { margin-block: 16px; }
+.game-viewport[data-game-layout="wingo"] .wingo-theme .stake-footnote { margin-top: 12px; font-size: 11px; line-height: 1.5; }
+.game-viewport[data-game-layout="wingo"] .wingo-shared-betting { gap: 10px; }
+.game-viewport[data-game-layout="wingo"] .wingo-shared-betting .coin-rack-options { grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)); gap: 8px; }
+:root .game-viewport[data-game-layout="wingo"] [data-game-coin] { width: 44px; height: 44px; min-width: 44px; min-height: 44px; max-width: 44px; max-height: 44px; flex-basis: 44px; }
+.game-information-panels .wingo-theme :is(.sidebar, .overview-stat, .overview-note, .history-section, .page-heading) { display: block; margin: 0; width: 100%; }
+@media (min-width: 960px) {
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .game-column { display: grid; grid-template-columns: minmax(300px, .7fr) minmax(0, 1fr); grid-template-rows: auto 1fr; align-items: start; }
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .prediction-panel { grid-column: 2; grid-row: 1 / 3; }
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .round-ticket { grid-column: 1; grid-row: 2; align-self: start; flex-direction: column; }
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .ticket-left { padding: 24px; }
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .ticket-right { padding: 20px 24px 28px; }
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .ticket-divider { width: auto; margin: 0 24px; border-right: 0; border-top: 1px dashed #ffffff55; }
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .ticket-divider:before,
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .ticket-divider:after { display: none; }
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .countdown > span { width: 42px; height: 54px; font-size: 34px; }
+}
+@media (max-width: 740px) {
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .shell { padding: 12px max(12px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .topbar-inner { min-height: 68px; padding: 10px 12px; gap: 8px; }
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .prediction-panel { padding: 14px; }
+  .game-viewport[data-game-layout="wingo"] .wingo-theme .game-column { gap: 12px; }
+}
+@media (min-width: 560px) and (max-height: 500px) {
+  .game-viewport[data-game-layout="crash"] { --game-coin-size: 44px; }
+  .game-viewport[data-game-layout="crash"] .crash-play-area { display: grid; grid-template-columns: minmax(140px, 1fr) minmax(300px, 1.5fr); }
+  .game-viewport[data-game-layout="crash"] .crash-scene { min-height: 130px; }
+}
+
+@media (max-width: 799px) {
+  .game-viewport[data-game-layout="plinko"] .plinko-control-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .game-viewport[data-game-layout="plinko"] .plinko-control-panel > :first-child,
+  .game-viewport[data-game-layout="plinko"] .plinko-control-panel > .auto-bet-status { grid-column: 1 / -1; }
+  .game-viewport[data-game-layout="rummy"] .rm-stage { height: clamp(200px, calc(var(--fit-height) - 480px), 320px); }
+  .game-viewport[data-game-layout="roulette"] .roulette-wheel-space { height: clamp(120px, calc(var(--fit-height) - 490px), 200px); }
+}
+@media (min-width: 560px) and (max-height: 500px) {
+  .game-viewport[data-game-layout="roulette"] [data-game-screen="roulette"] { flex-direction: row; align-items: center; }
+  .game-viewport[data-game-layout="roulette"] [data-game-screen="roulette"] > div:first-child { width: 28%; flex-shrink: 0; }
+  .game-viewport[data-game-layout="roulette"] .roulette-wheel-space { height: 140px; }
+  .game-viewport[data-game-layout="roulette"] .game-bottom-bar > div { display: grid; grid-template-columns: 1fr 210px; align-items: center; }
+}
+
+@media (max-height: 650px) {
+  .game-viewport[data-game-layout] { --game-coin-size: 44px; --game-bet-height: 52px; }
+  .game-viewport[data-game-layout="dealer"] .live-bet-layout { gap: 5px; padding: 7px; }
+  .game-viewport[data-game-layout="dealer"] .coin-rack-options { gap: 4px; }
+  .game-viewport[data-game-layout="dealer"] .live-bet-summary { min-height: 24px; }
+}
+@media (min-width: 560px) and (max-height: 500px) {
+  .game-viewport[data-game-layout="dealer"] :is(.lucky7-table-column, .tpl-main-column) { grid-template-columns: minmax(0, 1fr) 290px; grid-template-rows: auto minmax(0, 1fr); align-content: center; }
+  .game-viewport[data-game-layout="dealer"] :is(.lucky7-betting-dock, .tpl-mobile-dock) { grid-column: 2; grid-row: 1 / 3; }
+  .game-viewport[data-game-layout="dealer"] .live-bet-layout { grid-template-areas: "status status" "spots spots" "coins coins" "summary actions"; }
+  .game-viewport[data-game-layout="dealer"] .live-game-scene { max-width: 100%; }
+  .game-viewport[data-game-layout="dealer"] .lucky7-header-details { font-size: 9px; }
+  .game-viewport[data-game-layout="dice"] [data-game-screen],
+  .game-viewport[data-game-layout="mines"] [data-game-screen],
+  .game-viewport[data-game-layout="plinko"] [data-game-screen] { flex-direction: row; align-items: center; }
+  .game-viewport[data-game-layout="dice"] [data-game-screen] > div,
+  .game-viewport[data-game-layout="mines"] [data-game-screen] > div,
+  .game-viewport[data-game-layout="plinko"] [data-game-screen] > div { width: 50%; flex: 1 1 0; }
+  .game-viewport[data-game-layout="mines"] .mines-play-board { width: min(100%, max(190px, calc(var(--fit-height) - 140px))); }
+  .game-viewport[data-game-layout="plinko"] .plinko-play-board { width: min(100%, max(200px, calc((var(--fit-height) - 140px) * 1.333))); }
+}

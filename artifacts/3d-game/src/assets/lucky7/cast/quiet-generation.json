@@ -1,0 +1,185 @@
+{
+  "date": "2026-09-27",
+  "model": "wan2_7",
+  "creditsSpent": 45,
+  "requests": [
+    {
+      "index": 1,
+      "params": {
+        "model": "wan2_7",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "16:9",
+        "count": 1,
+        "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+        "prompt": "Locked-off photorealistic casino camera. Exactly preserve this seated adult dealer, her size, her resting hands, the table, tray, lighting and architecture. Six seconds of quiet attentive waiting during betting. She stays seated with her forearms comfortably supported at the table; shoulders and chest remain steady and relaxed. Just one normal brief blink around 2 seconds and a very small glance down toward the felt at 4 seconds, then her eyes return to the camera. Closed mouth, gentle neutral expression. No talking, no gesturing, no swaying, no head bobbing, no deep breathing, no chest heaving, no shoulder lifting. People far behind her move subtly at ordinary speed. No camera movement or zoom. No objects appear, no dice. End in precisely the starting resting pose for a seamless forward loop. Natural real-time human footage, not slow motion.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "ab05e372-3455-4ff8-86f9-0a17171b258e"
+          },
+          {
+            "role": "end_image",
+            "value": "ab05e372-3455-4ff8-86f9-0a17171b258e"
+          }
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "params": {
+        "model": "wan2_7",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "16:9",
+        "count": 1,
+        "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+        "prompt": "Locked-off photorealistic casino camera. Exactly preserve this seated adult dealer, her size, her resting hands, the table, tray, lighting and architecture. Six seconds of quiet attentive waiting during betting. She stays seated with her forearms comfortably supported at the table; shoulders and chest remain steady and relaxed. Just one normal brief blink around 2 seconds and a very small glance down toward the felt at 4 seconds, then her eyes return to the camera. Closed mouth, gentle neutral expression. No talking, no gesturing, no swaying, no head bobbing, no deep breathing, no chest heaving, no shoulder lifting. People far behind her move subtly at ordinary speed. No camera movement or zoom. No objects appear, no dice. End in precisely the starting resting pose for a seamless forward loop. Natural real-time human footage, not slow motion.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "b3c21f59-1073-4b48-91dd-282a8e50640c"
+          },
+          {
+            "role": "end_image",
+            "value": "b3c21f59-1073-4b48-91dd-282a8e50640c"
+          }
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "params": {
+        "model": "wan2_7",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "16:9",
+        "count": 1,
+        "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+        "prompt": "Locked-off photorealistic casino camera. Exactly preserve this seated adult dealer, her size, her resting hands, the table, tray, lighting and architecture. Six seconds of quiet attentive waiting during betting. She stays seated with her forearms comfortably supported at the table; shoulders and chest remain steady and relaxed. Just one normal brief blink around 2 seconds and a very small glance down toward the felt at 4 seconds, then her eyes return to the camera. Closed mouth, gentle neutral expression. No talking, no gesturing, no swaying, no head bobbing, no deep breathing, no chest heaving, no shoulder lifting. People far behind her move subtly at ordinary speed. No camera movement or zoom. No objects appear, no dice. End in precisely the starting resting pose for a seamless forward loop. Natural real-time human footage, not slow motion.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "18f69fb5-cdb6-4ced-b7b0-f8216593d988"
+          },
+          {
+            "role": "end_image",
+            "value": "18f69fb5-cdb6-4ced-b7b0-f8216593d988"
+          }
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "params": {
+        "model": "wan2_7",
+        "duration": 6,
+        "resolution": "720p",
+        "aspect_ratio": "16:9",
+        "count": 1,
+        "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+        "prompt": "Locked-off photorealistic casino camera. Exactly preserve this seated adult dealer, her size, her resting hands, the table, tray, lighting and architecture. Six seconds of quiet attentive waiting during betting. She stays seated with her forearms comfortably supported at the table; shoulders and chest remain steady and relaxed. Just one normal brief blink around 2 seconds and a very small glance down toward the felt at 4 seconds, then her eyes return to the camera. Closed mouth, gentle neutral expression. No talking, no gesturing, no swaying, no head bobbing, no deep breathing, no chest heaving, no shoulder lifting. People far behind her move subtly at ordinary speed. No camera movement or zoom. No objects appear, no dice. End in precisely the starting resting pose for a seamless forward loop. Natural real-time human footage, not slow motion.",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "f0c9b197-56de-42a4-a14b-3f2e24c79086"
+          },
+          {
+            "role": "end_image",
+            "value": "f0c9b197-56de-42a4-a14b-3f2e24c79086"
+          }
+        ]
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "index": 1,
+      "job_id": "b99549c9-a3b7-499c-8975-0dc88bf8fa98",
+      "status": "completed",
+      "type": "video",
+      "model": "wan2_7",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260926_221526_b99549c9-a3b7-499c-8975-0dc88bf8fa98.mp4",
+      "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/ab05e372-3455-4ff8-86f9-0a17171b258e.jpg"
+    },
+    {
+      "index": 2,
+      "job_id": "38efd5a8-8c9b-4583-9c81-4aebc05a18e6",
+      "status": "completed",
+      "type": "video",
+      "model": "wan2_7",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260926_221525_38efd5a8-8c9b-4583-9c81-4aebc05a18e6.mp4",
+      "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/b3c21f59-1073-4b48-91dd-282a8e50640c.jpg"
+    },
+    {
+      "index": 3,
+      "job_id": "8b0188b6-a4a9-45fa-bae7-6c15d78e3970",
+      "status": "completed",
+      "type": "video",
+      "model": "wan2_7",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260926_221525_8b0188b6-a4a9-45fa-bae7-6c15d78e3970.mp4",
+      "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/18f69fb5-cdb6-4ced-b7b0-f8216593d988.jpg"
+    },
+    {
+      "index": 4,
+      "job_id": "52060c05-34fe-4b14-8acf-f926bdadce66",
+      "status": "completed",
+      "type": "video",
+      "model": "wan2_7",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260926_221525_52060c05-34fe-4b14-8acf-f926bdadce66.mp4",
+      "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/f0c9b197-56de-42a4-a14b-3f2e24c79086.jpg"
+    }
+  ],
+  "replacement": {
+    "params": {
+      "model": "wan2_7",
+      "duration": 6,
+      "resolution": "720p",
+      "aspect_ratio": "16:9",
+      "count": 1,
+      "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+      "prompt": "Locked-off photorealistic casino camera. Exactly preserve this seated adult dealer, her size, her resting hands, the table, tray, lighting and architecture. Six seconds of quiet attentive waiting during betting. She stays seated with her forearms comfortably supported at the table; shoulders and chest remain steady and relaxed. Just one normal brief blink around 2 seconds and a very small glance down toward the felt at 4 seconds, then her eyes return to the camera. Closed mouth, gentle neutral expression. No talking, no gesturing, no swaying, no head bobbing, no deep breathing, no chest heaving, no shoulder lifting. People far behind her move subtly at ordinary speed. No camera movement or zoom. No objects appear, no dice. End in precisely the starting resting pose for a seamless forward loop. Natural real-time human footage, not slow motion.",
+      "medias": [
+        {
+          "role": "start_image",
+          "value": "27c69b74-56cc-4dc5-9c15-377cdbe34a50"
+        },
+        {
+          "role": "end_image",
+          "value": "27c69b74-56cc-4dc5-9c15-377cdbe34a50"
+        }
+      ]
+    },
+    "job": {
+      "index": 1,
+      "job_id": "0a52156d-5b2f-4847-928a-1a263b10117f",
+      "status": "completed",
+      "type": "video",
+      "model": "wan2_7",
+      "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260926_222048_0a52156d-5b2f-4847-928a-1a263b10117f.mp4",
+      "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/27c69b74-56cc-4dc5-9c15-377cdbe34a50.jpg"
+    }
+  },
+  "optimized": [
+    {
+      "media_id": "3a11c541-c5f3-4ba9-bffb-d50748caeb9b",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/3a11c541-c5f3-4ba9-bffb-d50748caeb9b.mp4"
+    },
+    {
+      "media_id": "2d740523-b218-4eb3-9d52-f129174b3a9d",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/2d740523-b218-4eb3-9d52-f129174b3a9d.mp4"
+    },
+    {
+      "media_id": "585e2de6-f1bd-4191-8ffa-0e94d387091a",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/585e2de6-f1bd-4191-8ffa-0e94d387091a.mp4"
+    },
+    {
+      "media_id": "6b869631-47f1-45dd-89c4-2f1cf26b0274",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/6b869631-47f1-45dd-89c4-2f1cf26b0274.mp4"
+    }
+  ],
+  "mayaOptimized": {
+    "media_id": "79a74871-0663-49ee-a9a5-a6206713cdca",
+    "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/79a74871-0663-49ee-a9a5-a6206713cdca.mp4"
+  }
+}

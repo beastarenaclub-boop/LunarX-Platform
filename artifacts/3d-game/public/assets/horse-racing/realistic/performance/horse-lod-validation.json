@@ -1,0 +1,343 @@
+{
+  "source": "earth/thoroughbred-v2.glb",
+  "license": "CC0",
+  "trianglesBefore": 37160,
+  "trianglesAfter": 15607,
+  "bones": [
+    "Bone",
+    "Bone.001",
+    "Bone.002",
+    "Bone.001_L",
+    "Bone.001_R",
+    "Bone_L",
+    "Bone_L.001",
+    "Bone_L.002",
+    "HoofFront_L",
+    "Bone_R",
+    "Bone_R.001",
+    "Bone_R.002",
+    "HoofFront_R",
+    "Bone_L.003",
+    "Bone_L.004",
+    "Bone_L.005",
+    "HoofHind_L",
+    "Bone_R.003",
+    "Bone_R.004",
+    "Bone_R.005",
+    "HoofHind_R",
+    "Bone.003",
+    "Bone.004"
+  ],
+  "frames": [
+    {
+      "clip": "Idle",
+      "frame": 1,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 2,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 3,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 4,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 5,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 6,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 7,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 8,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 9,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 10,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 11,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 12,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 13,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 14,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 15,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 16,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 17,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 18,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 19,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 20,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 21,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 22,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 23,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 24,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 25,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 26,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 27,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 28,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 29,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 30,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Idle",
+      "frame": 31,
+      "minZ": -0.0007
+    },
+    {
+      "clip": "Gallop",
+      "frame": 1,
+      "minZ": 0.0188
+    },
+    {
+      "clip": "Gallop",
+      "frame": 2,
+      "minZ": 0.0189
+    },
+    {
+      "clip": "Gallop",
+      "frame": 3,
+      "minZ": 0.0164
+    },
+    {
+      "clip": "Gallop",
+      "frame": 4,
+      "minZ": 0.0158
+    },
+    {
+      "clip": "Gallop",
+      "frame": 5,
+      "minZ": 0.0386
+    },
+    {
+      "clip": "Gallop",
+      "frame": 6,
+      "minZ": 0.0689
+    },
+    {
+      "clip": "Gallop",
+      "frame": 7,
+      "minZ": 0.1075
+    },
+    {
+      "clip": "Gallop",
+      "frame": 8,
+      "minZ": 0.1775
+    },
+    {
+      "clip": "Gallop",
+      "frame": 9,
+      "minZ": 0.2454
+    },
+    {
+      "clip": "Gallop",
+      "frame": 10,
+      "minZ": 0.1619
+    },
+    {
+      "clip": "Gallop",
+      "frame": 11,
+      "minZ": 0.0836
+    },
+    {
+      "clip": "Gallop",
+      "frame": 12,
+      "minZ": 0.0172
+    },
+    {
+      "clip": "Gallop",
+      "frame": 13,
+      "minZ": -0.0224
+    },
+    {
+      "clip": "Gallop",
+      "frame": 14,
+      "minZ": -0.0215
+    },
+    {
+      "clip": "Gallop",
+      "frame": 15,
+      "minZ": -0.0192
+    },
+    {
+      "clip": "Gallop",
+      "frame": 16,
+      "minZ": -0.0162
+    },
+    {
+      "clip": "Gallop",
+      "frame": 17,
+      "minZ": -0.0218
+    },
+    {
+      "clip": "Gallop",
+      "frame": 18,
+      "minZ": -0.0201
+    },
+    {
+      "clip": "Gallop",
+      "frame": 19,
+      "minZ": -0.0173
+    },
+    {
+      "clip": "Gallop",
+      "frame": 20,
+      "minZ": -0.0141
+    },
+    {
+      "clip": "Gallop",
+      "frame": 21,
+      "minZ": -0.0112
+    },
+    {
+      "clip": "Gallop",
+      "frame": 22,
+      "minZ": -0.0093
+    },
+    {
+      "clip": "Gallop",
+      "frame": 23,
+      "minZ": 0.0659
+    },
+    {
+      "clip": "Gallop",
+      "frame": 24,
+      "minZ": 0.1791
+    },
+    {
+      "clip": "Gallop",
+      "frame": 25,
+      "minZ": 0.2368
+    },
+    {
+      "clip": "Gallop",
+      "frame": 26,
+      "minZ": 0.1339
+    },
+    {
+      "clip": "Gallop",
+      "frame": 27,
+      "minZ": 0.0514
+    },
+    {
+      "clip": "Gallop",
+      "frame": 28,
+      "minZ": 0.0193
+    },
+    {
+      "clip": "Gallop",
+      "frame": 29,
+      "minZ": 0.0176
+    },
+    {
+      "clip": "Gallop",
+      "frame": 30,
+      "minZ": 0.0153
+    },
+    {
+      "clip": "Gallop",
+      "frame": 31,
+      "minZ": 0.0188
+    }
+  ]
+}

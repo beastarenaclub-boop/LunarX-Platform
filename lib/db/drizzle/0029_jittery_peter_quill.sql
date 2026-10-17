@@ -1,0 +1,1 @@
+ALTER TABLE "blackjack_rounds" ADD COLUMN "version" integer DEFAULT 0 NOT NULL;

@@ -1,0 +1,1450 @@
+.vb-page {
+  --vb-ink: #233e5c;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 62px minmax(0, 1fr);
+  background: #eff4fa;
+  color: var(--vb-ink);
+  font:
+    13px Inter,
+    "Segoe UI",
+    sans-serif;
+}
+.vb-page * {
+  box-sizing: border-box;
+}
+.vb-page button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.vb-page button:disabled {
+  cursor: not-allowed;
+}
+.vb-page :is(button, a, input):focus-visible {
+  outline: 3px solid #5795df;
+  outline-offset: 2px;
+}
+.vb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 23px;
+  background: white;
+  border-bottom: 1px solid #dce5ed;
+}
+.vb-brand-group,
+.vb-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.vb-back {
+  display: grid;
+  place-items: center;
+  color: #648199;
+  padding: 7px;
+}
+.vb-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  color: white;
+  background: linear-gradient(145deg, #72c995, #277e68);
+  box-shadow: 0 3px #236654;
+  transform: rotate(-7deg);
+}
+.vb-brand-group strong {
+  font-size: 21px;
+  letter-spacing: -0.8px;
+  color: #25456c;
+}
+.vb-brand-group strong span {
+  color: #54a77a;
+}
+.vb-brand-group small {
+  display: block;
+  margin-top: 2px;
+  color: #7d91a4;
+  font-size: 7px;
+  letter-spacing: 1.5px;
+}
+.vb-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #dae4ed;
+  border-radius: 10px;
+  background: #f3f7fb;
+  color: #6384a1;
+}
+.vb-wallet {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 11px;
+  border: 1px solid #d7e2ef;
+  border-radius: 12px;
+  background: #edf4ff;
+  color: #395d89;
+  text-decoration: none;
+}
+.vb-wallet small {
+  display: block;
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+.vb-wallet strong {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.vb-wallet > svg:last-child {
+  border-radius: 6px;
+  background: #cee0fa;
+  padding: 2px;
+  width: 23px;
+  height: 23px;
+}
+.vb-content {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 12px;
+  padding: 15px 22px 9px;
+}
+.vb-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.vb-heading > div {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+.vb-eyebrow {
+  font-size: 8px;
+  color: #6285a1;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+.vb-heading .vb-eyebrow {
+  display: none;
+}
+.vb-heading h1 {
+  font-size: 23px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.6px;
+}
+.vb-heading p {
+  font-size: 11px;
+  color: #8699a9;
+  margin: 0;
+}
+.vb-rules-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #66859e;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+}
+.vb-game-layout {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+}
+.vb-play-area {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 42px minmax(0, 1fr) 32px;
+  overflow: hidden;
+  border-radius: 21px;
+  border: 1px solid #aed7e4;
+  background: #d8f1f4;
+  box-shadow: 0 4px #c4dfe7;
+}
+.vb-scene-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 16px;
+  background: #f1fcff;
+  border-bottom: 1px solid #cae4e8;
+}
+.vb-round-label {
+  font-size: 9px;
+  color: #7c97aa;
+  letter-spacing: 0.7px;
+}
+.vb-round-label b {
+  color: #3e7899;
+  font-weight: 600;
+  margin-left: 5px;
+}
+.vb-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  background: #fff4d8;
+  color: #98753a;
+  border-radius: 20px;
+  font-size: 9px;
+}
+.vb-status > span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.vb-status.is-open {
+  background: #dbf3d7;
+  color: #498354;
+}
+.vb-stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background: linear-gradient(#c5f1ff, #edf5cc 75%, #c59260);
+}
+.vb-harvest-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.vb-harvest-svg .vb-bowl-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.vb-stage-caption {
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  color: #476c81;
+  pointer-events: none;
+}
+.vb-stage-caption > span {
+  font-size: 8px;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+.vb-stage-caption h2 {
+  margin: 2px 0 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #2b5c70;
+  text-shadow: 0 1px #fff9;
+}
+.vb-collected-badge {
+  position: absolute;
+  right: 13px;
+  top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  border: 1px solid #fff9;
+  border-radius: 14px;
+  background: #ffffffb5;
+  box-shadow: 0 3px 12px #719dab13;
+  color: #538b75;
+}
+.vb-collected-badge strong {
+  font-size: 23px;
+  color: #366881;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.vb-collected-badge span {
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+.vb-round-callout {
+  position: absolute;
+  bottom: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  white-space: nowrap;
+  padding: 7px 13px;
+  background: #fff8e8ee;
+  border: 1px solid #fffb;
+  border-radius: 20px;
+  box-shadow: 0 3px 8px #84684925;
+  color: #82664c;
+  font-size: 10px;
+}
+.vb-round-callout strong {
+  color: #39694c;
+  font-size: 12px;
+}
+.vb-round-callout.result-risk {
+  background: #f3e3ff;
+  color: #8c50b1;
+}
+.vb-round-callout.result-junk {
+  background: #fff0e7;
+  border-color: #e8ae90;
+  color: #91432e;
+}
+.vb-round-callout.result-junk strong,
+.vb-scene-footer .vb-junk-notice {
+  color: #91432e;
+}
+.vb-junk-rule {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff0e7;
+  color: #91432e;
+}
+.vb-history-item.history-junk > span {
+  background: #fff0e7;
+  color: #91432e;
+}
+.vb-scene-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  padding: 6px 14px;
+  background: #eaf6ef;
+  color: #6f947e;
+  font-size: 9px;
+}
+.vb-scene-footer span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.vb-scene-footer i {
+  width: 3px;
+  height: 3px;
+  background: #9cbaa4;
+  border-radius: 50%;
+}
+.vb-bet-panel {
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: white;
+  border: 1px solid #dce4ee;
+  border-radius: 21px;
+  padding: 16px;
+  box-shadow: 0 4px #dce5ef;
+}
+.vb-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.vb-panel-heading h2 {
+  margin: 4px 0 0;
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+}
+.vb-step {
+  font-size: 9px;
+  color: #a2b0bf;
+  letter-spacing: 1px;
+}
+.vb-modes {
+  display: grid;
+  gap: 8px;
+}
+.vb-mode {
+  --accent: #50a879;
+  --pale: #e8f7ed;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 65px;
+  padding: 10px 9px;
+  color: var(--vb-ink);
+  text-align: left;
+  background: var(--pale);
+  border: 2px solid transparent;
+  border-bottom: 3px solid color-mix(in srgb, var(--accent) 22%, white);
+  border-radius: 12px;
+  transition: border-color 0.15s;
+}
+.vb-mode[data-mode="hard"] {
+  --accent: #e2a046;
+  --pale: #fff2d8;
+}
+.vb-mode[data-mode="risk"] {
+  --accent: #a575d1;
+  --pale: #f3e8fd;
+}
+.vb-mode.selected {
+  border-color: var(--accent);
+}
+.vb-mode-illustration {
+  width: 32px;
+  flex-shrink: 0;
+}
+.vb-mode-illustration svg {
+  width: 100%;
+  height: 38px;
+}
+.vb-mode-copy {
+  flex: 1;
+}
+.vb-mode-copy > strong {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 750;
+}
+.vb-mode-copy > span {
+  display: block;
+  font-size: 10px;
+  color: #82939c;
+  margin-top: 4px;
+}
+.vb-mode-copy strong small {
+  font-size: 6px;
+  color: #a373c3;
+}
+.vb-mode-price {
+  text-align: right;
+  color: var(--accent);
+}
+.vb-mode-price > strong {
+  font-size: 21px;
+  letter-spacing: -0.5px;
+}
+.vb-mode-price strong small {
+  font-size: 13px;
+}
+.vb-mode-price > span {
+  display: block;
+  font-size: 7px;
+  color: #94a0a4;
+}
+.vb-mode-radio {
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.vb-mode.selected .vb-mode-radio {
+  background: var(--accent);
+  color: white;
+}
+.vb-amount-label {
+  display: flex;
+  justify-content: space-between;
+  margin: 14px 0 7px;
+  font-size: 10px;
+  font-weight: 650;
+}
+.vb-amount-label > span {
+  font-size: 9px;
+  color: #99a8b7;
+  font-weight: 400;
+}
+.vb-amount {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 6px 9px;
+  background: #f4f7fb;
+  border: 1px solid #dce5ee;
+  border-radius: 10px;
+}
+.vb-amount > span {
+  font-size: 16px;
+  color: #7b99b6;
+}
+.vb-amount input {
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  color: #335981;
+  font:
+    700 16px Inter,
+    "Segoe UI",
+    sans-serif;
+}
+.vb-amount button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: #e1eaf5;
+  color: #668ab0;
+}
+.vb-quick-amounts {
+  display: flex;
+  gap: 6px;
+  margin-top: 7px;
+}
+.vb-quick-amounts button {
+  flex: 1;
+  min-height: 27px;
+  border: 1px solid #dce5ee;
+  border-radius: 7px;
+  background: #f5f8fc;
+  color: #8b9eb3;
+  font-size: 10px;
+}
+.vb-quick-amounts button.active {
+  background: #e1edff;
+  color: #497cc2;
+  border-color: #a6c5f3;
+}
+.vb-return {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 13px 0;
+  font-size: 10px;
+  color: #8297ac;
+}
+.vb-return strong {
+  color: #45936e;
+  font-size: 18px;
+}
+.vb-place-bet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 43px;
+  padding: 9px;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #6096e4, #6472cd);
+  color: white;
+  box-shadow: 0 3px #4159a0;
+  font:
+    700 13px Inter,
+    "Segoe UI",
+    sans-serif;
+}
+.vb-place-bet:disabled {
+  background: #a4b5cb;
+  box-shadow: 0 3px #889bb4;
+}
+.vb-feedback {
+  margin: 9px 0 0;
+  min-height: 20px;
+  color: #9baaba;
+  font-size: 9px;
+  line-height: 1.4;
+  text-align: center;
+}
+.vb-feedback.error {
+  color: #c47755;
+}
+.vb-bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+  min-height: 0;
+}
+.vb-history,
+.vb-your-round {
+  min-width: 0;
+  background: white;
+  border: 1px solid #dce5ee;
+  border-radius: 13px;
+  padding: 9px 13px;
+}
+.vb-history {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}
+.vb-section-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #92a7bb;
+  flex-shrink: 0;
+}
+.vb-section-label h3 {
+  font-size: 10px;
+  font-weight: 650;
+  color: #6b849e;
+  margin: 0;
+}
+.vb-section-label > span {
+  font-size: 7px;
+  color: #a6b4c3;
+}
+.vb-history-list {
+  display: flex;
+  gap: 7px;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.vb-history-list > p {
+  font-size: 10px;
+  color: #9baabd;
+  margin: 0;
+}
+.vb-history-item {
+  text-align: center;
+}
+.vb-history-item > span {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  background: #e0f4e5;
+  color: #5a9c72;
+  font-size: 11px;
+  font-weight: 700;
+}
+.vb-history-item.history-hard > span {
+  background: #fff0d2;
+  color: #c2974d;
+}
+.vb-history-item.history-risk > span {
+  background: #efddfb;
+  color: #a277be;
+}
+.vb-history-item small {
+  display: none;
+}
+.vb-your-round {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.vb-your-round > div:nth-child(2) {
+  display: flex;
+  gap: 20px;
+}
+.vb-your-round > div:nth-child(2) > span {
+  color: #90a1b3;
+  font-size: 8px;
+}
+.vb-your-round b {
+  display: block;
+  color: #547497;
+  font-size: 12px;
+  margin-top: 3px;
+}
+.vb-your-round > small {
+  font-size: 8px;
+  color: #8b9fb3;
+  width: 100%;
+}
+.vb-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #99aabd;
+  font-size: 8px;
+}
+.vb-footer span,
+.vb-footer button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.vb-footer button {
+  color: #8ba1b7;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: 8px;
+}
+.vb-rules-dialog {
+  background: #f8fbff !important;
+  color: #355777 !important;
+  border: 1px solid #d8e5f0 !important;
+  max-height: 90dvh;
+  overflow: auto;
+  border-radius: 18px !important;
+}
+.vb-rules-dialog p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #728aa1;
+}
+.vb-rules-table {
+  display: grid;
+  gap: 7px;
+}
+.vb-rules-table > div {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 0.5fr;
+  align-items: center;
+  gap: 4px;
+  background: #e9f4ef;
+  padding: 10px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+.vb-rules-table > div:nth-child(2) {
+  background: #fff2da;
+}
+.vb-rules-table > div:nth-child(3) {
+  background: #f0e5fb;
+}
+.vb-rules-table small {
+  grid-column: 1/-1;
+  color: #8194a4;
+}
+.vb-rules-table b {
+  text-align: right;
+}
+@media (max-height: 760px) and (min-width: 761px) {
+  .vb-page {
+    grid-template-rows: 50px minmax(0, 1fr);
+  }
+  .vb-content {
+    gap: 8px;
+    padding: 9px 15px;
+  }
+  .vb-heading h1 {
+    font-size: 19px;
+  }
+  .vb-heading p {
+    font-size: 9px;
+  }
+  .vb-bet-panel {
+    padding: 11px 14px;
+  }
+  .vb-panel-heading {
+    margin-bottom: 7px;
+  }
+  .vb-panel-heading h2 {
+    font-size: 16px;
+    margin: 0;
+  }
+  .vb-panel-heading .vb-eyebrow {
+    display: none;
+  }
+  .vb-mode {
+    min-height: 46px;
+    padding: 5px 7px;
+  }
+  .vb-modes {
+    gap: 5px;
+  }
+  .vb-mode-illustration svg {
+    height: 28px;
+  }
+  .vb-mode-copy > span {
+    margin-top: 2px;
+  }
+  .vb-mode-price > strong {
+    font-size: 18px;
+  }
+  .vb-amount-label {
+    margin: 8px 0 4px;
+  }
+  .vb-amount {
+    height: 35px;
+  }
+  .vb-quick-amounts {
+    margin-top: 5px;
+  }
+  .vb-quick-amounts button {
+    min-height: 23px;
+  }
+  .vb-return {
+    margin: 8px 0;
+  }
+  .vb-return strong {
+    font-size: 16px;
+  }
+  .vb-place-bet {
+    min-height: 35px;
+    padding: 6px;
+  }
+  .vb-feedback {
+    margin-top: 6px;
+    min-height: 15px;
+    font-size: 8px;
+  }
+  .vb-bottom-grid {
+    gap: 10px;
+  }
+  .vb-history,
+  .vb-your-round {
+    padding: 7px 11px;
+  }
+}
+@media (max-width: 760px) {
+  .vb-page {
+    grid-template-rows: 48px minmax(0, 1fr);
+  }
+  .vb-header {
+    padding: 5px 8px;
+    gap: 6px;
+  }
+  .vb-brand-group {
+    gap: 6px;
+  }
+  .vb-brand-mark {
+    width: 27px;
+    height: 27px;
+    border-radius: 9px;
+  }
+  .vb-brand-mark svg {
+    width: 20px;
+  }
+  .vb-brand-group strong {
+    font-size: 16px;
+  }
+  .vb-brand-group small {
+    display: none;
+  }
+  .vb-back {
+    padding: 3px;
+  }
+  .vb-back svg {
+    width: 17px;
+  }
+  .vb-header-actions {
+    gap: 5px;
+  }
+  .vb-icon-btn {
+    width: 27px;
+    height: 29px;
+    border-radius: 8px;
+  }
+  .vb-icon-btn svg {
+    width: 16px;
+  }
+  .vb-wallet {
+    gap: 4px;
+    padding: 4px 7px;
+    border-radius: 8px;
+  }
+  .vb-wallet > svg {
+    display: none;
+  }
+  .vb-wallet small {
+    font-size: 6px;
+    letter-spacing: 0.6px;
+  }
+  .vb-wallet strong {
+    font-size: 12px;
+  }
+  .vb-content {
+    gap: 7px;
+    padding: 7px 8px 5px;
+    grid-template-rows: 23px minmax(0, 1fr) auto 12px;
+  }
+  .vb-heading h1 {
+    font-size: 17px;
+    letter-spacing: -0.5px;
+  }
+  .vb-heading p,
+  .vb-rules-link {
+    display: none;
+  }
+  .vb-game-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) 225px;
+    gap: 8px;
+  }
+  .vb-play-area {
+    grid-template-rows: 29px minmax(0, 1fr) 23px;
+    border-radius: 15px;
+    box-shadow: 0 2px #c4dfe7;
+  }
+  .vb-scene-top {
+    padding: 3px 10px;
+  }
+  .vb-round-label {
+    font-size: 8px;
+  }
+  .vb-status {
+    font-size: 8px;
+    padding: 3px 7px;
+  }
+  .vb-stage-caption {
+    top: 7px;
+    left: 9px;
+  }
+  .vb-stage-caption > span {
+    font-size: 6px;
+  }
+  .vb-stage-caption h2 {
+    font-size: 12px;
+    margin-top: 0;
+  }
+  .vb-collected-badge {
+    top: 7px;
+    right: 7px;
+    padding: 4px 7px;
+    gap: 4px;
+    border-radius: 9px;
+  }
+  .vb-collected-badge strong {
+    font-size: 18px;
+  }
+  .vb-collected-badge span {
+    font-size: 5px;
+  }
+  .vb-collected-badge svg {
+    width: 11px;
+  }
+  .vb-round-callout {
+    padding: 4px 8px;
+    bottom: 5px;
+    font-size: 8px;
+    gap: 5px;
+  }
+  .vb-round-callout strong {
+    font-size: 10px;
+  }
+  .vb-round-callout svg {
+    width: 12px;
+    height: 12px;
+  }
+  .vb-scene-footer {
+    font-size: 7px;
+    padding: 3px 9px;
+  }
+  .vb-scene-footer svg {
+    width: 12px;
+    height: 12px;
+  }
+  .vb-bet-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 112px;
+    grid-template-rows: 18px 62px 17px 34px 27px 18px;
+    column-gap: 9px;
+    row-gap: 4px;
+    border-radius: 15px;
+    padding: 8px 10px;
+    box-shadow: 0 2px #dce5ef;
+  }
+  .vb-panel-heading {
+    grid-column: 1/-1;
+    margin: 0;
+  }
+  .vb-panel-heading .vb-eyebrow {
+    display: none;
+  }
+  .vb-panel-heading h2 {
+    margin: 0;
+    font-size: 12px;
+  }
+  .vb-step {
+    font-size: 8px;
+  }
+  .vb-modes {
+    grid-column: 1/-1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .vb-mode {
+    display: grid;
+    position: relative;
+    grid-template-columns: 22px 1fr;
+    grid-template-rows: 18px 15px 18px;
+    gap: 0 4px;
+    padding: 3px 5px;
+    min-height: 0;
+    border-radius: 9px;
+  }
+  .vb-mode-illustration {
+    width: 22px;
+    grid-row: 1/3;
+  }
+  .vb-mode-illustration svg {
+    height: 27px;
+  }
+  .vb-mode-copy {
+    display: contents;
+  }
+  .vb-mode-copy > strong {
+    font-size: 11px;
+    grid-column: 2;
+  }
+  .vb-mode-copy > span {
+    font-size: 7px;
+    margin: 0;
+    grid-column: 2;
+    white-space: nowrap;
+  }
+  .vb-mode-copy strong small {
+    display: none;
+  }
+  .vb-mode-price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    grid-column: 1/-1;
+  }
+  .vb-mode-price > strong {
+    font-size: 16px;
+  }
+  .vb-mode-price strong small {
+    font-size: 10px;
+  }
+  .vb-mode-price > span {
+    font-size: 6px;
+  }
+  .vb-mode-radio {
+    display: none;
+  }
+  .vb-amount-label {
+    grid-column: 1;
+    margin: 0;
+    font-size: 9px;
+    align-items: end;
+  }
+  .vb-amount-label > span {
+    font-size: 8px;
+  }
+  .vb-amount {
+    grid-row: 4;
+    grid-column: 1;
+    height: 34px;
+    gap: 5px;
+    padding: 4px 7px;
+  }
+  .vb-amount input {
+    font-size: 16px;
+  }
+  .vb-amount button {
+    width: 25px;
+    height: 26px;
+  }
+  .vb-quick-amounts {
+    grid-column: 1;
+    grid-row: 5;
+    margin: 0;
+    gap: 4px;
+  }
+  .vb-quick-amounts button {
+    min-height: 27px;
+    font-size: 9px;
+  }
+  .vb-return {
+    grid-row: 3/5;
+    grid-column: 2;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    font-size: 7px;
+    text-align: center;
+  }
+  .vb-return strong {
+    font-size: 19px;
+  }
+  .vb-place-bet {
+    grid-column: 2;
+    grid-row: 5;
+    min-height: 30px;
+    padding: 4px;
+    font-size: 11px;
+    border-radius: 8px;
+    gap: 5px;
+    align-self: end;
+  }
+  .vb-place-bet svg {
+    width: 14px;
+  }
+  .vb-feedback {
+    grid-column: 1/-1;
+    grid-row: 6;
+    min-height: 0;
+    margin: 3px 0 0;
+    font-size: 8px;
+    line-height: 1.15;
+  }
+  .vb-bottom-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+  .vb-history,
+  .vb-your-round {
+    padding: 5px 7px;
+    border-radius: 9px;
+  }
+  .vb-history {
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .vb-section-label {
+    gap: 4px;
+  }
+  .vb-section-label h3 {
+    font-size: 8px;
+  }
+  .vb-section-label svg {
+    width: 11px;
+    height: 11px;
+  }
+  .vb-section-label > span {
+    display: none;
+  }
+  .vb-history-list {
+    gap: 3px;
+  }
+  .vb-history-item > span {
+    width: 17px;
+    height: 17px;
+    border-radius: 5px;
+    font-size: 8px;
+  }
+  .vb-history-list > p {
+    font-size: 7px;
+  }
+  .vb-your-round {
+    gap: 3px;
+  }
+  .vb-your-round > div:nth-child(2) {
+    gap: 9px;
+  }
+  .vb-your-round b {
+    font-size: 10px;
+    margin-top: 0;
+  }
+  .vb-your-round > div:nth-child(2) > span {
+    font-size: 7px;
+  }
+  .vb-your-round > small {
+    font-size: 6px;
+  }
+  .vb-footer,
+  .vb-footer button {
+    font-size: 7px;
+  }
+  .vb-footer svg {
+    width: 10px;
+    height: 10px;
+  }
+}
+@media (max-width: 360px) {
+  .vb-brand-mark {
+    display: none;
+  }
+  .vb-brand-group strong {
+    font-size: 15px;
+  }
+  .vb-bet-panel {
+    grid-template-columns: minmax(0, 1fr) 99px;
+    padding: 8px;
+    column-gap: 7px;
+  }
+  .vb-mode-price > span {
+    display: none;
+  }
+  .vb-mode-copy > span {
+    font-size: 6px;
+  }
+  .vb-mode {
+    gap: 0 2px;
+  }
+  .vb-stage-caption h2 {
+    font-size: 11px;
+  }
+  .vb-collected-badge span {
+    display: none;
+  }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .vb-page {
+    grid-template-rows: 39px minmax(0, 1fr);
+  }
+  .vb-header {
+    padding: 3px 12px;
+  }
+  .vb-content {
+    padding: 5px 9px;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 5px;
+  }
+  .vb-heading,
+  .vb-footer {
+    display: none;
+  }
+  .vb-game-layout {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    grid-template-rows: minmax(0, 1fr);
+    gap: 9px;
+  }
+  .vb-bet-panel {
+    display: flex;
+    padding: 7px 10px;
+  }
+  .vb-panel-heading {
+    margin-bottom: 4px;
+  }
+  .vb-panel-heading h2 {
+    font-size: 13px;
+  }
+  .vb-panel-heading .vb-eyebrow {
+    display: none;
+  }
+  .vb-modes {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+  .vb-mode {
+    display: flex;
+    min-height: 38px;
+    padding: 3px 6px;
+  }
+  .vb-mode-illustration svg {
+    height: 25px;
+  }
+  .vb-mode-copy {
+    display: block;
+  }
+  .vb-mode-price {
+    display: block;
+  }
+  .vb-mode-price > strong {
+    font-size: 17px;
+  }
+  .vb-mode-copy > strong {
+    font-size: 11px;
+  }
+  .vb-mode-copy > span {
+    font-size: 8px;
+    margin-top: 0;
+  }
+  .vb-amount-label {
+    margin: 5px 0 3px;
+    font-size: 9px;
+  }
+  .vb-amount {
+    height: 30px;
+  }
+  .vb-amount button {
+    height: 23px;
+  }
+  .vb-quick-amounts {
+    margin-top: 3px;
+  }
+  .vb-quick-amounts button {
+    min-height: 21px;
+  }
+  .vb-return {
+    margin: 5px 0;
+    flex-direction: row;
+    font-size: 9px;
+  }
+  .vb-return strong {
+    font-size: 15px;
+  }
+  .vb-place-bet {
+    min-height: 30px;
+    padding: 4px;
+    font-size: 11px;
+    align-self: stretch;
+  }
+  .vb-feedback {
+    min-height: 10px;
+    margin-top: 5px;
+    font-size: 7px;
+  }
+  .vb-scene-top {
+    padding: 3px 10px;
+  }
+  .vb-play-area {
+    grid-template-rows: 29px minmax(0, 1fr) 22px;
+  }
+  .vb-stage-caption h2 {
+    font-size: 13px;
+  }
+  .vb-stage-caption > span {
+    font-size: 6px;
+  }
+  .vb-collected-badge span {
+    display: none;
+  }
+  .vb-collected-badge {
+    padding: 4px 6px;
+  }
+  .vb-round-callout {
+    font-size: 8px;
+    padding: 4px 8px;
+  }
+  .vb-bottom-grid {
+    grid-template-columns: 1fr 280px;
+    gap: 9px;
+  }
+  .vb-history,
+  .vb-your-round {
+    padding: 4px 9px;
+  }
+  .vb-history-item > span {
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
+  }
+  .vb-section-label h3 {
+    font-size: 8px;
+  }
+}
+@media (max-height: 360px) and (orientation: landscape) {
+  .vb-game-layout {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+  .vb-bet-panel {
+    display: grid;
+    grid-template-columns: 1fr 100px;
+    gap: 4px 7px;
+  }
+  .vb-panel-heading,
+  .vb-modes {
+    grid-column: 1/-1;
+  }
+  .vb-modes {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .vb-mode {
+    display: block;
+    text-align: center;
+  }
+  .vb-mode-illustration,
+  .vb-mode-radio,
+  .vb-mode-price > span,
+  .vb-mode-copy strong small {
+    display: none;
+  }
+  .vb-mode-copy > strong {
+    display: block;
+  }
+  .vb-mode-copy > span {
+    font-size: 7px;
+  }
+  .vb-mode-price {
+    text-align: center;
+  }
+  .vb-amount-label {
+    grid-column: 1;
+  }
+  .vb-amount {
+    grid-column: 1;
+  }
+  .vb-quick-amounts {
+    grid-column: 1;
+  }
+  .vb-return {
+    grid-column: 2;
+    grid-row: 3/5;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 7px;
+  }
+  .vb-place-bet {
+    grid-column: 2;
+  }
+  .vb-feedback {
+    grid-column: 1/-1;
+  }
+  .vb-bottom-grid {
+    grid-template-columns: 1fr 300px;
+  }
+}
+
+.vb-stage {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 30px;
+  background: #ae764e;
+}
+.vb-harvest-svg {
+  min-height: 0;
+}
+.vb-round-callout {
+  position: static;
+  transform: none;
+  grid-row: 2;
+  align-self: center;
+  justify-self: center;
+}
+.vb-stage[data-night="true"] .vb-stage-caption {
+  color: #dddaf5;
+}
+.vb-stage[data-night="true"] .vb-stage-caption h2 {
+  color: #fff4d6;
+  text-shadow: 0 1px 3px #252449;
+}
+.vb-scene-footer b {
+  font-weight: 650;
+}
+.vb-coins { --game-coin-size: 32px; min-width: 0; margin-top: 10px; }
+.vb-coins .vb-amount-label { margin: 0 0 6px; font-size: 10px; }
+:root .vb-page .vb-coins .coin-rack-options { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+.vb-coins .coin-rack-option, .vb-coins .coin-rack-custom { width: 32px; height: 32px; min-height: 32px; min-width: 0; font-size: 9px; }
+.vb-coins .coin-rack-option span { font-size: 9px; }
+.vb-coins .coin-rack-custom { color: #245947; border-color: #60a58c; background: #eff8f3; }
+.vb-coins [data-testid="coin-settings-button"] { color: #245947; border-color: #bdd9cd; background: #eff8f3; width: 34px; height: 40px; }
+.vb-auto-bet { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; background: #e8f7ed; color: #245947; }
+.vb-draft-total { display: grid; gap: 2px; font-size: 9px; }
+.vb-draft-total b { font-size: 13px; }
+:root .vb-auto-bet .auto-bet-status { flex: 1; min-width: 0; min-height: 32px; padding: 3px 5px; color: #245947; font-size: 11px; flex-wrap: nowrap; }
+:root .vb-auto-bet .auto-bet-status button { min-height: 28px; color: #245947; border-color: #8fc6ae; }
+.vb-mode:disabled { cursor: default; }
+@media (max-width: 760px), (max-height: 500px) {
+  .vb-bet-panel { display: flex; gap: 5px; }
+  .vb-coins { margin-top: 1px; }
+  .vb-coins .vb-amount-label { font-size: 9px; margin-bottom: 3px; }
+  .vb-return { flex-direction: row; align-items: center; justify-content: space-between; margin: 0; font-size: 9px; }
+  .vb-return strong { font-size: 15px; }
+  .vb-auto-bet { padding: 5px 8px; }
+  .vb-feedback { margin: 0; }
+}
+@media (max-width: 760px) and (orientation: portrait) {
+  .vb-page { min-height: 640px; }
+  .vb-game-layout { grid-template-rows: minmax(150px, 1fr) auto; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .vb-page { min-height: 360px; }
+  .vb-bet-panel .vb-panel-heading { display: none; }
+  .vb-bet-panel .vb-modes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .vb-bet-panel .vb-mode { display: block; text-align: center; padding: 5px 3px; }
+  .vb-bet-panel .vb-mode-illustration, .vb-bet-panel .vb-mode-radio, .vb-bet-panel .vb-mode-price > span { display: none; }
+  .vb-bet-panel .vb-mode-copy > strong { display: block; font-size: 11px; }
+  .vb-bet-panel .vb-mode-copy > span { font-size: 7px; }
+  .vb-bet-panel .vb-mode-price { text-align: center; }
+  .vb-bet-panel .vb-mode-price > strong { font-size: 16px; }
+  .vb-bet-panel .vb-mode-copy strong small { display: none; }
+}

@@ -1,0 +1,69 @@
+{
+  "reference": {
+    "tool": "built-in image_gen",
+    "file": "asha-natural-reference.png",
+    "prompt": "Use case: photorealistic-natural. Create a realistic photographic video reference frame for a Lucky 7 casino game, widescreen 16:9. One professional adult Indian woman casino croupier, age 30, dark neatly styled hair, formal tailored burgundy jacket over a high-neck ivory blouse, fully clothed, small gold stud earrings. She is seated centered behind an emerald green felt gaming table in a real elegant private casino room, warm walnut paneling, practical shaded lamps, natural architectural depth, authentic materials. Both eyes fully open, calm friendly expression looking toward camera, sharply detailed face with natural skin texture. Her two hands are loosely cupped together at lower chest level, ready to shake two dice hidden inside. Natural hand anatomy, five fingers per hand, no interlaced fingers. Both entire elbows, forearms, wrists, hands comfortably inside frame, hands centered around 55 percent frame height. Straight-on locked wide medium camera, generous headroom. The bottom 30 percent of the picture is continuous completely empty clean green felt table foreground; all parts of her hands and arms stay above this empty foreground. Professional photographic lighting, crisp face and hands, subtle background depth of field, realistic proportions, no beauty blur, no artificial CGI arches. No dice lying on table, no writing, logos, cards, interface or watermark. High detail, 1920x1080 or higher."
+  },
+  "idle": {
+    "model": "minimax_h3",
+    "jobId": "79720616-05ee-49fb-a703-2b56f2ebb27a",
+    "sourceUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260930_224401_79720616-05ee-49fb-a703-2b56f2ebb27a.mp4",
+    "prompt": "A 6 second seamless native forward video loop, fixed camera, exactly match supplied start and end reference. Professional adult woman croupier seated behind emerald felt table in a real walnut casino room. Maintain exact face, outfit, lighting, architecture and framing. Her cupped hands stay naturally still at the reference position with every finger intact. Only very subtle natural breathing, friendly relaxed slight smile. Eyes remain open and attentive toward camera throughout, no blinking or eye closure, no nods, no lip movements. Hands and arms entirely visible. Photographic realism and sharp detailed face, hands and fabric. No props or dice, no cuts, no zoom, no morphing, no dramatic gesture. This is a calm waiting loop for a game. End in exactly the initial pose, no reversed playback.",
+    "assets": [
+      {
+        "mediaId": "b503b851-210a-4728-8c26-8eb4233c63af",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/b503b851-210a-4728-8c26-8eb4233c63af.mp4"
+      },
+      {
+        "mediaId": "851f5921-92a9-4292-8487-f2f8d82fa373",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/851f5921-92a9-4292-8487-f2f8d82fa373.mp4"
+      },
+      {
+        "mediaId": "75dc395f-263f-4a86-93e4-f5c896049561",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/75dc395f-263f-4a86-93e4-f5c896049561.mp4"
+      },
+      {
+        "mediaId": "d2806559-c47b-42c6-b902-8fe54f179890",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/d2806559-c47b-42c6-b902-8fe54f179890.jpg"
+      }
+    ]
+  },
+  "action": {
+    "model": "seedance_2_5",
+    "jobId": "96d03114-bbdf-4fb8-8819-02a58f11dfe2",
+    "prompt": "Locked-off 16:9 real casino dealer shot, one continuous six second take. Adult woman from reference stays in this exact room and outfit. Starting from her clasped hands, she takes TWO SMALL IVORY DICE in her RIGHT hand (on the LEFT side of the image). Her LEFT hand rests naturally on the back edge of the table. She cups her RIGHT hand loosely around the two dice and shakes ONLY THAT RIGHT HAND side-to-side briskly THREE TIMES, like a real casino dice player, the dice visibly rattling inside her curled fingers. Clear actual dice-shaking action, wrist rocking horizontally, not clapping, not rubbing hands, not a prayer gesture. At about TWO SECONDS she rolls her RIGHT wrist downward and opens her right fingers to toss the two dice gently FORWARD onto the center foreground of the table. Her LEFT hand stays still. Then both hands smoothly return to the reference clasped pose by four seconds and she remains relaxed to the end. Physically plausible small dice, realistic complete hands with five fingers each. Face looks toward camera with both eyes open, subtle friendly smile, no prolonged blinking, no nodding. All fingers and wrists fully visible, no cropped body parts. Keep every hand above 70 percent frame height throughout. No camera movement, no edits, no background movement, no magic, no dramatic arm spreading or theatrical gestures. Detailed natural face and realistic wood-paneled casino lighting, constant framing. Normal speed.",
+    "sourceUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260930_225012_96d03114-bbdf-4fb8-8819-02a58f11dfe2.mp4",
+    "assets": [
+      {
+        "mediaId": "0eafe295-33f5-4dfb-bfa1-3112aa9cead6",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/0eafe295-33f5-4dfb-bfa1-3112aa9cead6.mp4"
+      },
+      {
+        "mediaId": "a0307da1-42ee-443e-a75f-5515d3098b97",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/a0307da1-42ee-443e-a75f-5515d3098b97.mp4"
+      },
+      {
+        "mediaId": "b4f51067-e8b9-40de-a543-2b3bd04db65e",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/b4f51067-e8b9-40de-a543-2b3bd04db65e.mp4"
+      }
+    ],
+    "processing": {
+      "speed": 1.25,
+      "releaseMs": 2583,
+      "sourceHandoffFrame": 78,
+      "protectedUpperRows": 735,
+      "cleanupBounds": {
+        "x": 885,
+        "y": 735,
+        "width": 265,
+        "height": 140
+      },
+      "method": "Only disconnected ivory dice after they clear the fingers are replaced using a feathered, locally colour-matched empty-felt reference. No foreground or hand cutouts, no whole-table rectangular replacement.",
+      "review": ".config/asha-natural-restoration-review.jpg"
+    }
+  },
+  "rejected": {
+    "jobId": "3728e8cd-4590-4a24-86db-7e20b74c9a5c",
+    "reason": "Hands clap and spread instead of shaking dice. Not shipped."
+  }
+}

@@ -1,0 +1,25 @@
+.fg-source { display:flex; gap:8px; padding:8px 12px; border-top:1px solid #213347; }
+.fg-source button { flex:1; border:1px solid #2c4056; border-radius:7px; padding:8px 6px; background:#101d2d; color:#9fb1c6; font-size:12px; cursor:pointer; }
+.fg-source button[aria-pressed="true"] { color:#f6d390; background:#332c20; border-color:#a08448; }
+.fg-source small { margin-left:5px; font-size:8px; opacity:.85; }
+.fg-chart { height:100%; min-height:170px; display:flex; flex-direction:column; overflow:hidden; background:#0a1624; }
+.fx-chart-panel > .fg-chart { height:350px; }
+.fg-chart-heading { display:flex; align-items:center; gap:10px; padding:8px 12px; font-size:10px; color:#e0ba76; flex-wrap:wrap; }
+.fg-chart-heading > span { display:flex; align-items:center; gap:6px; }
+.fg-chart-heading i { width:5px; height:5px; border-radius:50%; background:#e0ba76; }
+.fg-chart-heading b { font:600 16px ui-monospace,monospace; font-variant-numeric:tabular-nums; }
+.fg-chart-heading small { margin-left:auto; color:#9bb0c7; font-size:10px; }
+.fg-plot { flex:1; min-height:0; position:relative; }
+.fg-plot svg { position:absolute; inset:0; width:100%; height:100%; }
+.fg-chart-note { display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 10px; padding:5px 12px 8px; color:#8197b0; font-size:9px; }
+.fg-order-feedback { display:flex; flex-direction:column; gap:3px; padding:10px; margin:8px 0; border:1px solid #286c59; border-radius:8px; background:#123029; color:#a6efd4; font-size:11px; overflow-wrap:anywhere; }
+.fg-order-feedback b { font-size:13px; }
+.fg-order-error { border-color:#993e52; background:#371a27; color:#ffb8c7; }
+@media(max-width:450px) {
+  .fg-source { padding:6px 8px; gap:5px; }
+  .fg-source button { font-size:10px; }
+  .fg-source small { display:block; margin:3px 0 0; }
+  .fg-chart-heading { padding:6px 8px; gap:5px 8px; font-size:8px; }
+  .fg-chart-heading small { font-size:8px; }
+  .fg-chart-note { font-size:8px; padding-inline:8px; }
+}

@@ -1,0 +1,33 @@
+{
+  "license": "https://polyhaven.com/license",
+  "assets": [
+    {
+      "filename": "stadium-concrete-color.jpg",
+      "source": "https://polyhaven.com/a/concrete_wall_006",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_006/concrete_wall_006_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "fea247dd085cd05d8deb335234c834764d622029da351f8bcc8913935316bacd"
+    },
+    {
+      "filename": "stadium-concrete-normal.jpg",
+      "source": "https://polyhaven.com/a/concrete_wall_006",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_006/concrete_wall_006_nor_gl_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "4ff16bb96fc2df3ef71d22007151aff1d8bf7cb10a493d3f8e973213a99dd428"
+    },
+    {
+      "filename": "stadium-metal-color.jpg",
+      "source": "https://polyhaven.com/a/metal_plate",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate/metal_plate_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "c6b6739eac2c75ccc898e753d7833df24eafbdb9aa92fb6eabfb92abd1a680a5"
+    },
+    {
+      "filename": "stadium-metal-normal.jpg",
+      "source": "https://polyhaven.com/a/metal_plate",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/metal_plate/metal_plate_nor_gl_1k.jpg",
+      "license": "CC0-1.0",
+      "sha256": "994f851a84d52b51e97906021a1b7070ee6eac9a789fef041132268de47d8e6b"
+    }
+  ]
+}

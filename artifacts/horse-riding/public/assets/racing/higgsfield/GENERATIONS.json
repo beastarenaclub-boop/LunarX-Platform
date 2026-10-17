@@ -1,0 +1,140 @@
+{
+  "created": "2026-10-01",
+  "provider": "Higgsfield",
+  "providerUrl": "https://higgsfield.ai/",
+  "notice": "Fictional AI-generated illustrative footage. Simulation results are independent.",
+  "photos": [
+    {
+      "index": 1,
+      "generationId": "e92265b2-2e7d-4734-8441-9a09b394145e",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 2,
+      "generationId": "a7c07be0-068e-4fca-a54d-2e6b3e2b54b2",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 3,
+      "generationId": "5783c0ac-1c0d-4afa-96bf-b1edce9327d3",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 4,
+      "generationId": "7f369957-47f0-4592-bd2a-c829c7f17376",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 5,
+      "generationId": "c17f0637-b36b-4da9-9dff-c829d6d22f64",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 6,
+      "generationId": "1fb9a95a-7bae-4271-bb8a-a61f2e508de8",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 7,
+      "generationId": "99e3cf25-329a-46d2-938e-8bc0ce268a65",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 8,
+      "generationId": "30bf4a3c-2205-480f-947f-daf4ab24b498",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 9,
+      "generationId": "6ae9320a-ffb4-46a2-b7f2-1292498e0f31",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 10,
+      "generationId": "26b64c87-cbec-4382-b30f-7a75b58b380b",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 11,
+      "generationId": "8fe2b756-6b56-4e99-b9bc-31bb5534dd60",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 12,
+      "generationId": "103e7bae-c7f6-49c8-aed5-d5da812cb4d5",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 13,
+      "generationId": "0dfd0fa4-9035-4b7d-8a7c-bd78f3c846bb",
+      "model": "gpt_image_2_5"
+    },
+    {
+      "index": 14,
+      "generationId": "96fac27e-7525-41de-97b8-97022f1fcfe5",
+      "model": "gpt_image_2_5"
+    }
+  ],
+  "films": [
+    {
+      "venue": "royal",
+      "generationId": "f4409440-0e35-4720-83ff-893722bd17f7",
+      "model": "seedance_2_5",
+      "seconds": 18,
+      "versions": [
+        1080,
+        720
+      ]
+    },
+    {
+      "venue": "dubai",
+      "generationId": "86ebdf02-00d0-45cd-84e8-2e68a2ab24b5",
+      "model": "seedance_2_5",
+      "seconds": 18,
+      "versions": [
+        1080,
+        720
+      ]
+    },
+    {
+      "venue": "alpine",
+      "generationId": "a371e43d-af0f-49b3-8337-438a6830b38f",
+      "model": "seedance_2_5",
+      "seconds": 18,
+      "versions": [
+        1080,
+        720
+      ]
+    },
+    {
+      "venue": "coast",
+      "generationId": "522e08a7-bb6c-4d6b-aafa-bf1242933654",
+      "model": "seedance_2_5",
+      "seconds": 18,
+      "versions": [
+        1080,
+        720
+      ]
+    },
+    {
+      "venue": "night",
+      "generationId": "14ad2710-9c0d-49ab-8fb6-c081f9f439ed",
+      "model": "seedance_2_5",
+      "seconds": 18,
+      "versions": [
+        1080,
+        720
+      ]
+    },
+    {
+      "venue": "marathon",
+      "generationId": "2e46cfee-4f96-4d5d-bcc3-3855e24f1f2f",
+      "model": "seedance_2_5",
+      "seconds": 18,
+      "versions": [
+        1080,
+        720
+      ]
+    }
+  ]
+}

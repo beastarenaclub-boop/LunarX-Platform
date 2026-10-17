@@ -1,0 +1,24 @@
+{
+  "referencePrompt": "Use case: identity-preserve. Edit the supplied fictional adult casino dealer reference for a game asset.\nPreserve this exact adult woman, her face, hair, proportions, natural neutral expression, seated pose, both hands, forearms, all fingers and two center dice. Preserve the complete 16:9 framing.\nReplace her long-sleeve burgundy blouse with an elegant opaque fitted black satin formal evening dress, sleeveless with wide shoulder straps and a modest straight neckline covering the chest. Sophisticated professional casino hostess fashion, realistic fabric folds, subtle gold trim. No revealing cutouts, transparent fabric or lingerie.\nChange the room behind her to a realistic warm upscale casino cocktail bar: amber-lit bottle shelves, walnut and brass, a bartender far behind and four adult patrons in smart evening clothes seated at tables on the left and right. Include guests playing cards at a side table. Keep all background people behind her, away from her silhouette. Natural gentle photographic depth, clear face and hands, no artificial blur.\nKeep the foreground rectangular green felt table, all its straight rails, dimensions, angle and two ivory dice EXACTLY in their original locations. No reframing, crop, changed table height or zoom. Full head and both arms visible. Photographic skin and materials. No logos, text or watermarks.",
+  "referenceMode": "Built-in imagegen edit",
+  "video": {
+    "model": "minimax_h3",
+    "resolution": "2K",
+    "aspect_ratio": "16:9",
+    "duration": 7,
+    "count": 1,
+    "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+    "medias": [
+      {
+        "role": "start_image",
+        "value": "ff836ca9-ad0d-4e23-9568-e3ba1362af5d"
+      },
+      {
+        "role": "end_image",
+        "value": "9c535745-12bb-4e88-b6d0-d28e67148356"
+      }
+    ],
+    "prompt": "A single continuous 7-second locked-off casino shot matching the reference exactly. Adult dealer in the SAME opaque black formal evening dress with gold edging. Same face, hair and body throughout. Native sharp 2K, clear face AND fingers, natural realistic texture.\nABSOLUTELY STATIONARY CAMERA AND FOREGROUND TABLE: the rectangular table's straight back rail, front rail, four edges and felt texture must remain pixel-stationary throughout. No zoom, pan, breathing, wobble, elastic wood or floating table. Her torso remains upright and still. Only her hands, wrists and a small natural eye glance move. No expressive head movement, no talking or theatrical reaction.\n0–0.5s: hands resting as reference. 0.5–1.0s: she gathers EXACTLY TWO ivory dice from CENTER, cupping them together. 1–2.6s: two gentle small wrist shakes, both dice physically contained in her hands. 2.6–3.4s: open palms and gently release the two dice onto the middle of the felt. Dice tumble briefly and stop near their original central spots by 4s. Return hands to original resting pose by 4.6s. From 4.6–7s hold the resting pose with normal quiet eye movement; one gentle blink. Entire head and both arms remain visible.\nBehind the dealer only, the bartender makes a small natural glass-polishing motion and seated adult patrons quietly chat and play cards at the side tables. Subtle secondary motion, nobody approaches the camera or crosses behind her silhouette. Warm amber bar lighting remains constant. Side tables, chairs, bottles and architecture stationary. Keep focus on dealer, no heavy blur, no light flicker.\nNatural real-time movement, no motion trails, speed ramp, slow motion, reversed footage, clap, greeting or cuts. Exactly two dice, anatomically coherent hands. First and last frames match the supplied image's composition, face, dress, hands and table perfectly."
+  },
+  "jobId": "be10f936-5ac4-4ea0-9701-79081b3d13e8"
+}

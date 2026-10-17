@@ -1,0 +1,41 @@
+{
+  "image": {
+    "tool": "built-in image_gen",
+    "prompt": "Use case: photorealistic-natural. Asset type: wide 16:9 starting frame for a locked-off casino dealer video in a roulette game. Create a convincing real camera photograph in a luxurious dark emerald and warm gold casino studio. One attractive adult Indian female professional roulette croupier, approximately 28 years old, realistic human skin with fine texture, long dark hair, elegant fitted black formal dealer dress with gold trim, stands behind the table slightly right of center. Calm friendly expression, looking toward camera. Both natural hands resting on table, her right hand holding one tiny ivory roulette ball. Full head, torso, arms and hands in view. Foreground: a real large polished mahogany European roulette wheel with brass center spindle, red black and single green pockets, occupying left and center lower half, fully visible, viewed at a 40 degree downward angle. Green felt betting table continues on right with neatly stacked chips, edge of layout. Wheel center at 38% image width and 72% image height; outer wheel spans 65% image width and 44% image height. Dealer head centered at 68% width 24% height, her right hand near the wheel's back right rim. Symmetrical brass architectural ribs, soft casino lamps and tasteful defocused casino lounge background. Natural light and shadow on hands and table, premium live casino broadcast aesthetic, crisp details, no excessive blur, no illustration, no mannequin or CGI skin. Single fixed frontal camera, landscape 16:9, no graphic overlays, no titles, no watermark, no logos, no other people."
+  },
+  "video": {
+    "model": "seedance_2_5",
+    "job_id": "598f7894-0935-465b-838d-c56dbcf31b66",
+    "reference_media_id": "e0a7da17-88c7-4adb-aef1-a8a64bffe885",
+    "prompt": "Animate the reference as one continuous photorealistic live casino studio broadcast, fixed locked tripod camera, no zoom, no pan, no cuts. Preserve this exact adult female croupier, face, black and gold uniform, table, room and roulette wheel positions throughout. Duration 12 seconds. At 0 to 1 seconds she looks down at the roulette wheel while holding the small white ball in her right fingertips at the back-right rim. At 1 to 2.5 seconds she smoothly extends her right hand toward the rim, flicks and RELEASES the single small white ball tangentially into the outer ball track. The roulette rotor rotates clockwise and the tiny white ball circles counterclockwise inside the wheel. Clear realistic wrist and finger release, no dice, no throwing across the room. By 3.5 seconds she gently returns her empty right hand to rest on the table, smiles subtly and looks back at the camera. From 4 to 12 seconds she waits with both hands resting in the same relaxed position, natural slow breathing, occasional normal blinks, slight realistic facial motion. Ball remains moving in the wheel and never visibly lands on or reveals any specific numbered pocket. End in a calm resting pose matching the pose at 4 seconds so the final 8 seconds can be used as a waiting loop. Correct human anatomy, five fingers, realistic skin, no extra objects, no text, no graphics, no speech. Keep all table edges and wheel geometry stationary relative to camera. No slow motion. Crisp real-camera motion.",
+    "source": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261008_131437_598f7894-0935-465b-838d-c56dbcf31b66.mp4"
+  },
+  "runtime": {
+    "action": {
+      "start": 0,
+      "end": 4,
+      "releaseMs": 1500
+    },
+    "idle": {
+      "start": 4,
+      "end": 12
+    },
+    "fps": 24,
+    "resolutions": [
+      "1920x1080",
+      "1280x720"
+    ],
+    "codec": "H.264, yuv420p, faststart, no audio",
+    "composition": {
+      "foregroundHeight": 570,
+      "releasePoint": {
+        "x": 842,
+        "y": 535
+      },
+      "flightMs": 96,
+      "trackEntryDegrees": 187.5,
+      "clock": "decoded action-video frame, server clock fallback",
+      "sourceGesture": "original clip retained; replacement video request rejected for exhausted credits"
+    }
+  }
+}

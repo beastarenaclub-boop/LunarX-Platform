@@ -1,0 +1,25 @@
+.jetx-flight-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* This invisible anchor reserves the plane's space in the responsive grid.
+   The renderer uses its coordinates; the multiplier and controls stay in flow. */
+.jetx-scene .jetx-aircraft {
+  aspect-ratio: 3 / 1; visibility: hidden;
+  animation: none !important; transform: none !important; translate: none !important;
+}
+.jetx-scene .jetx-readout { height: 96px; flex: none; filter: drop-shadow(0 2px 8px #07091790); }
+.jetx-scene .jetx-flew-away { font-size: 24px; line-height: 1.1; }
+.jetx-scene[data-phase="crashed"] .jetx-multiplier { font-size: 60px; }
+@media (max-width: 699px) {
+  .jetx-scene .jetx-readout { height: 80px; }
+  .jetx-scene .jetx-flew-away { font-size: 20px; }
+  .jetx-scene[data-phase="crashed"] .jetx-multiplier { font-size: 50px; }
+}
+@media (max-width: 999px) and (max-height: 620px) and (orientation: portrait) {
+  .jetx-scene .jetx-readout { height: 68px; }
+  .jetx-scene .jetx-flew-away { font-size: 18px; margin-bottom: 3px; }
+  .jetx-scene[data-phase="crashed"] .jetx-multiplier { font-size: 44px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .jetx-scene .jetx-readout { height: 68px; }
+  .jetx-scene .jetx-flew-away { font-size: 18px; margin-bottom: 3px; }
+  .jetx-scene[data-phase="crashed"] .jetx-multiplier { font-size: 44px; }
+}

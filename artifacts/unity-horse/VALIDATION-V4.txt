@@ -1,0 +1,81 @@
+ROYAL PARK - VISUAL REVISION 4 VALIDATION
+
+Source changes: replacement horse mesh, fitted skeleton/skin, Idle/Gallop clips,
+PBR coat materials, jockey/saddle spine attachment and rebuilt tree canopies.
+Race outcome, server presentation, wallet and betting logic are unchanged.
+
+ASSET CHECKS - PASSED
+Grab3D Bay Horse source: CC0, AI-assisted (not a scan of a live animal).
+Original 731,120 triangles -> final 31,997 triangles, 15,692 welded vertices.
+56 bones; all vertices weighted, normalized, with at most four influences.
+112 evaluated Idle/Gallop frames: finite positions, no excessive floor penetration
+or bounds explosion. Minimum source-space Z: 0.00013m; maximum Z: 2.01174m.
+Blender textured standing, tucked and extended gallop poses reviewed visually.
+Records: .cache/horse-v4/deformation-audit.json, textured-*.png, source.json.
+Runtime FBX SHA256:
+C396CE5E754C0F0033CAF44F756A73D6D97875731AA6FFA6DB27C3CC8820E35B
+
+UNITY EDITOR - PASSED
+C# compilation passed. Daylight, floodlit and paddock captures reviewed with
+the actual runtime stadium. Horse, jockey, saddle and numbered silks present.
+Foliage texture import verified: alpha transparency and mipmap coverage enabled.
+No game-script or shader errors. Unity Editor SearchDatabase raised an indexing
+ArgumentOutOfRangeException during startup; it is editor-only and did not prevent
+scene rendering or the three captures. Browser runtime is checked separately.
+Log: tmp/unity-horse/audit-v4-final.log.
+Captures: tmp/unity-horse/review/editor-{daylight,floodlit,paddock}.png.
+
+STANDALONE ASSET PACKAGE - PASSED
+exports/royal-park-bay-horse-v4.zip contains FBX, three PBR maps, preview,
+licenses, provenance and import instructions. Nine entries, 32,135,886 bytes.
+Contains only the CC0 horse/local changes, with no Renderpeople source scans.
+
+WEBGL BUILD / BROWSER / PERFORMANCE
+Initial horse build passed, runtime size 90,163,504 bytes. Actual WebAssembly
+review passed five cameras, movement, restart, pause, mobile landscape and night
+lighting, with 4,885 spectators, no page errors and no failed asset requests.
+Four server/presentation state tests passed (4.1 seconds).
+Final tree asset build passed: 90,286,263 bytes. Served successfully from
+http://127.0.0.1:5293/unity-horse/ready.json (visualRevision 4).
+Two main-screen browser tests passed in 51.8 seconds: revealed race/winner,
+full-width viewport, accepted test bet, start cutoff and server-winner payout.
+Together with the four state checks: six passed. All API calls were mocked;
+no real bets or funds. Screenshot: tmp/unity-horse/review/betting-race-v4.png.
+The standalone WebAssembly review was repeated after the tree rebuild: all
+five cameras, movement, restart, pause, mobile landscape and night lighting
+passed again, with zero console/page errors and zero failed asset requests.
+Final log: tmp/unity-horse/review-v4-final.log; final report: review/report.json.
+
+Final WebAssembly SHA256:
+10F1FDCC454FA5DFC9AC97EEEF2DD9466C2C050E47D84D66A7228C435C36C91E
+Final game data SHA256:
+7CC7CC097AB13245B1771276C995777CF903EEED0AB31C7136C299E4049090E1
+exports/unity-horse-player-v4.zip: 62,318,965 bytes, ten entries, no raw FBX,
+GLB or Blender source files. Its game-data hash matches the served build.
+The portable player is an exhibition; the workspace URL includes betting.
+
+PERFORMANCE - MEASURED
+Chrome, Windows, Intel Iris Xe / ANGLE D3D11, 1280 x 720 canvas, DPR capped at 1.
+Each view: 6.5-second warmup and at least ten seconds measured, including stalls.
+The runtime retains its adaptive internal render scale; these are local results,
+not a guarantee of 60 FPS or a claim about other devices.
+Camera       FPS    Draw calls    Triangles     P95 frame    >250ms stalls
+Rail         35.5      391       1,589,176       48.6 ms          0
+Broadcast    35.3      345       1,488,659       48.6 ms          0
+Grandstand   30.1      399       1,413,765       63.1 ms          0
+Records: tmp/unity-horse/review/performance-v4-final.json and benchmark-v4-*.png.
+Earlier revision-3 measurements were 32.2 / 38.4 / 36.9 FPS respectively;
+revision 4 does not improve every view's FPS. The new assets preserve roughly
+30+ FPS on this machine while replacing the horse and repairing the foliage.
+
+TREE ASSET CHECKS - PASSED
+The old whole-mesh 0.008 decimation collapsed leaf silhouettes. Replaced it
+with 5,521 complete cards and separate bark/branch simplification. Restored the
+source opacity PNG missing from the downloaded glTF's JPEG base map. Final
+tree: 21,315 triangles. Textured preview reviewed in .cache/horse-v4/tree-preview.png.
+
+LIMITS
+This is an improved game asset, not GTA-level photorealism. The jockey body
+uses a baked riding pose with a scanned head and follows the animated spine.
+Crowd poses remain static, with three scan variants and distance detail levels.
+The original stadium is procedural and is not a surveyed real-world replica.

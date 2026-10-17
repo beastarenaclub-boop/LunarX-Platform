@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Arena Sports</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111c25;color:#eef6ef;font:14px system-ui}canvas{display:block;width:100%;height:100%;outline:none}#status{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:12px;background:#111c25}progress{width:220px;height:5px;accent-color:#b6ef62}#status[hidden]{display:none}</style></head>
+<body><canvas id="arena" tabindex="-1" aria-label="Unity sports match"></canvas><div id="status"><span id="label">Loading stadium...</span><progress id="progress" max="1" value="0"></progress></div>
+<script>
+const canvas=document.getElementById('arena'),status=document.getElementById('status');
+let instance,pendingState,closed=false;
+let visible=true,quality='auto',resolution=1,lastResize=0,fastWindows=0;
+const origin=location.origin;
+const assetRevision='broadcast-20261017';
+const report=message=>parent.postMessage(message,origin);
+const fail=message=>{document.getElementById('label').textContent='Stadium could not load. Match scores remain available.';document.getElementById('progress').hidden=true;report({type:'arena-error',message:String(message)});};
+function resize(){
+  const rect=canvas.getBoundingClientRect(),ratio=Math.max(.1,rect.width/Math.max(1,rect.height));
+  const limit=quality==='high'?1600:quality==='balanced'?960:1280;
+  const pixels=quality==='high'?1440000:quality==='balanced'?518400:921600;
+  const width=Math.min(rect.width*Math.min(devicePixelRatio||1,1.5),limit,Math.sqrt(pixels*ratio))*resolution;
+  const w=Math.max(2,Math.round(width/2)*2),h=Math.max(2,Math.round(w/ratio/2)*2);
+  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;lastResize=performance.now();}
+}
+function pause(){instance?.SendMessage('ArenaBridge','SetPaused',String(document.hidden||!visible));}
+// Unity invokes this for actual rendered-player frame timing, not a browser
+// RAF estimate. Hysteresis avoids resizing every time a frame takes longer.
+window.arenaPerformance=message=>{
+  window.arenaMetrics={...message,width:canvas.width,height:canvas.height,quality};
+  if(quality!=='auto'||document.hidden||!visible||performance.now()-lastResize<6000)return;
+  if(message.fps<42&&resolution>.75){resolution=Math.max(.75,resolution-.08);fastWindows=0;resize();}
+  else if(message.fps>56&&resolution<1){if(++fastWindows>=4){resolution=Math.min(1,resolution+.04);fastWindows=0;resize();}}
+  else fastWindows=0;
+};
+new ResizeObserver(resize).observe(canvas);resize();
+canvas.addEventListener('click',event=>{if(!instance)return;const rect=canvas.getBoundingClientRect();instance.SendMessage('ArenaBridge','PickPlayer',JSON.stringify({x:(event.clientX-rect.left)/rect.width,y:1-(event.clientY-rect.top)/rect.height}));});
+window.addEventListener('message',event=>{
+  if(event.origin!==origin||event.source!==parent||!event.data)return;
+  if(event.data.type==='arena-state'){
+    if(event.data.state.quality!==quality){quality=event.data.state.quality;resolution=1;fastWindows=0;resize();}
+    pendingState=JSON.stringify(event.data.state);
+    if(instance)instance.SendMessage('ArenaBridge','SetState',pendingState);
+  }
+  if(event.data.type==='arena-visibility'){visible=event.data.visible!==false;pause();}
+});
+document.addEventListener('visibilitychange',pause);
+window.addEventListener('pagehide',()=>{closed=true;instance?.Quit();});
+const script=document.createElement('script');script.src='Build/WebGL.loader.js?v='+assetRevision;script.onerror=()=>fail('Unity loader unavailable');
+script.onload=()=>createUnityInstance(canvas,{
+  dataUrl:'Build/WebGL.data?v='+assetRevision,frameworkUrl:'Build/WebGL.framework.js?v='+assetRevision,codeUrl:'Build/WebGL.wasm?v='+assetRevision,
+  streamingAssetsUrl:'StreamingAssets',companyName:'Arena Sports',productName:'Arena Virtual Sports',productVersion:'1.0',
+  matchWebGLToCanvasSize:false,devicePixelRatio:1,
+  showBanner:(message,type)=>{if(type==='error')fail(message);}
+},progress=>{document.getElementById('progress').value=progress;report({type:'arena-progress',progress});})
+.then(game=>{if(closed){game.Quit();return;}instance=game;status.hidden=true;resize();if(pendingState)game.SendMessage('ArenaBridge','SetState',pendingState);pause();report({type:'arena-loaded'});}).catch(fail);
+document.body.appendChild(script);
+</script></body></html>

@@ -1,0 +1,93 @@
+{
+  "version": "cinema-dealer-24",
+  "image": {
+    "tool": "built-in imagegen",
+    "file": "asha-cinema-reference.png",
+    "mediaId": "5e8eb284-ac72-49e0-8894-ebc607428a74",
+    "prompt": "Edit target: the supplied casino dealer photograph. Preserve this adult Indian woman's identity (about 30 years old), the exact locked-off 16:9 composition, camera angle, realistic walnut casino room, lamps and emerald matte felt. Make her look glamorous like a luxury casino evening hostess: elegant fitted burgundy satin cocktail dress with a tasteful off-shoulder neckline, naturally styled long wavy black hair, refined evening makeup and small gold earrings. Fully clothed adult fashion portrait, confident warm smile. Replace the blazer and high-neck blouse with this evening dress. Her two complete hands rest relaxed, separate, palm-down near the back edge of the table, with both forearms and every finger fully visible. Put exactly TWO small ivory dice with dark pips resting together on the felt at the RIGHT side of the image, within easy reach of her left hand, around 65 percent across and 75 percent down. The dice are actual small casino dice, not oversized. Keep plentiful clear matte emerald felt in front. Physically correct soft contact shadows, no mirror-like reflections, no duplicate hands, no cropping of fingers. High resolution photographic detail and natural human skin texture. No text, logos, watermarks or UI. This is the opening frame of a continuous dice-pickup and two-hand shake shot."
+  },
+  "action": {
+    "model": "seedance_2_5",
+    "jobId": "dc3f7cc7-2597-4119-8c61-4bb7a2a4334d",
+    "prompt": "One unbroken locked-off SIX SECOND photographic casino shot, exactly matching the supplied first and last image. Same adult Indian woman in elegant burgundy satin evening dress, same warm realistic wood-paneled casino, matte emerald felt. TWO REAL SMALL IVORY DICE are already lying together on the RIGHT SIDE of the table (viewer right). She looks down briefly, reaches with BOTH hands to those dice and visibly scoops them off the felt into her cupped palms (0-1 seconds). The table where the dice were is now empty. She brings BOTH hands together, enclosing both dice between her two cupped hands, and shakes BOTH HANDS TOGETHER horizontally three short confident rattles (1-2.5 seconds). Both hands actively shake as one cup, no clapping, no prayer or hand rubbing. Then she brings the cupped hands low over that same RIGHT SIDE of the table, separates her palms and releases the TWO dice naturally onto the felt (2.5-3.3 seconds). They make one small realistic bounce and settle beside each other on the RIGHT side in the same two positions as the reference. Her hands move naturally back to their starting resting positions by 4.5 seconds, and she smiles softly toward camera through the end. Her face, arms, both complete hands, all fingers and both dice remain inside frame throughout. Preserve five anatomically correct fingers per hand and normal eye blinks shorter than a quarter second. Same camera lens, exposure, background and framing for all six seconds. No cut, transition, dissolve, freeze, zoom, slow motion, duplicated dice, floating dice, finger clipping, rubber hands, glossy felt or mirror reflections. Genuine continuous live-action movie realism with soft physical contact shadows. The dice remain on the table after landing. Clear focus on hands and dice and detailed natural face. No text or added graphics.",
+    "sourceUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260930_234030_dc3f7cc7-2597-4119-8c61-4bb7a2a4334d.mp4",
+    "assets": [
+      {
+        "mediaId": "556a1feb-00a8-4fdb-805b-258f91020e1b",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/556a1feb-00a8-4fdb-805b-258f91020e1b.mp4"
+      },
+      {
+        "mediaId": "4b87950c-45fb-4407-9bb9-b98205b8a59b",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/4b87950c-45fb-4407-9bb9-b98205b8a59b.mp4"
+      },
+      {
+        "mediaId": "1ab6f032-ad9a-404a-9700-58c2af37cdde",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/1ab6f032-ad9a-404a-9700-58c2af37cdde.mp4"
+      }
+    ],
+    "processing": {
+      "script": "artifacts/3d-game/scripts/prepare-lucky7-cinema.py",
+      "speed": 1.1,
+      "durationMs": 5500,
+      "releaseMs": 3542,
+      "landMs": 3750,
+      "pickupMs": 625,
+      "frames": 145,
+      "maxChangedPixels": 1700,
+      "untouchedFrames": [
+        17,
+        97
+      ],
+      "editableRegion": {
+        "x": 1250,
+        "y": 797,
+        "width": 94,
+        "height": 54
+      },
+      "method": "Reconstruct the stationary dice faces using local lighting before rendering the server's perspective pips. No hand masks, felt replacement, screen/camera cuts, or independent dice-body flight. The original physical dice outlines, shadows and pickup/landing movement remain in the source."
+    }
+  },
+  "idle": {
+    "derivedFrom": "dc3f7cc7-2597-4119-8c61-4bb7a2a4334d",
+    "sourceFrames": [
+      120,
+      144
+    ],
+    "processing": "Forward tail from the same action shot, 2.5x duration with frame blending. No reversed frames or separate actor/background take.",
+    "durationMs": 2417,
+    "loopMeanRGBDifference": 1.6419097222,
+    "assets": [
+      {
+        "mediaId": "1b499156-667c-499e-ae55-2a196f926154",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/1b499156-667c-499e-ae55-2a196f926154.mp4"
+      },
+      {
+        "mediaId": "3218f9d5-5675-4020-83be-9a0747ae86f2",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/3218f9d5-5675-4020-83be-9a0747ae86f2.mp4"
+      },
+      {
+        "mediaId": "eb77f5ab-008b-4281-80a1-2f9e881f2ccc",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/eb77f5ab-008b-4281-80a1-2f9e881f2ccc.mp4"
+      },
+      {
+        "mediaId": "565a6ea0-f2c6-4d02-829a-6e0fdc5f1fbe",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/565a6ea0-f2c6-4d02-829a-6e0fdc5f1fbe.jpg"
+      }
+    ]
+  },
+  "rejectedIdle": {
+    "model": "minimax_h3",
+    "jobId": "f2342817-1b6e-47c0-8e7d-0924cd47672d",
+    "prompt": "Exactly match this photographic reference as both first and last frame. Six second seamless FORWARD waiting loop of this same adult Indian casino hostess in her burgundy satin evening dress. Locked-off camera in the same real wood-paneled room, matte emerald felt and warm stable lighting. She sits naturally with both hands relaxed and separate on the table in their original positions. Exactly two small ivory dice stay completely motionless at the right side of the table, every pip and shadow stays in exactly the same position. Only subtle breathing and a very slight friendly smile; eyes attentive and open, no long blinks, no head turn, no hand or dice motion, no speaking. All ten fingers remain intact. No camera movement, no cut, no background change, no exposure pulsing, no mirror reflections. Natural real-life fashion photography, sharp face and hands. End exactly as the supplied start frame; do not reverse any frames.",
+    "sourceUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260930_234049_f2342817-1b6e-47c0-8e7d-0924cd47672d.mp4",
+    "reason": "Framing and blink timing differ from action. Not used by the game."
+  },
+  "delivery": {
+    "desktop": "H.264 Baseline, 1920x1080, 24 fps",
+    "phone": "H.264 Baseline, 1280x720, 24 fps",
+    "fallback": "720p VP8 WebM",
+    "phoneMp4Bytes": 1922224,
+    "pipTracks": "artifacts/3d-game/src/components/lucky7/cinemaPipTracks.json",
+    "review": ".config/asha-cinema-pip-cleanup-review.jpg"
+  }
+}

@@ -1,0 +1,2 @@
+ALTER TABLE "deposit_settings" ADD COLUMN "withdraw_min_amount_paise" bigint DEFAULT 10000 NOT NULL;--> statement-breakpoint
+ALTER TABLE "deposit_settings" ADD COLUMN "withdraw_max_amount_paise" bigint DEFAULT 10000000 NOT NULL;

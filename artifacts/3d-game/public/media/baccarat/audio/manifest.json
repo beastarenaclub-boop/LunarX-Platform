@@ -1,0 +1,169 @@
+{
+  "language": "hi-IN",
+  "engine": "Kokoro v1.0 ONNX",
+  "voice": "hf_alpha",
+  "modelSha256": "beb0d1848dee9a49da392cc3df26958d46cfa35d321edf434f52949153f0df3a",
+  "clips": [
+    {
+      "id": "open",
+      "text": "अपनी बेट लगाइए।",
+      "seconds": 1.38
+    },
+    {
+      "id": "closing",
+      "text": "आख़िरी पाँच सेकंड।",
+      "seconds": 1.585
+    },
+    {
+      "id": "closed",
+      "text": "बेटिंग बंद। अब कार्ड खुलेंगे।",
+      "seconds": 2.283
+    },
+    {
+      "id": "player-wins",
+      "text": "प्लेयर की जीत।",
+      "seconds": 1.151
+    },
+    {
+      "id": "banker-wins",
+      "text": "बैंकर की जीत।",
+      "seconds": 1.254
+    },
+    {
+      "id": "tie",
+      "text": "यह राउंड टाई है।",
+      "seconds": 1.361
+    },
+    {
+      "id": "natural-8",
+      "text": "नेचुरल आठ।",
+      "seconds": 1.309
+    },
+    {
+      "id": "natural-9",
+      "text": "नेचुरल नौ।",
+      "seconds": 1.081
+    },
+    {
+      "id": "player-pair",
+      "text": "प्लेयर पेयर।",
+      "seconds": 1.023
+    },
+    {
+      "id": "banker-pair",
+      "text": "बैंकर पेयर।",
+      "seconds": 1.109
+    },
+    {
+      "id": "both-pairs",
+      "text": "प्लेयर और बैंकर, दोनों पेयर।",
+      "seconds": 2.125
+    },
+    {
+      "id": "player-0",
+      "text": "प्लेयर, शून्य।",
+      "seconds": 1.124
+    },
+    {
+      "id": "player-1",
+      "text": "प्लेयर, एक।",
+      "seconds": 0.939
+    },
+    {
+      "id": "player-2",
+      "text": "प्लेयर, दो।",
+      "seconds": 0.959
+    },
+    {
+      "id": "player-3",
+      "text": "प्लेयर, तीन।",
+      "seconds": 1.155
+    },
+    {
+      "id": "player-4",
+      "text": "प्लेयर, चार।",
+      "seconds": 1.09
+    },
+    {
+      "id": "player-5",
+      "text": "प्लेयर, पाँच।",
+      "seconds": 1.023
+    },
+    {
+      "id": "player-6",
+      "text": "प्लेयर, छह।",
+      "seconds": 0.955
+    },
+    {
+      "id": "player-7",
+      "text": "प्लेयर, सात।",
+      "seconds": 0.98
+    },
+    {
+      "id": "player-8",
+      "text": "प्लेयर, आठ।",
+      "seconds": 1.108
+    },
+    {
+      "id": "player-9",
+      "text": "प्लेयर, नौ।",
+      "seconds": 0.958
+    },
+    {
+      "id": "banker-0",
+      "text": "बैंकर, शून्य।",
+      "seconds": 1.23
+    },
+    {
+      "id": "banker-1",
+      "text": "बैंकर, एक।",
+      "seconds": 1.024
+    },
+    {
+      "id": "banker-2",
+      "text": "बैंकर, दो।",
+      "seconds": 1.088
+    },
+    {
+      "id": "banker-3",
+      "text": "बैंकर, तीन।",
+      "seconds": 1.247
+    },
+    {
+      "id": "banker-4",
+      "text": "बैंकर, चार।",
+      "seconds": 1.178
+    },
+    {
+      "id": "banker-5",
+      "text": "बैंकर, पाँच।",
+      "seconds": 1.186
+    },
+    {
+      "id": "banker-6",
+      "text": "बैंकर, छह।",
+      "seconds": 1.088
+    },
+    {
+      "id": "banker-7",
+      "text": "बैंकर, सात।",
+      "seconds": 1.088
+    },
+    {
+      "id": "banker-8",
+      "text": "बैंकर, आठ।",
+      "seconds": 1.285
+    },
+    {
+      "id": "banker-9",
+      "text": "बैंकर, नौ।",
+      "seconds": 1.087
+    }
+  ],
+  "music": {
+    "file": "vip-lounge.mp3",
+    "bpm": 68,
+    "seconds": 28.235283446712018,
+    "credits": "Original synthesized electric piano, bass and brushes composed for Baccarat VIP."
+  }
+}

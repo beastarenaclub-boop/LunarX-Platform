@@ -1,0 +1,311 @@
+.commission-source {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid #d3bc7645;
+  border-radius: 10px;
+  background: #b8aa6510;
+}
+.commission-source > div {
+  flex: 1;
+}
+.commission-source strong {
+  font-size: 24px;
+  color: var(--text, #e9e8db);
+}
+.commission-source p,
+.commission-parts p {
+  color: var(--muted, #96a18c);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.commission-split-bar {
+  display: flex;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 4px;
+  margin: 22px 0;
+  gap: 3px;
+}
+.commission-split-bar .self {
+  background: #c8b779;
+}
+.commission-split-bar .direct {
+  background: #81b38e;
+}
+.commission-split-bar .indirect {
+  background: #7e9dba;
+}
+.commission-split-bar .reserve {
+  background: #a994ba;
+}
+.commission-split-bar .company {
+  background: #767f70;
+}
+.commission-parts {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+.commission-parts article {
+  padding: 17px 13px;
+  background: #ffffff03;
+  border: 1px solid #d1c99e24;
+  border-radius: 9px;
+  border-top: 2px solid #767f70;
+}
+.commission-parts .self {
+  border-top-color: #c8b779;
+}
+.commission-parts .direct {
+  border-top-color: #81b38e;
+}
+.commission-parts .indirect {
+  border-top-color: #7e9dba;
+}
+.commission-parts .reserve {
+  border-top-color: #a994ba;
+}
+.commission-parts small {
+  display: block;
+  font-size: 11px;
+}
+.commission-parts strong {
+  display: block;
+  margin: 10px 0;
+  font-size: 29px;
+  color: #e3d49e;
+}
+.commission-parent {
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #cabc7350;
+  border-radius: 12px;
+  background: #bba6500b;
+}
+.commission-parent span {
+  font-size: 10px;
+  letter-spacing: 1.8px;
+}
+.commission-parent strong {
+  display: block;
+  font-size: 34px;
+  color: #e3d49e;
+  margin: 10px;
+}
+.commission-parent small {
+  font-size: 11px;
+  color: #99a490;
+}
+.commission-branches,
+.performance-directs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.commission-branches {
+  position: relative;
+  padding-top: 28px;
+  margin: 28px 0 20px;
+}
+.commission-branches::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 27px;
+  border: 1px solid #c8b77970;
+  border-bottom: 0;
+}
+.commission-branches::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 28px;
+  top: -28px;
+  left: 50%;
+  background: #c8b77970;
+}
+.commission-branches article {
+  padding: 20px;
+  border: 1px solid #899f772b;
+  border-radius: 10px;
+  background: #899f7707;
+}
+.commission-branches article > svg {
+  display: block;
+  margin: 0 auto;
+  color: #c8b779;
+}
+.commission-branches h3 {
+  margin: 14px 0;
+}
+.commission-branches p {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #99a490;
+  font-size: 12px;
+}
+.commission-branches strong {
+  color: #d8d5bc;
+}
+.commission-batch {
+  max-width: 330px;
+  margin: 20px 0;
+}
+.commission-account-inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.commission-account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.commission-accounts .table-scroll {
+  margin: 20px 0;
+}
+.commission-accounts .summary-pills {
+  flex-wrap: wrap;
+}
+.performance-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 16px;
+}
+.performance-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 24px 0 18px;
+}
+.performance-heading h2 {
+  margin: 0;
+}
+.performance-directs {
+  padding: 22px;
+}
+.performance-direct {
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  border: 1px solid #c5b57530;
+  border-radius: 10px;
+  background: linear-gradient(130deg, #a6b87410, #0e171500);
+  padding: 20px;
+  min-width: 0;
+}
+button.performance-direct {
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+button.performance-direct:hover {
+  border-color: #c5b57590;
+  background-color: #a6b87412;
+}
+.performance-direct:focus-visible {
+  outline: 2px solid #d7c88c;
+  outline-offset: 3px;
+}
+.performance-direct > span {
+  color: #b8b58b;
+  font-size: 10px;
+  letter-spacing: 1.8px;
+}
+.performance-direct h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 14px 0 8px;
+}
+.performance-direct > small {
+  font-size: 11px;
+  color: #99a490;
+}
+.performance-direct dl {
+  border-top: 1px solid #a6b87420;
+  padding-top: 12px;
+  margin: 16px 0 0;
+}
+.performance-direct dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 10px 0;
+  font-size: 12px;
+}
+.performance-direct dt {
+  color: #99a490;
+}
+.performance-direct dd {
+  margin: 0;
+  color: #dbd7bb;
+}
+.performance-direct.empty {
+  opacity: 0.65;
+}
+@media (max-width: 1150px) {
+  .commission-parts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .commission-accounts table {
+    table-layout: fixed;
+    white-space: normal;
+  }
+  .commission-accounts th,
+  .commission-accounts td {
+    padding: 12px 8px;
+    overflow-wrap: anywhere;
+  }
+  .commission-accounts th:first-child {
+    width: 34%;
+  }
+  .commission-parts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .commission-parts article:last-child {
+    grid-column: 1 / -1;
+  }
+  .commission-source {
+    flex-wrap: wrap;
+  }
+  .commission-source strong {
+    font-size: 20px;
+  }
+  .commission-branches,
+  .performance-directs,
+  .performance-filters {
+    grid-template-columns: 1fr;
+  }
+  .commission-branches::before,
+  .commission-branches::after {
+    display: none;
+  }
+  .commission-branches {
+    margin-top: 10px;
+    padding-top: 0;
+  }
+  .performance-directs {
+    padding: 15px;
+    gap: 12px;
+  }
+  .commission-branches article {
+    padding: 16px;
+  }
+}

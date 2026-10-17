@@ -1,0 +1,30 @@
+{
+  "revision": 4,
+  "source": {
+    "page": "https://grab3d.com/models/animals/horse/",
+    "url": "https://grab3d.com/dl/horse/horse.glb",
+    "license": "CC0-1.0",
+    "aiAssisted": true,
+    "sha256": "868b8bc116a63978af9933798fe5e676a1ed2bbad42a0945bcd2cf8c3b839991"
+  },
+  "runtime": {
+    "triangles": 31997,
+    "bones": 56,
+    "maximumBoneInfluences": 4,
+    "albedoResolution": 4096,
+    "normalRoughnessResolution": 2048,
+    "meshSha256": "c396ce5e754c0f0033caf44f756a73d6d97875731aa6ffa6db27c3cc8820e35b"
+  },
+  "animations": {
+    "source": "afk-rig@0.1.2 (Mesh2Motion)",
+    "license": "CC0",
+    "gallop": "Run retimed to 1 second before the game gait clock",
+    "idle": "Locally authored from model rest pose",
+    "tail": "Locally authored"
+  },
+  "deformation": {
+    "frames": 112,
+    "minHeight": 0.00013,
+    "maxHeight": 2.01174
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "source": "Screen Recording 2026-10-17 024452.mp4",
+  "sourceStartSeconds": 13,
+  "frames": 768,
+  "fps": 30,
+  "studio": [
+    12,
+    30,
+    1200,
+    480
+  ],
+  "packedSize": [
+    1200,
+    610
+  ],
+  "matteTarget": [
+    390,
+    350,
+    410,
+    130
+  ],
+  "description": "Original recorded performance, cropped at native resolution; UI removed at render time; silent, no generated or upscaled detail. Card faces are composited from the server outcome."
+}

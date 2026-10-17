@@ -1,0 +1,35 @@
+opening
+Hello players! One Day Dragon Tiger mein welcome. Apni first bet choose kijiye. Dragon ka card khulte hi second chance milega.
+Hello players! One Day Dragon Tiger में welcome. अपनी first bet choose कीजिए. Dragon का card खुलते ही second chance मिलेगा.
+
+ace
+Dragon pe Ace hai. Tiger ka higher card wins, aur Ace aaye toh tie. Second bet se pehle new odds check kijiye.
+Dragon पे Ace है. Tiger का higher card wins, और Ace आए तो tie. Second bet से पहले new odds check कीजिए.
+
+low
+Dragon ka card low hai. Tiger ke higher card ke chances zyada hain. Second chance ke new odds screen pe check kijiye.
+Dragon का card low है. Tiger के higher card के chances ज़्यादा हैं. Second chance के new odds screen पे check कीजिए.
+
+seven
+Dragon pe seven hai. Dono sides ke chances equal hain. Tiger pe seven aaya toh odd-even aur low-high bets lose hongi.
+Dragon पे seven है. दोनों sides के chances equal हैं. Tiger पे seven आया तो odd-even और low-high bets lose होंगी.
+
+high
+Dragon ka card high hai. Tiger ko jeetne ke liye higher card chahiye. Second bet se pehle updated odds check kijiye.
+Dragon का card high है. Tiger को जीतने के लिए higher card चाहिए. Second bet से पहले updated odds check कीजिए.
+
+king
+Dragon pe King hai. Tiger pe King aaya toh tie, warna Dragon wins. Second chance ke options screen pe dekhiye.
+Dragon पे King है. Tiger पे King आया तो tie, वरना Dragon wins. Second chance के options screen पे देखिए.
+
+dragon-wins
+Dragon wins! Dragon ka card higher hai.
+Dragon wins! Dragon का card higher है.
+
+tiger-wins
+Tiger wins! Tiger ka card higher hai.
+Tiger wins! Tiger का card higher है.
+
+tie
+Same rank! Yeh round tie hua hai.
+Same rank! ये round tie हुआ है.

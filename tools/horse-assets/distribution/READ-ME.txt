@@ -1,0 +1,25 @@
+ROYAL PARK - UNITY HORSE RACING
+
+PLAY
+Install Node.js if it is not already present. Double-click START.cmd and open
+http://localhost:5291/ in Chrome or Edge. Keep the console window open.
+WebGL needs a local web server; opening WebGL/index.html as a file will not work.
+
+Use the camera menu, lighting menu, Restart race, Pause and Full screen.
+This standalone exhibition has no account, bets or wallet. The workspace's
+main horse-racing page provides the existing live race and wallet integration.
+
+EDIT IN UNITY
+Add the UnityProject folder in Unity Hub and open with Unity 6000.5.9f1.
+Open Assets/Scenes/HorseRace.unity and press Play. The stadium is built from
+the scripts when the scene starts. Imported horses, jockeys, animations and
+materials are included under Assets/Resources/Horse.
+Horse Racing > Build WebGL creates a new UnityProject/Builds/WebGL player.
+
+The stadium is fictional. Eight detailed 3D horses and mounted jockeys use
+individual colors and numbers. Spectators are seated instanced 3D meshes with
+eight clothing palettes. Trees are 3D meshes. This is the visual revision 2 build.
+The full betting game runs in the workspace at http://localhost:5288/horse-racing
+with the existing API server and authentication. This portable player is a
+graphics exhibition and does not duplicate the account or betting backend.
+See UnityProject/SETUP.txt and the asset credits for source and limitations.

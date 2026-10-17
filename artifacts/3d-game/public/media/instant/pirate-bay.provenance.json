@@ -1,0 +1,9 @@
+{
+  "provider": "Runway",
+  "taskId": "8692bae9-520a-4f92-b44e-150457bb7fc3",
+  "model": "seedance-2-fast",
+  "durationSeconds": 10,
+  "resolution": "1280x720",
+  "audio": false,
+  "prompt": "Seamlessly looping atmospheric game background, premium stylized 3D pirate bay at blue hour. A distant old wooden pirate ship anchored at the far right, dark tropical cliffs at far left, shimmering teal ocean, golden lantern reflections, soft sea mist and gently bobbing water. Fixed camera, calm continuous ambient movement. Rich jewel tones navy turquoise and gold. Keep center foreground water open for separate interactive game pieces. Environment only, no humans, text, logos, numbers, interface, cuts or camera movement. Final composition similar to beginning."
+}

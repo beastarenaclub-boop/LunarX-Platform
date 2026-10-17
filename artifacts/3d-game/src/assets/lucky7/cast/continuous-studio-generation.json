@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-01",
+  "project_id": "d84a6f91-b32d-4f82-9099-8dfdd6a8fdf5",
+  "params": {
+    "model": "seedance_2_5",
+    "mode": "omni_reference",
+    "duration": 8,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "generate_audio": false,
+    "bitrate_mode": "high",
+    "folder_id": "d84a6f91-b32d-4f82-9099-8dfdd6a8fdf5",
+    "medias": [
+      {
+        "role": "image",
+        "value": "f88162b3-2f83-4134-9dfc-e66942ec93a8"
+      }
+    ],
+    "prompt": "Create one uninterrupted photorealistic Full HD 1920x1080 live casino dealer idle video, 8 seconds. Use the reference ONLY for the identity, face, glossy dark wavy hair, burgundy sweetheart long-sleeve dress and gold earrings of the SAME adult Indian woman age 28. Improve facial clarity and natural skin detail, elegant glamorous professional styling. Replace the old crowded restaurant background with a refined uncluttered dedicated emerald-and-gold casino studio: softly illuminated curved green velvet wall panels, slim warm brass arches, warm soft practical light, subtly blurred background, perfectly stable soft studio illumination. One woman only, no other people. A locked straight-on camera with the entire seated dealer's head, shoulders, elbows and resting hands inside the central 55 percent of the 16:9 frame; head at 7 percent height, hands resting together at 61 percent height. The lower 35 percent is a completely empty immaculate dark emerald felt table with a thin brass rear rail. Photographic softbox lighting, crisp eyes, realistic skin and fabric detail, no haze, no bloom, no soft-focus face, no sharpen halos. Calm living portrait: her hands remain resting together and do not move from the table. Only extremely subtle natural breathing, one unhurried natural blink and a tiny warm smile. The body pose, hands, framing, background and lighting remain almost identical throughout; the last frame returns to exactly the initial resting pose with eyes open for a seamless game loop. No dice, cups, cards or chips anywhere in the film. No hand gestures, no throwing, no shaking, no clapping, no speaking, no head turns, no camera movement, no zoom, no cuts, no transitions, no text, no watermark. This will run continuously behind independent game graphics, so the empty table and fixed pose must be preserved for every frame."
+  },
+  "source": {
+    "index": 0,
+    "job_id": "24aaad45-f92b-4fd8-8bcd-d85a932f8045",
+    "status": "completed",
+    "type": "video",
+    "model": "seedance_2_5",
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20260930_214226_24aaad45-f92b-4fd8-8bcd-d85a932f8045.mp4",
+    "thumbnail_url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/f88162b3-2f83-4134-9dfc-e66942ec93a8.jpg"
+  },
+  "processingScript": "scripts/prepare-lucky7-loop.sh",
+  "loop": {
+    "fps": 24,
+    "frames": 384,
+    "durationSeconds": 16,
+    "method": "Forward/reverse continuous frame order; no fades, cloned holds or per-round video seeks"
+  },
+  "outputs": [
+    {
+      "file": "asha-continuous-studio-1080p.mp4",
+      "media_id": "c864156f-7e0b-432e-a1a5-81ccc03a4482",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/c864156f-7e0b-432e-a1a5-81ccc03a4482.mp4"
+    },
+    {
+      "file": "asha-continuous-studio-720p.mp4",
+      "media_id": "259ff3bf-5f93-4390-8798-e06d250c5a81",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/259ff3bf-5f93-4390-8798-e06d250c5a81.mp4"
+    },
+    {
+      "file": "asha-continuous-studio-720p.webm",
+      "media_id": "36b24aaf-4834-47e3-8f47-af8a0faa8c62",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/36b24aaf-4834-47e3-8f47-af8a0faa8c62.mp4"
+    },
+    {
+      "file": "asha-continuous-studio-poster.jpg",
+      "media_id": "7f55bbef-0410-4615-b374-d37c90690372",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/7f55bbef-0410-4615-b374-d37c90690372.jpg"
+    }
+  ],
+  "playback": "One cached native loop. 1080p desktop, 720p small/constrained devices, VP9 fallback. CSS-only brief dice result; no WebGL."
+}

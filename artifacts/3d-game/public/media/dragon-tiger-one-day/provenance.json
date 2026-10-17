@@ -1,0 +1,18 @@
+{
+  "generatedOn": "2026-10-04",
+  "provider": "Higgsfield",
+  "model": "seedance_2_5",
+  "jobId": "955d8552-6272-40ef-86a3-65e2e43ce0ff",
+  "source": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261003_203844_955d8552-6272-40ef-86a3-65e2e43ce0ff.mp4",
+  "parameters": {
+    "model": "seedance_2_5",
+    "duration": 10,
+    "resolution": "1080p",
+    "aspect_ratio": "16:9",
+    "generate_audio": false,
+    "bitrate_mode": "high",
+    "prompt": "Create a photorealistic premium casino studio dealer background plate for a Dragon Tiger card game, 10 seconds, continuous seamless idle loop, locked front-facing broadcast camera at player eye level, perfectly stable frame. One clearly adult elegant Indian female card dealer aged 28, natural face and hands, dark tailored professional evening uniform with modest neckline and gold trim, seated centered behind a luxurious broad deep emerald green felt card table with brushed gold edges. Rich walnut Art Deco studio with sculptural gold dragon motif on the left and tiger motif on the right, warm flattering studio key light, soft teal accent lights, realistic material detail, expensive television casino broadcast quality. Table occupies bottom 45 percent of frame, dealer framed waist up in middle upper half, enough uncluttered empty green felt across lower middle to place two virtual playing cards later. A small card shoe is at far right edge, tidy stacked chips at far left. Dealer keeps both hands resting near the back edge of the table, subtle breathing, natural blinking and welcoming slight smile, tiny head movement, hands remain still. No cards dealt, no visible card faces, no numbers, no captions, no words, no logos, no watermark, no camera movement, no cuts, no zoom, no flashing lights. First and last pose should match for a smooth loop. Real human photographic look, never cartoon or CGI."
+  },
+  "usage": "AI-generated studio ambience. Server card overlays alone determine the game result.",
+  "poster": "Frame extracted at 1 second from the video; no separate generated still."
+}

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" fill="none">
+  <defs>
+    <linearGradient id="background" x2="600" y2="800" gradientUnits="userSpaceOnUse"><stop stop-color="#196d52"/><stop offset=".6" stop-color="#113b32"/><stop offset="1" stop-color="#0a1921"/></linearGradient>
+    <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#fff0af"/><stop offset="1" stop-color="#d4a342"/></linearGradient>
+    <pattern id="paper" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 1h6M1 0v6" stroke="#53432b" stroke-opacity=".07" stroke-width=".5"/></pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dy="12" stdDeviation="10" flood-color="#020d09" flood-opacity=".35"/></filter>
+    <g id="ornament" stroke="currentColor" stroke-width=".7" opacity=".32"><circle r="42"/><circle r="37"/><circle r="30"/><ellipse rx="44" ry="23"/><ellipse rx="44" ry="23" transform="rotate(30)"/><ellipse rx="44" ry="23" transform="rotate(60)"/><ellipse rx="44" ry="23" transform="rotate(90)"/><ellipse rx="44" ry="23" transform="rotate(120)"/><ellipse rx="44" ry="23" transform="rotate(150)"/></g>
+  </defs>
+  <path fill="url(#background)" d="M0 0h600v800H0z"/>
+  <g stroke="#c5debc" stroke-opacity=".1"><circle cx="510" cy="220" r="260"/><circle cx="510" cy="220" r="285"/><circle cx="65" cy="570" r="270"/></g>
+  <path d="M48 50h504M48 680h504" stroke="#d4b76c" stroke-opacity=".45"/>
+  <text x="300" y="111" text-anchor="middle" fill="#dce9cf" font-family="Arial,sans-serif" font-size="26" font-weight="600" letter-spacing="8">IRLAND</text>
+  <text x="300" y="197" text-anchor="middle" fill="url(#gold)" font-family="Georgia,serif" font-size="91" font-weight="bold" letter-spacing="3">LOTTO</text>
+  <text x="300" y="235" text-anchor="middle" fill="#e4eee0" font-family="Arial,sans-serif" font-size="20" letter-spacing="5">2D · 3D · TITLI</text>
+  <g filter="url(#shadow)">
+    <g transform="translate(103 306) rotate(-12 190 88)" color="#514078">
+      <rect width="380" height="176" rx="4" fill="#b9a0da"/>
+      <rect width="380" height="176" fill="url(#paper)"/>
+      <rect x="7" y="7" width="366" height="162" rx="2" stroke="currentColor"/><rect x="11" y="11" width="358" height="154" stroke="currentColor" stroke-opacity=".5"/>
+      <use href="#ornament" x="305" y="80"/>
+      <text x="29" y="45" fill="currentColor" font-family="monospace" font-size="11" letter-spacing="2">IRLAND LOTTO TICKET</text>
+      <text x="29" y="104" fill="currentColor" font-family="Georgia,serif" font-size="31" font-weight="bold">IRLAND LOTTO 14</text>
+      <path d="M10 128h360" stroke="currentColor" stroke-dasharray="4 4"/>
+      <text x="29" y="151" fill="currentColor" font-family="monospace" font-size="12">SERIES IL14</text>
+    </g>
+    <g transform="translate(132 378) rotate(10 190 88)" color="#68410e">
+      <rect width="380" height="176" rx="4" fill="#e5c169"/>
+      <rect width="380" height="176" fill="url(#paper)"/>
+      <rect x="7" y="7" width="366" height="162" rx="2" stroke="currentColor"/><rect x="11" y="11" width="358" height="154" stroke="currentColor" stroke-opacity=".5"/>
+      <use href="#ornament" x="305" y="80"/>
+      <text x="29" y="45" fill="currentColor" font-family="monospace" font-size="11" letter-spacing="2">IRLAND LOTTO TICKET</text>
+      <text x="29" y="104" fill="currentColor" font-family="Georgia,serif" font-size="31" font-weight="bold">IRLAND LOTTO 13</text>
+      <path d="M10 128h360" stroke="currentColor" stroke-dasharray="4 4"/>
+      <text x="29" y="151" fill="currentColor" font-family="monospace" font-size="12">SERIES IL13</text>
+    </g>
+    <g transform="translate(65 437) rotate(-4 190 88)" color="#244528">
+      <rect width="380" height="176" rx="4" fill="#a3c18a"/>
+      <rect width="380" height="176" fill="url(#paper)"/>
+      <rect x="7" y="7" width="366" height="162" rx="2" stroke="currentColor"/><rect x="11" y="11" width="358" height="154" stroke="currentColor" stroke-opacity=".5"/>
+      <use href="#ornament" x="305" y="80"/>
+      <text x="29" y="43" fill="currentColor" font-family="monospace" font-size="11" letter-spacing="2">IRLAND LOTTO TICKET</text>
+      <text x="29" y="101" fill="currentColor" font-family="Georgia,serif" font-size="31" font-weight="bold">IRLAND LOTTO 10</text>
+      <text x="305" y="90" text-anchor="middle" fill="currentColor" font-family="Georgia,serif" font-size="30" opacity=".5">10</text>
+      <path d="M10 125h360" stroke="currentColor" stroke-dasharray="4 4"/>
+      <text x="29" y="151" fill="currentColor" font-family="monospace" font-size="12">SERIES IL10</text>
+      <text x="350" y="153" text-anchor="end" fill="currentColor" font-family="Georgia,serif" font-size="24" font-weight="bold">₹100</text>
+    </g>
+  </g>
+  <text x="300" y="655" text-anchor="middle" fill="#e7d6a0" font-family="Arial,sans-serif" font-size="16" letter-spacing="3">PICK YOUR NUMBERS</text>
+</svg>

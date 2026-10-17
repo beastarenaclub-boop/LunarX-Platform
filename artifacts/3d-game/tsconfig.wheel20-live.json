@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/pages/Wheel20Live.tsx",
+    "src/components/wheel20live/*.ts",
+    "src/components/wheel20live/*.tsx"
+  ],
+  "references": [{ "path": "../../lib/api-client-react" }]
+}

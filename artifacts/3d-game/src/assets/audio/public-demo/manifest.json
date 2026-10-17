@@ -1,0 +1,515 @@
+{
+  "checkedOn": "2026-10-14",
+  "reference": "https://parimatchs1.com/casino/instant-games",
+  "files": {
+    "jetx/button.mp3": {
+      "source": "https://static.ssg-public.com/cache/b46/JetXNewDemo/Content/SoundNew/button.mp3",
+      "sha256": "596c8b429cb6d6ff6002f38443861398e45c1911008c670427edd0f5fd1358f5",
+      "bytes": 7946
+    },
+    "jetx/placebet.mp3": {
+      "source": "https://static.ssg-public.com/cache/b46/JetXNewDemo/Content/SoundNew/placeBet.mp3",
+      "sha256": "5a9def8458c49e18f4d60aeead9e922452effc5b582429c27567c850894b1db6",
+      "bytes": 2268
+    },
+    "jetx/checkboxoff.mp3": {
+      "source": "https://static.ssg-public.com/cache/b46/JetXNewDemo/Content/SoundNew/checkboxOff.mp3",
+      "sha256": "2976ca0ea4a64396bd0ea4f4a1b8016c06090f550e723a92613c59355b27300b",
+      "bytes": 3024
+    },
+    "jetx/collect.mp3": {
+      "source": "https://static.ssg-public.com/cache/b46/JetXNewDemo/Content/SoundNew/collect.mp3",
+      "sha256": "3f11cdc5cd09e3b1a29a3a431aa909675df5866b9f4fca3f000d2947abbd9e5a",
+      "bytes": 13224
+    },
+    "jetx/planetakeoff.mp3": {
+      "source": "https://static.ssg-public.com/cache/b46/JetXNewDemo/Content/SoundNew/planeTakeoff.mp3",
+      "sha256": "1f3875267828842f775fd39ef1cc35987a573cb6a3d4f92cf14649d7749b5993",
+      "bytes": 69696
+    },
+    "jetx/boom.mp3": {
+      "source": "https://static.ssg-public.com/cache/b46/JetXNewDemo/Content/SoundNew/boom.mp3",
+      "sha256": "cf1329fc18bf686833b91aee0a159bf3ab2bf005c340207778af2b080590af1a",
+      "bytes": 29331
+    },
+    "jetx/loop1.mp3": {
+      "source": "https://static.ssg-public.com/cache/b46/JetXNewDemo/Content/SoundNew/loop1.mp3",
+      "sha256": "8b6353f44836c3fabfd97eda9be5ab27be594ca10b7df90e5909c5d1872d6d5d",
+      "bytes": 178029
+    },
+    "chicken-road-2/buttonclick.mp3": {
+      "source": "https://chicken-road-two.inout.games/static/media/buttonClick.33a09752.mp3",
+      "sha256": "4541371c06635100c9392c54f6018ca71c70ea345c22cb0b65686b85e8f0d937",
+      "bytes": 12537
+    },
+    "chicken-road-2/jump.mp3": {
+      "source": "https://chicken-road-two.inout.games/static/media/jump.32f60cbe.mp3",
+      "sha256": "bc5abe2dc01d784236f66605cef483470f8fab915613c6712c65594b8b1fe827",
+      "bytes": 12537
+    },
+    "chicken-road-2/cashout.mp3": {
+      "source": "https://chicken-road-two.inout.games/static/media/cashout.a30989e2.mp3",
+      "sha256": "67655db9694a78af6b7122362736364f00dc3e3387d2352644d144e1d900de22",
+      "bytes": 17180
+    },
+    "chicken-road-2/crash.mp3": {
+      "source": "https://chicken-road-two.inout.games/static/media/crash.6d250f25.mp3",
+      "sha256": "6ef767b526f957c33409ac05d6cf0162df5fcd7510550bb3b65bce67b702e049",
+      "bytes": 25121
+    },
+    "chicken-road-2/lose.mp3": {
+      "source": "https://chicken-road-two.inout.games/static/media/lose.450450c0.mp3",
+      "sha256": "62855f042970e3c26f710d9188e5edabf25044014bfe7018b2e3843a036e5a86",
+      "bytes": 33435
+    },
+    "chicken-road-2/soundtrack.mp3": {
+      "source": "https://chicken-road-two.inout.games/static/media/Soundtrack.ed76c794.mp3",
+      "sha256": "b57cb75a7f97e930d11dadb40934f0144b5605c3e8b9a2719f01f16d4a0e12f0",
+      "bytes": 5120640
+    },
+    "mines/buttons.mp3": {
+      "source": "https://mines.turbogfast.xyz/buttons.a48a7a1a.mp3",
+      "sha256": "e5c235562da9b0da747198a8f5a6dea1fcd96908de0ce48c0c797df2825a8cf2",
+      "bytes": 1304
+    },
+    "mines/roll.mp3": {
+      "source": "https://mines.turbogfast.xyz/roll.f8451d78.mp3",
+      "sha256": "741a719b34c6eaf0888c33dd279409b0c3e37880e6a86c0752bc5fca11d368b8",
+      "bytes": 1875
+    },
+    "mines/diamond1.mp3": {
+      "source": "https://mines.turbogfast.xyz/diamond1.8eb9ae26.mp3",
+      "sha256": "55c8c3b54b82e63add19aea8bcfc7ba1eb51f97f969bff83d9f8c3682a095ece",
+      "bytes": 8190
+    },
+    "mines/cashout.mp3": {
+      "source": "https://mines.turbogfast.xyz/cashout.37dec33e.mp3",
+      "sha256": "b889976bb94088dd1c0b9347fb4615250c44619c8ed86af342748befd367eb9f",
+      "bytes": 2996
+    },
+    "mines/bomb.mp3": {
+      "source": "https://mines.turbogfast.xyz/bomb.777c9d64.mp3",
+      "sha256": "d4e67c18a1724a4c75a0736b56d41ce2fc5ba0e42c348460bffe3836c4293a02",
+      "bytes": 4374
+    },
+    "mines/diamond2.mp3": {
+      "source": "https://mines.turbogfast.xyz/diamond2.35890b55.mp3",
+      "sha256": "325367d1fc593dd83ec1e7d4537067e635f56db380e3903035f4ba81971cd778",
+      "bytes": 14474
+    },
+    "mines/diamond3.mp3": {
+      "source": "https://mines.turbogfast.xyz/diamond3.68da1013.mp3",
+      "sha256": "16fa1e1718a87ca1f0f1f16e6eb789fa4bb1e1ded568072ee6459cbbb77ff673",
+      "bytes": 17184
+    },
+    "tower-rush/sounds.mp3": {
+      "source": "https://cdn.gx-games-54rg78cw-tralt52.click/fg-cdn/prd/root/sounds/towerrush/sounds.mp3",
+      "sha256": "2dbb0c72dfa468802fd21a0aa69e1ee73982118a69fb2e79ee106cf7e249b851",
+      "bytes": 642301
+    },
+    "tower-rush/background.mp3": {
+      "source": "https://cdn.gx-games-54rg78cw-tralt52.click/fg-cdn/prd/root/sounds/towerrush/background.mp3",
+      "sha256": "2cd19732eb916d69f33f5fa8d20e95c730bfefbcd6b6049affd0933159bb0887",
+      "bytes": 474930
+    },
+    "aviator/sprite.mp3": {
+      "source": "https://aviator-demo.spribegaming.com/assets/sounds/sprite_audio.mp3",
+      "sha256": "bd579e58153b5a652b53b4b26b1fbd02126a186811407c01a03c480d8d52a7cf",
+      "bytes": 210123
+    },
+    "aviator/background.mp3": {
+      "source": "https://aviator-demo.spribegaming.com/assets/sounds/bg_music.mp3",
+      "sha256": "0c1feababe6aaa457b9c7c32be15f4d3a62fd6399d55afaf6c55e73dc52ee388",
+      "bytes": 518911
+    },
+    "rummy/button_slide.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/rummy/assets/game/native/54/54a99f41-37dc-4da7-99f6-5cc3b6868a33.6350d.mp3",
+      "sha256": "44939622ffdd5cd91d47fee70171743ffca6808d9bb182587d73aa97514d07e7",
+      "bytes": 6313
+    },
+    "rummy/bet.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/rummy/assets/game/native/c5/c5395160-37df-418e-82d5-69fbb52d6215.bc1c4.mp3",
+      "sha256": "bba2a2734c267faad6ba40a502aab704bb37f356f1758a4b890bfda2f415aa85",
+      "bytes": 5723
+    },
+    "rummy/sendcard.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/rummy/assets/game/native/50/50e01a70-9463-4a88-a3a9-6acfad45f222.8291b.mp3",
+      "sha256": "eeca1306e4111aee09d9523e05a6f4a0eb01ed4166624a1b97d20313af167ad8",
+      "bytes": 7414
+    },
+    "rummy/showcard.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/rummy/assets/game/native/9c/9cc39496-8dec-46ae-8c5b-fc6a78e3a8ec.d3105.mp3",
+      "sha256": "6a823dcb559b29c7dddfd93c6ecd3fb568375c3b241e4a522f4789d4920b007a",
+      "bytes": 11658
+    },
+    "rummy/card01.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/rummy/assets/game/native/88/882d8ade-63ac-48f7-b560-4b9c41ea0ab1.c89e9.mp3",
+      "sha256": "1ef2bdd52fdde2757963c97c06df1722eeeae141cbdfb5d8dfbf13c68b768bb4",
+      "bytes": 37787
+    },
+    "rummy/card03.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/rummy/assets/game/native/5b/5bb3c8a5-121a-4348-96e9-74a7cedba274.3d5e4.mp3",
+      "sha256": "4b2cbef753af132b41fa7076fa694ff4e1b7d20153d2f63f3125e30c387b06ff",
+      "bytes": 5477
+    },
+    "rummy/winmusic01.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/rummy/assets/game/native/ff/ff1a7eaf-a883-4ed4-816e-4a1e4c503dd7.61ca4.mp3",
+      "sha256": "e7a4acd7ce6e02c0c7ba87b1bdb7dfb315a29145bebc257c66a50a256e51bda6",
+      "bytes": 564016
+    },
+    "rummy/bellring.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/rummy/assets/game/native/0e/0e91cf36-fa4b-499b-ae1c-af535915338c.37644.mp3",
+      "sha256": "c2357ddf54884ed0ef32c7520a5e482a4e2c75abdc2faa872ca14d5e56bb4357",
+      "bytes": 24101
+    },
+    "rummy/bgmusic.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/rummy/assets/game/native/42/4214fc57-2daa-402c-85c3-7ddb6a022625.573b5.mp3",
+      "sha256": "317deb6e680f12f72538742fb0c977e19690049a5b19bf802a357b4de7654763",
+      "bytes": 258506
+    },
+    "7up7down/common_btn.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/33/33c392e0-6ec1-4410-b59a-981f3c455892.01048.mp3",
+      "sha256": "eecad3fbd7ace03b458a4f005b110320d8e818644751bc7aa67a47e3ef705a8b",
+      "bytes": 6319
+    },
+    "7up7down/chip_bet.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/bc/bcf65e59-fc74-45e2-b59d-517a0d3460de.3cabb.mp3",
+      "sha256": "e0874e4831b55e8b2dc4fc7d33654e4b423406b535342f67e5aa38ec336721d0",
+      "bytes": 6992
+    },
+    "7up7down/chip_spawn.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/17/17470587-6662-48ef-b39f-c492adb331a3.fa616.mp3",
+      "sha256": "9cd692cff9b2cdfe827fbaee5b0791c6ee7966569d29484f2f1b909b9eb605bc",
+      "bytes": 3654
+    },
+    "7up7down/common_cancel_btn.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/3f/3f16d603-4e05-4f38-97e6-5b97a548c82d.90aae.mp3",
+      "sha256": "8a8d1ad13317b2de581a99e626db71ebf98d9f0bce131be8405a6cc35dff458c",
+      "bytes": 5742
+    },
+    "7up7down/chip_close.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/01/01604788-6a45-4e90-9220-bfa559bcdb57.6ff0f.mp3",
+      "sha256": "4288fc9af1ac5a15ae71e9f34cc65a14485dade0a7bb248f46a86f0e07872c4f",
+      "bytes": 13833
+    },
+    "7up7down/game_btn.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/21/21b1d4f0-fdb6-44b0-a47e-c8bf3d2d0afc.175c9.mp3",
+      "sha256": "4982bbe5b5f9d372d5c325da0b3fcc1c191ba3a7cc81543361ca78a7bccd881a",
+      "bytes": 2615
+    },
+    "7up7down/chip_open.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/02/02d99525-51a3-46ca-b190-5c0263e8df9a.68a4d.mp3",
+      "sha256": "4dccc1437dae78b8e2df805d7c91e8e08b5c20b11f87fce8ef6043c93e2985c5",
+      "bytes": 20103
+    },
+    "7up7down/count_alert.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/1f/1f251170-f981-4e8c-ab85-71ee0e153dae.73751.mp3",
+      "sha256": "874d5a58dcca6f297a985f6a643b39f82d4462965ef1fca6f13d2b6568638cd9",
+      "bytes": 3828
+    },
+    "7up7down/hurryup.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/4a/4a62bbd2-17a1-451d-9998-31bcc6c4d638.e00c3.mp3",
+      "sha256": "9690d43f32dba6a748ab1857815969866b4e7c6a4375281eb443ce8451c5f933",
+      "bytes": 9753
+    },
+    "7up7down/betlocked_en.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/cd/cd2f3436-c6be-4dbe-9998-92bcc5b5cd6b.27e41.mp3",
+      "sha256": "b3c1b8742af2304399b142efd32f79b2285b173c0a363fc13bebcd4d8abbac11",
+      "bytes": 20002
+    },
+    "7up7down/player_win.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/41/4163272a-eaeb-4826-bc9e-43985519fe30.a8414.mp3",
+      "sha256": "454c3e8085a2056e1f82ea30de66f0b76f04b0c7d2ef23328773a424a4409c7d",
+      "bytes": 8685
+    },
+    "7up7down/betopen_voice_en.mp3": {
+      "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/87/8771fb54-dd4a-40cb-bcbf-c52cc1570a5a.044b7.mp3",
+      "sha256": "eaabb9225cb8429a6a150d98c5661967609ce550b23ce71d56988ecea09f1c46",
+      "bytes": 18716
+    }
+  },
+  "games": {
+    "jetx": {
+      "select": {
+        "file": "jetx/button.mp3"
+      },
+      "bet": {
+        "file": "jetx/placebet.mp3"
+      },
+      "clear": {
+        "file": "jetx/checkboxoff.mp3"
+      },
+      "win": {
+        "file": "jetx/collect.mp3"
+      },
+      "launch": {
+        "file": "jetx/planetakeoff.mp3"
+      },
+      "crash": {
+        "file": "jetx/boom.mp3"
+      },
+      "engine": {
+        "file": "jetx/loop1.mp3"
+      }
+    },
+    "chicken-road-2": {
+      "select": {
+        "file": "chicken-road-2/buttonclick.mp3"
+      },
+      "bet": {
+        "file": "chicken-road-2/buttonclick.mp3"
+      },
+      "reveal": {
+        "file": "chicken-road-2/jump.mp3"
+      },
+      "win": {
+        "file": "chicken-road-2/cashout.mp3"
+      },
+      "crash": {
+        "file": "chicken-road-2/crash.mp3"
+      },
+      "lose": {
+        "file": "chicken-road-2/lose.mp3"
+      },
+      "music": {
+        "file": "chicken-road-2/soundtrack.mp3"
+      }
+    },
+    "mines": {
+      "select": {
+        "file": "mines/buttons.mp3"
+      },
+      "bet": {
+        "file": "mines/roll.mp3"
+      },
+      "reveal": [
+        {
+          "file": "mines/diamond1.mp3"
+        },
+        {
+          "file": "mines/diamond2.mp3"
+        },
+        {
+          "file": "mines/diamond3.mp3"
+        }
+      ],
+      "win": {
+        "file": "mines/cashout.mp3"
+      },
+      "crash": {
+        "file": "mines/bomb.mp3"
+      },
+      "lose": {
+        "file": "mines/bomb.mp3"
+      }
+    },
+    "tower-rush": {
+      "bet": {
+        "file": "tower-rush/sounds.mp3",
+        "offset": 1,
+        "duration": 1.7
+      },
+      "reveal": {
+        "file": "tower-rush/sounds.mp3",
+        "offset": 4,
+        "duration": 1.3
+      },
+      "crash": {
+        "file": "tower-rush/sounds.mp3",
+        "offset": 30,
+        "duration": 1.7
+      },
+      "lose": {
+        "file": "tower-rush/sounds.mp3",
+        "offset": 30,
+        "duration": 1.7
+      },
+      "win": {
+        "file": "tower-rush/sounds.mp3",
+        "offset": 32,
+        "duration": 2.6
+      },
+      "music": {
+        "file": "tower-rush/background.mp3"
+      }
+    },
+    "aviator": {
+      "bet": {
+        "file": "aviator/sprite.mp3",
+        "offset": 0,
+        "duration": 0.5224489795918367
+      },
+      "crash": {
+        "file": "aviator/sprite.mp3",
+        "offset": 2,
+        "duration": 2.574126984126984
+      },
+      "launch": {
+        "file": "aviator/sprite.mp3",
+        "offset": 6,
+        "duration": 1.515102040816327
+      },
+      "win": {
+        "file": "aviator/sprite.mp3",
+        "offset": 9,
+        "duration": 4.022857142857143
+      },
+      "music": {
+        "file": "aviator/background.mp3"
+      }
+    },
+    "rummy": {
+      "select": {
+        "file": "rummy/button_slide.mp3"
+      },
+      "bet": {
+        "file": "rummy/bet.mp3"
+      },
+      "deal": {
+        "file": "rummy/sendcard.mp3"
+      },
+      "reveal": {
+        "file": "rummy/showcard.mp3"
+      },
+      "roll": {
+        "file": "rummy/card01.mp3"
+      },
+      "settle": {
+        "file": "rummy/card03.mp3"
+      },
+      "win": {
+        "file": "rummy/winmusic01.mp3"
+      },
+      "tick": {
+        "file": "rummy/bellring.mp3"
+      },
+      "music": {
+        "file": "rummy/bgmusic.mp3"
+      }
+    }
+  },
+  "seven": {
+    "select": {
+      "file": "7up7down/common_btn.mp3"
+    },
+    "chip": {
+      "file": "7up7down/chip_bet.mp3"
+    },
+    "stack": {
+      "file": "7up7down/chip_spawn.mp3"
+    },
+    "undo": {
+      "file": "7up7down/common_cancel_btn.mp3"
+    },
+    "clear": {
+      "file": "7up7down/chip_close.mp3"
+    },
+    "confirm": {
+      "file": "7up7down/game_btn.mp3"
+    },
+    "open": {
+      "file": "7up7down/chip_open.mp3"
+    },
+    "close": {
+      "file": "7up7down/chip_close.mp3"
+    },
+    "tick": {
+      "file": "7up7down/count_alert.mp3"
+    },
+    "lastTick": {
+      "file": "7up7down/hurryup.mp3"
+    },
+    "lock": {
+      "file": "7up7down/betlocked_en.mp3"
+    },
+    "win": {
+      "file": "7up7down/player_win.mp3"
+    },
+    "roundOpen": {
+      "file": "7up7down/betopen_voice_en.mp3"
+    }
+  },
+  "unavailable": [
+    {
+      "game": "chicken-road-pirate",
+      "source": "https://parimatchs1.com/en/casino/instant-games/game/parimatch-games-chicken-road-pirate-edition",
+      "reason": "Login required"
+    },
+    {
+      "game": "pirate-jackpot-mines",
+      "source": "https://parimatchs1.com/en/casino/instant-games/game/parimatch-games-pirate-jackpot-mines",
+      "reason": "Login required"
+    },
+    {
+      "game": "fury",
+      "source": "https://parimatchs1.com/en/casino/instant-games/game/beon-fury-flight",
+      "reason": "Login required"
+    },
+    {
+      "game": "duck-duel",
+      "source": "https://parimatchs1.com/en/casino/instant-games/game/parimatch-games-duck-duel",
+      "reason": "Login required"
+    },
+    {
+      "game": "jackpot-fishing",
+      "source": "https://parimatchs1.com/en/casino/instant-games/game/jili-jackpot-fishing",
+      "reason": "Public demo failed to finish loading; no verified cue mapping"
+    },
+    {
+      "game": "coin-flip",
+      "source": "https://parimatchs1.com/en/casino/instant-games/game/parimatch-games-coin-flip",
+      "reason": "Login required"
+    }
+  ],
+  "provenance": {
+    "jetx": {
+      "demo": "https://parimatchs1.com/en/casino/instant-games/game/smartsoft-in-jetx-insta",
+      "method": "Unmodified public demo audio; cue names and sprite offsets from the provider client",
+      "configuration": [
+        "https://static.ssg-public.com/cache/b46/JetXNewDemo/Content/Scripts/JetXNew/index.js"
+      ]
+    },
+    "chicken-road-2": {
+      "demo": "https://parimatchs1.com/en/casino/instant-games/game/inout-parimatch-chicken-road-two",
+      "method": "Unmodified public demo audio; cue names and sprite offsets from the provider client",
+      "configuration": [
+        "https://chicken-road-two.inout.games/static/js/index.1cd3cb67.js"
+      ]
+    },
+    "mines": {
+      "demo": "https://parimatchs1.com/en/casino/instant-games/game/turbogames-mines",
+      "method": "Unmodified public demo audio; cue names and sprite offsets from the provider client",
+      "configuration": [
+        "https://mines.turbogfast.xyz/index.9d639e6a.js"
+      ]
+    },
+    "tower-rush": {
+      "demo": "https://parimatchs1.com/en/casino/instant-games/game/digitain-galaxsys-tower-rush",
+      "method": "Unmodified public demo audio; cue names and sprite offsets from the provider client",
+      "configuration": [
+        "https://cdn.gx-games-54rg78cw-tralt52.click/fg-client/prd/fg-towerrush-client/v112/896.js"
+      ]
+    },
+    "aviator": {
+      "demo": "https://parimatchs1.com/en/casino/instant-games/game/spribe-in-aviator-insta",
+      "method": "Unmodified public demo audio; cue names and sprite offsets from the provider client",
+      "configuration": [
+        "https://aviator-demo.spribegaming.com/main.f4651df965443162.js"
+      ]
+    },
+    "rummy": {
+      "demo": "https://parimatchs1.com/en/casino/instant-games/game/jili-rummy",
+      "method": "Unmodified public demo audio; cue names and sprite offsets from the provider client",
+      "configuration": [
+        "https://casino-wbgame.jiligames.com/rummy/assets/game/config.099e7.json"
+      ]
+    },
+    "7up7down": {
+      "demo": "https://parimatchs1.com/en/casino/instant-games/game/jili-7up7down",
+      "method": "Unmodified public demo audio; cue names and sprite offsets from the provider client",
+      "configuration": [
+        "https://casino-wbgame.jiligames.com/sudm/assets/Game/config.19180.json"
+      ]
+    }
+  }
+}

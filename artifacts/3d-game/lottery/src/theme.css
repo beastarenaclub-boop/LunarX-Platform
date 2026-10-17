@@ -1,0 +1,939 @@
+/* Shared colour system. Screen-only so thermal receipts stay monochrome. */
+@media screen {
+  .app-shell,
+  .login-page {
+    --accent: #176b50;
+    --accent-dark: #10543e;
+    --accent-soft: #e9f5ee;
+    --accent-line: #b7d8c6;
+    --navy: #183b32;
+    --green: var(--accent);
+    --ink: #24352f;
+    --muted: #63756d;
+    --line: #dfe8e2;
+    --canvas: #f6f8f4;
+    color: var(--ink);
+    background: var(--canvas);
+  }
+  .role-admin {
+    --accent: #365cbd;
+    --accent-dark: #274698;
+    --accent-soft: #edf2ff;
+    --accent-line: #c7d4f3;
+    --navy: #1c2f54;
+    --canvas: #f5f7fb;
+  }
+  .role-agent {
+    --accent: #7550a8;
+    --accent-dark: #593983;
+    --accent-soft: #f3edfa;
+    --accent-line: #decee9;
+    --navy: #342a4b;
+    --canvas: #f8f6fa;
+  }
+  .role-shop {
+    --accent: #146e68;
+    --accent-dark: #0e524e;
+    --accent-soft: #e8f5f2;
+    --accent-line: #b8dbd4;
+    --navy: #193d3d;
+    --canvas: #f3f8f7;
+  }
+  :is(.app-shell, .login-page) :is(button, a, summary):focus-visible,
+  .nice-ticket-scroll:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+  }
+  :is(.app-shell, .login-page) :is(input, select, textarea):focus {
+    outline-color: var(--accent-line);
+    border-color: var(--accent);
+  }
+  :is(.app-shell, .login-page) input[type="checkbox"] {
+    accent-color: var(--accent);
+  }
+  :is(.app-shell, .login-page) .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  :is(.app-shell, .login-page) .btn.primary:hover:not(:disabled) {
+    background: var(--accent-dark);
+  }
+  .app-shell .text-link {
+    color: var(--accent);
+  }
+  .app-shell :is(.panel, .number-workspace, .ticket-slip) {
+    border-color: var(--line);
+    box-shadow: 0 3px 12px #20392d05;
+  }
+  .app-shell .panel-head {
+    background: linear-gradient(110deg, var(--accent-soft), #fff 75%);
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .app-shell :is(.panel-head p, .stat p, .page-heading p) {
+    color: var(--muted);
+  }
+  .app-shell .data-table th {
+    background: var(--accent-soft);
+    color: #52685d;
+  }
+  .app-shell .data-table tbody tr:hover {
+    background: #f8faf8;
+  }
+  .app-shell .badge.success {
+    color: #24704c;
+    background: #e5f4e9;
+  }
+  .app-shell .badge.warning {
+    color: #946215;
+    background: #fff1d3;
+  }
+
+  /* Ten distinct paper colours, shared by ticket pickers and all results. */
+  [data-series="JP10"] {
+    --series-bg: #91bc82;
+    --series-color: #183e21;
+    --series-border: #58824d;
+  }
+  [data-series="JP11"] {
+    --series-bg: #df8fa6;
+    --series-color: #63152f;
+    --series-border: #af5471;
+  }
+  [data-series="JP12"] {
+    --series-bg: #79b7d3;
+    --series-color: #103f57;
+    --series-border: #4184a4;
+  }
+  [data-series="JP13"] {
+    --series-bg: #e8c56b;
+    --series-color: #5b3b05;
+    --series-border: #ac832a;
+  }
+  [data-series="JP14"] {
+    --series-bg: #b698d5;
+    --series-color: #412268;
+    --series-border: #8764a9;
+  }
+  [data-series="JP15"] {
+    --series-bg: #e7a366;
+    --series-color: #64300c;
+    --series-border: #b5713a;
+  }
+  [data-series="JP16"] {
+    --series-bg: #6fbfb1;
+    --series-color: #104940;
+    --series-border: #388c7e;
+  }
+  [data-series="JP17"] {
+    --series-bg: #92a2dd;
+    --series-color: #233064;
+    --series-border: #5b6eae;
+  }
+  [data-series="JP18"] {
+    --series-bg: #b8ca63;
+    --series-color: #3f4b07;
+    --series-border: #839537;
+  }
+  [data-series="JP19"] {
+    --series-bg: #9caabd;
+    --series-color: #263449;
+    --series-border: #667990;
+  }
+  .app-shell
+    :is(.results-ribbon-grid, .mini-results, .winning-grid)
+    > [data-series] {
+    background: var(--series-bg);
+    border: 1px solid var(--series-border);
+    border-top: 3px solid var(--series-color);
+    border-radius: 7px;
+  }
+  .results-ribbon-grid > [data-series] {
+    padding: 8px 3px;
+  }
+  .winning-grid [data-series] .series-marker {
+    background: var(--series-color);
+  }
+  .app-shell
+    :is(.results-ribbon-grid, .mini-results, .winning-grid)
+    > [data-series]
+    :is(span, strong, small) {
+    color: var(--series-color);
+  }
+
+  /* Operational portals: a distinct accent, white working surfaces. */
+  .sidebar {
+    background: var(--navy);
+    border-right: 1px solid #ffffff14;
+  }
+  .sidebar .brand-mark {
+    background: #f5d98b;
+    color: var(--navy);
+  }
+  .sidebar .brand-mark > span {
+    background: var(--navy);
+  }
+  .sidebar :is(.nav-caption, .profile small, .workspace-selector small) {
+    color: #afc2c1;
+  }
+  .sidebar nav button {
+    color: #bdced0;
+    font-size: 12px;
+  }
+  .sidebar nav button:hover {
+    background: #ffffff0d;
+    color: #fff;
+  }
+  .sidebar nav button.active {
+    background: #ffffff18;
+    color: #fff;
+    box-shadow: inset 0 0 0 1px #ffffff17;
+  }
+  .sidebar nav button.active svg {
+    color: #f5d98b;
+  }
+  .sidebar nav button.active::before {
+    background: #f5d98b;
+  }
+  .workspace-selector {
+    background: #ffffff08;
+    border-color: #ffffff20;
+  }
+  .workspace-icon {
+    color: #f5d98b;
+    background: #f5d98b14;
+  }
+  .side-card {
+    border-color: #ffffff20;
+    background: #ffffff07;
+  }
+  .side-card strong,
+  .side-card button {
+    color: #e0ece8;
+  }
+  .side-card p {
+    color: #afc2c1;
+  }
+  .topbar {
+    border-top: 3px solid var(--accent);
+    border-bottom-color: var(--line);
+  }
+  .breadcrumb > span:first-of-type {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .app-shell .stat {
+    --stat-bg: #edf7ef;
+    --stat-ink: #2d7950;
+    --stat-line: #c5dfcc;
+    background: linear-gradient(135deg, var(--stat-bg), #fff);
+    border-color: var(--stat-line);
+    border-top: 3px solid var(--stat-ink);
+    box-shadow: 0 3px 12px #20392d04;
+  }
+  .app-shell .stat[data-accent="gold"] {
+    --stat-bg: #fff5dd;
+    --stat-ink: #956821;
+    --stat-line: #e9d8ae;
+  }
+  .app-shell .stat[data-accent="blue"] {
+    --stat-bg: #eaf3fc;
+    --stat-ink: #326d9d;
+    --stat-line: #c1d7eb;
+  }
+  .app-shell .stat[data-accent="violet"] {
+    --stat-bg: #f4edfa;
+    --stat-ink: #7b50a2;
+    --stat-line: #dfccea;
+  }
+  .app-shell .stat :is(strong, .stat-icon) {
+    color: var(--stat-ink);
+  }
+  .app-shell .stat > div > span:first-child {
+    color: #52685d;
+  }
+  .app-shell .stat .stat-icon {
+    background: #ffffffb3;
+    border: 1px solid var(--stat-line);
+  }
+  .app-shell .chart-bars > div > div {
+    background: var(--accent-line);
+  }
+  .app-shell .chart-bars > div > div.current {
+    background: var(--accent);
+  }
+  .app-shell :is(.draw-banner, .next-draw-card, .wallet-hero) {
+    background: linear-gradient(120deg, var(--navy), var(--accent-dark));
+    color: #fff;
+  }
+  .app-shell
+    :is(
+      .draw-banner p,
+      .draw-caption,
+      .draw-countdown > div,
+      .draw-countdown small,
+      .next-draw-card > span,
+      .next-draw-card p,
+      .wallet-hero p,
+      .wallet-hero .eyebrow,
+      .wallet-hero h2 > span
+    ) {
+    color: #d4e1de;
+  }
+  .app-shell :is(.draw-countdown > strong, .next-draw-card > strong) {
+    color: #ffe3a1;
+  }
+  .app-shell .next-draw-card .btn.primary,
+  .app-shell .wallet-hero .btn.primary {
+    background: #f4d68c;
+    border-color: #f4d68c;
+    color: #3e351e;
+  }
+  .app-shell .game-tabs button.active,
+  .app-shell .segmented button.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+  }
+  .app-shell .series-list > button[data-series] {
+    color: var(--series-color);
+    background: var(--series-bg);
+    border: 1px solid var(--series-border);
+    border-left: 3px solid var(--series-color);
+  }
+  .app-shell .series-list > button.selected {
+    outline: 1px solid var(--series-color);
+    outline-offset: 1px;
+  }
+  .series-list .selected .checkbox {
+    color: #fff;
+    border-color: var(--series-color);
+    background: var(--series-color);
+  }
+  .app-shell .number-cell.selected {
+    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent-dark);
+  }
+  .slip-heading {
+    background: var(--accent-soft);
+    border-top: 3px solid var(--accent);
+  }
+  .app-shell .slip-total strong {
+    color: var(--accent);
+  }
+
+  /* Player counter: coloured paper tickets, clear green actions. */
+  .shop-ticket-selection {
+    min-width: 0;
+    container-type: inline-size;
+    margin-bottom: 22px;
+  }
+  .shop-ticket-selection > .game-toolbar {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 8px;
+    margin-bottom: 18px;
+  }
+  .shop-ticket-selection .nice-ticket-picker {
+    margin-bottom: 0;
+  }
+  .nice-ticket-counter-note {
+    color: var(--muted);
+    font-size: 12px;
+    margin: -3px 0 10px;
+  }
+  .role-shop .number-body {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+  .role-shop .number-main {
+    min-width: 0;
+  }
+  .shop-ticket-selection .nice-ticket-hint {
+    display: none;
+  }
+  @container (max-width: 850px) {
+    .shop-ticket-selection .nice-ticket-hint {
+      display: flex;
+    }
+  }
+
+  .app-shell.player-shell {
+    --green: var(--accent);
+    --mint: var(--accent);
+    background: var(--canvas);
+  }
+  .player-header {
+    border-top: 4px solid var(--accent);
+    box-shadow: 0 2px 12px #233b2906;
+  }
+  .player-brand-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 9px;
+    color: #fff;
+    background: var(--accent);
+  }
+  .player-brand {
+    color: #214d3a;
+  }
+  .player-nav > button.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: #f2f8f3;
+  }
+  .player-wallet {
+    color: var(--accent-dark);
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+  }
+  .player-account-button {
+    background: #fff;
+  }
+  .player-greeting h1 {
+    color: #214d3a;
+  }
+  .player-rules-button {
+    color: var(--accent);
+  }
+  .easy-draw-bar {
+    border: 1px solid #dfc891;
+    border-left: 4px solid #b8882c;
+    border-radius: 8px;
+    background: #fff7e2;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    color: #79623b;
+  }
+  .easy-draw-bar strong {
+    color: #664a1d;
+  }
+  .easy-draw-bar > b {
+    background: #fff;
+    color: #795416;
+    border: 1px solid #ebd6a7;
+    border-radius: 5px;
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
+  .easy-options {
+    background: #fff;
+  }
+  .player-home-results {
+    margin-bottom: 12px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+  }
+  .player-home-results-heading,
+  .player-home-results-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+  .player-home-results-heading h2 {
+    margin: 0 0 4px;
+    color: #214d3a;
+    font-size: 15px;
+  }
+  .player-home-results-heading time {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  .player-results-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .player-home-results-toolbar {
+    margin: 8px 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .player-result-games {
+    display: flex;
+    gap: 4px;
+  }
+  .player-result-games button {
+    min-width: 44px;
+    min-height: 36px;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: #fff;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .player-result-games button[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .player-results-link:focus-visible,
+  .player-result-games button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .player-home-results-grid {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 7px;
+    margin: 0;
+  }
+  .player-home-results-grid > [data-series] {
+    min-width: 0;
+    padding: 9px 3px;
+    border: 1px solid var(--series-border);
+    border-top: 3px solid var(--series-color);
+    border-radius: 6px;
+    background: var(--series-bg);
+    color: var(--series-color);
+    text-align: center;
+  }
+  .player-home-results-grid dt {
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .player-home-results-grid dd {
+    margin: 4px 0 0;
+    font-size: 25px;
+    font-weight: 750;
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+  }
+  .player-home-results-grid dd.symbol-result {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32.5px;
+    font-size: 12px;
+  }
+  .player-home-results-empty {
+    margin: 0;
+    padding: 18px 12px;
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+  }
+  @media (max-width: 900px) {
+    .player-home-results-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 480px) {
+    .player-home-results {
+      padding: 12px 10px;
+    }
+    .player-result-games button {
+      min-height: 44px;
+    }
+    .player-home-results-grid {
+      gap: 6px;
+    }
+    .player-home-results-grid dt {
+      font-size: 10px;
+    }
+    .player-home-results-grid dd {
+      font-size: 22px;
+    }
+    .player-home-results-grid dd.symbol-result {
+      min-height: 28.6px;
+      font-size: 10px;
+    }
+  }
+  .easy-options summary strong {
+    color: var(--accent);
+  }
+  .nice-ticket-picker-heading h2 {
+    color: #214d3a;
+  }
+  .nice-paper-ticket[data-series] {
+    --paper: var(--series-bg);
+    --paper-ink: var(--series-color);
+    isolation: isolate;
+    padding: 15px 16px 0;
+    border-radius: 2px;
+    border-color: var(--series-border);
+    border-top: 1px solid var(--series-border);
+    background-image:
+      url("/ticket-paper.svg"),
+      linear-gradient(
+        105deg,
+        #fff8e22e,
+        #ffffff04 35%,
+        #fffbed24 72%,
+        #73624412
+      ),
+      repeating-linear-gradient(0deg, transparent 0 2px, #88774a08 2px 3px);
+    background-size:
+      180px 180px,
+      100% 100%,
+      100% 100%;
+    box-shadow:
+      inset 0 0 0 2px #fffdf45c,
+      inset 0 -1px 2px #65553c18,
+      0 2px 2px #54462d20,
+      0 5px 8px -5px #40351f40;
+  }
+  .nice-ticket-grid {
+    grid-template-columns: repeat(5, minmax(190px, 1fr));
+  }
+  .nice-paper-ticket .nice-ticket-engraving {
+    position: absolute;
+    inset: 0 0 auto;
+    width: 100%;
+    height: calc(100% - 49px);
+    color: var(--paper-ink);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .nice-ticket-thread {
+    position: absolute;
+    top: 8px;
+    bottom: 57px;
+    right: 31%;
+    width: 7px;
+    overflow: hidden;
+    writing-mode: vertical-rl;
+    border-inline: 1px solid #ffffff60;
+    background: repeating-linear-gradient(
+      180deg,
+      #746b541c 0 8px,
+      #fffdf35c 8px 16px,
+      #746b542e 16px 24px
+    );
+    color: var(--paper-ink);
+    font:
+      4px/5px Georgia,
+      serif;
+    letter-spacing: 3px;
+    opacity: 0.48;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .nice-paper-ticket .nice-ticket-top {
+    font-size: 8px;
+    letter-spacing: 0.7px;
+  }
+  .nice-paper-ticket .nice-ticket-name {
+    margin: 9px 0 5px;
+    font-size: 29px;
+    letter-spacing: 0.4px;
+    line-height: 1.1;
+    text-shadow:
+      0 1px 0 #fffdf247,
+      0.45px 0 currentColor;
+  }
+  .nice-paper-ticket .nice-ticket-draw {
+    padding-bottom: 7px;
+    font-size: 10px;
+  }
+  .nice-ticket-serial {
+    display: block;
+    padding-bottom: 12px;
+    color: #5b2c26;
+    font:
+      600 9px/1.3 "Consolas",
+      monospace;
+    letter-spacing: 1.5px;
+  }
+  .nice-paper-ticket .nice-ticket-stub {
+    min-height: 49px;
+    margin: 0 -8px;
+    padding: 7px 5px;
+    border-top-style: dashed;
+    background: linear-gradient(180deg, #fffdf00d, #fffdf02e);
+  }
+  .nice-paper-ticket .nice-ticket-price {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 19px;
+    line-height: 1.15;
+    text-shadow: 0 1px #fffdf440;
+  }
+  .nice-paper-ticket .nice-ticket-price small {
+    font:
+      9px/1.2 "Segoe UI",
+      sans-serif;
+  }
+  @media (max-width: 540px) {
+    .nice-ticket-grid {
+      grid-template-columns: repeat(5, 190px);
+    }
+    .nice-paper-ticket[data-series] {
+      padding-inline: 13px;
+    }
+    .nice-paper-ticket .nice-ticket-name {
+      font-size: 27px;
+    }
+  }
+  .nice-paper-ticket[data-series]::before,
+  .nice-paper-ticket[data-series]::after {
+    background: var(--canvas);
+    border-color: var(--series-border);
+  }
+  .nice-paper-ticket[data-series]:hover {
+    border-color: var(--series-color);
+    box-shadow: 0 3px 9px #243a4e1a;
+  }
+  .nice-paper-ticket[data-series].selected {
+    border-color: var(--series-color);
+    outline: 2px solid var(--series-color);
+    outline-offset: 2px;
+    box-shadow: 0 3px 7px #243a4e13;
+  }
+  .nice-paper-ticket[data-series] .nice-ticket-draw {
+    color: var(--series-color);
+  }
+  .nice-paper-ticket[data-series] .nice-ticket-check {
+    background: #ffffffa3;
+    border-color: var(--series-border);
+  }
+  .nice-paper-ticket[data-series].selected .nice-ticket-check {
+    background: var(--series-color);
+    border-color: var(--series-color);
+    color: #fff;
+  }
+  .nice-paper-ticket[data-series] .nice-ticket-stub {
+    border-color: var(--series-border);
+  }
+  .nice-ticket-price {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    white-space: nowrap;
+  }
+  .series-price-breakdown {
+    display: grid;
+    gap: 10px;
+    margin-top: 20px;
+    font-size: 12px;
+  }
+  .series-price-breakdown > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .series-price-breakdown small {
+    display: block;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .settings-price-range {
+    padding: 11px 12px;
+    background: var(--accent-soft);
+    border-radius: 7px;
+    line-height: 1.5;
+  }
+  .series-price-settings {
+    min-width: 0;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .series-price-settings legend {
+    padding: 0 6px;
+    font-weight: 600;
+  }
+  .series-price-settings > p {
+    color: var(--muted);
+    font-size: 11px;
+    margin-bottom: 14px;
+  }
+  .series-price-settings > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .nice-paper-ticket[data-series].selected .nice-ticket-stamp {
+    background: var(--series-color);
+    color: #fff;
+    padding: 4px 5px;
+    border-radius: 3px;
+  }
+  .player-easy .player-numbers-panel {
+    background: #fff;
+    border-top: 3px solid #4d8b68;
+    box-shadow: 0 3px 12px #20392d05;
+  }
+  .player-easy .player-betslip {
+    background: #fff;
+    border-top: 3px solid #c08c33;
+    box-shadow: 0 3px 12px #20392d05;
+  }
+  .easy-step-title > span {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .player-betslip .easy-step-title > span {
+    color: #906119;
+    background: #fff1d3;
+  }
+  .easy-number-entry .btn {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+    color: var(--accent);
+  }
+  .easy-parity-buttons > button:nth-child(2) {
+    background: #edf4ff;
+    border-color: #c5d7f3;
+    color: #335e9e;
+  }
+  .easy-parity-buttons > button:nth-child(3) {
+    background: #fcf0e5;
+    border-color: #eacdb0;
+    color: #98622f;
+  }
+  .easy-parity-buttons > button.selected {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+  }
+  .player-easy .player-number-pages > button.selected {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+  }
+  .player-number-grid > button {
+    background: #fafcf9;
+    border-color: #dce5db;
+    box-shadow: 0 2px 0 #edf1e9;
+  }
+  .player-number-grid > button:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+  }
+  .player-number-grid > button.selected {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent-dark);
+    box-shadow: 0 2px 0 var(--accent-dark);
+  }
+  .player-number-grid .number-check {
+    color: #fff;
+    background: #ffffff26;
+  }
+  .player-picked-numbers > button {
+    background: var(--accent-soft);
+    border-color: var(--accent-line);
+    color: var(--accent);
+  }
+  .player-chip {
+    background: #fffaf0;
+    border-color: #e7d6b1;
+    color: #805b22;
+  }
+  .player-chip.selected {
+    background: #fae8b9;
+    border-color: #b8862c;
+    color: #714c12;
+  }
+  .player-easy .player-total {
+    background: #f5f8f0;
+    border-radius: 6px;
+    padding: 13px;
+  }
+  .player-total > strong {
+    color: var(--accent);
+  }
+  .player-buy:not(:disabled),
+  .easy-mobile-bet > button {
+    background: var(--accent);
+    color: #fff;
+  }
+  .player-buy:hover:not(:disabled),
+  .easy-mobile-bet > button:hover:not(:disabled) {
+    background: var(--accent-dark);
+  }
+  .player-mobile-nav > button.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .easy-mobile-bet {
+    border-top-color: var(--accent-line);
+    box-shadow: 0 -3px 12px #20392d09;
+  }
+  .player-shell .wallet-hero {
+    border: 0;
+    color: #fff;
+  }
+
+  /* Sign-in follows the chosen portal's colours. */
+  .login-story {
+    background: var(--navy);
+  }
+  .art-ticket::before,
+  .art-ticket::after {
+    background: var(--navy);
+  }
+  .login-side {
+    background: #fff;
+  }
+  .login-page .role-tabs button.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .login-page .portal-label {
+    color: var(--accent);
+  }
+  .login-page.player-login {
+    background: #f6f8f4;
+    border-top: 5px solid var(--accent);
+  }
+  .player-login .login-side {
+    padding: 28px;
+    max-width: 450px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px #20392d08;
+  }
+  .player-login-brand,
+  .player-login-brand svg {
+    color: var(--accent);
+  }
+  .player-login .demo-access button {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+}
+@media print {
+  #print-receipt table {
+    font-size: 8px;
+  }
+  #print-receipt :is(td, th) {
+    padding: 3px 2px;
+  }
+  #print-receipt .receipt-amount {
+    white-space: nowrap;
+    text-align: right;
+  }
+}
+@media screen and (max-width: 540px) {
+  .easy-draw-bar {
+    padding: 12px;
+    gap: 10px;
+  }
+  .easy-draw-bar > b {
+    padding: 4px 7px;
+  }
+  .player-login .login-side {
+    padding: 23px 18px;
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "createdOn": "2026-10-09",
+  "language": "hi-IN",
+  "style": "Hinglish",
+  "voice": "hi-IN-SwaraNeural",
+  "provider": "Microsoft Edge online speech via edge-tts 7.2.8",
+  "status": "Audio recordings ready; matching dealer lip-sync videos are pending. These files do not replace the active game commentary.",
+  "clips": {
+    "opening": {
+      "file": "opening.mp3",
+      "subtitles": "opening.srt",
+      "duration": 12.264,
+      "transcript": "Hello players! One Day Dragon Tiger mein welcome. Apni first bet choose kijiye. Dragon ka card khulte hi second chance milega.",
+      "speech": "Hello players! One Day Dragon Tiger में welcome. अपनी first bet choose कीजिए. Dragon का card खुलते ही second chance मिलेगा.",
+      "integratedLufs": -13.13,
+      "truePeakDb": -1.18,
+      "sha256": "a74bbe5dd6f7d50544a4f19773f7b146de30b8ecf6a2bfd0e169d8a76d0a41de"
+    },
+    "ace": {
+      "file": "ace.mp3",
+      "subtitles": "ace.srt",
+      "duration": 10.872,
+      "transcript": "Dragon pe Ace hai. Tiger ka higher card wins, aur Ace aaye toh tie. Second bet se pehle new odds check kijiye.",
+      "speech": "Dragon पे Ace है. Tiger का higher card wins, और Ace आए तो tie. Second bet से पहले new odds check कीजिए.",
+      "integratedLufs": -13.24,
+      "truePeakDb": -1.38,
+      "sha256": "9a3c62bd176333063d20be2d779c77a0dced623fd9ecb64b157f47cbefc4c037"
+    },
+    "low": {
+      "file": "low.mp3",
+      "subtitles": "low.srt",
+      "duration": 10.584,
+      "transcript": "Dragon ka card low hai. Tiger ke higher card ke chances zyada hain. Second chance ke new odds screen pe check kijiye.",
+      "speech": "Dragon का card low है. Tiger के higher card के chances ज़्यादा हैं. Second chance के new odds screen पे check कीजिए.",
+      "integratedLufs": -13.1,
+      "truePeakDb": -1.3,
+      "sha256": "631ed0ad688858a6c0c2962b2749f0224dff69edc11a3012f8cda28ca1d26266"
+    },
+    "seven": {
+      "file": "seven.mp3",
+      "subtitles": "seven.srt",
+      "duration": 10.824,
+      "transcript": "Dragon pe seven hai. Dono sides ke chances equal hain. Tiger pe seven aaya toh odd-even aur low-high bets lose hongi.",
+      "speech": "Dragon पे seven है. दोनों sides के chances equal हैं. Tiger पे seven आया तो odd-even और low-high bets lose होंगी.",
+      "integratedLufs": -13.03,
+      "truePeakDb": -1.01,
+      "sha256": "67701c67da6a20c597b75963b3e7f3b98cc7a722d6ff5370431d151227afdb53"
+    },
+    "high": {
+      "file": "high.mp3",
+      "subtitles": "high.srt",
+      "duration": 10.728,
+      "transcript": "Dragon ka card high hai. Tiger ko jeetne ke liye higher card chahiye. Second bet se pehle updated odds check kijiye.",
+      "speech": "Dragon का card high है. Tiger को जीतने के लिए higher card चाहिए. Second bet से पहले updated odds check कीजिए.",
+      "integratedLufs": -13.15,
+      "truePeakDb": -1.32,
+      "sha256": "f30a6c57e16f3bad576563b331a102f2791e555439694f83239ba412d5158f95"
+    },
+    "king": {
+      "file": "king.mp3",
+      "subtitles": "king.srt",
+      "duration": 10.608,
+      "transcript": "Dragon pe King hai. Tiger pe King aaya toh tie, warna Dragon wins. Second chance ke options screen pe dekhiye.",
+      "speech": "Dragon पे King है. Tiger पे King आया तो tie, वरना Dragon wins. Second chance के options screen पे देखिए.",
+      "integratedLufs": -13.21,
+      "truePeakDb": -1.03,
+      "sha256": "9bab62545e2f46e37fe5ebc8fbedab3fc7cf7fb95031170b82f83ad9b7f58880"
+    },
+    "dragon-wins": {
+      "file": "dragon-wins.mp3",
+      "subtitles": "dragon-wins.srt",
+      "duration": 4.824,
+      "transcript": "Dragon wins! Dragon ka card higher hai.",
+      "speech": "Dragon wins! Dragon का card higher है.",
+      "integratedLufs": -13.78,
+      "truePeakDb": -1.43,
+      "sha256": "e54f7f5a0c38c252a1fab124565b317412c7287f7326ef82eea48638efb71f85"
+    },
+    "tiger-wins": {
+      "file": "tiger-wins.mp3",
+      "subtitles": "tiger-wins.srt",
+      "duration": 4.656,
+      "transcript": "Tiger wins! Tiger ka card higher hai.",
+      "speech": "Tiger wins! Tiger का card higher है.",
+      "integratedLufs": -13.55,
+      "truePeakDb": -1.55,
+      "sha256": "f4bc5668794151dde2b3f22e1af8eb659e28f03f979a88b199000b0d857f9c59"
+    },
+    "tie": {
+      "file": "tie.mp3",
+      "subtitles": "tie.srt",
+      "duration": 4.392,
+      "transcript": "Same rank! Yeh round tie hua hai.",
+      "speech": "Same rank! ये round tie हुआ है.",
+      "integratedLufs": -13.03,
+      "truePeakDb": -1.3,
+      "sha256": "3330f1fdf16cab291fec96b782a801992099945b0c9a20b69633dabf70ba12bd"
+    }
+  }
+}

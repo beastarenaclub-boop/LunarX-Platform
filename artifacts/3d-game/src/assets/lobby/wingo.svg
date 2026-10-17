@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" fill="none">
+  <defs>
+    <linearGradient id="bg" x2="600" y2="800" gradientUnits="userSpaceOnUse"><stop stop-color="#7661cf"/><stop offset=".52" stop-color="#393064"/><stop offset="1" stop-color="#18152f"/></linearGradient>
+    <radialGradient id="green"><stop stop-color="#b8ffe1"/><stop offset=".58" stop-color="#36d6a4"/><stop offset="1" stop-color="#11936d"/></radialGradient>
+    <radialGradient id="red"><stop stop-color="#ffceca"/><stop offset=".6" stop-color="#fa7f8d"/><stop offset="1" stop-color="#d24363"/></radialGradient>
+    <radialGradient id="violet"><stop stop-color="#f6d5ff"/><stop offset=".6" stop-color="#c18aff"/><stop offset="1" stop-color="#8c45d1"/></radialGradient>
+    <linearGradient id="white" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity=".7"/></linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="14" stdDeviation="13" flood-color="#702860" flood-opacity=".35"/></filter>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h600v800H0z"/>
+  <g stroke="#fff" stroke-opacity=".15"><circle cx="520" cy="130" r="220"/><circle cx="520" cy="130" r="270"/><circle cx="70" cy="610" r="190"/></g>
+  <path d="M318 32a28 28 0 1 0 16 41 29 29 0 0 1-16-41Z" fill="#e7ddff"/>
+  <text x="300" y="162" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="77" font-weight="900" letter-spacing="3">LUNAR</text>
+  <text x="300" y="200" text-anchor="middle" fill="#e5dcff" font-family="Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="5">COLOUR TRADING</text>
+  <g filter="url(#shadow)">
+    <g transform="translate(164 365) rotate(-18)"><circle r="102" fill="url(#red)"/><circle r="84" stroke="white" stroke-opacity=".65" stroke-width="20" stroke-dasharray="32 54"/><circle r="65" fill="url(#white)"/><text y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="76" font-weight="800" fill="#dd546c">2</text></g>
+    <g transform="translate(420 374) rotate(18)"><circle r="96" fill="url(#violet)"/><circle r="79" stroke="white" stroke-opacity=".65" stroke-width="20" stroke-dasharray="30 52"/><circle r="61" fill="url(#white)"/><text y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="74" font-weight="800" fill="#9b54d3">5</text></g>
+    <g transform="translate(289 467) rotate(-8)"><circle r="117" fill="url(#green)"/><circle r="97" stroke="white" stroke-opacity=".7" stroke-width="23" stroke-dasharray="38 63"/><circle r="74" fill="url(#white)"/><text y="30" text-anchor="middle" font-family="Arial,sans-serif" font-size="94" font-weight="800" fill="#1da87e">7</text></g>
+  </g>
+  <g fill="white" fill-opacity=".65"><path d="m474 234 5 15 15 5-15 5-5 15-5-15-15-5 15-5Z"/><path d="m99 246 4 10 10 4-10 4-4 10-4-10-10-4 10-4Z"/><circle cx="504" cy="479" r="4"/></g>
+  <rect x="165" y="607" width="270" height="38" rx="19" fill="white" fill-opacity=".16" stroke="white" stroke-opacity=".2"/>
+  <text x="300" y="632" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" fill="white" letter-spacing="2">30s · 1m · 3m · 5m</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 540">
+ <defs><linearGradient id="bg" x2=".8" y2="1"><stop stop-color="#cce878"/><stop offset="1" stop-color="#235839"/></linearGradient><linearGradient id="shade" x2="0" y2="1"><stop stop-color="#081a12" stop-opacity="0"/><stop offset="1" stop-color="#081a12"/></linearGradient></defs>
+ <path fill="url(#bg)" d="M0 0h440v540H0z"/>
+ <path d="M180-20 470 95 320 550-90 480Z" fill="#727d77"/>
+ <path d="M180-20 161-26-102 479-81 489Z" fill="#c5c8b3"/>
+ <path d="m296 15-26 64m-28 67-26 64m-28 67-26 64m-28 67-26 64" stroke="#d9dac5" stroke-width="8"/>
+ <circle cx="80" cy="70" r="75" fill="#67a932"/><circle cx="40" cy="35" r="49" fill="#8fc747"/><circle cx="450" cy="290" r="67" fill="#579439"/>
+ <g transform="translate(238 147) rotate(23)"><rect width="73" height="131" rx="20" fill="#ecbb46"/><rect x="8" y="30" width="57" height="67" rx="13" fill="#a7782e"/><path d="M11 35h51l-5 20H16Z" fill="#314948"/><path d="M15 96h45l-5-15H19Z" fill="#314948"/><path d="M10 11h15m25 0h13" stroke="#ffefb3" stroke-width="8" stroke-linecap="round"/></g>
+ <ellipse cx="207" cy="373" rx="97" ry="22" fill="#1a362c" opacity=".4"/>
+ <path d="m162 348-10 32-29 6h54l6-32m46-5 10 31 26 8h-52l-4-38" fill="#ffc546" stroke="#5a472b" stroke-width="4"/>
+ <path d="M176 192c-35-15-17-43 7-26-12-41 26-49 35-14 25-24 43 3 20 24l-28 27" fill="#f34846" stroke="#7b3025" stroke-width="5"/>
+ <path d="M151 209c24-35 87-30 110 8 14 25 0 46 19 67 30 62-23 93-79 85-82 1-103-42-77-87l27-73Z" fill="#fbffea" stroke="#29453a" stroke-width="5"/>
+ <path d="M131 292c-29 23 1 62 44 43 9-4 15-15 16-25-27 13-34-26-60-18Z" fill="#d7e8d9"/>
+ <ellipse cx="190" cy="239" rx="27" ry="35" fill="#ffe686"/><ellipse cx="233" cy="232" rx="20" ry="30" fill="#fff0a5"/>
+ <ellipse cx="199" cy="231" rx="8" ry="17" fill="#273934"/><ellipse cx="240" cy="226" rx="6" ry="14" fill="#273934"/>
+ <path d="M215 273c-24 7-16 35 2 29 16 12 33-17 12-31Z" fill="#ee4e45"/>
+ <path d="M229 245c14-2 32 10 39 19l-30 17-24-12c-3-11 6-21 15-24Z" fill="#ffc044" stroke="#c18b27" stroke-width="3"/>
+ <path fill="url(#shade)" d="M0 335h440v205H0z"/>
+ <text x="220" y="452" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="47" fill="#fffce8" letter-spacing="-2">CHICKEN</text>
+ <text x="220" y="502" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="57" fill="#f5cd57" letter-spacing="5">ROAD</text>
+ <rect x="23" y="22" width="133" height="29" rx="14" fill="#143f2f"/><text x="90" y="42" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="12" fill="#e2ffc2" letter-spacing="2">HOP &amp; COLLECT</text>
+</svg>

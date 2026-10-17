@@ -1,0 +1,221 @@
+{
+  "date": "2026-09-30",
+  "project": "7f600058-f772-42fb-8acd-aa3ca4688b7e",
+  "balanceBefore": 9000.14,
+  "balanceAfter": 8427.39,
+  "balanceDelta": 572.75,
+  "notes": "Balance change observed across this work session. Request estimates sum to 530.75; balance change is not an itemized billing receipt.",
+  "requests": {
+    "generation-record": {
+      "project_id": "7f600058-f772-42fb-8acd-aa3ca4688b7e",
+      "workspace_id": "2f0c4c7c-a51c-4f15-843e-a2415dded89a",
+      "starting_balance": 9000.14,
+      "test": {
+        "job_id": "1b04d3da-7c4b-47cb-a66b-f1dcb7276faa",
+        "estimated_credits": 60,
+        "params": {
+          "model": "seedance_2_5",
+          "mode": "t2v",
+          "duration": 5,
+          "resolution": "1080p",
+          "bitrate_mode": "high",
+          "generate_audio": false,
+          "aspect_ratio": "16:9",
+          "count": 1,
+          "folder_id": "7f600058-f772-42fb-8acd-aa3ca4688b7e",
+          "prompt": "Photorealistic live-casino production camera, ONE UNBROKEN LOCKED-OFF FRONTAL MEDIUM-WIDE SHOT. A beautiful fictional adult Indian woman aged 28, glamorous and confident, warm brown skin, expressive hazel-brown eyes, glossy long dark wavy hair swept behind her shoulders, tasteful evening makeup, elegant fitted deep burgundy satin sleeveless casino waistcoat with a tasteful V neckline, tailored black outfit, tiny gold earrings, polished professional casino hostess styling. She is seated close behind a luxurious dark emerald green felt rectangular card table with a polished dark wood edge. Her full face, shoulders, elbows, both hands and the six cards stay clearly visible in frame throughout. Premium warmly lit casino lounge behind her, wood and brass, soft amber lamps, clear believable room detail. Bright soft key and fill lighting on her face, clothes and hands. Crisp natural skin texture, realistic fabrics, deep focus on face AND fingers AND cards, short exposure, zero motion smearing. Camera at player eye level, mild downward view of table, absolutely no zoom, cuts or camera movement. At the start EXACTLY SIX separate poker-sized cards with matching simple dark navy backs lie neatly in TWO GROUPS OF THREE, one horizontal group on screen-left and one horizontal group on screen-right, with a generous gap between the groups. All cards fully on the table in the lower-middle of the image with clear spaces between each card. Her relaxed hands start behind the cards near the padded rail. Over five seconds she naturally uses ONE hand to grip the outside card of the screen-left group with thumb and index finger, lifts its edge, slowly rotates the SAME card over its long edge through 180 degrees, places its clean blank cream face FLAT on the same position and releases it. The fingers stay physically attached to the card edge until it lands. The remaining FIVE cards stay absolutely untouched and face down. Her other hand rests naturally behind the other cards. She looks down at the card while working, then smiles softly. Physically correct hands with five fingers, stable card shape and six-card count. The visible face of the turned card is plain unprinted cream paper: no letters, ranks, pips, text or logos. No double fingers, detached cards, floating cards, dissolving cards, duplicate limbs or exaggerated breathing."
+        }
+      }
+    },
+    "six-frame-request": {
+      "job_id": "df6a7868-935e-4abf-9f03-e70495509dcb",
+      "estimated_credits": 2.75,
+      "params": {
+        "model": "gpt_image_2_5",
+        "quality": "high",
+        "resolution": "2k",
+        "aspect_ratio": "16:9",
+        "count": 1,
+        "folder_id": "7f600058-f772-42fb-8acd-aa3ca4688b7e",
+        "medias": [
+          {
+            "role": "image",
+            "value": "852ce29a-4767-4c4f-9d45-bbbb0d12e030"
+          }
+        ],
+        "prompt": "Create a precise production first-frame photograph for a Teen Patti casino video using the supplied fictional adult woman as the identity reference. SAME adult woman aged 28, same beautiful face and burgundy satin sleeveless fitted waistcoat with elegant V neckline and black top, same long glossy dark hair swept behind shoulders, tasteful glamour makeup. Bring her chair CLOSE to the card table; show her from top of hair to the table, face and shoulders larger than in the reference. Rest both entire hands naturally on the felt BEHIND the cards, never covering cards, with all ten fingertips visible. Warm luxurious real casino room with wood and brass details, brighter soft professional key/fill lighting and clear natural skin/fabric textures, sharp hands and table as well as face, no beauty blur. Correct the layout: there must be EXACTLY SIX separate dark navy-backed poker cards, not five, in TWO CLEARLY SEPARATED GROUPS of THREE CARDS EACH on the emerald green rectangular felt. Three cards in the left group, three in the right group, 8 cm gap between groups. Cards are face down, upright portrait orientation from viewer's perspective, neat same baseline and spaced apart. SIX flat backs: [card][card][card]    [card][card][card]. At a 1920x1080 composition, the dealer's face is around x960,y270, her hands around y680 and the six cards occupy x460 through1460,y790 through910. Table front edge in bottom of frame. Full dealer face, shoulders, forearms, both hands and all six cards fit with room around them. No text, logos, card values, pips, jewelry on fingers, body crop, plastic skin or blurry fingers. Fixed straight-on player-eye-level camera looking slightly down at felt. Photorealistic high-quality 1080p video reference, not illustration."
+      }
+    },
+    "full-take-request": {
+      "job_id": "3cbedda0-0963-4ce0-9651-d4ffa2d4474b",
+      "estimated_credits": 180,
+      "params": {
+        "model": "seedance_2_5",
+        "mode": "omni_reference",
+        "duration": 15,
+        "resolution": "1080p",
+        "bitrate_mode": "high",
+        "generate_audio": false,
+        "aspect_ratio": "16:9",
+        "count": 1,
+        "folder_id": "7f600058-f772-42fb-8acd-aa3ca4688b7e",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "df6a7868-935e-4abf-9f03-e70495509dcb"
+          }
+        ],
+        "prompt": "Animate this exact reference as one continuous FIFTEEN SECOND locked-camera professional casino shot. Preserve this fictional adult woman aged 28, her glamorous fitted burgundy satin outfit, face, body proportions, the exact table, lighting and background. Keep her full face, both arms, all ten fingertips and all SIX separate cards visible at the same large framing. Camera is completely stationary, no zoom or cuts. Bright clear 1080p, short shutter exposure with crisp fingers and card edges; no motion blur or ghosting. NO DIGITAL CARD FLIP: every card is a real rigid piece of paper pinched and physically turned over by her fingers. Each turned face is BLANK ivory cream paper without any ink, ranks, letters or pips.\nThere are exactly six cards, two separated groups of three, exactly where they appear in the first frame. The six cards stay separate and their positions remain constant. Do not slide, fan, stack, replace, spawn or remove cards. The only action is turning each existing card over in its own spot. Each hand pinches the edge with thumb and forefinger, turns the same card through 180 degrees, lowers it flat to felt and releases it. Fingers stay visibly in contact with that edge during the whole turn. She gently looks down at the cards while working. Slow controlled realistic wrist articulation, one card at a time.\nCHOREOGRAPHY, measured from the start:\n0.0–6.0 seconds: calm seated waiting, both hands stay still behind the cards as pictured; one natural blink and slight eye movement, relaxed shoulders and mouth, no swaying or exaggerated breathing. All six cards remain FACE DOWN.\n6.0–7.1: screen-left hand flips the OUTSIDE card in the left group, nearest the left image edge, face up and leaves it flat.\n7.1–8.2: screen-right hand flips the OUTSIDE card in the right group, nearest the right image edge, face up and leaves it flat.\n8.2–9.3: screen-left hand flips the INSIDE card of the left group, nearest the central gap.\n9.3–10.4: screen-right hand flips the INSIDE card of the right group, nearest the central gap.\n10.4–11.5: screen-left hand flips the remaining MIDDLE card of the left group.\n11.5–12.6: screen-right hand flips the remaining MIDDLE card of the right group.\n12.6–15.0: all SIX cards now have plain blank cream faces flat on the felt. Both hands retract to rest behind the cards, completely uncovering all six faces. She looks up with a soft confident smile. Hold this exact table arrangement to the end. Every original card is turned exactly once, no card morphing, duplicate hands, sudden movement, black flashes or missing cards."
+      }
+    },
+    "paired-take-request": {
+      "estimated_credits": 180,
+      "submission": {
+        "results": [
+          {
+            "id": "83f28a5a-201b-445b-af73-a3a629ea7665",
+            "type": "video",
+            "status": "pending",
+            "model": "seedance_2_5",
+            "params": {
+              "prompt": "Photorealistic casino video, a SINGLE continuous 15-second fixed frontal shot starting from the supplied image. Preserve this exact fictional adult woman (28 years old), her glamorous burgundy satin sleeveless fitted waistcoat and black top, her face, hair, high-quality studio lighting, table and background. Camera locked on a tripod, NO zoom, reframing, cuts or transitions. Sharp fingers and paper edges, short exposure and crisp 1080p detail, full face and both hands always visible. Exactly SIX cards stay at their starting positions in two groups of three. All begin dark navy back up. All end plain BLANK IVORY face up, no ranks, symbols, text or pips.\nSIMPLIFY THE ACTION: she opens THREE PAIRS slowly. Her screen-left hand works ONLY on the three cards on screen-left. Her screen-right hand works ONLY on the three cards on screen-right. Her arms never cross. No card turns unless a hand visibly picks up that exact card. Each turn MUST show the paper held vertically between thumb and forefinger, then rotated forward and placed face up. Hands do not just wipe across a card; paper visibly travels up, turns, then lands. Unhandled cards stay face down and motionless. The six individual rigid rectangles never split, disappear, appear, merge or turn by themselves.\n0–6 seconds: both hands rest just behind the cards as shown, calm still posture, small natural blinks, relaxed breathing, no talking.\n6–8.25 seconds, PAIR ONE: both hands simultaneously pinch and lift the two OUTERMOST cards: the far-left card and the far-right card. Hold both upright briefly with fingers continuously gripping their edges, rotate them over, place them FLAT face up in their original positions. Release after landing. Four untouched navy card backs remain.\n8.25–10.5 seconds, PAIR TWO: both hands simultaneously pinch and lift the two MIDDLE cards, one middle card from each group. Hold both upright briefly, turn them over, lower them FLAT face up into their original positions, release. The inside card in each group stays untouched and navy back up.\n10.5–12.75 seconds, PAIR THREE: both hands simultaneously pinch and lift the final two INSIDE cards next to the central gap. Hold both upright briefly, turn them over, lower them FLAT face up, release. Now SIX separate blank ivory faces are visible.\n12.75–15 seconds: hands rest behind the six cards, revealing all six card faces, dealer gives a natural gentle smile. Same woman, same outfit, same table for every frame. Real physical grip throughout each turn, no morphing, teleporting or digitally animated card rotation. Three slow symmetrical paired flips in total.",
+              "aspect_ratio": "16:9",
+              "duration": 15,
+              "reference_images": [
+                "df6a7868-935e-4abf-9f03-e70495509dcb"
+              ],
+              "mode": "omni_reference",
+              "resolution": "1080p",
+              "bitrate_mode": "high",
+              "generate_audio": false
+            }
+          }
+        ]
+      },
+      "params": {
+        "model": "seedance_2_5",
+        "mode": "omni_reference",
+        "duration": 15,
+        "resolution": "1080p",
+        "bitrate_mode": "high",
+        "generate_audio": false,
+        "aspect_ratio": "16:9",
+        "count": 1,
+        "folder_id": "7f600058-f772-42fb-8acd-aa3ca4688b7e",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "df6a7868-935e-4abf-9f03-e70495509dcb"
+          }
+        ],
+        "prompt": "Photorealistic casino video, a SINGLE continuous 15-second fixed frontal shot starting from the supplied image. Preserve this exact fictional adult woman (28 years old), her glamorous burgundy satin sleeveless fitted waistcoat and black top, her face, hair, high-quality studio lighting, table and background. Camera locked on a tripod, NO zoom, reframing, cuts or transitions. Sharp fingers and paper edges, short exposure and crisp 1080p detail, full face and both hands always visible. Exactly SIX cards stay at their starting positions in two groups of three. All begin dark navy back up. All end plain BLANK IVORY face up, no ranks, symbols, text or pips.\nSIMPLIFY THE ACTION: she opens THREE PAIRS slowly. Her screen-left hand works ONLY on the three cards on screen-left. Her screen-right hand works ONLY on the three cards on screen-right. Her arms never cross. No card turns unless a hand visibly picks up that exact card. Each turn MUST show the paper held vertically between thumb and forefinger, then rotated forward and placed face up. Hands do not just wipe across a card; paper visibly travels up, turns, then lands. Unhandled cards stay face down and motionless. The six individual rigid rectangles never split, disappear, appear, merge or turn by themselves.\n0–6 seconds: both hands rest just behind the cards as shown, calm still posture, small natural blinks, relaxed breathing, no talking.\n6–8.25 seconds, PAIR ONE: both hands simultaneously pinch and lift the two OUTERMOST cards: the far-left card and the far-right card. Hold both upright briefly with fingers continuously gripping their edges, rotate them over, place them FLAT face up in their original positions. Release after landing. Four untouched navy card backs remain.\n8.25–10.5 seconds, PAIR TWO: both hands simultaneously pinch and lift the two MIDDLE cards, one middle card from each group. Hold both upright briefly, turn them over, lower them FLAT face up into their original positions, release. The inside card in each group stays untouched and navy back up.\n10.5–12.75 seconds, PAIR THREE: both hands simultaneously pinch and lift the final two INSIDE cards next to the central gap. Hold both upright briefly, turn them over, lower them FLAT face up, release. Now SIX separate blank ivory faces are visible.\n12.75–15 seconds: hands rest behind the six cards, revealing all six card faces, dealer gives a natural gentle smile. Same woman, same outfit, same table for every frame. Real physical grip throughout each turn, no morphing, teleporting or digitally animated card rotation. Three slow symmetrical paired flips in total."
+      }
+    },
+    "repair-request": {
+      "estimate": {
+        "cost": {
+          "credits": 60,
+          "credits_exact": 60
+        },
+        "adjustments": {
+          "medias[0].role": {
+            "requested": "video",
+            "used": "video_references",
+            "reason": "Seedance 2.5 backend expects schema-key media roles"
+          }
+        }
+      },
+      "submission": {
+        "results": [
+          {
+            "id": "6a1aa514-b3c2-4cb6-9d72-de8ff5126f40",
+            "type": "video",
+            "status": "pending",
+            "model": "seedance_2_5",
+            "params": {
+              "prompt": "Correct ONLY the last pair of physical card turns in this five-second casino clip. Preserve exactly the same adult dealer, face, clothes, body, camera framing, lighting, background and the four already face-up blank cream cards. There are six cards in two groups of three. At the beginning of this clip the MIDDLE and OUTSIDE cards of BOTH groups are ALREADY FACE UP and must stay untouched and motionless. The only two cards still navy-back-up are the INSIDE pair nearest the central gap: the THIRD card from the left and the FOURTH card from the left. Her screen-left hand lifts ONLY the third card from the left, and her screen-right hand lifts ONLY the fourth card from the left. Their long edges must remain PINCHED by the fingers until they land. Both cards rotate naturally through vertical, showing plain blank cream faces. CRITICAL LANDING: each lifted card returns to the SAME INSIDE position immediately beside the central gap, NOT on top of either middle card. Do not overlap or duplicate paper. While a card is lifted its original spot shows EMPTY GREEN FELT; do not leave a ghost white card underneath. Keep the two middle cards and the two outside cards fixed, flat and visible throughout. At the end all SIX ORIGINAL separate cards are flat cream-face-up in the exact original six positions, evenly spaced, no duplicates, no overlapping cards, and both hands rest behind them. The woman stays the same and her movements remain slow, anatomically natural and sharp. Match the first frame and last pose of the source so this correction continues smoothly from the preceding footage. No camera movement, no edits to face or styling, no softness or added blur.",
+              "reference_images": [
+                "60cbfff8-c469-41c1-afe6-1cd926ba0415"
+              ],
+              "mode": "video_edit",
+              "resolution": "1080p",
+              "bitrate_mode": "high",
+              "generate_audio": false
+            }
+          }
+        ],
+        "adjustments": {
+          "medias[0].role": {
+            "requested": "video",
+            "used": "video_references",
+            "reason": "Seedance 2.5 backend expects schema-key media roles"
+          }
+        }
+      },
+      "params": {
+        "model": "seedance_2_5",
+        "mode": "video_edit",
+        "resolution": "1080p",
+        "bitrate_mode": "high",
+        "generate_audio": false,
+        "count": 1,
+        "folder_id": "7f600058-f772-42fb-8acd-aa3ca4688b7e",
+        "medias": [
+          {
+            "role": "video",
+            "value": "60cbfff8-c469-41c1-afe6-1cd926ba0415"
+          }
+        ],
+        "prompt": "Correct ONLY the last pair of physical card turns in this five-second casino clip. Preserve exactly the same adult dealer, face, clothes, body, camera framing, lighting, background and the four already face-up blank cream cards. There are six cards in two groups of three. At the beginning of this clip the MIDDLE and OUTSIDE cards of BOTH groups are ALREADY FACE UP and must stay untouched and motionless. The only two cards still navy-back-up are the INSIDE pair nearest the central gap: the THIRD card from the left and the FOURTH card from the left. Her screen-left hand lifts ONLY the third card from the left, and her screen-right hand lifts ONLY the fourth card from the left. Their long edges must remain PINCHED by the fingers until they land. Both cards rotate naturally through vertical, showing plain blank cream faces. CRITICAL LANDING: each lifted card returns to the SAME INSIDE position immediately beside the central gap, NOT on top of either middle card. Do not overlap or duplicate paper. While a card is lifted its original spot shows EMPTY GREEN FELT; do not leave a ghost white card underneath. Keep the two middle cards and the two outside cards fixed, flat and visible throughout. At the end all SIX ORIGINAL separate cards are flat cream-face-up in the exact original six positions, evenly spaced, no duplicates, no overlapping cards, and both hands rest behind them. The woman stays the same and her movements remain slow, anatomically natural and sharp. Match the first frame and last pose of the source so this correction continues smoothly from the preceding footage. No camera movement, no edits to face or styling, no softness or added blur."
+      }
+    },
+    "final-pair-request": {
+      "estimated_credits": 48,
+      "submission": {
+        "results": [
+          {
+            "id": "c236157d-918b-4b4e-b913-c4af1358b727",
+            "type": "video",
+            "status": "pending",
+            "model": "seedance_2_5",
+            "params": {
+              "prompt": "One seamless four-second continuation between these exact first and last frames. Same adult woman, face, burgundy outfit, lighting, background and rigid tripod camera. Her job is to turn over ONLY the TWO remaining navy-back-up cards in the CENTER of the six-card row. Leave all four already cream-face-up cards completely motionless. These are the third and fourth cards from the left, immediately on either side of the center gap.\n0–0.4s: her hands gently reach to those two blue cards.\n0.4–2.8s: pinch the far edge of each BLUE card with thumb and index finger, lift each card DIRECTLY ABOVE ITS OWN SPOT, rotate it to show a blank ivory face, and lower it straight back into that SAME SPOT. The raised cards move only vertically, absolutely NO SIDEWAYS motion. One card stays on the screen-left side of the central gap; the other stays on the screen-right side of the gap. Keep a fixed gap between the two lifted cards throughout, centered in front of her. Fingers maintain a convincing physical grip, no moving card without touching. When lifted, there is EMPTY GREEN FELT where each blue card used to be: no duplicate or ghost card beneath it. Do not touch, cover or land on any of the FOUR already face-up cards. Never move a card into a neighboring position. The four fixed cream cards remain visible throughout.\n2.8–4s: release the two freshly opened inner cards, move hands back and finish at the supplied final frame with SIX separate flat cream cards. All six cards have exactly one consistent physical identity. Original full face and hands stay visible and sharp. Real camera footage with crisp skin and card edges, no blur, crossfade, camera move, cuts, text, numbers, pips, digital card flips or added objects.",
+              "aspect_ratio": "16:9",
+              "duration": 4,
+              "reference_images": [
+                "4bc4adbc-3abc-45bd-a5de-b6782f7c19a5",
+                "da5d03f2-6df6-49b3-aad0-7c45b6bd1e93"
+              ],
+              "mode": "omni_reference",
+              "resolution": "1080p",
+              "bitrate_mode": "high",
+              "generate_audio": false
+            }
+          }
+        ]
+      },
+      "params": {
+        "model": "seedance_2_5",
+        "mode": "omni_reference",
+        "duration": 4,
+        "resolution": "1080p",
+        "bitrate_mode": "high",
+        "generate_audio": false,
+        "count": 1,
+        "aspect_ratio": "16:9",
+        "folder_id": "7f600058-f772-42fb-8acd-aa3ca4688b7e",
+        "medias": [
+          {
+            "role": "start_image",
+            "value": "4bc4adbc-3abc-45bd-a5de-b6782f7c19a5"
+          },
+          {
+            "role": "end_image",
+            "value": "da5d03f2-6df6-49b3-aad0-7c45b6bd1e93"
+          }
+        ],
+        "prompt": "One seamless four-second continuation between these exact first and last frames. Same adult woman, face, burgundy outfit, lighting, background and rigid tripod camera. Her job is to turn over ONLY the TWO remaining navy-back-up cards in the CENTER of the six-card row. Leave all four already cream-face-up cards completely motionless. These are the third and fourth cards from the left, immediately on either side of the center gap.\n0–0.4s: her hands gently reach to those two blue cards.\n0.4–2.8s: pinch the far edge of each BLUE card with thumb and index finger, lift each card DIRECTLY ABOVE ITS OWN SPOT, rotate it to show a blank ivory face, and lower it straight back into that SAME SPOT. The raised cards move only vertically, absolutely NO SIDEWAYS motion. One card stays on the screen-left side of the central gap; the other stays on the screen-right side of the gap. Keep a fixed gap between the two lifted cards throughout, centered in front of her. Fingers maintain a convincing physical grip, no moving card without touching. When lifted, there is EMPTY GREEN FELT where each blue card used to be: no duplicate or ghost card beneath it. Do not touch, cover or land on any of the FOUR already face-up cards. Never move a card into a neighboring position. The four fixed cream cards remain visible throughout.\n2.8–4s: release the two freshly opened inner cards, move hands back and finish at the supplied final frame with SIX separate flat cream cards. All six cards have exactly one consistent physical identity. Original full face and hands stay visible and sharp. Real camera footage with crisp skin and card edges, no blur, crossfade, camera move, cuts, text, numbers, pips, digital card flips or added objects."
+      }
+    }
+  }
+}

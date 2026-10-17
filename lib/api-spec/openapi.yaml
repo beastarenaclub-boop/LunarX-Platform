@@ -1,0 +1,2786 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Platform API — auth, wallet, KYC, admin, audit.
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: auth
+  - name: profile
+  - name: wallet
+  - name: kyc
+  - name: admin
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+
+  /auth/signup:
+    post:
+      operationId: signup
+      tags: [auth]
+      summary: Create a new player account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SignupRequest" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Log in with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthResponse" }
+        "401": { $ref: "#/components/responses/Error" }
+        "429": { $ref: "#/components/responses/Error" }
+
+  /auth/demo-login:
+    post:
+      operationId: demoLogin
+      tags: [auth]
+      summary: Create an ephemeral demo player and log in
+      description: |
+        Creates a fresh ephemeral demo player account, credits a starter
+        virtual balance, opens a session, and returns the new user. No
+        request body required.
+      responses:
+        "200":
+          description: Demo session created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthResponse" }
+        "429": { $ref: "#/components/responses/Error" }
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Log out the current session
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Me" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /auth/password-reset/request:
+    post:
+      operationId: requestPasswordReset
+      tags: [auth]
+      summary: Request a password reset token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PasswordResetRequest" }
+      responses:
+        "200":
+          description: Token issued (returned in dev for testability)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PasswordResetIssued" }
+        "429": { $ref: "#/components/responses/Error" }
+
+  /auth/password-reset/confirm:
+    post:
+      operationId: confirmPasswordReset
+      tags: [auth]
+      summary: Confirm password reset using token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PasswordResetConfirm" }
+      responses:
+        "200":
+          description: Reset
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /profile:
+    get:
+      operationId: getProfile
+      tags: [profile]
+      summary: Get own profile
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /wallet/balance:
+    get:
+      operationId: getWalletBalance
+      tags: [wallet]
+      summary: Read own wallet balance for a single game
+      parameters:
+        - in: query
+          name: game
+          description: >
+            Which game's separate wallet to read (lunar | mines | plinko | dice).
+            Defaults to lunar. Each game has a fully independent balance.
+          schema:
+            type: string
+            enum: [lunar, mines, plinko, dice, aviator, jetx, fury, horse-racing, bike-racing, roulette, baccarat, blackjack, teen-patti, teen-patti-live, sic-bo, andar-bahar, lucky-7]
+            default: lunar
+      responses:
+        "200":
+          description: Balance
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WalletBalance" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /wallet/balances:
+    get:
+      operationId: getWalletBalances
+      tags: [wallet]
+      summary: Read shared wallet balance through legacy game aliases
+      responses:
+        "200":
+          description: Per-game balances
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WalletBalances" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /wallet/transactions:
+    get:
+      operationId: listWalletTransactions
+      tags: [wallet]
+      summary: List own wallet ledger entries for a single game
+      parameters:
+        - in: query
+          name: game
+          description: Which game's wallet ledger to read (lunar | mines | plinko | dice). Defaults to lunar.
+          schema:
+            type: string
+            enum: [lunar, mines, plinko, dice, aviator, jetx, fury, horse-racing, bike-racing, roulette, baccarat, blackjack, teen-patti, teen-patti-live, sic-bo, andar-bahar, lucky-7]
+            default: lunar
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: cursor
+          schema: { type: string }
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WalletTransactionsPage" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /kyc/uploads/{filename}:
+    put:
+      operationId: uploadKycDocument
+      tags: [kyc]
+      summary: Upload a KYC document (raw binary body) and receive a storage key
+      description: >
+        Authenticated raw-body upload for ID/selfie documents. The request
+        body is the raw file bytes (NOT a JSON-wrapped Blob); the typed
+        client (`uploadKycDocument`) forwards a `Blob`/`ArrayBuffer`/`Buffer`
+        directly. The server stores the bytes under a server-issued key of
+        the form `<userId>/<name>` and returns it. Pass that `key` as
+        `idDocumentKey` / `selfieKey` to `POST /kyc`.
+      parameters:
+        - in: path
+          name: filename
+          required: true
+          schema: { type: string, maxLength: 200 }
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, format: binary }
+      responses:
+        "200":
+          description: Stored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/KycUploadResponse" }
+        "401": { $ref: "#/components/responses/Error" }
+        "413": { $ref: "#/components/responses/Error" }
+
+  /kyc/uploads/{userId}/{name}/object:
+    get:
+      operationId: getKycUpload
+      tags: [admin]
+      summary: Fetch a previously uploaded KYC document (admin)
+      description: >
+        Returns the raw bytes of an uploaded KYC document. The composite
+        path (`userId` + `name`) reproduces the stored key
+        (`<userId>/<name>`) using two explicit path segments to avoid
+        ambiguous URL encoding of slashes.
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: name
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Bytes
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /kyc:
+    get:
+      operationId: getMyKyc
+      tags: [kyc]
+      summary: Get own latest KYC submission
+      responses:
+        "200":
+          description: KYC submission or null
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/KycSubmissionOrNull" }
+        "401": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: submitKyc
+      tags: [kyc]
+      summary: Submit a KYC application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/KycSubmissionInput" }
+      responses:
+        "200":
+          description: Submitted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/KycSubmission" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /admin/kyc:
+    get:
+      operationId: adminListKyc
+      tags: [admin]
+      summary: List KYC submissions (admin)
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+      responses:
+        "200":
+          description: Submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/KycSubmission" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/kyc/{id}/review:
+    post:
+      operationId: adminReviewKyc
+      tags: [admin]
+      summary: Approve or reject a KYC submission
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/KycReviewInput" }
+      responses:
+        "200":
+          description: Reviewed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/KycSubmission" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /payments/deposit-limits:
+    get:
+      operationId: getDepositLimits
+      tags: [wallet]
+      summary: Get the current min and max deposit amounts for players
+      responses:
+        "200":
+          description: Limits
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DepositLimits" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /payments/deposit-settings:
+    get:
+      operationId: getDepositSettingsPublic
+      tags: [wallet]
+      summary: Get current deposit method availability and limits for players
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DepositSettingsPublic" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /payments/coin-packs:
+    get:
+      operationId: listCoinPacks
+      tags: [wallet]
+      summary: List the coin packs on sale for one game's wallet
+      description: |
+        Server-owned catalog of ten coin packs. Coins are 1:1 with rupees and
+        every pack is worth ten bets at its matching chip denomination
+        (`coins = chipValue * 10`). Clients select a `sku` — they never send a
+        price; the server prices the SKU from this catalog and rejects any
+        deposit whose amount does not match.
+      parameters:
+        - in: query
+          name: game
+          required: false
+          schema: { $ref: "#/components/schemas/GameScope" }
+          description: Which game's wallet the packs credit. Defaults to lunar.
+      responses:
+        "200":
+          description: Catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CoinPack" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /payments/deposits:
+    get:
+      operationId: listMyDeposits
+      tags: [wallet]
+      summary: List my deposit requests
+      responses:
+        "200":
+          description: List
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PaymentRequest" }
+        "401": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createDepositRequest
+      tags: [wallet]
+      summary: Create a pending deposit request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DepositRequestInput" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentRequest" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /payments/deposits/{id}:
+    delete:
+      operationId: cancelMyDeposit
+      tags: [wallet]
+      summary: Cancel my own pending deposit request
+      description: |
+        Allows a player to cancel a deposit request they submitted by mistake,
+        as long as it has not yet been processed (status `pending` or
+        `gateway_pending`). Transitions the request to `cancelled` and writes
+        an audit entry.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Cancelled
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentRequest" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /payments/deposits/auto:
+    post:
+      operationId: createAutoDepositRequest
+      tags: [wallet]
+      summary: Create a pending auto-deposit request (gateway mode)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AutoDepositInput" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AutoDepositResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /payments/upi-accounts:
+    get:
+      operationId: listActiveUpiAccounts
+      tags: [wallet]
+      summary: List active admin-managed UPI accounts for deposits
+      responses:
+        "200":
+          description: List
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PublicUpiAccount" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /payments/upi-accounts/qr/{prefix}/{name}:
+    get:
+      operationId: getUpiAccountQr
+      tags: [wallet]
+      summary: Fetch the raw QR image bytes for an admin-managed UPI account
+      parameters:
+        - in: path
+          name: prefix
+          required: true
+          schema: { type: string }
+        - in: path
+          name: name
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Bytes
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /payments/gateway-webhook:
+    post:
+      operationId: gatewayWebhook
+      tags: [payments]
+      summary: Stub payment gateway webhook callback (auto-credits on success)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GatewayWebhookInput" }
+      responses:
+        "200":
+          description: Acknowledged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received: { type: boolean }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /payments/withdraw-limits:
+    get:
+      operationId: getWithdrawLimits
+      tags: [wallet]
+      summary: Get the current min and max withdrawal amounts for players
+      responses:
+        "200":
+          description: Limits
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WithdrawLimits" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /payments/withdrawals/{id}:
+    delete:
+      operationId: cancelMyWithdrawal
+      tags: [wallet]
+      summary: Cancel my own pending withdrawal request
+      description: |
+        Allows a player to cancel a withdrawal request they submitted by
+        mistake, as long as it has not yet been processed (status `pending`).
+        Transitions the request to `cancelled` and writes an audit entry.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Cancelled
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentRequest" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /payments/withdrawals:
+    get:
+      operationId: listMyWithdrawals
+      tags: [wallet]
+      summary: List my withdrawal requests
+      responses:
+        "200":
+          description: List
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PaymentRequest" }
+        "401": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: createWithdrawRequest
+      tags: [wallet]
+      summary: Create a pending withdrawal request (KYC-gated)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WithdrawRequestInput" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentRequest" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /bets:
+    get:
+      operationId: listMyBets
+      tags: [wallet]
+      summary: List my bet history
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: cursor
+          schema: { type: string }
+      responses:
+        "200":
+          description: Bets
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BetsPage" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /bets/place:
+    post:
+      operationId: placeBet
+      tags: [wallet]
+      summary: Place a bet (debits wallet)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PlaceBetInput" }
+      responses:
+        "200":
+          description: Placed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Bet" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /bets/{id}/cashout:
+    post:
+      operationId: cashOutBet
+      tags: [wallet]
+      summary: Cash out a placed bet (credits wallet)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CashOutInput" }
+      responses:
+        "200":
+          description: Cashed out
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Bet" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /bets/{id}/lose:
+    post:
+      operationId: settleBetLoss
+      tags: [wallet]
+      summary: Mark a placed bet as lost (no wallet movement; stake was already debited)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SettleLossInput" }
+      responses:
+        "200":
+          description: Settled
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Bet" }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /free-bets:
+    get:
+      operationId: getFreeBets
+      tags: [promotions]
+      summary: My active promotional free bets
+      parameters:
+        - in: query
+          name: gameCode
+          schema: { type: string }
+      responses:
+        "200":
+          description: Free bets summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FreeBetsSummary" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /rain/active:
+    get:
+      operationId: getActiveRain
+      tags: [promotions]
+      summary: Currently claimable rain drop (if any)
+      parameters:
+        - in: query
+          name: gameCode
+          schema: { type: string }
+      responses:
+        "200":
+          description: Active rain
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [rain]
+                properties:
+                  rain:
+                    oneOf:
+                      - { $ref: "#/components/schemas/RainEvent" }
+                      - { type: "null" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /rain/{id}/claim:
+    post:
+      operationId: claimRain
+      tags: [promotions]
+      summary: Claim a rain drop (first-come-first-served free bet)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Claimed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [grant, rain]
+                properties:
+                  grant: { $ref: "#/components/schemas/FreeBetGrant" }
+                  rain: { $ref: "#/components/schemas/RainEvent" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /admin/free-bets:
+    post:
+      operationId: adminGrantFreeBets
+      tags: [admin]
+      summary: Grant promotional free bets to a player
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminGrantFreeBetsInput" }
+      responses:
+        "200":
+          description: Granted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FreeBetGrant" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+    get:
+      operationId: adminListFreeBets
+      tags: [admin]
+      summary: List free-bet grants
+      parameters:
+        - in: query
+          name: userId
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Grants
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [entries]
+                properties:
+                  entries:
+                    type: array
+                    items: { $ref: "#/components/schemas/FreeBetGrant" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/rain:
+    post:
+      operationId: adminCreateRain
+      tags: [admin]
+      summary: Trigger a manual rain drop in chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminCreateRainInput" }
+      responses:
+        "200":
+          description: Rain created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RainEvent" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /kyc/history:
+    get:
+      operationId: getKycHistory
+      tags: [kyc]
+      summary: Get all KYC submissions for the current user
+      responses:
+        "200":
+          description: KYC submissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/KycSubmission" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /admin/wallet/adjust:
+    post:
+      operationId: adminAdjustWallet
+      tags: [admin]
+      summary: Manually adjust a user's wallet (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WalletAdjustInput" }
+      responses:
+        "200":
+          description: Adjusted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WalletLedgerEntry" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/users:
+    get:
+      operationId: adminListUsers
+      tags: [admin]
+      summary: List/search users
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string, maxLength: 200 }
+        - in: query
+          name: role
+          schema: { type: string, enum: [player, agent, support, admin, super_admin] }
+        - in: query
+          name: status
+          schema: { type: string, enum: [active, suspended, banned, pending] }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+        - in: query
+          name: includeDemo
+          description: Include ephemeral demo player accounts. Defaults to false.
+          schema: { type: boolean, default: false }
+      responses:
+        "200":
+          description: Users
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUsersPage" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/users/{userId}:
+    get:
+      operationId: adminGetUser
+      tags: [admin]
+      summary: Get user detail (profile, KYC, wallet status, recent activity)
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: User detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUserDetail" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/users/{userId}/status:
+    post:
+      operationId: adminSetUserStatus
+      tags: [admin]
+      summary: Suspend or reactivate a user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UserStatusInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserPublic" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/users/{userId}/wallet:
+    get:
+      operationId: adminGetUserWallet
+      tags: [admin]
+      summary: Get a user's wallet balance and ledger
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Wallet
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminUserWallet" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/users/{userId}/audit:
+    get:
+      operationId: adminGetUserAudit
+      tags: [admin]
+      summary: Audit actions targeting a specific user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Audit entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AuditLogEntry" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/users/{userId}/wallet/freeze:
+    post:
+      operationId: adminFreezeWallet
+      tags: [admin]
+      summary: Freeze or unfreeze a user's wallet
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WalletFreezeInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WalletStatusInfo" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/demo-accounts/cleanup:
+    post:
+      operationId: adminCleanupDemoAccounts
+      tags: [admin]
+      summary: Immediately purge idle demo accounts (admin)
+      description: |
+        On-demand version of the nightly demo cleanup job. Deletes demo
+        player accounts that have been idle longer than `thresholdHours`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminCleanupDemoAccountsInput" }
+      responses:
+        "200":
+          description: Cleanup result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminCleanupDemoAccountsResult" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/demo-accounts/cleanup-history:
+    get:
+      operationId: adminListDemoCleanupHistory
+      tags: [admin]
+      summary: Recent demo cleanup runs (manual + scheduled)
+      description: |
+        Returns the most recent `demo_accounts.cleanup` audit entries, with the
+        actor email when triggered by an admin (otherwise `null`, indicating the
+        scheduler).
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        "200":
+          description: Cleanup history entries, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DemoCleanupHistoryEntry" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/bets:
+    get:
+      operationId: adminListBets
+      tags: [admin]
+      summary: Cross-user bet explorer
+      parameters:
+        - in: query
+          name: userId
+          schema: { type: string }
+        - in: query
+          name: roundId
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string, enum: [placed, won, lost, voided, cashed_out] }
+        - in: query
+          name: from
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          schema: { type: string, format: date-time }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Bets
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminBetsPage" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/bets/round/{roundId}:
+    get:
+      operationId: adminGetRound
+      tags: [admin]
+      summary: Drill-down for a specific round
+      parameters:
+        - in: path
+          name: roundId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Round
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminRoundDetail" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/withdrawals:
+    get:
+      operationId: adminListWithdrawals
+      tags: [admin]
+      summary: List withdrawal requests with status filter
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, approved, rejected, paid, failed]
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Withdrawals
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Withdrawal" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/withdrawals/{id}/decision:
+    post:
+      operationId: adminDecideWithdrawal
+      tags: [admin]
+      summary: Approve or reject a withdrawal request
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WithdrawalDecisionInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Withdrawal" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/withdrawals/{id}/mark-paid:
+    post:
+      operationId: adminMarkWithdrawalPaid
+      tags: [admin]
+      summary: Manually mark an approved withdrawal as paid with UTR
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MarkPaidInput" }
+      responses:
+        "200":
+          description: Marked paid
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Withdrawal" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/deposits:
+    get:
+      operationId: adminListDeposits
+      tags: [admin]
+      summary: List deposit requests with status filter
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, approved, rejected, cancelled, gateway_pending]
+        - in: query
+          name: method
+          schema:
+            type: string
+            enum: [manual, auto]
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Deposits
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminDepositsPage" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/deposits/{id}/decision:
+    post:
+      operationId: adminDecideDeposit
+      tags: [admin]
+      summary: Approve or reject a deposit request
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DepositDecisionInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaymentRequest" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/deposit-settings:
+    get:
+      operationId: adminGetDepositSettings
+      tags: [admin]
+      summary: Get deposit method settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DepositSettings" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+    put:
+      operationId: adminUpdateDepositSettings
+      tags: [admin]
+      summary: Update deposit method settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DepositSettingsInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DepositSettings" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/withdraw-settings:
+    get:
+      operationId: adminGetWithdrawSettings
+      tags: [admin]
+      summary: Get withdrawal min/max limits
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WithdrawSettings" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+    put:
+      operationId: adminUpdateWithdrawSettings
+      tags: [admin]
+      summary: Update withdrawal min/max limits
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WithdrawSettingsInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WithdrawSettings" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/upi-accounts:
+    get:
+      operationId: adminListUpiAccounts
+      tags: [admin]
+      summary: List all admin-managed UPI accounts
+      responses:
+        "200":
+          description: List
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/UpiAccount" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+    post:
+      operationId: adminCreateUpiAccount
+      tags: [admin]
+      summary: Create a UPI account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpiAccountInput" }
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UpiAccount" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/upi-accounts/{id}:
+    put:
+      operationId: adminUpdateUpiAccount
+      tags: [admin]
+      summary: Update a UPI account
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpiAccountUpdateInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UpiAccount" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: adminDeleteUpiAccount
+      tags: [admin]
+      summary: Delete a UPI account
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [deleted]
+                properties:
+                  deleted: { type: boolean }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/upi-accounts/uploads/{filename}:
+    put:
+      operationId: adminUploadUpiQr
+      tags: [admin]
+      summary: Upload a UPI QR image (raw binary) and receive a storage key
+      parameters:
+        - in: path
+          name: filename
+          required: true
+          schema: { type: string, maxLength: 200 }
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, format: binary }
+      responses:
+        "200":
+          description: Stored
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UpiQrUploadResponse" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "413": { $ref: "#/components/responses/Error" }
+
+  /admin/reconciliation:
+    get:
+      operationId: adminListReconciliation
+      tags: [admin]
+      summary: List reconciliation entries
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [matched, mismatch_amount, missing_in_gateway, missing_in_ledger, status_mismatch]
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ReconciliationEntry" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/reconciliation/run:
+    post:
+      operationId: adminRunReconciliation
+      tags: [admin]
+      summary: Trigger a reconciliation run for a given date
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date: { type: string, format: date }
+      responses:
+        "200":
+          description: Run result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReconciliationRunResult" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/reconciliation/{id}/resolve:
+    post:
+      operationId: adminResolveReconciliation
+      tags: [admin]
+      summary: Mark a reconciliation mismatch as resolved
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Resolved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ReconciliationEntry" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /webhooks/payment:
+    post:
+      operationId: paymentWebhook
+      tags: [webhooks]
+      summary: Payment gateway webhook receiver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200":
+          description: Acknowledged
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+
+  /admin/bonus:
+    post:
+      operationId: adminIssueBonus
+      tags: [admin]
+      summary: Issue bonus to a user or a segment of users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BonusIssueInput" }
+      responses:
+        "200":
+          description: Issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BonusIssueResult" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/fraud/flags:
+    get:
+      operationId: adminListFraudFlags
+      tags: [admin]
+      summary: List fraud flags with optional filters
+      parameters:
+        - in: query
+          name: resolved
+          schema: { type: boolean }
+        - in: query
+          name: severity
+          schema: { type: string, enum: [low, medium, high, critical] }
+        - in: query
+          name: rule
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 100 }
+      responses:
+        "200":
+          description: Flags
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/FraudFlag" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/fraud/flags/{id}/resolve:
+    post:
+      operationId: adminResolveFraudFlag
+      tags: [admin]
+      summary: Mark a fraud flag as resolved
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Resolved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FraudFlag" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/audit:
+    get:
+      operationId: adminListAudit
+      tags: [admin]
+      summary: Search the global audit log
+      parameters:
+        - in: query
+          name: actorId
+          schema: { type: string }
+        - in: query
+          name: targetId
+          schema: { type: string }
+        - in: query
+          name: targetType
+          schema: { type: string }
+        - in: query
+          name: action
+          schema: { type: string }
+        - in: query
+          name: from
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          schema: { type: string, format: date-time }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 500, default: 100 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Audit entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AuditLogEntry" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/audit/csv:
+    get:
+      operationId: adminExportAuditCsv
+      tags: [admin]
+      summary: Export audit log as CSV
+      parameters:
+        - in: query
+          name: actorId
+          schema: { type: string }
+        - in: query
+          name: targetId
+          schema: { type: string }
+        - in: query
+          name: action
+          schema: { type: string }
+        - in: query
+          name: from
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          schema: { type: string, format: date-time }
+      responses:
+        "200":
+          description: CSV file
+          content:
+            text/csv:
+              schema: { type: string }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/logs:
+    get:
+      operationId: adminListLogs
+      tags: [admin]
+      summary: Query application logs
+      parameters:
+        - in: query
+          name: kind
+          schema: { type: string }
+        - in: query
+          name: level
+          schema: { type: string, enum: [info, warn, error] }
+        - in: query
+          name: actorId
+          schema: { type: string }
+        - in: query
+          name: from
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          schema: { type: string, format: date-time }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 500, default: 100 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Log entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AppLogEntry" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /admin/fraud/scan:
+    post:
+      operationId: adminRunFraudScan
+      tags: [admin]
+      summary: Run multi-account detection scan
+      responses:
+        "200":
+          description: Scan result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [flagged]
+                properties:
+                  flagged: { type: integer }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /game/config/{gameCode}:
+    get:
+      operationId: getGameConfig
+      tags: [admin]
+      summary: Get game RTP configuration
+      parameters:
+        - in: path
+          name: gameCode
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Config
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GameConfig" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+    put:
+      operationId: updateGameConfig
+      tags: [admin]
+      summary: Update game RTP configuration (requires step-up)
+      parameters:
+        - in: path
+          name: gameCode
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GameConfigUpdate" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GameConfig" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /game/rounds:
+    get:
+      operationId: listGameRounds
+      tags: [game]
+      summary: List recent game rounds
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          description: Rounds
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GameRoundSummary" }
+
+  /game/rounds/{id}/verify:
+    get:
+      operationId: verifyGameRound
+      tags: [game]
+      summary: Verify a specific round is provably fair
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RoundVerification" }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /admin/dashboard:
+    get:
+      operationId: adminDashboard
+      tags: [admin]
+      summary: Operator overview metrics
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminDashboard" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+  /demo-nudge/event:
+    post:
+      operationId: recordDemoNudgeEvent
+      tags: [demoNudge]
+      summary: Record a demo signup nudge impression, click, or conversion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DemoNudgeEventInput" }
+      responses:
+        "200":
+          description: Recorded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResponse" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+
+  /demo-nudge/admin/stats:
+    get:
+      operationId: adminDemoNudgeStats
+      tags: [admin, demoNudge]
+      summary: Per-trigger conversion stats for demo signup nudges
+      parameters:
+        - in: query
+          name: days
+          schema: { type: integer, minimum: 1, maximum: 365, default: 30 }
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DemoNudgeStats" }
+        "401": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+
+components:
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorResponse" }
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string }
+    OkResponse:
+      type: object
+      required: [ok]
+      properties:
+        ok: { type: boolean }
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: {}
+    SignupRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8, maxLength: 128 }
+        displayName: { type: string, maxLength: 64 }
+        referralCode: { type: string, maxLength: 32 }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 1, maxLength: 128 }
+    PasswordResetRequest:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email }
+    PasswordResetIssued:
+      type: object
+      required: [ok]
+      properties:
+        ok: { type: boolean }
+        token:
+          type: string
+          description: Returned in non-production for testability. In production this is delivered out of band.
+    PasswordResetConfirm:
+      type: object
+      required: [token, password]
+      properties:
+        token: { type: string }
+        password: { type: string, minLength: 8, maxLength: 128 }
+    UserPublic:
+      type: object
+      required: [id, email, role, status, createdAt]
+      properties:
+        id: { type: string }
+        email: { type: string }
+        role:
+          type: string
+          enum: [player, agent, support, admin, super_admin]
+        status:
+          type: string
+          enum: [active, suspended, banned, pending]
+        displayName: { type: string, nullable: true }
+        referralCode: { type: string, nullable: true }
+        isDemo:
+          type: boolean
+          description: True for ephemeral demo player accounts created via /auth/demo-login.
+        createdAt: { type: string, format: date-time }
+    AuthResponse:
+      type: object
+      required: [user]
+      properties:
+        user: { $ref: "#/components/schemas/UserPublic" }
+    Me:
+      $ref: "#/components/schemas/UserPublic"
+    Profile:
+      $ref: "#/components/schemas/UserPublic"
+    WalletBalance:
+      type: object
+      required: [walletId, currency, scope, balance]
+      properties:
+        walletId: { type: string }
+        currency: { type: string }
+        scope:
+          type: string
+          enum: [lunar, mines, plinko, dice, aviator, jetx, fury, horse-racing, bike-racing, roulette, baccarat, blackjack, teen-patti, teen-patti-live, sic-bo, andar-bahar, lucky-7]
+          description: Which game this wallet belongs to.
+        balance:
+          type: string
+          description: Balance in smallest currency unit (paise) as a string for bigint safety.
+    WalletBalances:
+      type: object
+      required: [currency, balances]
+      properties:
+        currency: { type: string }
+        balances:
+          type: object
+          required: [lunar, mines, plinko, dice, aviator, jetx, fury, horse-racing, bike-racing, roulette, baccarat, blackjack, teen-patti, teen-patti-live, sic-bo, andar-bahar, lucky-7]
+          description: Per-game balances in paise as strings, keyed by game scope.
+          properties:
+            lunar: { type: string }
+            mines: { type: string }
+            plinko: { type: string }
+            dice: { type: string }
+            aviator: { type: string }
+            jetx: { type: string }
+            fury: { type: string }
+            horse-racing: { type: string }
+            bike-racing: { type: string }
+            roulette: { type: string }
+            baccarat: { type: string }
+            blackjack: { type: string }
+            teen-patti: { type: string }
+            teen-patti-live: { type: string }
+            sic-bo: { type: string }
+            andar-bahar: { type: string }
+            lucky-7: { type: string }
+    WalletLedgerEntry:
+      type: object
+      required: [id, walletId, userId, type, amount, balanceAfter, createdAt]
+      properties:
+        id: { type: string }
+        walletId: { type: string }
+        userId: { type: string }
+        type:
+          type: string
+          enum: [deposit, withdraw, bet, win, bonus, adjustment, refund, commission]
+        amount: { type: string }
+        balanceAfter: { type: string }
+        refType: { type: string, nullable: true }
+        refId: { type: string, nullable: true }
+        memo: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+    WalletTransactionsPage:
+      type: object
+      required: [entries]
+      properties:
+        scope:
+          type: string
+          enum: [lunar, mines, plinko, dice, aviator, jetx, fury, horse-racing, bike-racing, roulette, baccarat, blackjack, teen-patti, teen-patti-live, sic-bo, andar-bahar, lucky-7]
+        entries:
+          type: array
+          items: { $ref: "#/components/schemas/WalletLedgerEntry" }
+        nextCursor: { type: string, nullable: true }
+    KycUploadResponse:
+      type: object
+      required: [key, size]
+      properties:
+        key: { type: string, description: Server-issued storage key. }
+        size: { type: integer }
+        contentType: { type: string, nullable: true }
+    KycSubmissionInput:
+      type: object
+      required: [fullName, documentType, documentNumber, idDocumentKey, selfieKey]
+      properties:
+        fullName: { type: string, minLength: 2, maxLength: 128 }
+        documentType:
+          type: string
+          enum: [passport, drivers_license, national_id, aadhaar, pan]
+        documentNumber: { type: string, minLength: 3, maxLength: 64 }
+        idDocumentKey:
+          type: string
+          description: Object storage key of ID document upload.
+        selfieKey:
+          type: string
+          description: Object storage key of selfie upload.
+    KycSubmission:
+      type: object
+      required: [id, userId, fullName, documentType, status, submittedAt]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        fullName: { type: string }
+        documentType: { type: string }
+        documentNumber: { type: string }
+        idDocumentKey: { type: string }
+        selfieKey: { type: string }
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        rejectionReason: { type: string, nullable: true }
+        reviewedBy: { type: string, nullable: true }
+        reviewedAt: { type: string, format: date-time, nullable: true }
+        submittedAt: { type: string, format: date-time }
+    KycSubmissionOrNull:
+      oneOf:
+        - $ref: "#/components/schemas/KycSubmission"
+        - type: "null"
+    KycReviewInput:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [approve, reject]
+        reason: { type: string, maxLength: 500 }
+    GameScope:
+      type: string
+      enum: [lunar, mines, plinko, dice, aviator, jetx, fury, horse-racing, bike-racing, roulette, baccarat, blackjack, teen-patti, teen-patti-live, sic-bo, andar-bahar, lucky-7]
+      description: |
+        Legacy game attribution. Every game uses the same shared wallet;
+        money deposited from any game is available across all games.
+    CoinPack:
+      type: object
+      required: [sku, game, coins, amount, chipValue]
+      properties:
+        sku:
+          type: string
+          description: Stable human-readable catalog id, e.g. `COINS-LUNAR-500`.
+        game: { $ref: "#/components/schemas/GameScope" }
+        coins:
+          type: integer
+          description: Coins granted by the pack. Coins are 1:1 with rupees.
+        amount:
+          type: string
+          description: Exact price in paise as a string (coins × 100).
+        chipValue:
+          type: integer
+          description: Chip denomination this pack is sized for (coins ÷ 10).
+    PaymentRequest:
+      type: object
+      required: [id, userId, kind, method, amount, currency, game, status, createdAt]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        kind:
+          type: string
+          enum: [deposit, withdraw]
+        method:
+          type: string
+          enum: [manual, auto]
+        amount:
+          type: string
+          description: Amount in smallest currency unit (paise) as a string.
+        currency: { type: string }
+        game: { $ref: "#/components/schemas/GameScope" }
+        packageSku:
+          type: string
+          nullable: true
+          description: |
+            Coin-pack SKU this deposit purchased, or null for custom amounts
+            and legacy rows created before the catalog existed.
+        coinQuantity:
+          type: integer
+          nullable: true
+          description: Coins granted by `packageSku`, or null when no pack was bought.
+        status:
+          type: string
+          enum: [pending, approved, rejected, cancelled, gateway_pending]
+        upiRef: { type: string, nullable: true }
+        upiId: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        rejectionReason: { type: string, nullable: true }
+        processedBy: { type: string, nullable: true }
+        gatewayOrderId: { type: string, nullable: true }
+        gatewayStatus: { type: string, nullable: true }
+        processedAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+    DepositRequestInput:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: string
+          description: Positive integer amount in smallest currency unit (paise).
+        game:
+          allOf:
+            - $ref: "#/components/schemas/GameScope"
+          default: lunar
+          description: Legacy game attribution; this deposit credits the shared wallet.
+        packageSku:
+          type: string
+          minLength: 3
+          maxLength: 64
+          description: |
+            Coin-pack SKU being purchased. Optional — omit for a custom amount.
+            When present the server re-prices the SKU from its own catalog and
+            rejects the request unless the SKU exists, belongs to `game`, and
+            its price equals `amount`.
+        coinQuantity:
+          type: integer
+          minimum: 1
+          description: |
+            Coins the client expects from `packageSku`. Optional; validated
+            against the catalog and never used as the source of truth.
+        upiRef: { type: string, minLength: 4, maxLength: 64 }
+        notes: { type: string, maxLength: 200 }
+    AutoDepositInput:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: string
+          description: Positive integer amount in smallest currency unit (paise).
+        game:
+          allOf:
+            - $ref: "#/components/schemas/GameScope"
+          default: lunar
+          description: Legacy game attribution; this deposit credits the shared wallet.
+        packageSku:
+          type: string
+          minLength: 3
+          maxLength: 64
+          description: |
+            Coin-pack SKU being purchased. Optional — omit for a custom amount.
+            Validated against the server-owned catalog exactly as for manual
+            deposits.
+        coinQuantity:
+          type: integer
+          minimum: 1
+          description: Coins the client expects from `packageSku`. Optional.
+        notes: { type: string, maxLength: 200 }
+    AutoDepositResponse:
+      allOf:
+        - $ref: "#/components/schemas/PaymentRequest"
+        - type: object
+          properties:
+            upiDeepLink: { type: string, nullable: true }
+            qrData: { type: string, nullable: true }
+            gatewayOrderId: { type: string, nullable: true }
+    GatewayWebhookInput:
+      type: object
+      required: [paymentId, status, gatewayRef, signature]
+      properties:
+        paymentId: { type: string }
+        status: { type: string, enum: [success, failed] }
+        gatewayRef: { type: string }
+        signature: { type: string }
+    WithdrawRequestInput:
+      type: object
+      required: [amount, upiId]
+      properties:
+        amount:
+          type: string
+          description: Positive integer amount in smallest currency unit (paise).
+        upiId: { type: string, minLength: 4, maxLength: 64 }
+        notes: { type: string, maxLength: 200 }
+    Bet:
+      type: object
+      required: [id, userId, gameCode, stakeAmount, payoutAmount, status, placedAt]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        gameCode: { type: string }
+        roundId: { type: string, nullable: true }
+        stakeAmount: { type: string }
+        payoutAmount: { type: string }
+        multiplier: { type: number, nullable: true }
+        status:
+          type: string
+          enum: [placed, won, lost, voided, cashed_out]
+        placedAt: { type: string, format: date-time }
+        settledAt: { type: string, format: date-time, nullable: true }
+    BetsPage:
+      type: object
+      required: [entries]
+      properties:
+        entries:
+          type: array
+          items: { $ref: "#/components/schemas/Bet" }
+        nextCursor: { type: string, nullable: true }
+    PlaceBetInput:
+      type: object
+      required: [gameCode, stakeAmount]
+      properties:
+        panel: { type: integer, minimum: 0, maximum: 3, description: "JetX accepts panels 0?3; other crash games accept 0?1." }
+        autoCashOut: { type: number, minimum: 1.01, maximum: 1000 }
+        gameCode: { type: string, minLength: 1, maxLength: 32 }
+        stakeAmount:
+          type: string
+          description: Positive integer stake in smallest currency unit (paise).
+        roundId: { type: string, maxLength: 64 }
+        useBonus: { type: boolean }
+        useFreeBet:
+          type: boolean
+          description: Consume one promotional free bet; stake is forced to the grant's fixed amount server-side.
+    CashOutInput:
+      type: object
+      required: [multiplier]
+      properties:
+        multiplier: { type: number, minimum: 1.0, maximum: 100000 }
+    FreeBetGrant:
+      type: object
+      required:
+        [id, userId, gameCode, amountPaise, totalCount, remainingCount, source, expiresAt, createdAt]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        gameCode: { type: string }
+        amountPaise: { type: string }
+        totalCount: { type: integer }
+        remainingCount: { type: integer }
+        source: { type: string, enum: [admin, rain] }
+        expiresAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+    FreeBetsSummary:
+      type: object
+      required: [count, nextAmountPaise, grants]
+      properties:
+        count: { type: integer }
+        nextAmountPaise:
+          type: string
+          description: Stake of the next free bet (oldest active grant), in paise. "0" when none.
+        grants:
+          type: array
+          items: { $ref: "#/components/schemas/FreeBetGrant" }
+    RainEvent:
+      type: object
+      required:
+        [id, gameCode, amountPaise, betsPerClaim, maxClaims, claimedCount, message, expiresAt, createdAt]
+      properties:
+        id: { type: string }
+        gameCode: { type: string }
+        amountPaise: { type: string }
+        betsPerClaim: { type: integer }
+        maxClaims: { type: integer }
+        claimedCount: { type: integer }
+        message: { type: string, nullable: true }
+        expiresAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+    AdminGrantFreeBetsInput:
+      type: object
+      required: [userId, amountPaise, count]
+      properties:
+        userId: { type: string, minLength: 1 }
+        gameCode: { type: string, minLength: 1, maxLength: 32 }
+        amountPaise: { type: string, description: Stake per free bet in paise. }
+        count: { type: integer, minimum: 1, maximum: 1000 }
+        expiresInHours: { type: integer, minimum: 1, maximum: 2160 }
+    AdminCreateRainInput:
+      type: object
+      required: [amountPaise, maxClaims]
+      properties:
+        amountPaise: { type: string, description: Free-bet stake per claimer in paise. }
+        betsPerClaim: { type: integer, minimum: 1, maximum: 20 }
+        maxClaims: { type: integer, minimum: 1, maximum: 500 }
+        message: { type: string, maxLength: 200 }
+        ttlSeconds: { type: integer, minimum: 15, maximum: 3600 }
+    SettleLossInput:
+      type: object
+      properties:
+        multiplier: { type: number, minimum: 1.0, maximum: 100000 }
+    WalletAdjustInput:
+      type: object
+      required: [userId, amount, memo]
+      properties:
+        userId: { type: string }
+        amount:
+          type: string
+          description: Signed integer in smallest unit (paise). Positive credits, negative debits.
+        memo: { type: string, minLength: 1, maxLength: 200 }
+        game:
+          type: string
+          enum: [lunar, mines, plinko, dice, aviator, jetx, fury, horse-racing, bike-racing, roulette, baccarat, blackjack, teen-patti, teen-patti-live, sic-bo, andar-bahar, lucky-7]
+          default: lunar
+          description: Legacy game attribution; adjustments apply to the shared wallet.
+        type:
+          type: string
+          enum: [adjustment, bonus, refund]
+          default: adjustment
+    AdminCleanupDemoAccountsInput:
+      type: object
+      required: [thresholdHours]
+      properties:
+        thresholdHours:
+          type: integer
+          minimum: 0
+          maximum: 8760
+          description: Minimum idle hours since last activity. Use 0 to purge all demo accounts.
+    AdminCleanupDemoAccountsResult:
+      type: object
+      required: [deleted, thresholdHours]
+      properties:
+        deleted: { type: integer, description: Number of demo accounts removed }
+        thresholdHours: { type: integer }
+    DemoCleanupHistoryEntry:
+      type: object
+      required: [id, createdAt, deleted, thresholdHours]
+      properties:
+        id: { type: string }
+        createdAt: { type: string, format: date-time }
+        actorId: { type: string, nullable: true }
+        actorEmail: { type: string, nullable: true, description: "Null when triggered by the scheduler." }
+        deleted: { type: integer }
+        thresholdHours: { type: integer }
+    AdminUsersPage:
+      type: object
+      required: [users, total]
+      properties:
+        users:
+          type: array
+          items: { $ref: "#/components/schemas/UserPublic" }
+        total: { type: integer }
+    AuditLogEntry:
+      type: object
+      required: [id, action, createdAt]
+      properties:
+        id: { type: string }
+        actorId: { type: string, nullable: true }
+        actorRole: { type: string, nullable: true }
+        action: { type: string }
+        targetType: { type: string, nullable: true }
+        targetId: { type: string, nullable: true }
+        before: {}
+        after: {}
+        ip: { type: string, nullable: true }
+        userAgent: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+    AdminBetsPage:
+      type: object
+      required: [bets, total]
+      properties:
+        bets:
+          type: array
+          items: { $ref: "#/components/schemas/Bet" }
+        total: { type: integer }
+    AdminRoundDetail:
+      type: object
+      required: [roundId, bets, totals]
+      properties:
+        roundId: { type: string }
+        bets:
+          type: array
+          items: { $ref: "#/components/schemas/Bet" }
+        totals:
+          type: object
+          required: [count, stakeAmount, payoutAmount]
+          properties:
+            count: { type: integer }
+            stakeAmount: { type: string }
+            payoutAmount: { type: string }
+    Withdrawal:
+      type: object
+      required: [id, userId, amount, currency, method, destination, status, kind, manualSettlement, requestedAt]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        amount: { type: string }
+        currency: { type: string }
+        method: { type: string }
+        destination: { type: string }
+        kind: { type: string }
+        status:
+          type: string
+          enum: [pending, approved, rejected, paid, failed]
+        rejectionReason: { type: string, nullable: true }
+        gatewayPayoutId: { type: string, nullable: true }
+        gatewayStatus: { type: string, nullable: true }
+        utr: { type: string, nullable: true }
+        manualSettlement: { type: boolean }
+        reviewedBy: { type: string, nullable: true }
+        reviewedAt: { type: string, format: date-time, nullable: true }
+        paidAt: { type: string, format: date-time, nullable: true }
+        requestedAt: { type: string, format: date-time }
+    MarkPaidInput:
+      type: object
+      required: [utr]
+      properties:
+        utr: { type: string, minLength: 4, maxLength: 64 }
+    DepositDecisionInput:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [approve, reject]
+        reason: { type: string, maxLength: 500 }
+    UpiAccount:
+      type: object
+      required: [id, label, upiId, qrUrl, active, sortOrder, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        upiId: { type: string }
+        qrUrl: { type: string, nullable: true }
+        active: { type: boolean }
+        sortOrder: { type: integer }
+        createdBy: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    PublicUpiAccount:
+      type: object
+      required: [id, label, upiId, qrUrl]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        upiId: { type: string }
+        qrUrl: { type: string, nullable: true }
+    UpiAccountInput:
+      type: object
+      required: [label, upiId]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 100 }
+        upiId: { type: string, minLength: 4, maxLength: 100 }
+        qrObjectKey: { type: string, minLength: 1, maxLength: 300, nullable: true }
+        active: { type: boolean }
+        sortOrder: { type: integer }
+    UpiAccountUpdateInput:
+      type: object
+      properties:
+        label: { type: string, minLength: 1, maxLength: 100 }
+        upiId: { type: string, minLength: 4, maxLength: 100 }
+        qrObjectKey: { type: string, minLength: 1, maxLength: 300, nullable: true }
+        active: { type: boolean }
+        sortOrder: { type: integer }
+    UpiQrUploadResponse:
+      type: object
+      required: [key, size]
+      properties:
+        key: { type: string }
+        size: { type: integer }
+        contentType: { type: string, nullable: true }
+    ReconciliationEntry:
+      type: object
+      required: [id, runDate, direction, status, createdAt]
+      properties:
+        id: { type: string }
+        runDate: { type: string, format: date-time }
+        gatewayOrderId: { type: string, nullable: true }
+        ledgerEntryId: { type: string, nullable: true }
+        paymentRequestId: { type: string, nullable: true }
+        withdrawalId: { type: string, nullable: true }
+        direction: { type: string }
+        gatewayAmount: { type: string, nullable: true }
+        ledgerAmount: { type: string, nullable: true }
+        status:
+          type: string
+          enum: [matched, mismatch_amount, missing_in_gateway, missing_in_ledger, status_mismatch]
+        details: {}
+        resolvedAt: { type: string, format: date-time, nullable: true }
+        resolvedBy: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+    ReconciliationRunResult:
+      type: object
+      required: [total, mismatches, runDate]
+      properties:
+        total: { type: integer }
+        mismatches: { type: integer }
+        runDate: { type: string, format: date-time }
+    WithdrawalDecisionInput:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [approve, reject]
+        reason: { type: string, maxLength: 500 }
+    UserStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [active, suspended, banned]
+        reason: { type: string, maxLength: 500 }
+    WalletFreezeInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [active, frozen]
+        reason: { type: string, maxLength: 500 }
+    WalletStatusInfo:
+      type: object
+      required: [userId, status, updatedAt]
+      properties:
+        userId: { type: string }
+        status:
+          type: string
+          enum: [active, frozen]
+        reason: { type: string, nullable: true }
+        updatedBy: { type: string, nullable: true }
+        updatedAt: { type: string, format: date-time }
+    AdminUserDetail:
+      type: object
+      required: [user]
+      properties:
+        user: { $ref: "#/components/schemas/UserPublic" }
+        kyc:
+          oneOf:
+            - $ref: "#/components/schemas/KycSubmission"
+            - type: "null"
+        walletStatus:
+          oneOf:
+            - $ref: "#/components/schemas/WalletStatusInfo"
+            - type: "null"
+        wallet:
+          oneOf:
+            - $ref: "#/components/schemas/WalletBalance"
+            - type: "null"
+        balances:
+          oneOf:
+            - $ref: "#/components/schemas/WalletBalances"
+            - type: "null"
+        recentBets:
+          type: array
+          items: { $ref: "#/components/schemas/Bet" }
+        recentLedger:
+          type: array
+          items: { $ref: "#/components/schemas/WalletLedgerEntry" }
+        flags:
+          type: array
+          items: { $ref: "#/components/schemas/FraudFlag" }
+    AdminUserWallet:
+      type: object
+      required: [wallet, balance, transactions]
+      properties:
+        wallet: { $ref: "#/components/schemas/WalletBalance" }
+        balance: { type: string }
+        balances:
+          oneOf:
+            - $ref: "#/components/schemas/WalletBalances"
+            - type: "null"
+        status:
+          oneOf:
+            - $ref: "#/components/schemas/WalletStatusInfo"
+            - type: "null"
+        transactions: { $ref: "#/components/schemas/WalletTransactionsPage" }
+    BonusIssueInput:
+      type: object
+      required: [amount, memo, target]
+      properties:
+        amount:
+          type: string
+          description: Positive integer in smallest unit (paise).
+        memo: { type: string, minLength: 1, maxLength: 200 }
+        wageringNote: { type: string, maxLength: 200 }
+        target:
+          type: object
+          required: [kind]
+          properties:
+            kind:
+              type: string
+              enum: [user, segment]
+            userId: { type: string }
+            segment:
+              type: string
+              enum: [new_last_7_days, new_last_30_days, all_active]
+    BonusIssueResult:
+      type: object
+      required: [credited, totalAmount]
+      properties:
+        credited: { type: integer }
+        totalAmount: { type: string }
+    FraudFlag:
+      type: object
+      required: [id, userId, rule, severity, resolved, createdAt]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        rule: { type: string }
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        description: { type: string, nullable: true }
+        resolved: { type: boolean }
+        resolvedBy: { type: string, nullable: true }
+        resolvedAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+    AdminDashboard:
+      type: object
+      required:
+        [usersTotal, usersActive, kycPending, withdrawalsPending, depositsPending, openFlags, betsToday]
+      properties:
+        usersTotal: { type: integer }
+        usersActive: { type: integer }
+        usersSuspended: { type: integer }
+        kycPending: { type: integer }
+        withdrawalsPending: { type: integer }
+        depositsPending: { type: integer }
+        openFlags: { type: integer }
+        betsToday: { type: integer }
+        stakeToday: { type: string }
+        payoutToday: { type: string }
+    AppLogEntry:
+      type: object
+      required: [id, level, kind, message, createdAt]
+      properties:
+        id: { type: string }
+        level: { type: string, enum: [info, warn, error] }
+        kind: { type: string }
+        message: { type: string }
+        actorId: { type: string, nullable: true }
+        ip: { type: string, nullable: true }
+        metadata: {}
+        createdAt: { type: string, format: date-time }
+    GameConfig:
+      type: object
+      required: [id, gameCode, rtpMin, rtpMax, maxMultiplier, maxStakePaise, houseEdge, enabled, updatedAt]
+      properties:
+        id: { type: string }
+        gameCode: { type: string }
+        rtpMin: { type: number }
+        rtpMax: { type: number }
+        maxMultiplier: { type: number }
+        maxStakePaise: { type: string }
+        houseEdge: { type: number }
+        enabled: { type: boolean }
+        updatedAt: { type: string, format: date-time }
+        updatedBy: { type: string, nullable: true }
+    GameConfigUpdate:
+      type: object
+      properties:
+        rtpMin: { type: number, minimum: 80, maximum: 100 }
+        rtpMax: { type: number, minimum: 80, maximum: 100 }
+        maxMultiplier: { type: number, minimum: 2, maximum: 100000 }
+        maxStakePaise: { type: string }
+        houseEdge: { type: number, minimum: 0, maximum: 0.2 }
+        enabled: { type: boolean }
+    GameRoundSummary:
+      type: object
+      required: [id, gameCode, serverSeedHash, clientSeed, nonce, crashPoint, createdAt]
+      properties:
+        id: { type: string }
+        gameCode: { type: string }
+        serverSeedHash: { type: string }
+        clientSeed: { type: string }
+        nonce: { type: integer }
+        crashPoint: { type: number }
+        totalStake: { type: string }
+        totalPayout: { type: string }
+        playerCount: { type: integer }
+        createdAt: { type: string, format: date-time }
+    RoundVerification:
+      type: object
+      required: [id, gameCode, serverSeed, serverSeedHash, clientSeed, nonce, crashPoint, computedCrashPoint, computedHash, hashMatch, crashMatch, verified, createdAt]
+      properties:
+        id: { type: string }
+        gameCode: { type: string }
+        serverSeed: { type: string }
+        serverSeedHash: { type: string }
+        clientSeed: { type: string }
+        nonce: { type: integer }
+        crashPoint: { type: number }
+        computedCrashPoint: { type: number }
+        computedHash: { type: string }
+        hashMatch: { type: boolean }
+        crashMatch: { type: boolean }
+        verified: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    AdminDepositsPage:
+      type: object
+      required: [deposits, total]
+      properties:
+        deposits:
+          type: array
+          items: { $ref: "#/components/schemas/PaymentRequest" }
+        total: { type: integer }
+    DepositSettings:
+      type: object
+      required: [id, manualEnabled, autoEnabled, minAmountPaise, maxAmountPaise, updatedAt]
+      properties:
+        id: { type: string }
+        manualEnabled: { type: boolean }
+        autoEnabled: { type: boolean }
+        minAmountPaise: { type: string, description: "Minimum allowed deposit amount in paise" }
+        maxAmountPaise: { type: string, description: "Maximum allowed deposit amount in paise" }
+        updatedBy: { type: string, nullable: true }
+        updatedAt: { type: string, format: date-time }
+    DepositSettingsInput:
+      type: object
+      properties:
+        manualEnabled: { type: boolean }
+        autoEnabled: { type: boolean }
+        minAmountPaise: { type: string }
+        maxAmountPaise: { type: string }
+    DepositSettingsPublic:
+      type: object
+      required: [manualEnabled, autoEnabled, minAmountPaise, maxAmountPaise]
+      properties:
+        manualEnabled: { type: boolean }
+        autoEnabled: { type: boolean }
+        minAmountPaise: { type: string }
+        maxAmountPaise: { type: string }
+    DepositLimits:
+      type: object
+      required: [minAmountPaise, maxAmountPaise]
+      properties:
+        minAmountPaise: { type: string }
+        maxAmountPaise: { type: string }
+    WithdrawLimits:
+      type: object
+      required: [minAmountPaise, maxAmountPaise]
+      properties:
+        minAmountPaise: { type: string }
+        maxAmountPaise: { type: string }
+    WithdrawSettings:
+      type: object
+      required: [minAmountPaise, maxAmountPaise, dailyPerUserPaise, dailyPlatformPaise, updatedAt]
+      properties:
+        minAmountPaise: { type: string, description: "Minimum allowed withdrawal in paise" }
+        maxAmountPaise: { type: string, description: "Maximum allowed withdrawal in paise" }
+        dailyPerUserPaise: { type: string, description: "Per-user daily withdrawal cap in paise (0 disables)" }
+        dailyPlatformPaise: { type: string, description: "Platform-wide daily withdrawal cap in paise (0 disables)" }
+        updatedBy: { type: string, nullable: true }
+        updatedAt: { type: string, format: date-time }
+    WithdrawSettingsInput:
+      type: object
+      properties:
+        minAmountPaise: { type: string }
+        maxAmountPaise: { type: string }
+        dailyPerUserPaise: { type: string }
+        dailyPlatformPaise: { type: string }
+    DemoNudgeEventInput:
+      type: object
+      required: [kind, trigger]
+      properties:
+        kind:
+          type: string
+          enum: [impression, click, conversion]
+        trigger:
+          type: string
+          enum: [rounds, bigwin, lowbalance]
+        language: { type: string, minLength: 2, maxLength: 8 }
+        sessionRef: { type: string, minLength: 1, maxLength: 64 }
+    DemoNudgeTriggerStats:
+      type: object
+      required: [trigger, impressions, clicks, conversions]
+      properties:
+        trigger:
+          type: string
+          enum: [rounds, bigwin, lowbalance]
+        impressions: { type: integer }
+        clicks: { type: integer }
+        conversions: { type: integer }
+    DemoNudgeStats:
+      type: object
+      required: [sinceDays, triggers]
+      properties:
+        sinceDays: { type: integer }
+        triggers:
+          type: array
+          items: { $ref: "#/components/schemas/DemoNudgeTriggerStats" }

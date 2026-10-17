@@ -1,0 +1,1407 @@
+.hr-game {
+  background: #07130e;
+  color: #f6f4e8;
+  font-family: Arial, sans-serif;
+}
+/* Broadcast overlays belong to Horse Racing; the bike game shares this sheet. */
+.hr-game .hr-broadcast-clock {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  border-radius: 0 0 6px 6px;
+  background: #23303cdd;
+  border-bottom: 2px solid #ffffff40;
+  color: white;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.hr-broadcast-clock > span {
+  font-size: 8px;
+  letter-spacing: 1.2px;
+}
+.hr-broadcast-clock > strong {
+  font-size: 17px;
+  line-height: 1;
+}
+.hr-broadcast-clock[data-urgent="true"] > strong {
+  color: #ff735e;
+}
+.hr-game .hr-runner-intro {
+  position: absolute;
+  right: 4%;
+  bottom: 16%;
+  width: min(42%, 340px);
+  color: white;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 8px #0004);
+  animation: hr-intro-in 0.3s ease-out both;
+}
+.hr-intro-eyebrow {
+  display: block;
+  margin: 0 0 7px 18px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.7px;
+  text-shadow: 0 1px 4px #000a;
+}
+.hr-intro-title {
+  display: flex;
+  align-items: stretch;
+  min-height: 45px;
+  background: #253643ef;
+  transform: skewX(-16deg);
+  border-bottom: 2px solid #ffffffa0;
+}
+.hr-intro-title > b {
+  display: grid;
+  place-items: center;
+  min-width: 56px;
+  font-size: 30px;
+  font-style: italic;
+  text-shadow: 0 1px 2px #0009;
+}
+.hr-intro-title > strong {
+  align-self: center;
+  padding: 10px 14px;
+  transform: skewX(16deg);
+  font-size: clamp(11px, 1.25vw, 18px);
+}
+.hr-intro-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 3px 7px 0 -4px;
+  padding: 7px 14px;
+  background: #1d2b37e8;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.hr-intro-meta > strong {
+  font-size: 13px;
+}
+.hr-intro-meta > span:last-child {
+  margin-left: auto;
+  color: #acbfc8;
+  font-size: 7px;
+}
+.hr-game .hr-live-leaderboard {
+  position: absolute;
+  top: 50px;
+  left: 12px;
+  width: 102px;
+  border-radius: 5px;
+  padding: 6px;
+  background: #17211dc7;
+  border: 1px solid #ffffff35;
+  color: white;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.hr-live-leaderboard > strong {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 0.35px;
+  padding-bottom: 5px;
+}
+.hr-live-leaderboard > div {
+  display: grid;
+  grid-template-columns: 10px 19px 1fr;
+  align-items: center;
+  gap: 4px;
+  min-height: 21px;
+  border-top: 1px solid #ffffff20;
+  font-size: 10px;
+}
+.hr-live-leaderboard em {
+  color: #c6d1c8;
+  font-style: normal;
+  font-size: 8px;
+}
+.hr-live-leaderboard b {
+  display: grid;
+  place-items: center;
+  height: 17px;
+  color: #101c21;
+  font-size: 11px;
+}
+.hr-live-leaderboard span {
+  text-align: right;
+  font-size: 9px;
+}
+.hr-game .hr-starting-field {
+  position: absolute;
+  inset: 25% 18% auto;
+  padding: 12px;
+  background: #172832d9;
+  border: 1px solid #ffffff35;
+  border-radius: 5px;
+  pointer-events: none;
+}
+.hr-starting-field > span {
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  color: #cee6d4;
+}
+.hr-starting-field > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 14px;
+}
+.hr-starting-field > div > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  background: #233743;
+}
+.hr-starting-field b {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  color: #16232a;
+}
+.hr-starting-field strong {
+  font-size: 11px;
+}
+@keyframes hr-intro-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@media (max-width: 560px) {
+  .hr-game .hr-broadcast-clock {
+    top: 7px;
+    padding: 5px 9px;
+  }
+  .hr-broadcast-clock > span {
+    display: none;
+  }
+  .hr-broadcast-clock > strong {
+    font-size: 13px;
+  }
+  .hr-game .hr-runner-intro {
+    right: 5%;
+    bottom: 14%;
+    width: 46%;
+  }
+  .hr-intro-eyebrow {
+    font-size: 6px;
+    letter-spacing: 0.7px;
+    margin-left: 8px;
+    margin-bottom: 4px;
+  }
+  .hr-intro-title {
+    min-height: 28px;
+  }
+  .hr-intro-title > b {
+    min-width: 30px;
+    font-size: 21px;
+  }
+  .hr-intro-title > strong {
+    padding: 6px 8px;
+    font-size: 9px;
+  }
+  .hr-intro-meta {
+    gap: 5px;
+    padding: 4px 7px;
+    font-size: 6px;
+    letter-spacing: 0.3px;
+  }
+  .hr-intro-meta > strong {
+    font-size: 9px;
+  }
+  .hr-intro-meta > span:last-child {
+    display: none;
+  }
+  .hr-game .hr-live-leaderboard {
+    top: 33px;
+    left: 7px;
+    width: 72px;
+    padding: 4px;
+  }
+  .hr-live-leaderboard > strong {
+    font-size: 6px;
+    padding-bottom: 3px;
+  }
+  .hr-live-leaderboard > div {
+    grid-template-columns: 7px 13px 1fr;
+    gap: 2px;
+    min-height: 15px;
+  }
+  .hr-live-leaderboard em {
+    font-size: 6px;
+  }
+  .hr-live-leaderboard b {
+    height: 12px;
+    font-size: 8px;
+  }
+  .hr-live-leaderboard span {
+    font-size: 7px;
+  }
+  .hr-game .hr-starting-field {
+    inset: 24% 12% auto;
+    padding: 7px;
+  }
+  .hr-starting-field > span {
+    font-size: 7px;
+    margin-bottom: 6px;
+  }
+  .hr-starting-field > div {
+    gap: 4px 8px;
+  }
+  .hr-starting-field > div > div {
+    gap: 5px;
+  }
+  .hr-starting-field b {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+  .hr-starting-field strong {
+    font-size: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hr-game .hr-runner-intro {
+    animation: none;
+  }
+}
+.hr-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #ffffff10;
+}
+.hr-brand,
+.hr-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hr-brand > a,
+.hr-header-actions > a,
+.hr-header-actions > button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #c5d5ca;
+}
+.hr-brand-mark {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #268452, #c1a742);
+}
+.hr-brand h1 {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  line-height: 1.2;
+}
+.hr-brand small {
+  font-size: 7px;
+  color: #bdcaba;
+  letter-spacing: 2px;
+}
+.hr-main {
+  display: flex;
+  gap: 14px;
+  padding: 12px;
+  align-items: flex-start;
+}
+.hr-table-column {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hr-meeting {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  min-height: 35px;
+}
+.hr-meeting > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.hr-meeting select {
+  max-width: 100%;
+  min-width: 0;
+  background: #10291e;
+  color: #ecedce;
+  border: 1px solid #79906b50;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.hr-meeting > span {
+  color: #b4c5b4;
+  white-space: nowrap;
+  font-size: 10px;
+}
+.hr-meeting i {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  background: #b5c58c;
+  border-radius: 50%;
+  margin: 0 6px 2px;
+}
+.hr-stage-wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  scroll-margin-top: 8px;
+}
+.hr-race-picture {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+.hr-camera-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  min-height: 44px;
+  border: 1px solid #8ca57535;
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  background: #10271e;
+  color: #b6c9b5;
+}
+.hr-camera-controls > svg {
+  flex-shrink: 0;
+  margin-right: 3px;
+}
+.hr-camera-controls button {
+  min-height: 34px;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.hr-camera-controls button[aria-pressed="true"] {
+  background: #d6bf7030;
+  border-color: #d6bf7077;
+  color: #fff0bc;
+}
+.hr-camera-controls button:hover {
+  background: #ffffff12;
+}
+.hr-camera-controls button:focus-visible {
+  outline: 2px solid #efda91;
+  outline-offset: 1px;
+}
+.hr-camera-controls kbd {
+  margin-left: auto;
+  padding: 2px 6px;
+  font-size: 10px;
+  border: 1px solid #a8b69450;
+  border-radius: 4px;
+}
+.hr-follow-controls {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  max-width: calc(100% - 24px);
+  padding: 5px 8px;
+  border: 1px solid #ffffff30;
+  border-radius: 7px;
+  background: #0a1e18e8;
+  box-shadow: 0 3px 15px #0003;
+}
+.hr-follow-controls > span {
+  font-size: 8px;
+  letter-spacing: 1px;
+  margin-right: 4px;
+}
+.hr-follow-controls button {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 1px solid var(--runner-color);
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+}
+.hr-follow-controls button[aria-pressed="true"] {
+  background: var(--runner-color);
+  outline: 2px solid white;
+  outline-offset: 1px;
+  color: #09160f;
+}
+.hr-follow-controls strong {
+  padding: 0 8px;
+  font-size: 11px;
+}
+.hr-follow-controls button:focus-visible,
+.hr-field-row:focus-visible {
+  outline: 2px solid #efda91;
+  outline-offset: 2px;
+}
+.hr-scene {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 12px;
+  border-color: #a58f5770;
+  border-radius: 12px 12px 0 0;
+}
+.hr-scene canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hr-unity-stage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  contain: layout paint;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  max-height: none;
+  aspect-ratio: 16 / 9;
+  border: 1px solid #a58f5770;
+  background: #0c241b;
+}
+.hr-scene-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #11291e;
+  font-size: 12px;
+}
+.hr-scene-loading button {
+  padding: 8px 12px;
+  border: 1px solid #cab970;
+  border-radius: 6px;
+}
+.hr-loader {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #d2c99230;
+  border-top-color: #d2c992;
+  animation: hr-spin 1s linear infinite;
+}
+@keyframes hr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.hr-broadcast {
+  position: absolute;
+  inset: 12px 12px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.hr-broadcast > span {
+  padding: 6px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  background: #102119d9;
+  border: 1px solid #ffffff30;
+  border-radius: 4px;
+}
+.hr-broadcast i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #e5c88d;
+}
+.hr-broadcast i.is-live {
+  background: #71ee9b;
+  box-shadow: 0 0 7px #71ee9b;
+}
+.hr-broadcast button {
+  pointer-events: auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  background: #102119ba;
+  border-radius: 5px;
+}
+.hr-track-status {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: white;
+  text-shadow: 0 1px 5px #000;
+}
+.hr-progress {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  right: 10px;
+  height: 3px;
+  overflow: hidden;
+}
+.hr-progress i {
+  display: block;
+  height: 100%;
+  background: #e2c36d;
+}
+.hr-countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: #fff4d1;
+  text-shadow: 0 2px 15px #05140a;
+  pointer-events: none;
+  background: #0b1d1330;
+}
+.hr-countdown span {
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+.hr-countdown strong {
+  font:
+    700 80px Georgia,
+    serif;
+}
+.hr-race-order {
+  position: absolute;
+  top: 52px;
+  left: 12px;
+  display: flex;
+  gap: 5px;
+}
+.hr-race-order > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px;
+  background: #10251ce6;
+  border: 1px solid #ffffff25;
+  border-radius: 4px;
+  font-size: 10px;
+}
+.hr-race-order em {
+  font-style: normal;
+  color: #d1c7a2;
+}
+.hr-race-order b {
+  color: #101b16;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+.hr-race-order small {
+  font-size: 9px;
+}
+.hr-betting-dock {
+  border: 1px solid #ffffff18;
+  background: #0c1f18;
+  border-radius: 12px;
+  padding: 12px;
+}
+.hr-result-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #d9c68030;
+  font-size: 11px;
+  color: #e8d99a;
+}
+.hr-result-bar > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.hr-result-bar strong {
+  color: #9ce4b7;
+}
+.hr-bet-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  margin-bottom: 10px;
+}
+.hr-bet-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #98dab1;
+  letter-spacing: 0.7px;
+}
+.hr-bet-heading strong {
+  color: #f1cd7c;
+}
+.hr-horse-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+.hr-horse-grid > button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  border: 1px solid #88ad8a35;
+  color: #f4f3dd;
+  background: linear-gradient(#183d2b, #10291f);
+  text-align: left;
+}
+.hr-horse-grid > button[data-selected="true"] {
+  border-color: #eed384;
+  box-shadow: inset 0 0 0 1px #eed38477;
+  background: linear-gradient(#385339, #213c29);
+}
+.hr-horse-grid > button:disabled {
+  cursor: default;
+}
+.hr-horse-grid > button[data-winner="true"] {
+  border-color: #7bddaa;
+}
+.hr-horse-number {
+  width: 24px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #101d15;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.hr-horse-grid > button > span {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.hr-horse-grid strong {
+  font-size: 11px;
+  line-height: 1.2;
+}
+.hr-horse-grid small {
+  font-size: 10px;
+  color: #e8c77c;
+}
+.hr-horse-grid em {
+  font-style: normal;
+  color: #a5efb8;
+}
+.hr-winning-horse {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  color: #f1d280;
+}
+.hr-coins {
+  margin: 12px 0 8px;
+  min-width: 0;
+}
+.hr-coins .coin-rack-options {
+  gap: 6px;
+}
+.hr-bet-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.hr-bet-actions > .auto-bet-status {
+  flex: 1;
+}
+.hr-repeat {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border: 1px solid #92aa8640;
+  border-radius: 9px;
+  color: #d7e5cd;
+  font-size: 11px;
+}
+.hr-game button:disabled {
+  opacity: 0.55;
+}
+.hr-horse-grid > button:disabled {
+  opacity: 0.82;
+}
+.hr-auto-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #b2c4b6;
+}
+.hr-auto-controls select {
+  padding: 7px 8px;
+  border: 1px solid #d4c38a30;
+  background: #162e23;
+  border-radius: 5px;
+  color: #eee7c7;
+}
+.hr-auto-controls button {
+  padding: 8px 11px;
+  min-height: 36px;
+  border: 1px solid #dabd6370;
+  background: #a1852220;
+  color: #f0d17e;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.hr-auto-controls small {
+  margin-left: auto;
+  color: #8da294;
+  font-size: 9px;
+}
+.hr-bet-hint {
+  font-size: 10px;
+  line-height: 1.5;
+  color: #95b8a3;
+  margin-top: 9px;
+}
+.hr-error {
+  margin-top: 8px;
+  padding: 9px;
+  background: #5e281c66;
+  border: 1px solid #e1875d66;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #ffcca8;
+}
+.hr-error button {
+  display: block;
+  margin-top: 5px;
+  text-decoration: underline;
+}
+.hr-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  display: grid;
+  gap: 12px;
+}
+.hr-sidebar section {
+  border: 1px solid #ffffff10;
+  background: #0c1f18;
+  border-radius: 10px;
+  padding: 12px;
+}
+.hr-sidebar h2 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #d1c18d;
+  font-size: 10px;
+  letter-spacing: 1px;
+  margin-bottom: 9px;
+}
+.hr-field-row {
+  width: 100%;
+  text-align: left;
+  border-radius: 5px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid #ffffff08;
+}
+.hr-field-row:last-child {
+  border: 0;
+}
+.hr-field-row:hover {
+  background: #ffffff09;
+}
+.hr-field-row img {
+  width: 68px;
+  height: 42px;
+  object-fit: cover;
+  background: linear-gradient(#56765b, #172c20);
+  border-radius: 5px;
+}
+.hr-field-row > b {
+  position: absolute;
+  left: 3px;
+  bottom: 10px;
+  width: 15px;
+  height: 17px;
+  display: grid;
+  place-items: center;
+  color: #14261a;
+  border-radius: 2px;
+  font-size: 10px;
+}
+.hr-field-row > span {
+  font-size: 11px;
+}
+.hr-field-row small {
+  display: block;
+  margin-top: 4px;
+  color: #abbba7;
+  font-size: 9px;
+}
+.hr-history {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #ffffff08;
+  font-size: 10px;
+}
+.hr-history small {
+  display: block;
+  font-size: 9px;
+  color: #8ba18f;
+  margin-top: 3px;
+}
+.hr-history strong {
+  font-size: 11px;
+  color: #a3b4a5;
+}
+.hr-history strong[data-won="true"] {
+  color: #86e1a6;
+}
+.hr-empty-history {
+  font-size: 11px;
+  color: #849d8e;
+  padding: 10px 0;
+}
+.hr-rules {
+  display: grid;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #bdcbbc;
+}
+.hr-stage-wrap:fullscreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #07130e;
+}
+.hr-stage-wrap:fullscreen .hr-race-picture {
+  width: min(100vw, calc((100dvh - 90px) * 16 / 9));
+  flex-shrink: 0;
+  height: auto;
+}
+.hr-stage-wrap:fullscreen .hr-camera-controls {
+  width: min(100vw, calc((100dvh - 90px) * 16 / 9));
+  flex-shrink: 0;
+}
+.hr-stage-wrap:fullscreen .hr-track-status {
+  bottom: 20px;
+}
+@media (max-width: 1100px) {
+  .hr-sidebar {
+    width: 220px;
+  }
+  .hr-horse-grid strong {
+    font-size: 10px;
+  }
+  .hr-horse-number {
+    width: 20px;
+    height: 26px;
+    font-size: 12px;
+  }
+}
+@media (max-width: 1023px) {
+  .hr-sidebar {
+    display: none;
+  }
+  .hr-main {
+    padding: 10px;
+  }
+  .hr-horse-grid > button {
+    gap: 5px;
+  }
+  .hr-meeting > span {
+    font-size: 8px;
+  }
+  .hr-betting-dock {
+    padding: 10px;
+  }
+}
+@media (max-width: 560px) {
+  .hr-follow-controls {
+    gap: 4px;
+    left: 8px;
+    bottom: 24px;
+    padding: 4px 6px;
+    max-width: calc(100% - 16px);
+  }
+  .hr-follow-controls button {
+    width: 24px;
+    height: 26px;
+  }
+  .hr-follow-controls strong {
+    display: none;
+  }
+  .hr-follow-controls > span {
+    font-size: 7px;
+    margin-right: 0;
+  }
+  .hr-camera-controls {
+    gap: 3px;
+    padding: 4px 6px;
+  }
+  .hr-camera-controls button {
+    flex: 1 0 21%;
+    min-width: 0;
+    padding: 5px 3px;
+    font-size: 10px;
+  }
+  .hr-camera-controls kbd {
+    display: none;
+  }
+  .hr-camera-controls > svg {
+    display: none;
+  }
+  .hr-header {
+    padding: 8px 10px;
+  }
+  .hr-brand {
+    gap: 6px;
+  }
+  .hr-brand h1 {
+    font-size: 14px;
+  }
+  .hr-brand-mark {
+    width: 30px;
+    height: 30px;
+  }
+  .hr-header-actions {
+    gap: 1px;
+  }
+  .hr-header-actions > button,
+  .hr-header-actions > a,
+  .hr-brand > a {
+    width: 29px;
+    height: 32px;
+  }
+  .hr-brand small {
+    font-size: 6px;
+    letter-spacing: 1.2px;
+  }
+  .hr-meeting {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .hr-meeting select {
+    font-size: 10px;
+  }
+  .hr-horse-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px;
+  }
+  .hr-horse-grid strong {
+    font-size: 11px;
+  }
+  .hr-scene {
+    border-radius: 8px 8px 0 0;
+  }
+  .hr-broadcast {
+    inset: 7px 7px auto;
+  }
+  .hr-broadcast > span {
+    font-size: 7px;
+    padding: 4px 5px;
+    letter-spacing: 0.4px;
+  }
+  .hr-broadcast button {
+    width: 24px;
+    height: 24px;
+  }
+  .hr-track-status {
+    left: 8px;
+    right: 8px;
+    bottom: 7px;
+    font-size: 7px;
+  }
+  .hr-race-order {
+    top: 38px;
+    left: 7px;
+    gap: 3px;
+  }
+  .hr-race-order > span {
+    padding: 3px;
+    gap: 3px;
+    font-size: 8px;
+  }
+  .hr-race-order small {
+    display: none;
+  }
+  .hr-countdown strong {
+    font-size: 49px;
+  }
+  .hr-countdown span {
+    font-size: 7px;
+    letter-spacing: 1.5px;
+  }
+  .hr-bet-heading {
+    font-size: 9px;
+  }
+  .hr-auto-controls {
+    gap: 6px;
+    font-size: 10px;
+  }
+  .hr-bet-hint {
+    font-size: 9px;
+  }
+  .hr-auto-controls small {
+    font-size: 8px;
+  }
+}
+/* Reflow the race and betting controls before the shared viewport fit runs. */
+.game-viewport[data-game-viewport="horse-racing"] {
+  max-width: none;
+}
+.hr-game {
+  --game-bet-height: 52px;
+  --game-coin-size: 44px;
+}
+:root .hr-horse-grid > [data-game-bet] {
+  width: 100%;
+}
+.hr-game .hr-table-column {
+  gap: 8px;
+}
+.hr-game .hr-coins .coin-rack-options {
+  grid-template-columns: repeat(auto-fit, minmax(var(--game-coin-size), 1fr));
+}
+.hr-game .coin-rack-fit .coin-rack-custom {
+  height: var(--game-coin-size);
+}
+.hr-coins > div {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.hr-game .hr-coins .coin-rack-fit,
+.hr-game .hr-coins .coin-rack-options {
+  display: contents;
+}
+.hr-coins [data-testid="coin-settings-button"] {
+  justify-self: center;
+  width: var(--game-coin-size);
+  height: var(--game-coin-size);
+}
+@media (min-width: 900px), (min-width: 560px) and (orientation: landscape) {
+  .hr-game > .game-shell {
+    min-height: var(--fit-height, 100dvh);
+    display: flex;
+    flex-direction: column;
+  }
+  .hr-main {
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+  }
+  .hr-game .hr-table-column {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(300px, 29vw, 420px);
+    grid-template-rows: auto minmax(240px, 1fr);
+    align-self: stretch;
+    align-items: stretch;
+  }
+  .hr-meeting {
+    grid-column: 1;
+    grid-row: 1;
+    flex-wrap: wrap;
+  }
+  .hr-stage-wrap:not(:fullscreen) {
+    grid-column: 1;
+    grid-row: 2;
+    container-type: size;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #0c1f18;
+    border-radius: 12px;
+  }
+  .hr-stage-wrap:not(:fullscreen) > .hr-race-picture,
+  .hr-stage-wrap:not(:fullscreen) > .hr-camera-controls {
+    /* Leave room for two rows of cameras while preserving the race's 16:9 view. */
+    width: min(100cqw, calc((100cqh - 90px) * 16 / 9));
+    flex-shrink: 0;
+  }
+  .hr-betting-dock {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: start;
+  }
+  .hr-horse-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .hr-sidebar {
+    display: none;
+  }
+  .hr-follow-controls strong {
+    display: none;
+  }
+  .hr-camera-controls > svg,
+  .hr-camera-controls kbd {
+    display: none;
+  }
+  .hr-camera-controls button {
+    flex: 1 0 21%;
+    padding-inline: 4px;
+  }
+}
+@media (min-width: 1600px) and (min-height: 900px) {
+  .hr-sidebar {
+    display: grid;
+    align-content: start;
+    width: 240px;
+  }
+}
+@media (min-width: 900px), (min-width: 560px) and (orientation: landscape) {
+  /* Size containment can leave this grid child with zero intrinsic height.
+     Reserve the race and two camera rows before calculating its 16:9 width. */
+  .hr-game:not(.br-game) .hr-stage-wrap:not(:fullscreen) {
+    min-height: 240px;
+  }
+  .hr-game:not(.br-game) .hr-stage-wrap:not(:fullscreen) > .hr-race-picture,
+  .hr-game:not(.br-game) .hr-stage-wrap:not(:fullscreen) > .hr-camera-controls {
+    width: min(100%, calc(max(150px, 100cqh - 90px) * 16 / 9));
+  }
+}
+@media (max-height: 700px) {
+  .hr-game {
+    --game-bet-height: 44px;
+    --game-coin-size: 40px;
+  }
+  .hr-header {
+    padding-block: 5px;
+    gap: 4px;
+  }
+  .hr-main {
+    padding: 6px;
+  }
+  .hr-betting-dock {
+    padding: 8px;
+  }
+  .hr-horse-grid {
+    gap: 4px;
+  }
+  .hr-bet-heading {
+    margin-bottom: 6px;
+  }
+  .hr-coins {
+    margin: 6px 0;
+  }
+  .hr-auto-controls {
+    margin-top: 6px;
+  }
+  .hr-bet-hint {
+    margin-top: 5px;
+    font-size: 9px;
+  }
+}
+@media (max-width: 560px) and (orientation: portrait) {
+  .hr-game {
+    --game-bet-height: 64px;
+    --game-coin-size: 40px;
+  }
+  .hr-horse-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 4px;
+  }
+  .hr-horse-grid > button {
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    text-align: center;
+  }
+  .hr-horse-number {
+    width: 18px;
+    height: 17px;
+    font-size: 10px;
+  }
+  .hr-horse-grid > button > span {
+    gap: 2px;
+  }
+  .hr-horse-grid strong,
+  .hr-horse-grid small {
+    font-size: 9px;
+  }
+  .hr-horse-grid em {
+    display: block;
+    font-size: 8px;
+  }
+  .hr-horse-grid > button[data-selected="true"] .hr-horse-number {
+    display: none;
+  }
+  .hr-stage-wrap:not(:fullscreen) > .hr-race-picture {
+    width: min(
+      100%,
+      calc(max(110px, var(--fit-height, 100dvh) - 480px) * 16 / 9)
+    );
+    margin-inline: auto;
+  }
+  .hr-camera-controls {
+    gap: 2px;
+    padding: 3px;
+  }
+  .hr-camera-controls button {
+    min-height: 28px;
+    padding-block: 3px;
+    font-size: 9px;
+  }
+  .hr-bet-hint {
+    font-size: 9px;
+  }
+}
+.hr-winner-shot {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 10px 30px 12px;
+  min-width: 240px;
+  border: 1px solid #f7d6869c;
+  border-radius: 10px;
+  color: #fff8dc;
+  background: linear-gradient(120deg, #192b23f0, #08110df5);
+  box-shadow: 0 8px 36px #0007;
+  pointer-events: none;
+}
+.hr-game:not(.br-game) .hr-winner-shot {
+  top: 10px;
+  right: 48px;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  min-width: 0;
+  padding: 5px 10px;
+  gap: 3px;
+}
+.hr-game:not(.br-game) .hr-winner-shot > span {
+  font-size: 9px;
+}
+.hr-game:not(.br-game) .hr-winner-shot strong {
+  font-size: clamp(11px, 1.1vw, 16px);
+  gap: 6px;
+}
+.hr-game:not(.br-game) .hr-winner-shot b {
+  width: 18px;
+  height: 18px;
+}
+.hr-game:not(.br-game) .hr-winner-shot small {
+  display: none;
+}
+.hr-winner-shot > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f0ca6a;
+  font: 800 clamp(10px, 1.1vw, 16px) / 1.1 sans-serif;
+  letter-spacing: 0.18em;
+}
+.hr-winner-shot strong {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  white-space: nowrap;
+  font-size: clamp(13px, 1.65vw, 24px);
+}
+.hr-winner-shot b {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  color: #fff;
+  text-shadow: 0 1px 2px #0008;
+}
+.hr-winner-shot small {
+  font-size: 8px;
+  letter-spacing: 0.17em;
+  color: #b9c9bf;
+}
+@media (max-width: 600px) {
+  .hr-winner-shot {
+    padding: 5px 16px;
+    gap: 3px;
+    min-width: 180px;
+    bottom: 6%;
+  }
+  .hr-winner-shot b {
+    width: 19px;
+    height: 19px;
+  }
+  .hr-winner-shot small {
+    display: none;
+  }
+  .hr-winner-shot svg {
+    width: 12px;
+    height: 12px;
+  }
+}

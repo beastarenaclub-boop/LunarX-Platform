@@ -1,0 +1,17 @@
+{
+  "language": "Hindi/Hinglish",
+  "status": "awaiting user voice selection; not yet generated or shipped",
+  "delivery": "Warm adult female game-show commentary. Separate narration, not lip sync.",
+  "clips": {
+    "welcome": "नमस्ते! क्रेज़ी टाइम में आपका स्वागत है। अपनी पसंद का नंबर चुनिए।",
+    "choices": "एक, दो, पाँच, दस, या बोनस राउंड। अपनी पसंद पर कॉइन रखिए।",
+    "lastCall": "बेटिंग बंद होने वाली है। अपनी बेट चेक कर लीजिए। अब व्हील घूमेगा।",
+    "result": "व्हील रुक गया है। रिज़ल्ट आपकी स्क्रीन पर है। अगला राउंड जल्दी शुरू होगा।"
+  },
+  "maxClipSeconds": 8,
+  "rules": [
+    "No speech during the physical wheel pull.",
+    "Do not announce a fixed winning number or payout; the server supplies each result.",
+    "Keep voice language Hindi/Hinglish and honor the game's existing mute and volume controls."
+  ]
+}

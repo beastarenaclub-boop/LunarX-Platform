@@ -1,0 +1,188 @@
+# LunarX Platform
+
+Game website, admin panel, master/agent panels, API and database migrations for
+`lunarx.live`. This repository keeps the deployment source on the **main** branch.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fbeastarenaclub-boop%2FLunarX-Platform)
+
+## Deploy on Render
+
+1. Connect the GitHub account that can access this private repository to Render.
+   In the Render GitHub app, grant access to **LunarX-Platform**.
+2. Click **Deploy to Render** above, or choose **New > Blueprint** in Render.
+   Select this repository, branch **main**, and Blueprint path **render.yaml**.
+3. Enter `SUPER_ADMIN_EMAIL` and a unique `SUPER_ADMIN_PASSWORD` of at least
+   16 characters in Render. Review the paid resource estimate before deploying.
+4. The Blueprint provisions `lunarx-web`, `lunarx-api` and `lunarx-db`.
+   Verify both builds and the web service's `/api/healthz` before connecting DNS.
+5. Follow [the deployment guide](docs/render-deployment.md) to connect the
+   Hostinger domain and verify HTTPS.
+
+Database table definitions are in [lib/db/src](lib/db/src), and SQL migrations
+are in [lib/db/drizzle](lib/db/drizzle). Database contents, users, balances,
+passwords and local exports are not included. Existing data requires a separate
+database import. GitHub stores the application source; Render runs the database.
+
+Preparing this repository does not deploy it. The API image and Blueprint have
+passed their recorded checks; a fresh frontend build and runtime verification
+remain pending. See the deployment guide for validation details.
+
+## Local Docker setup
+
+The **B2B / B2C Network** section in the admin panel manages master branches,
+agents, agent-created players, funds, commissions and settlements.
+
+| Panel | Local address |
+| --- | --- |
+| Admin network | http://127.0.0.1:5175/admin/network |
+| Master panel | http://127.0.0.1:5176/master/ |
+| Agent panel | http://127.0.0.1:5176/agent/ |
+| B2B player website | http://127.0.0.1:5202/ |
+| B2C direct website | http://127.0.0.1:5200/ |
+
+Rebuild with `docker compose up -d --build --wait`.
+**START-BUSINESS-PANELS.cmd** starts already-built local panels and opens admin.
+Admin creates a master from
+**B2B / B2C Network**; that master creates agents, and only agents create B2B
+players. Each account uses its assigned email and password. Existing public
+accounts stay B2C. Referral links no longer assign public signups to agents.
+The **Downline** tab opens a connected tree: company → master → agent → user.
+Expand one branch or use Expand all / Collapse all; search by master or agent
+name or login email. Users load under their own agent in pages of 50, and a
+master sees only its own branch. Table view keeps the full ledger columns.
+Master and agent panels also have a **Downline tree** sidebar link, with direct
+routes `/master/downline` and `/agent/downline`. Agents see their own account
+and users, can search those users, and open Funds or change user status from the
+tree. Their master is identified by name without exposing other branches.
+Legacy referral accounts keep their admin history but cannot access B2C users
+through the old agent API. Create new branch accounts using the hierarchy above.
+Company fees are fixed when a master is created (10% default). Master
+participation is a percentage of the remaining allocation; each agent receives
+its configured percentage of that master's allocation. With 100% master
+participation and 50% agent share, ₹100 net income divides into company ₹10,
+master ₹45 and agent ₹45. Losses use the identical signed ratio.
+
+Each newly accepted cash wager snapshots its contract. Settled wagers post
+immutable entries; retries are idempotent, and corrections or voids append
+reversals. Reports start with wagers accepted after migration 0050. Historical
+reports remain available. Promotional/bonus bets and external API partners are
+excluded from this cash branch ledger. The company settlement screen records
+payments already made or losses collected, with references; it does not initiate
+a bank payment. Wallet float transfers are separate, atomic entries along the
+admin → master → agent → player chain. Report dates use Asia/Kolkata.
+
+For production domains, set `B2B_HOSTS` and `OPERATOR_HOSTS` to comma-separated
+exact host names (including ports when nonstandard), configure the reverse proxy
+to preserve Host, and add those origins to `CORS_ORIGINS`. B2B, operator and B2C
+sessions use separate cookies. Local ports above are not public hosted domains.
+
+Run `docker compose --profile network-test up -d --wait network-test-db`, then
+`npm run network:test` for isolated integration tests. This uses a temporary
+PostgreSQL database on port 5449; the runner refuses databases without the
+`_network_test` suffix. Stop it with `docker compose --profile network-test stop
+network-test-db` when finished.
+
+**Arena Virtual Sports** adds Football Arena, Cricket Super Six, Basketball Pro,
+Tennis Masters and Formula Sprint under the lobby's **Virtual Sport** category.
+Open `/virtual-sports` or `/virtual-sports/football` after signing in. Each game
+has a real-time 3D venue, three camera views, shared scheduled matches, fixed-odds
+betting and automatic settlement. The five games share **10,000 practice coins**;
+these are separate from the main wallet and have no cash value. Bets, receipts
+and balances persist in SQLite (`VIRTUAL_SPORTS_DB`, or beside `WINGO_DB` in Docker).
+Rounds run for 75 seconds: 20 seconds betting, 45 seconds simulation, 10 seconds results.
+
+The broadcast graphics use locally bundled textured, skeletal athletes (22 in
+football, 13 on the cricket field, 10 in basketball and 2 in tennis), HDR lighting,
+grass normal maps, photographic crowd artwork, detailed open-wheel cars and
+tracking cameras. High and Balanced graphics remain available. This is rendered
+3D, not real match footage. Asset credits are in
+`artifacts/3d-game/src/components/virtual-sports/assets/CREDITS.txt`; the human
+preparation script is `tools/sports-assets/prepare-athlete.py`.
+
+For an immediate standalone preview, double-click `START-VIRTUAL-SPORTS.cmd` or run
+`npm run sports:dev`, then open http://127.0.0.1:5198. It uses a separate local practice
+account per browser and stores data in `data/virtual-sports-preview.sqlite`. Node
+22.13+ is required. Run `npm run sports:check`, `npm run sports:test` and
+`npm run sports:test:browser` to verify it. `npm run sports:build` followed by
+`npm run sports:start` serves the production preview on the same port. Rebuild the
+Docker `api` and `web` services to update the main lobby.
+
+The game lobby now uses **port 5200**. After the initial Docker build, double-click
+`START-GAME-LOBBY.cmd` to start the existing services and open http://127.0.0.1:5200/.
+
+Open **Forex Trading** from the main lobby at http://127.0.0.1:5200/, or directly
+at http://127.0.0.1:5200/forex-trading after signing in. Aurum uses the shared
+game layout, coin selector/settings, sound controls and win receipt, with rules
+and history in the information drawer. Prices and charts use Google Finance quotes,
+automatically refreshed every 30 seconds with source timestamps and delay labels.
+Metals and energy show futures quotes. Pool totals independently decide game results:
+above-average investment gives DOWN, below-average gives UP. The integrated game
+uses the lobby's INR wallet for bets and payouts. The optional standalone practice terminal
+still runs through `START-FOREX-GAME.cmd` on port 5196. See [rules and setup](docs/forex-trading.md).
+
+For **Bike Racing with shared coins and auto bet**, double-click `START-BIKE-GAME.cmd`,
+or run `npm run bike:build` then `npm run bike:start` and open http://localhost:5200/bike-racing.
+See [bike betting rules and setup](docs/bike-racing.md).
+
+For the separate **LottoDesk lottery app** (Admin, Agent, Shop and User panels), see [setup and demo accounts](docs/lottery-lottodesk.md). Run `npm run lottery:build` then `npm run lottery:start` and open http://localhost:5190.
+
+**Lunar Colour Trading** is available in the main lobby at http://localhost:5200/lunar-colour-trading, with 30s/1m/3m/5m colour, number and size predictions and the same shared wallet as every other lobby game. The Lunar theme reflows from 320px phones to desktop, with native scrolling and full-size touch controls. The old `/wingo` link remains supported. See [rules and setup](docs/wingo-colour-club.md). The optional standalone preview is available via `START-LUNAR-COLOUR.cmd` at http://localhost:5192.
+
+Start Docker Desktop with Linux containers, then run from this directory:
+
+```sh
+docker compose up -d --build --wait
+```
+
+Docker builds the API and both websites from source, applies database migrations,
+and waits for service health checks. A host Node.js or pnpm installation is not required.
+
+| Service | Address |
+| --- | --- |
+| Player website | http://localhost:5200/ |
+| Lunar Colour Trading (shared wallet) | http://localhost:5200/lunar-colour-trading |
+| Rummy Royale (shared wallet) | http://localhost:5200/rummy |
+| Vegetable Bowl (shared wallet) | http://localhost:5200/vegetable-bowl |
+| Dragon Tiger (shared wallet, live leaderboard) | http://localhost:5200/dragon-tiger |
+| One Day Dragon Tiger (two betting chances, shared wallet) | http://localhost:5200/dragon-tiger-one-day |
+| Horse Racing (shared wallet) | http://localhost:5200/horse-racing |
+| Admin panel | http://localhost:5175/admin/ |
+| API health | http://localhost:5200/api/healthz |
+
+If `localhost` hangs on Windows while Docker reports healthy services, try
+http://127.0.0.1:5200/ for the player website and
+http://127.0.0.1:5175/admin/ for the admin panel. This bypasses a stalled IPv6
+loopback (`::1`) relay. Check http://127.0.0.1:5200/api/healthz for
+`{"status":"ok"}`. The Bike Racing launcher uses this IPv4 address as well.
+
+Create a player account from the website. On a fresh local database, the default
+admin login is `admin@local.test` / `Admin@12345`. Set `SUPER_ADMIN_EMAIL` and
+`SUPER_ADMIN_PASSWORD` before the first start to override those defaults.
+These defaults and the HTTP cookie setting in Compose are for local development.
+
+```sh
+docker compose ps
+docker compose logs --tail 100 api
+docker compose down
+```
+
+Stopping the stack keeps the PostgreSQL data volume. Re-run the startup command
+after source changes to rebuild the affected images.
+
+Rummy Royale includes an animated computer dealer, three computer opponents,
+13-card validation, manual play, and bounded auto-bet/auto-play. Sign in through
+the existing player account. Its bets and winnings use the same wallet as every other lobby game. See [Rummy rules and implementation](docs/rummy-game.md).
+
+Dragon Tiger has shared server rounds, the common wallet and a live player
+leaderboard, all inside a mobile-friendly table. See [Dragon Tiger](docs/dragon-tiger.md).
+
+One Day Dragon Tiger adds a separate AI dealer studio with 56 markets and a second
+betting window after Dragon opens. Conditional bhav, accepted prices, history and
+payouts use the same shared wallet. See [rules and implementation](docs/dragon-tiger-one-day.md).
+
+Horse Racing includes eight independently animated runners, six photographic
+racecourses, a two-lap marathon, stadium audiences, hoof and crowd audio, and
+three selectable camera views and automatic camera changes following the coded race. Sign in with the existing player
+account to use the same wallet, coin rack and automatic betting controls as
+Lucky 7. Bets and payouts settle on the server; all visual assets are bundled.
+See [Horse Racing controls and setup](docs/turf-club.md).

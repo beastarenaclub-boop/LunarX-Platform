@@ -1,0 +1,24 @@
+{
+  "source": "Higgsfield generated casino ambient video; fictional adult guests",
+  "jobId": "6e3fb8de-14de-4a51-9214-a9a74441c455",
+  "project": {
+    "project_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+    "default_folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+    "workspace_id": "2f0c4c7c-a51c-4f15-843e-a2415dded89a",
+    "name": "Lucky 7 Casino Scene"
+  },
+  "file": "casino-ambient.mp4",
+  "credits": 56,
+  "params": {
+    "model": "seedance_2_5",
+    "mode": "t2v",
+    "duration": 8,
+    "resolution": "720p",
+    "aspect_ratio": "16:9",
+    "generate_audio": false,
+    "count": 1,
+    "prompt": "Locked-off tripod footage, 8 second seamless ambient loop for the background of a photorealistic live casino game. View from a seated player's eye level across an upscale emerald-green and warm gold casino room. Keep the central 35 percent a calm dark emerald velvet wall panel with brass architectural framing; a separate woman dealer will be composited in front of it. On BOTH left and right of that center panel, in the middle distance, visible adult casino guests and uniformed staff gently converse and deal at gaming tables, one person strolls slowly behind the tables. Real subtle natural human motion, small hand gestures, breathing, shifting weight. Warm chandeliers, amber sconces, realistic soft reflections and distant blinking gaming-machine indicators. Crisp photographic room textures with the distant guests softly out of focus. Match dark emerald, walnut and brushed brass palette. No people in the foreground or crossing the central panel. No foreground dealer, foreground table, dice, cards, chips, logos, writing, subtitles or interface. Camera completely stationary: NO pan, NO zoom, NO cuts, NO camera shake. Keep room geometry and exposure stable, no pulsing global lighting. End framing identical to first framing for an ambient loop.",
+    "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+    "use_unlim": false
+  }
+}

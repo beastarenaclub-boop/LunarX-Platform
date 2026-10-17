@@ -1,0 +1,38 @@
+{
+  "version": "racewear-detail-v4",
+  "created": "2026-10-02",
+  "rider": {
+    "file": "jockey-racewear-v2.glb",
+    "source": "../derby/jockey-crouch-v1.glb",
+    "license": "CC0 Vitruvian / CharMorph, local derivative",
+    "script": "tools/horse-assets/prepare-racewear-v2.py",
+    "validation": "racewear-validation.json",
+    "changes": [
+      "Continuous smoothed, reduced cloth geometry replacing per-face white patches",
+      "Fitted skinned finger gloves, tall leather boots and fine breeches folds",
+      "Eight runtime silk patterns and matching helmet/cuffs",
+      "Individual skin tones and modest jaw proportions; shared source head and skeleton",
+      "Merged collar, cuffs, boot soles/heels/buckles, curved saddle seat, leather flaps, girth and hardware"
+    ]
+  },
+  "outfits": [
+    "Blue double chevron / ivory trim",
+    "Gold diagonal sash / charcoal trim",
+    "Red diamonds / ivory trim",
+    "Silver epaulets and hoop / navy trim",
+    "Green centre stripe / cream trim",
+    "Pink quarters / dark plum trim",
+    "Teal double hoops / ivory trim",
+    "Purple chevron / gold trim"
+  ],
+  "horseTexture": {
+    "file": "thoroughbred-coat-v2.png",
+    "mode": "built-in image_gen, edit",
+    "sourceAsset": "CC0 HorseMain4k00.png, extracted unchanged from earth/thoroughbred-v2.blend",
+    "sourceFile": ".cache/horse-racewear/source-horse-coat.png",
+    "generatedFile": "C:/Users/hacker/.codex/generated_images/01a0f94e-4da8-7423-8a22-cd1e2a708f35/exec-b522b00a-14e7-42d2-9ebf-a9a00077ca15.png",
+    "prompt": "Use case: precise-object-edit. Asset type: production 3D horse UV base-colour texture, not a picture of a horse. Edit the supplied square unwrapped horse skin texture in place. ABSOLUTE INVARIANTS: preserve the exact UV island outer silhouettes, pixel placement, scale and orientation of every body part, the head on the left, four spread legs, tiny separate tail piece, and the neutral beige unused background. Do not repack UVs, do not move eyes/nostrils/ears/hoof boundaries. Retexture the animal as a healthy athletic realistic bay thoroughbred: clean, very short fine warm medium-brown fur following anatomical hair directions, subtle darker folds and muscle/vein definition, realistic dark soft muzzle with defined nostril openings, naturally dark horn hooves. Remove the blotchy white/speckled pinto patches from the torso and legs; replace them with continuous natural brown short hair. Retain only a narrow cream facial blaze in its exact original central forehead location and small clean cream ankle socks. The original texture looks shaggy, mottled, stretched and weathered: create a groomed smooth racehorse coat with crisp fine hair, realistic skin details around eyes and mouth, no plastic shine. Flat neutral albedo illumination; no newly baked highlights, no shadows from equipment, no drawn saddle or bridle. Preserve all original anatomical landmarks EXACTLY so it still maps onto the existing mesh. Same square 2048x2048 composition, opaque. No text, no diagram labels, no borders, no rendered 3D horse, no perspective. Photographic realism material only.",
+    "usage": "UV-aligned diffuse detail recoloured for eight coats. Existing anatomical normal and short-hair grain retained. Generated texture edit, not a measured material scan."
+  },
+  "runtime": "The horse and rider shaders use CPU-sampled skinned rest-space attributes. Clip timing, muzzle finish anchor, hand/foot contact positions and server race math are preserved. Source artwork/model files remain versioned alongside this revision."
+}

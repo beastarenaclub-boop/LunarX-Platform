@@ -1,0 +1,35 @@
+{
+  "provider": "Runway",
+  "date": "2026-10-14",
+  "purpose": "Fury Flight game artwork, generated for this project",
+  "assets": [
+    {
+      "filename": "desert-airfield-runway.webp",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 334582,
+      "taskId": "5ba75fe4-22d3-4435-82fc-d46eedfad09f",
+      "prompt": "Use case: stylized-concept. Production background plate for the playable scene of a polished flight arcade game called Fury Flight. One standalone image, no UI or lettering. Wide side-on view of a sunlit abandoned desert airfield, richly detailed cinematic 3D game art with realistic textures. Open pale azure sky fills the upper 65 percent with a few beautifully soft volumetric white clouds, warm sun glow at upper right. Lower third: ochre sand runway, dusty orange dunes, distant hazy mesas, one striking tall weathered sandstone rock leaning slightly at center-left, a huge half-buried broken metal propeller at its base, small ruined wooden airfield structures far right, a sparse cactus, airborne sand near the ground. Subtle worn runway tracks run horizontally across the bottom 12 percent. Rich warm sand versus clean cool blue sky, soft atmospheric depth, fine windblown dust and weathered materials, luminous physically believable lighting, sophisticated high fidelity pre-rendered game environment. Keep the middle of the sky spacious for a multiplier overlay added later. No aircraft anywhere, no people, no text, no numbers, no logos, no panels, no border. Avoid flat vector art, polygonal low-poly, thick outlines, childish cartoon shapes, oversaturated orange haze. Camera is static side-on at runway height, landscape 16:9.",
+      "preparation": "Resized and encoded as WebP for runtime"
+    },
+    {
+      "filename": "open-sky-runway.webp",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 144634,
+      "taskId": "26ac5a71-c79e-4c76-8ad6-2c7bbf7ed069",
+      "prompt": "Use case: stylized-concept. One standalone high fidelity background plate for an aerial flight arcade game, cinematic realistic 3D game environment. Entire scene is open sky, a beautiful rich azure blue smoothly deepening to deep teal blue overhead, soft atmospheric haze below. Highly detailed sculptural sunlit volumetric white cumulus clouds concentrated along the lower left edge, lower right edge and a small wispy group in the far upper left. Center 65 percent and upper right quadrant stay beautifully open and uncluttered for an animated plane and large white multiplier added later. A luminous sense of altitude, richly layered soft cloud edges, subtly shaded blue cloud undersides, crisp premium game graphics, strong depth and natural daylight, clean mid-blue background with enough contrast for white interface text. No land, no horizon, no sun disk, no aircraft, no birds, no people, no text, no numbers, no UI, no logo, no frames. Avoid flat vector illustrations, cartoon cloud symbols, obvious repeated clouds and busy tiny texture. Landscape 16:9.",
+      "preparation": "Resized and encoded as WebP for runtime"
+    },
+    {
+      "filename": "golden-plane-runway.webp",
+      "width": 960,
+      "height": 382,
+      "bytes": 58204,
+      "taskId": "df97dcd3-bee6-4e3b-aa7f-3480520633d4",
+      "prompt": "Use case: stylized-concept. One standalone game asset: a single spectacular small golden-yellow vintage single-engine propeller stunt airplane, seen in near-perfect left-to-right side profile with a subtle view of its top, nose pointing RIGHT, airplane kept horizontal, full object entirely visible with generous clean padding all around. Polished cinematic 3D render with detailed metal body, orange-red racing accents, sunlit golden wings, slightly worn painted rivets, dark teal glass cockpit with subtle reflections, radial engine cowling with dark metallic grooves, two small black rubber landing wheels visible below, rear tailplane and vertical fin. Attractive compact proportions, strong readable silhouette at small sizes, premium adventure aviation game art, realistic textures and soft dimensional lighting from upper left. Aircraft occupies 75 percent of image width and is centered. Plain uniform neutral light gray studio backdrop, no ground plane, no cast shadow, no scene, no cloud, no smoke, no exhaust, no fire, no motion trails, no text, no logos, no numbers. Propeller hub present with thin faint blades, avoid heavy motion blur. No weapons or missiles. No flat illustration, no low-poly, no heavy cartoon outline. Landscape 16:9.",
+      "sourceGenerationTaskId": "4f03e840-a1a9-4050-86a6-084b29dc62d1",
+      "preparation": "Runway background removal; alpha bounds trimmed and resized for runtime"
+    }
+  ]
+}

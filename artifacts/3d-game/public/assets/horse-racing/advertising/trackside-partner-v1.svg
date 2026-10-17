@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="200" viewBox="0 0 1600 200">
+  <rect width="1600" height="200" fill="#f3eee2"/>
+  <path d="M0 0h230l-85 200H0zM1600 0v200h-230l85-200z" fill="#133f36"/>
+  <path d="M120 35h45l-55 130H65zM1450 35h45l-55 130h-45z" fill="#cead60"/>
+  <text x="780" y="130" text-anchor="middle" font-family="Arial,sans-serif" font-size="108" font-weight="900" letter-spacing="9" fill="#153c34">YOUR BRAND</text>
+  <path d="M305 172h985" stroke="#c5a45b" stroke-width="5"/>
+</svg>

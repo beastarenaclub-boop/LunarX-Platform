@@ -1,0 +1,29 @@
+{
+  "fps": 60,
+  "frames": 1116,
+  "restingSourceTime": 12.6,
+  "takes": {
+    "joker": {
+      "start": 13.3,
+      "end": 15.2,
+      "actionStart": 13.716666666666667,
+      "sourceStart": 9.016666666666667,
+      "sourceEnd": 10.1
+    },
+    "bahar": {
+      "start": 15.2,
+      "end": 16.9,
+      "actionStart": 15.433333333333332,
+      "sourceStart": 10.1,
+      "sourceEnd": 11.35
+    },
+    "andar": {
+      "start": 16.9,
+      "end": 18.6,
+      "actionStart": 17.349999999999998,
+      "sourceStart": 11.35,
+      "sourceEnd": 12.6
+    }
+  },
+  "processing": "Recorded turns at 1x speed; RIFE 4.6 approach/return between matched resting poses; recomputed hand mattes. Waiting joins use a short dissolve in the player."
+}

@@ -1,0 +1,40 @@
+{
+  "provider": "Higgsfield",
+  "jobId": "20a433e6-fec7-4100-8179-bcd2a84a1cc8",
+  "generatedAt": "2026-10-03",
+  "credits": 22.5,
+  "sourceUrl": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261003_200533_20a433e6-fec7-4100-8179-bcd2a84a1cc8.mp4",
+  "generation": {
+    "model": "kling3_0",
+    "mode": "std",
+    "duration": 15,
+    "aspect_ratio": "16:9",
+    "sound": "off",
+    "count": 1,
+    "prompt": "ONE continuous 15 second photorealistic real television game-show studio performance. Locked tripod wide frontal camera. No camera movement, no zoom, no cuts, no reframing, no changing focus. Deep sharp focus, realistic human skin and fabric. Elegant physical emerald-green and champagne-brass game-show set, warm practical lamps, polished floor, rich burgundy accents, warm soft studio lighting. At screen LEFT a large upright prize wheel on a substantial brass pedestal, fixed centered at x=35% image width, y=46% image height, outer diameter 66% of image height. Its face is exactly parallel to the camera, a perfect circle. The wheel's INSIDE FACE is one completely blank plain flat dark green circular disc with absolutely NO segments, NO spokes, NO text, NO numerals, NO logo, NO reflections crossing the interior. This is a compositing plate: the game will add the real rotating segments over that plain green circle later. Thick fixed polished brass OUTER housing, small warm lights on this stationary housing, one stationary brass pointer at 12 o'clock. Keep the circle perfectly fixed in position and size for all fifteen seconds. No wheel motion or translation visible in the blank green plate. Full wheel and pedestal always visible. Exactly ONE fictional adult female South Asian TV presenter aged 28, lifelike natural face, shoulder-length dark softly waved hair, professional burgundy long-sleeved modest midi dress and closed-toe shoes. Full head, body, hands and shoes always visible after entry. She stands to the right of the wheel at x=72%, feet near y=91%. NATURAL PERFORMANCE TIMELINE: 0.0-2.0 seconds: she walks naturally two steps into frame from screen RIGHT and stops at her presenter mark beside the wheel, feet settle, turns toward camera. 2.0-5.0: she stands calm, hands relaxed at waist, subtle warm closed-mouth smile, ordinary eye blink, very small breathing. 5.0-6.0: she looks at the wheel, extends her hand closest to the wheel (arm on SCREEN LEFT) to touch the right OUTSIDE RIM at three o'clock. 6.0-6.8: one purposeful downward hand pull along the OUTSIDE RIM, as if starting the heavy prize wheel, then releases it. Hand remains OUTSIDE the flat green face. 6.8-12.0: hand returns gently to waist, she watches the wheel patiently, slightly curious natural expression, subtle blink, no further hand gesture. 12.0-13.5: she sees the wheel stop, looks pleased and makes a small open-palm presenting gesture toward it. 13.5-15.0: returns hands to her resting pose, looks toward camera with a restrained friendly smile. Final stance matches seconds 2-5. Normal real-time human pace, believable physical weight, correct fingers and limbs, no exaggeration, no clapping, no speaking. Absolutely consistent identity, outfit, room geometry and lighting. Only the woman moves; camera, brass housing, circle and set remain absolutely fixed. No on-screen text, no UI, no subtitles, no watermark, no other people."
+  },
+  "output": {
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "originalSeconds": 15.041667,
+    "packagedSeconds": 18.791667,
+    "audio": false
+  },
+  "preparation": {
+    "codec": "H.264 yuv420p CRF 19, 24-frame GOP, faststart",
+    "idle": "Append source seconds 3.083333–4.958333 forwards then backwards for a continuous resting loop.",
+    "posterSeconds": 3.083333,
+    "rightRimSeconds": 13
+  },
+  "cues": {
+    "entryEnd": 3.083333,
+    "idleStart": 15.041667,
+    "idleEnd": 18.791667,
+    "actionStart": 4.2,
+    "wheelPull": 6.6,
+    "wheelStop": 12.6,
+    "actionEnd": 15
+  },
+  "note": "Fictional adult AI presenter. Source wheel face is replaced with the server-selected 54-segment game wheel; generated pointer never selects results. The left/right stationary rim masks use frames from the same take and leave the hand-contact arc visible."
+}

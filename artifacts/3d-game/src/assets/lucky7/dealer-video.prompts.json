@@ -1,0 +1,18 @@
+{
+  "source": "Higgsfield image-to-video; fictional adult dealer",
+  "releaseMs": 1200,
+  "clips": [
+    {
+      "file": "dealer-idle.mp4",
+      "model": "seedance_2_5",
+      "prompt": "Use the supplied first frame exactly: same fictional adult woman dealer, same face, hairstyle, white shirt, black waistcoat and bow tie, same emerald and gold casino background and same framing. Fixed tripod camera: absolutely no cuts, no zoom, no pan, no reframing. Photorealistic natural human motion with stable anatomy and lighting. No new people, no text, no logos, no cards, no chips. Her whole head and forearms stay in frame. Create a seamless idle animation for a casino game. She is seated behind the table, hands resting together as in the reference. Gentle breathing, one natural blink, a tiny relaxed head shift, warm restrained smile. She keeps her hands resting, no speaking and no big gestures. The casino lights have a very subtle natural shimmer. End in exactly the initial pose and framing for a seamless loop. The green foreground stays empty. Duration 5 seconds.",
+      "jobId": "b7d1f27b-005f-4b82-b037-9588a863d913"
+    },
+    {
+      "file": "dealer-roll.mp4",
+      "model": "seedance_2_5",
+      "prompt": "Use the supplied first frame exactly: same fictional adult woman dealer, same face, hairstyle, white shirt, black waistcoat and bow tie, same emerald and gold casino background and same framing. Fixed tripod camera: absolutely no cuts, no zoom, no pan, no reframing. Photorealistic natural human motion with stable anatomy and lighting. No new people, no text, no logos, no cards, no chips. Her whole head and forearms stay in frame. Create one short 5-second action clip for a casino dice game, beginning AND ending in the supplied relaxed hands-together pose. In the first 0.5 seconds she looks down and briefly cups her right hand near the center just above the tabletop. At 1.0 second she makes ONE quick natural underhand dice-release gesture toward the camera, opening her right fingers near the bottom center. Her hand is empty: the actual two dice will be rendered separately by the game, so do not generate any visible dice, objects or numbers. Between seconds 1 and 2 she follows the dice direction with her eyes while lowering her right hand. By second 3 she has returned both hands to the exact reference resting position and looks back at the player with a small welcoming smile. For seconds 3 to 5 she stays in that neutral resting pose, with only natural breathing. Do not repeat the throw. Keep both hands in frame. No large arm swings, no waving, no touching her face, no speaking.",
+      "jobId": "b4927c89-cc36-4cde-9e26-cb630d867f9f"
+    }
+  ]
+}

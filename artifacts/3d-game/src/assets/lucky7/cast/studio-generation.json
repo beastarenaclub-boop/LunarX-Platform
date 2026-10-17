@@ -1,0 +1,51 @@
+{
+  "date": "2026-09-27",
+  "generationCredits": 0,
+  "source": "single-generation.json (original closed-cup take), quiet-generation.json (Asha waiting)",
+  "outputs": [
+    {
+      "media_id": "41ec0f26-ef4b-4cbd-8664-34fd8155a160",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/41ec0f26-ef4b-4cbd-8664-34fd8155a160.mp4"
+    },
+    {
+      "media_id": "18df846b-b407-4f82-9a93-f0c436204a00",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/18df846b-b407-4f82-9a93-f0c436204a00.jpg"
+    }
+  ],
+  "durationSeconds": 13,
+  "fps": 24,
+  "idle": {
+    "startMs": 0,
+    "endMs": 6000
+  },
+  "roll": {
+    "startMs": 6000,
+    "endMs": 13000,
+    "releaseMs": 10625,
+    "x": 0.513207,
+    "y": 0.812462
+  },
+  "stabilization": {
+    "method": "SIFT background matches + RANSAC similarity, 5-frame median",
+    "medianMatches": 456,
+    "firstTransform": [
+      [
+        1.0133955412752398,
+        -0.00028983913622965203,
+        2.1625725956824384
+      ],
+      [
+        0.00028983913622965203,
+        1.0133955412752398,
+        2.9759759779991084
+      ]
+    ]
+  },
+  "removed": [
+    "arrival",
+    "greeting",
+    "clap",
+    "dealer voice"
+  ],
+  "playback": "one persistent HTML video element, waiting loop and server-clock throw"
+}

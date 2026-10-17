@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800">
+<defs>
+  <linearGradient id="bg" x2=".8" y2="1"><stop stop-color="#1c3b63"/><stop offset=".65" stop-color="#0c1a2f"/><stop offset="1" stop-color="#060b15"/></linearGradient>
+  <radialGradient id="halo"><stop stop-color="#e6c57c" stop-opacity=".3"/><stop offset="1" stop-color="#e6c57c" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gold" x2=".8" y2="1"><stop stop-color="#fff5c7"/><stop offset=".35" stop-color="#e2b750"/><stop offset=".65" stop-color="#ffe4a0"/><stop offset="1" stop-color="#a8752a"/></linearGradient>
+  <linearGradient id="silver" x2=".8" y2="1"><stop stop-color="#f0f8ff"/><stop offset=".45" stop-color="#7c97b4"/><stop offset=".75" stop-color="#c9e0f0"/><stop offset="1" stop-color="#485f7b"/></linearGradient>
+  <linearGradient id="text" x2="0" y2="1"><stop stop-color="#fff7d6"/><stop offset="1" stop-color="#dbac49"/></linearGradient>
+</defs>
+<rect width="600" height="800" fill="url(#bg)"/>
+<g stroke="#5676a2" opacity=".13"><path d="M0 120H600M0 200H600M0 280H600M0 360H600M0 440H600M0 520H600M0 600H600M70 0V680M150 0V680M230 0V680M310 0V680M390 0V680M470 0V680M550 0V680"/></g>
+<ellipse cx="300" cy="305" rx="320" ry="315" fill="url(#halo)"/>
+<circle cx="305" cy="310" r="195" fill="none" stroke="#dabc76" opacity=".22"/>
+<circle cx="305" cy="310" r="210" fill="none" stroke="#dabc76" opacity=".1"/>
+<text x="300" y="88" text-anchor="middle" fill="#abc0d8" font-family="Arial,sans-serif" letter-spacing="9" font-size="18">A U R U M</text>
+<g stroke-width="4" stroke="#43dca4"><path d="M53 390V470M115 328V420M239 273V353M363 195V287M487 135V218M549 98V177"/><g fill="#40c995" stroke="none"><rect x="41" y="410" width="24" height="45" rx="2"/><rect x="103" y="350" width="24" height="48" rx="2"/><rect x="227" y="292" width="24" height="43" rx="2"/><rect x="351" y="217" width="24" height="51" rx="2"/><rect x="475" y="150" width="24" height="49" rx="2"/><rect x="537" y="115" width="24" height="43" rx="2"/></g></g>
+<g stroke="#f38693" stroke-width="4"><path d="M177 320V414M301 248V347M425 185V275"/><g fill="#e97c8c" stroke="none"><rect x="165" y="337" width="24" height="57" rx="2"/><rect x="289" y="267" width="24" height="60" rx="2"/><rect x="413" y="204" width="24" height="49" rx="2"/></g></g>
+<ellipse cx="295" cy="445" rx="174" ry="32" fill="#000" opacity=".35"/>
+<g transform="translate(230 280) rotate(12)"><path d="M0 120L28 5H147L186 120Z" fill="url(#silver)" stroke="#cddded" stroke-width="3"/><path d="M0 120V149H186V120" fill="#627b95"/><text x="94" y="88" text-anchor="middle" font-family="Georgia,serif" font-size="57" fill="#314861">Ag</text></g>
+<g transform="translate(117 257) rotate(-10)"><path d="M0 130L37 0H159L203 130Z" fill="url(#gold)" stroke="#f7db96" stroke-width="3"/><path d="M0 130V159H203V130" fill="#ab7c30"/><text x="99" y="91" text-anchor="middle" font-family="Georgia,serif" font-size="62" fill="#7d5620">Au</text><text x="99" y="114" text-anchor="middle" fill="#8f6625" font-family="Arial,sans-serif" font-size="10" letter-spacing="3">FINE GOLD</text></g>
+<text x="300" y="563" text-anchor="middle" fill="url(#text)" font-family="Arial,sans-serif" font-weight="900" font-size="88" letter-spacing="5">FOREX</text>
+<text x="300" y="622" text-anchor="middle" fill="#e3edfa" font-family="Arial,sans-serif" font-weight="700" font-size="46" letter-spacing="10">TRADING</text>
+<path d="M150 653H450" stroke="#bc9a54" opacity=".5"/>
+<text x="300" y="682" text-anchor="middle" fill="#93accb" font-family="Arial,sans-serif" font-size="15" letter-spacing="3">GOLD · SILVER · 12 MARKETS</text>
+</svg>

@@ -1,0 +1,9 @@
+{
+  "source": "Higgsfield image-to-video; fictional adult dealer; hand path measured in source-video coordinates",
+  "releaseMs": 2800,
+  "windupMs": 1500,
+  "model": "seedance_2_5",
+  "file": "dealer-forward.mp4",
+  "jobId": "4c43b221-fc27-4a2c-a408-956a563e8360",
+  "prompt": "Fixed tripod camera, photorealistic casino dealer from this reference. Same adult woman, same face, white shirt, black waistcoat and emerald casino. Preserve the original framing and scale. One decisive realistic action in 5 seconds: she looks down, cups her RIGHT hand as if holding two small dice; she leans forward slightly and EXTENDS her right forearm TOWARD THE VIEWER over the tabletop, reaching a full hand-length farther forward than her resting hands. At around 1.4 seconds, with her right palm only a few centimetres ABOVE the table, she opens her fingers and gently drops and pushes the dice forward in ONE low underhand throw. The extended open palm remains visible over the table for half a second after the release. Her gaze follows their forward travel across the felt. She withdraws her right arm slowly and returns to her resting pose by 3.5 seconds, then watches the table. The release happens at the end of the extended forearm, NOT near her body. Relaxed fingers, believable wrists, no hand above chest level. Her LEFT hand remains resting. The actual dice will be rendered by the game, so the palm must be EMPTY: do not generate dice, balls or any props. No speech, no waving, no large head tilts, no cuts, no zoom, no camera movement, no lighting changes, no text or overlays. Show the full forearm, hand and tabletop throughout. Start and end with both hands resting in the reference position."
+}

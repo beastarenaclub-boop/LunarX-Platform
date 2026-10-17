@@ -1,0 +1,86 @@
+# Render Blueprint for lunarx.live. Account connection is required to deploy.
+# Paid compute is intentional: live rounds must not sleep between requests.
+services:
+  - type: pserv
+    name: lunarx-api
+    runtime: docker
+    branch: main
+    region: singapore
+    plan: 1c-2g
+    dockerfilePath: ./deploy/render/api.Dockerfile
+    dockerContext: .
+    autoDeployTrigger: off
+    numInstances: 1
+    disk:
+      name: lunarx-game-data
+      mountPath: /var/data
+      sizeGB: 5
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lunarx-db
+          property: connectionString
+      - key: COOKIE_SECURE
+        value: "true"
+      # Browser -> Render edge -> Nginx gateway -> private API.
+      # Revisit this setting if another proxy is added.
+      - key: TRUST_PROXY
+        value: "2"
+      - key: GAME_BASE_URL
+        value: https://lunarx.live
+      - key: CORS_ORIGINS
+        value: https://lunarx.live,https://www.lunarx.live,https://b2b.lunarx.live,https://admin.lunarx.live,https://panel.lunarx.live
+      - key: B2B_HOSTS
+        value: b2b.lunarx.live
+      - key: OPERATOR_HOSTS
+        value: panel.lunarx.live
+      - key: WINGO_DB
+        value: /var/data/wingo.sqlite
+      - key: FOREX_DB
+        value: /var/data/forex.sqlite
+      - key: VIRTUAL_SPORTS_DB
+        value: /var/data/virtual-sports.sqlite
+      - key: SUPER_ADMIN_EMAIL
+        sync: false
+      - key: SUPER_ADMIN_PASSWORD
+        sync: false
+
+  - type: web
+    name: lunarx-web
+    runtime: docker
+    branch: main
+    region: singapore
+    plan: 0.5c-512mb
+    dockerfilePath: ./deploy/render/web.Dockerfile
+    dockerContext: .
+    autoDeployTrigger: off
+    healthCheckPath: /api/healthz
+    domains:
+      - lunarx.live
+      - b2b.lunarx.live
+      - admin.lunarx.live
+      - panel.lunarx.live
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: API_UPSTREAM
+        fromService:
+          type: pserv
+          name: lunarx-api
+          property: hostport
+      - key: NGINX_ENVSUBST_FILTER
+        value: ^(PORT|API_UPSTREAM)$
+
+databases:
+  - name: lunarx-db
+    region: singapore
+    plan: 0.5c-1g
+    postgresMajorVersion: "16"
+    databaseName: lunarx
+    user: lunarx
+    diskSizeGB: 15
+    ipAllowList: []

@@ -1,0 +1,43 @@
+{
+  "provider": "Higgsfield",
+  "presenter": "Fictional adult AI presenter; same modest studio reference as v2",
+  "referenceJob": "9bfadb18-977b-4841-b057-2891f9cf2c43",
+  "welcomeVideo": {
+    "model": "wan2_7",
+    "job": "3b95e53a-1305-4ad9-a8c7-8c5f6a5ae74b",
+    "audioReferenceJob": "3828f0e7-6670-4d95-b9be-4c6bda81a221",
+    "prompt": "Locked-off wide shot of this fictional adult television presenter in the same studio and same elegant knee-length dress. She faces the viewer and speaks the supplied Hindi welcome audio with matching natural mouth movement and warm conversational hand gestures at waist height. Keep her identity, outfit and exact position stable. The circular teal studio prop is completely stationary. She never touches it. Keep the entire composition and camera perfectly fixed, no zoom, no cuts, no subtitles or new text. Clear Hindi speech from the supplied reference, no music.",
+    "durationSeconds": 8,
+    "resolution": "1080p",
+    "audio": "Native output extracted to a separate MP3 for gesture-unlocked Web Audio playback"
+  },
+  "speech": {
+    "model": "seed_audio",
+    "voiceName": "Faye",
+    "voiceId": "d198dc0b-c4e5-5198-aa1d-ecf5ca0927c4",
+    "voiceType": "preset",
+    "speechRate": 5,
+    "lines": [
+      { "clip": "welcome", "job": "3828f0e7-6670-4d95-b9be-4c6bda81a221", "text": "नमस्ते! क्रेज़ी टाइम में आपका स्वागत है। अपना नंबर चुनिए और कॉइन रखिए।" },
+      { "clip": "choices", "job": "f79f52f5-1c55-4829-af3a-5ce9b9541b21", "text": "एक, दो, पाँच या दस — अपनी पसंद चुनिए। बोनस राउंड के लिए भी कॉइन रख सकते हैं।" },
+      { "clip": "lastCall", "job": "0861a976-7524-420d-8217-a81ebf1b7ef3", "text": "आखिरी कुछ सेकंड बाकी हैं। अपनी बेट पूरी कर लीजिए। फिर घुमाएँगे व्हील!" },
+      { "clip": "result", "job": "bf840757-fc0d-441f-88db-ae278a2a20fe", "text": "व्हील रुक गया है! आपका रिज़ल्ट स्क्रीन पर है। अगला राउंड बस शुरू होने वाला है।", "processing": "atempo=1.12, volume=1.2; mono 96 kbps MP3" }
+    ],
+    "failedLastCallJob": "51c1be60-10a9-4605-a3df-1c32113a9d33"
+  },
+  "remainingTalkingVideos": {
+    "status": "not submitted: out of credits",
+    "clips": ["choices", "lastCall", "result"],
+    "fallback": "Hindi commentary with existing v2 gesture performances; no claim of exact lip sync"
+  },
+  "processing": {
+    "resolution": [1920, 1080],
+    "codec": "H.264 CRF 23, 24 fps, faststart, capped 1400 kbps (spin 1600 kbps)",
+    "spinSource": "v2 safe spin source job 71d78614-371a-4cff-a9ba-7dd5de5283dc",
+    "spinSourceRangesSeconds": [[0,4.55],[10.25,15.041667]],
+    "spinDissolveSeconds": 0.25,
+    "spinSpeed": 1,
+    "wheelPullSeconds": 3.875,
+    "wheelStopSeconds": 7.5
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "source": "derby/jockey-crouch-v1.glb",
+  "license": "CC0 Vitruvian / CharMorph",
+  "changes": [
+    "continuous smooth silk garments",
+    "weighted fitted finger gloves",
+    "consistent tall leather boots",
+    "fine breeches folds"
+  ],
+  "bones": 52,
+  "contactPoints": {
+    "mixamorig:Head": [
+      3.241598989234262e-08,
+      -0.777049720287323,
+      2.9510810375213623
+    ],
+    "mixamorig:LeftHand": [
+      0.24566954374313354,
+      -0.909673273563385,
+      2.5346574783325195
+    ],
+    "mixamorig:RightHand": [
+      -0.2456851601600647,
+      -0.9096575379371643,
+      2.5348148345947266
+    ],
+    "mixamorig:LeftFoot": [
+      0.688919186592102,
+      -0.34166690707206726,
+      1.9686613082885742
+    ],
+    "mixamorig:RightFoot": [
+      -0.6890398859977722,
+      -0.3381994068622589,
+      1.9687323570251465
+    ]
+  },
+  "meshes": {
+    "cm_vitruvian": 19106,
+    "cm_vitruvian.001": 12952,
+    "Eye_L_eyeball": 787,
+    "Eye_R_eyeball": 787,
+    "FittedRacingGloves": 8279,
+    "Lacrimal_Caruncle": 1644,
+    "Pants": 12901,
+    "RacingSleeves": 4510,
+    "Shirt": 45452,
+    "Tearline": 624
+  }
+}

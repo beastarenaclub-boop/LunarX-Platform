@@ -1,0 +1,28 @@
+{
+  "source": "Carnegie Mellon University Graphics Lab Motion Capture Database",
+  "subject": 10,
+  "captureRate": 120,
+  "sourcePage": "http://mocap.cs.cmu.edu/search.php?subjectnumber=10",
+  "termsPage": "http://mocap.cs.cmu.edu/",
+  "terms": "May be included in commercially-sold products. The motion data itself may not be resold, even in converted form.",
+  "files": [
+    {
+      "filename": "10.asf",
+      "url": "http://mocap.cs.cmu.edu/subjects/10/10.asf",
+      "bytes": 7260,
+      "sha256": "d4e604fd582403e9f4bca3382e74dd0cc01e15cd712255e7bd34863b922b6200"
+    },
+    {
+      "filename": "10_01.amc",
+      "url": "http://mocap.cs.cmu.edu/subjects/10/10_01.amc",
+      "bytes": 638446,
+      "sha256": "4277e748947e8703825f340f94582f48997ca01b308f2447075eab4c42029e84"
+    },
+    {
+      "filename": "10_04.amc",
+      "url": "http://mocap.cs.cmu.edu/subjects/10/10_04.amc",
+      "bytes": 435157,
+      "sha256": "5b5d4dfecf08c86d03a146872a67710e5fa9a96857e112ad59142e59fc3712fd"
+    }
+  ]
+}

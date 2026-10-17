@@ -1,0 +1,20 @@
+{
+  "revision": "stadium-audience-v2",
+  "date": "2026-10-02",
+  "reference": "Racecourse architecture informed by the user's Kentucky Derby reference and Churchill Downs grandstand photographs. This is an authored fictional course, not a surveyed replica.",
+  "assets": [
+    {
+      "file": "spectators-atlas-v1.png",
+      "method": "Built-in image_gen",
+      "prompt": "Use case: photorealistic-natural. Asset type: transparent game spectator atlas, a perfectly regular FOUR BY FOUR grid containing EXACTLY SIXTEEN separate full-body adult racecourse spectators, one person per equal square cell. Square 2048x2048 composition, every person fully contained within their own cell with generous transparent padding, no overlap and no grid lines. All people face the camera, photographed with a long lens at chest level, similar scale and soft bright overcast daylight. Mixed adult men and women, varied faces and skin tones. Prestigious horse race crowd: linen jackets, polos, summer dresses, dark casual trousers, small derby hats, straw hats and caps; muted cream navy teal dusty pink blue mustard burgundy. Twelve are sitting naturally on invisible stadium seats, knees bent, feet visible, torso upright or slightly leaning forward watching the race. Four are standing cheering with one or both arms raised, whole hands visible. Varied candid natural poses, excited faces, a few holding binoculars or phones. Real human photographic anatomy and detailed textiles; editorial sports photography, no cartoon or painted style. Transparent background around EVERY person and between limbs, no actual chairs, no floor, no cast ground shadows, no props behind people. No text, letters, numbers, logos, watermarks, panels or background. Keep head, hat, hands and feet inside each cell.",
+      "use": "Four by four transparent atlas. Fourteen usable seated/cheering variants are individually instanced; two cropped standing variants are excluded. No background photograph is used for seating."
+    },
+    {
+      "file": "hospitality-facade-v1.png",
+      "method": "Built-in image_gen",
+      "prompt": "Use case: photorealistic-natural. Asset type: architectural facade texture for a real-time 3D racecourse grandstand. Make a wide 3:1 rectangular perfectly frontal orthographic photograph of ONE luxury horse-race hospitality gallery bay. The image is filled edge to edge with architecture only. One continuous row of four tall glazed French-window openings with narrow aged white-painted steel mullions, warm cream limestone piers and detailed carved cornices; inside the windows deep dim hospitality rooms with subtle tables, warm lights and natural pale curtains, restrained reflections of a blue-gray overcast sky in the glass. Lower quarter: weathered red-brown brick parapet with limestone coping. Upper edge: white dentil cornice and a thin oxidized dark-green metal gutter. Finely detailed stone grain, joints, glass, rivets and slight rain streaks, realistic soft daylight shading and recess depth. Historic American racecourse / Churchill-style Victorian sporting architecture, elegant and maintained. All verticals parallel and all horizontals level, no wide-angle perspective. No roof silhouette, no sky outside the glass, no grass, no race track, no people, no text, no logos, no watermark. Designed to repeat horizontally along a 3D facade.",
+      "use": "Hospitality gallery bay facade on volumetric building geometry."
+    }
+  ],
+  "geometry": "Two multi-tier straight grandstands, both curved end terraces, aisles, railings, trussed roofs, hospitality balconies, lantern pavilions, spires, planting and floodlight masts are authored in raceStadium3d.ts. Crowd bodies are textured camera-facing cutouts at individual 3D positions, with independent sway. They are not independently rigged human meshes."
+}

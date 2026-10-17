@@ -1,0 +1,70 @@
+{
+  "source": "racewear/jockey-racewear-v2.glb",
+  "license": "CC0 Vitruvian / CharMorph",
+  "changes": [
+    "baked unchanged mounted pose",
+    "retained head and hand attachment transforms",
+    "reduced race-distance topology with UVs and normals preserved"
+  ],
+  "meshes": {
+    "cm_vitruvian": {
+      "before": 19106,
+      "after": 2400
+    },
+    "cm_vitruvian.001": {
+      "before": 12952,
+      "after": 4199
+    },
+    "Eye_L_eyeball": {
+      "before": 787,
+      "after": 240
+    },
+    "Eye_R_eyeball": {
+      "before": 787,
+      "after": 240
+    },
+    "FittedRacingGloves": {
+      "before": 8279,
+      "after": 1400
+    },
+    "Lacrimal_Caruncle": {
+      "before": 1644,
+      "after": 238
+    },
+    "Pants": {
+      "before": 12901,
+      "after": 4000
+    },
+    "RacingSleeves": {
+      "before": 4512,
+      "after": 1200
+    },
+    "Shirt": {
+      "before": 45521,
+      "after": 6000
+    },
+    "Tearline": {
+      "before": 624,
+      "after": 240
+    }
+  },
+  "anchors": {
+    "mixamorig:Head": [
+      5.975508798883311e-08,
+      -0.7770493626594543,
+      2.951080799102783
+    ],
+    "mixamorig:LeftHand": [
+      0.24566955864429474,
+      -0.9096730947494507,
+      2.5346570014953613
+    ],
+    "mixamorig:RightHand": [
+      -0.2456849068403244,
+      -0.90965735912323,
+      2.5348148345947266
+    ]
+  },
+  "trianglesBefore": 107113,
+  "trianglesAfter": 20157
+}

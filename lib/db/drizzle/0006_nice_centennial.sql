@@ -1,0 +1,1 @@
+ALTER TABLE "upi_accounts" ALTER COLUMN "qr_object_key" DROP NOT NULL;

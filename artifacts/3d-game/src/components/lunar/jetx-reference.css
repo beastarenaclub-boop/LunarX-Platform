@@ -1,0 +1,231 @@
+/* Measured from the supplied 1192 × 626 recording. Native controls sit over
+   one continuous flight scene; the four cards remain usable on small screens. */
+.jetx-page .jetx-layout { min-height: 0; height: 100%; padding: 18px 14px; grid-template-columns: minmax(0, 1fr) clamp(260px, 22.3vw, 330px); }
+.jetx-page .jetx-stage { min-height: 0; height: 100%; grid-template-rows: 60px 38px minmax(0, 1fr) auto; }
+.jetx-page .jetx-round-toolbar { padding: 0 20px; }
+.game-viewport .jetx-page .crash-header { padding: 10px 20px 4px; }
+.jetx-page .jetx-wordmark { font-size: 30px; font-weight: 750; letter-spacing: -1.7px; }
+.jetx-page [data-multiplier-tier="high"] { color: #13ed42; background: #5fc78508; }
+.jetx-page .crash-header [data-testid="btn-balance"] { order: 1; }
+.jetx-page .crash-header [data-testid="btn-balance"] svg { display: block; }
+.jetx-page .crash-header button[aria-label="Settings"] { order: 2; }
+.jetx-page .crash-header [data-testid="btn-game-rules"] { order: 3; }
+.jetx-page .jetx-scene .jetx-flight-center { width: min(350px, 94%); align-self: end; margin: 0 0 24px; }
+.jetx-page .jetx-scene .jetx-aircraft { width: clamp(210px, 26cqw, 255px); }
+.jetx-page .jetx-scene .jetx-readout { height: 96px; min-height: 96px; justify-content: center; filter: none; }
+.jetx-page .jetx-multiplier { font-size: clamp(64px, 8.9cqw, 86px); font-weight: 700; line-height: 1; letter-spacing: -1.8px; }
+.jetx-page .jetx-multiplier > span { font-size: .75em; margin-left: 14px; }
+.jetx-page .jetx-bet-count { margin-top: 8px; }
+.jetx-page .jetx-countdown { width: 51px; height: 51px; background: conic-gradient(#fff var(--jetx-countdown), #ffffff14 0); }
+.jetx-page .jetx-countdown[data-urgent="true"] { color: #ed2260; background: conic-gradient(#ed2260 var(--jetx-countdown), #ffffff14 0); }
+.jetx-page .jetx-countdown > span { background: #12121adc; }
+.jetx-page .jetx-place-bet { font-size: 32px; margin-top: 3px; }
+.jetx-page .jetx-betting-dock { width: calc(100% - 48px); max-width: none; margin: 0 0 20px; padding: 14px 18px 20px; border: 1px solid #45444b; border-radius: 25px; background: linear-gradient(175deg, #3c3b41, #222129 38%, #1b1a23 75%); box-shadow: inset 0 1px 0 #ffffff08; }
+.jetx-dock-toolbar { display: flex; align-items: center; gap: 5px; min-height: 23px; margin: 0 10px 10px; color: #bcbcc3; font-size: 12px; font-weight: 600; }
+.jetx-dock-toolbar > [role="switch"] { width: 30px; height: 18px; border: 0; flex-shrink: 0; background: #505058; }
+.jetx-dock-toolbar > [role="switch"] > span { width: 16px; height: 16px; translate: none; transform: translateX(1px); background: #bfc0c5; }
+.jetx-dock-toolbar > [role="switch"][data-state="checked"] { background: #a39820; }
+.jetx-dock-toolbar > [role="switch"][data-state="checked"] > span { background: #fff035; transform: translateX(13px); }
+.jetx-cash-value { display: flex; align-items: center; color: #f6eb54; background: #15151c; border-radius: 6px; padding: 0 5px; }
+.jetx-cash-value input { width: 45px; height: 23px; background: transparent; font-size: 12px; text-align: center; }
+.jetx-auto-play { margin-left: auto; display: flex; align-items: center; gap: 5px; padding: 2px 0 2px 10px; white-space: nowrap; }
+.jetx-auto-play[aria-pressed="true"] { color: #f6e734; }
+.jetx-page .jetx-dual-bets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; overflow: visible; }
+.jetx-page .jetx-dual-bets > .jetx-bet-panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; border: 0; padding: 9px 8px 8px; background: #2c2b34; border-radius: 13px; }
+.jetx-page .jetx-stake-input { flex: none; height: 32px; border: 0; background: #47464f; border-radius: 22px; }
+.jetx-page .jetx-stake-input input { height: 32px; font-size: 18px; font-weight: 750; }
+.jetx-page .jetx-stake-input > button { width: 28px; min-width: 28px; height: 32px; color: #c5c4ca; }
+.game-viewport .jetx-page .jetx-bet-action { min-height: 40px; height: 40px; padding: 3px; border-radius: 14px; border: 1px solid #fff974; gap: 1px; background: linear-gradient(#fff350, #f1df08); box-shadow: 0 2px 2px #0004; }
+.jetx-page .jetx-bet-action > span { font-size: 15px; font-weight: 500; line-height: 1.1; color: #141300; }
+.jetx-page .jetx-bet-action > strong { font-size: 13px; line-height: 1.05; }
+.game-viewport .jetx-page .jetx-bet-action[data-state="accepted"] { background: #41404a; border-color: #66636f; }
+.jetx-page .jetx-bet-action[data-state="accepted"] > span { color: #e1dfe8; }
+.jetx-place-all { width: calc(100% - 20px); min-height: 48px; margin: 12px 10px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #f5e82c; background: #393821; border: 1px solid #5b5841; border-radius: 28px; line-height: 1.12; }
+.jetx-place-all strong { font-size: 16px; font-weight: 700; }
+.jetx-place-all span { font-size: 12px; font-weight: 700; margin-top: 2px; }
+.jetx-place-all:disabled { background: #302f20; color: #e9dd30; cursor: default; }
+.jetx-place-all:enabled:hover { background: #4a4620; }
+.jetx-page button:focus-visible { outline: 2px solid #fff39a; outline-offset: 2px; }
+.jetx-page .jetx-activity { padding: 20px 20px 18px; background: radial-gradient(ellipse at 18% 0, #37373f, transparent 40%), #1b1a24; }
+.jetx-page .jetx-activity-content { margin-top: 22px; }
+.jetx-page .jetx-players-summary { padding: 10px 12px; gap: 8px; margin-bottom: 18px; background: linear-gradient(100deg, #34333c, #2d2c35); }
+.jetx-page .jetx-players-summary strong { font-size: 14px; white-space: nowrap; }
+.jetx-page .jetx-players-summary span { font-size: 12px; }
+.jetx-page .jetx-player-row { grid-template-columns: minmax(0, 1.2fr) 1.1fr .6fr 1.1fr; min-height: 28px; padding: 3px 4px; margin-bottom: 4px; font-size: 9px; background: #292832; }
+.jetx-page .jetx-player-row.jetx-table-heading { background: transparent; color: #aaa7b5; font-size: 12px; margin-bottom: 8px; }
+.jetx-page .jetx-player-name { font-size: 12px; white-space: nowrap; }
+.jetx-player-avatar { display: inline-grid; place-items: center; width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%; border: 1px solid #ffffff35; font-size: 11px; font-weight: 800; font-style: normal; box-shadow: inset 0 0 5px #0007; }
+.jetx-summary-avatars { display: flex; padding-right: 4px; }
+.jetx-summary-avatars .jetx-player-avatar { width: 28px; height: 28px; margin-right: -8px; border: 1px solid #ffffff44; }
+.jetx-flight-status { position: absolute; left: 30px; right: 30px; bottom: 6px; display: flex; align-items: center; justify-content: space-between; color: #b6b0bd; font-size: 10px; line-height: 1.2; opacity: .65; }
+.jetx-flight-meta { grid-area: 3 / 1; position: relative; min-width: 0; min-height: 0; z-index: 3; pointer-events: none; }
+.jetx-flight-status > span { display: flex; align-items: center; gap: 4px; }
+.jetx-flight-status svg { width: 11px; height: 11px; }
+.jetx-winners-banner { position: absolute; z-index: 3; top: 16px; left: 50%; transform: translateX(-50%); width: max-content; max-width: 90%; min-height: 38px; border-radius: 25px; padding: 9px 18px; color: #d5d1d8; background: #24222ce8; font-size: 12px; font-weight: 600; }
+.jetx-auto-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.jetx-auto-slots label { display: flex; align-items: center; gap: 5px; padding: 8px 3px; font-size: 12px; }
+.jetx-auto-dialog .jetx-auto-slots input { width: 16px; height: 16px; accent-color: #f4e62a; }
+.jetx-auto-dialog { max-height: calc(100dvh - 28px); overflow-y: auto; }
+.jetx-page .jetx-layout[data-sidebar="false"] { grid-template-columns: minmax(0, 1fr); }
+.jetx-layout[data-sidebar="false"] > .jetx-activity-column { display: none; }
+.jetx-page .jetx-sidebar-toggle { order: 3; display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid #ffffff17; border-radius: 50%; background: #ffffff12; color: #dedde5; }
+.jetx-page .jetx-menu-trigger { display: grid; place-items: center; }
+.jetx-page .jetx-scene[data-phase="crashed"] .jetx-multiplier { color: #f31d56; font-size: clamp(64px, 8.9cqw, 86px); }
+.jetx-page .jetx-scene .jetx-flew-away { position: absolute; bottom: calc(100% + 5px); font-size: clamp(25px, 4.2cqw, 40px); white-space: nowrap; }
+.jetx-page .jetx-betting-dock[data-panel-count="2"], .jetx-page .jetx-betting-dock[data-panel-count="1"] { width: min(418px, calc(100% - 30px)); padding: 17px 6px 14px; border-radius: 24px; background: linear-gradient(#2e2c36, #1b1a23 50%); }
+.jetx-page .jetx-betting-dock[data-panel-count="1"] { width: min(230px, calc(100% - 30px)); }
+.jetx-betting-dock[data-panel-count="2"] .jetx-dual-bets { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+.jetx-betting-dock[data-panel-count="1"] .jetx-dual-bets { grid-template-columns: minmax(0, 1fr); }
+.jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-panel { gap: 9px; padding: 0 13px; border-radius: 0; background: none; }
+.jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-panel + .jetx-bet-panel { border-left: 1px solid #ffffff16; }
+.jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-stake-input { height: 30px; border: 1px solid #55525d; background: #33313b; }
+.jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-stake-input input { font-size: 18px; }
+.jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-toolbar { position: relative; flex-wrap: wrap; height: auto; min-height: 26px; margin: 0; gap: 4px; }
+.jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-toolbar .jetx-auto-multiplier { position: static; order: 1; width: 65px; }
+.jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-toolbar:has(input) > label { display: none; }
+.jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-toolbar:has(input) .jetx-repeat { order: 2; }
+.jetx-betting-dock:not([data-panel-count="4"]) .jetx-quick-stakes { margin: 0 0 2px; }
+.game-viewport .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-action { height: 72px; min-height: 72px; gap: 5px; border-radius: 16px; }
+.jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-action > strong { font-size: 20px; order: -1; }
+.jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-action > span { font-size: 14px; color: #79701c; }
+.jetx-panel-promo { position: absolute; inset: -30px 3px auto; min-height: 24px; border-radius: 20px; background: #3d391b; display: flex; align-items: center; justify-content: center; gap: 6px; color: #faed20; font-size: 12px; font-weight: 700; }
+.jetx-panel-promo b { background: #fa1350; color: white; padding: 0 3px; border-radius: 6px; line-height: 16px; }
+.jetx-panel-promo > span { margin-left: 8px; }
+.jetx-layout:not([data-panels="4"]) .jetx-flight-center { margin-bottom: 48px; }
+.jetx-layout:not([data-panels="4"]) .jetx-flight-status { display: none; }
+.jetx-menu { width: 302px; max-height: min(590px, var(--radix-popover-content-available-height)); overflow-y: auto; padding: 14px 15px; border: 1px solid #48444e; border-radius: 18px; background: linear-gradient(150deg, #302e38, #1b1923 35%); color: #f4f3f6; font-family: Arial, sans-serif; }
+.jetx-menu-profile { display: flex; align-items: center; gap: 10px; padding: 0 0 14px; border-bottom: 1px solid #ffffff0a; }
+.jetx-menu-profile > span { width: 42px; height: 42px; display: grid; place-items: center; background: #131319; border-radius: 50%; }
+.jetx-menu-profile img { width: 38px; transform: rotate(-25deg); }
+.jetx-menu-profile > div { min-width: 0; }
+.jetx-menu-profile strong { display: block; overflow: hidden; text-overflow: ellipsis; font-size: 17px; }
+.jetx-menu-profile a { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #bdb9c4; }
+.jetx-menu h3 { margin: 14px 0 10px; color: #a7a3ad; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.jetx-menu > label { display: flex; align-items: center; min-height: 36px; gap: 12px; font-size: 14px; font-weight: 600; }
+.jetx-menu > label > span { flex: 1; }
+.jetx-menu [role="switch"] { width: 31px; height: 18px; border: 0; background: #54515b; }
+.jetx-menu [role="switch"] > span { width: 16px; height: 16px; translate: none; transform: translateX(1px); background: #bab7c0; }
+.jetx-menu [role="switch"][data-state="checked"] { background: #296d3f; }
+.jetx-menu [role="switch"][data-state="checked"] > span { transform: translateX(14px); background: #fff; }
+.jetx-panel-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.jetx-panel-options button { display: flex; align-items: center; gap: 9px; min-height: 48px; padding: 5px; text-align: left; border: 1px solid #3c3845; border-radius: 13px; }
+.jetx-panel-options button:last-child { grid-column: 1 / -1; }
+.jetx-panel-options button[aria-pressed="true"] { border-color: #ece52c; background: #282520; }
+.jetx-panel-options button:disabled { opacity: .4; cursor: not-allowed; }
+.jetx-panel-options strong { font-size: 12px; display: block; }
+.jetx-panel-options small { color: #aaa6b1; font-size: 11px; display: block; }
+.jetx-panel-options i { display: grid; grid-template-columns: 1fr 1fr; align-content: center; gap: 3px; width: 37px; height: 36px; padding: 5px; background: #ffffff05; border-radius: 9px; }
+.jetx-panel-options i[data-panels="1"] { grid-template-columns: 1fr; }
+.jetx-panel-options i b { height: 12px; border-radius: 4px; background: #514c58; }
+.jetx-panel-options i[data-panels="1"] b { height: 8px; }
+.jetx-panel-options i[data-panels="4"] b { height: 10px; }
+.jetx-panel-options button[aria-pressed="true"] i b { background: #f8ec27; }
+.jetx-menu-link, .jetx-menu-rules { display: flex; align-items: center; gap: 12px; min-height: 36px; font-size: 14px; }
+.jetx-menu-rules { position: relative; }
+.jetx-menu-rules button { position: absolute; inset: 0; width: 100%; opacity: 0; }
+.jetx-menu p { font-size: 11px; color: #e9ce83; }
+.jetx-auto-dialog { width: min(400px, calc(100vw - 24px)); gap: 0; padding: 0; border-radius: 18px; background: linear-gradient(150deg, #34313d, #1c1a26 55%); font-family: Arial, sans-serif; }
+.game-dialog-screen > [role="dialog"].jetx-auto-dialog { width: min(400px, calc(100% - 24px)); }
+.jetx-auto-dialog > div:first-child { padding: 21px 20px 18px; border-bottom: 1px solid #ffffff08; text-align: left; }
+.jetx-auto-dialog h2 { font-size: 18px; font-weight: 700; }
+.jetx-auto-dialog > button:last-child { border-radius: 50%; padding: 7px; background: #ffffff18; top: 16px; right: 19px; }
+.jetx-auto-dialog > .dialog-close-button { width: 30px; height: 30px; }
+.jetx-round-options { margin: 20px 19px 0; padding: 16px; border-radius: 13px; background: #ffffff06; }
+.jetx-round-options > strong { display: block; font-size: 14px; margin-bottom: 16px; }
+.jetx-round-options > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.jetx-round-options button { min-height: 68px; border: 1px solid transparent; border-radius: 8px; background: #3a3743; font-size: 22px; font-weight: 600; }
+.jetx-round-options button[aria-pressed="true"] { border-color: #cfc42d; background: #393726; }
+.jetx-auto-details { margin: 10px 20px 0; color: #bbb6c5; font-size: 11px; }
+.jetx-auto-details summary { cursor: pointer; }
+.jetx-auto-details > label { display: flex; align-items: center; justify-content: space-between; margin: 6px 0; }
+.jetx-auto-details input { height: 32px; }
+.jetx-auto-total { margin: 8px 20px 0; font-size: 11px; color: #bbb6c5; }
+.jetx-auto-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 20px 20px; }
+.jetx-auto-actions button { min-height: 47px; border-radius: 28px; font-size: 16px; font-weight: 700; }
+.jetx-auto-start { background: #f4e62c; }
+.jetx-auto-stop { border: 1px solid #4a4555; background: linear-gradient(#35313f, #2b2836); }
+.jetx-page .jetx-players-summary > div:last-child strong { font-size: 10px; }
+.jetx-page .jetx-player-name { gap: 3px; font-size: 11px; }
+.jetx-page .jetx-player-avatar { width: 20px; height: 20px; }
+.jetx-page .jetx-player-row span { white-space: nowrap; }
+.jetx-page .jetx-player-row:not(.jetx-table-heading) span:nth-child(3), .jetx-page .jetx-player-row:not(.jetx-table-heading) span:nth-child(4) { font-weight: 700; }
+.jetx-page .jetx-players-summary { margin-bottom: 16px; }
+@media (max-width: 999px) {
+  .jetx-page .jetx-layout { grid-template-columns: minmax(0, 1fr); padding: 0; }
+  .jetx-page .jetx-activity-column { display: none; }
+  .jetx-page .jetx-scene .jetx-aircraft { width: clamp(190px, 29cqw, 265px); }
+  .jetx-page .jetx-scene .jetx-flight-center { margin-bottom: 28px; }
+}
+@media (max-width: 699px) {
+  .jetx-page .jetx-stage { grid-template-rows: 56px 36px minmax(0, 1fr) auto; }
+  .game-viewport .jetx-page .crash-header { padding: 6px 12px; }
+  .jetx-page .jetx-round-toolbar { padding: 0 10px; }
+  .jetx-page .jetx-wordmark { font-size: 27px; }
+  .jetx-page .jetx-betting-dock { width: calc(100% - 20px); margin-bottom: 10px; padding: 10px 10px 12px; border-radius: 22px; }
+  .jetx-page .jetx-dual-bets { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .jetx-page .jetx-dual-bets > .jetx-bet-panel { padding: 6px; gap: 6px; border-radius: 12px; }
+  .jetx-page .jetx-stake-input, .jetx-page .jetx-stake-input input, .jetx-page .jetx-stake-input > button { height: 32px; }
+  .jetx-page .jetx-stake-input input { font-size: 16px; }
+  .game-viewport .jetx-page .jetx-bet-action { height: 42px; min-height: 42px; border-radius: 12px; }
+  .jetx-page .jetx-bet-action > span { font-size: 14px; }
+  .jetx-dock-toolbar { margin: 0 3px 8px; min-height: 28px; font-size: 11px; }
+  .jetx-place-all { margin: 8px 0 0; width: 100%; min-height: 42px; }
+  .jetx-place-all strong { font-size: 14px; }
+  .jetx-place-all span { font-size: 11px; }
+  .jetx-page .jetx-scene .jetx-aircraft { width: clamp(160px, 50cqw, 220px); }
+  .jetx-page .jetx-scene .jetx-readout { height: 80px; min-height: 80px; }
+  .jetx-page .jetx-multiplier { font-size: 64px; }
+  .jetx-page .jetx-countdown { width: 40px; height: 40px; }
+  .jetx-page .jetx-place-bet { font-size: 26px; }
+  .jetx-flight-status { left: 16px; right: 16px; font-size: 9px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-panel { padding-inline: 7px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-stake-input input { font-size: 16px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-toolbar > label { font-size: 10px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-quick-stakes button { font-size: 8px; }
+}
+@media (max-width: 699px) and (max-height: 650px) {
+  .jetx-page .jetx-stage { grid-template-rows: 50px 32px minmax(0, 1fr) auto; }
+  .jetx-page .jetx-scene .jetx-flight-center { margin-bottom: 20px; }
+  .jetx-page .jetx-scene .jetx-aircraft { width: 160px; }
+  .jetx-page .jetx-scene .jetx-readout { height: 66px; min-height: 66px; }
+  .jetx-page .jetx-countdown { width: 32px; height: 32px; }
+  .jetx-page .jetx-place-bet { font-size: 23px; }
+  .jetx-page .jetx-multiplier { font-size: 52px; }
+  .jetx-page .jetx-bet-count { margin-top: 3px; height: 25px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .jetx-page .jetx-layout { padding: 0; grid-template-columns: minmax(0, 1fr); }
+  .jetx-page .jetx-activity-column { display: none; }
+  .jetx-page .jetx-activity-toggle { display: inline-flex; }
+  .jetx-page .jetx-stage { grid-template-columns: minmax(0, 1fr) minmax(270px, 43%); grid-template-rows: 46px 32px minmax(0, 1fr); }
+  .jetx-page .jetx-scene .jetx-flight-center { grid-area: 3 / 1; align-self: center; margin: 0 0 12px; }
+  .jetx-page .jetx-scene .jetx-aircraft { width: 170px; }
+  .jetx-page .jetx-scene .jetx-readout { height: 66px; min-height: 66px; }
+  .jetx-page .jetx-multiplier { font-size: 52px; }
+  .jetx-page .jetx-countdown { width: 34px; height: 34px; }
+  .jetx-page .jetx-place-bet { font-size: 23px; }
+  .jetx-page .jetx-betting-dock { grid-area: 3 / 2; width: calc(100% - 8px); margin: 0 8px 6px 0; padding: 8px; border-radius: 17px; align-self: center; }
+  .jetx-page .jetx-dual-bets { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+  .jetx-page .jetx-dual-bets > .jetx-bet-panel { padding: 4px; gap: 4px; }
+  .jetx-page .jetx-stake-input, .jetx-page .jetx-stake-input input, .jetx-page .jetx-stake-input > button { height: 27px; }
+  .jetx-page .jetx-stake-input input { font-size: 14px; }
+  .jetx-page .jetx-stake-input > button { width: 22px; min-width: 22px; }
+  .game-viewport .jetx-page .jetx-bet-action { height: 32px; min-height: 32px; border-radius: 10px; }
+  .jetx-page .jetx-bet-action > span { font-size: 12px; }
+  .jetx-page .jetx-bet-action > strong { font-size: 11px; }
+  .jetx-dock-toolbar { margin: 0 2px 5px; min-height: 22px; font-size: 10px; }
+  .jetx-place-all { margin: 6px 0 0; width: 100%; min-height: 35px; }
+  .jetx-place-all strong { font-size: 12px; }
+  .jetx-place-all span { font-size: 10px; }
+  .jetx-cash-value input { width: 36px; }
+  .jetx-page .jetx-scene[data-phase="crashed"] .jetx-multiplier { font-size: 44px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) { width: calc(100% - 8px); padding: 8px 2px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-panel { padding-inline: 6px; gap: 6px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-toolbar { min-height: 22px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-toolbar > label { font-size: 9px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-stake-input input { font-size: 14px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-quick-stakes button { height: 27px; font-size: 8px; }
+  .game-viewport .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-action { height: 52px; min-height: 52px; }
+  .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-action > strong { font-size: 16px; }
+  .jetx-layout:not([data-panels="4"]) .jetx-flight-center { margin-bottom: 12px; }
+}

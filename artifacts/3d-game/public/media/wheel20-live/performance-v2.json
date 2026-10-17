@@ -1,0 +1,50 @@
+{
+  "version": 2,
+  "created": "2026-10-15",
+  "description": "Generated AI presenter performances, not a real human livestream. Native dialogue remains in the video track for synchronized lips. No outcome number is spoken by these generic presenter takes; the authoritative result is shown by the game.",
+  "takes": [
+    {
+      "clip": "spin",
+      "file": "studio-spin-v2.mp4",
+      "provider": "Runway",
+      "model": "seedance-2",
+      "taskId": "3d9c69dd-6aca-4b4b-990d-e914bc339d9e",
+      "prompt": "A single uninterrupted locked-off tripod wide shot, photoreal casino game show footage. Preserve EXACT framing, camera, studio, wheel centre and size, and the same adult female presenter in blue from the image throughout. The wheel is a physical vertical wheel, not floating. No zoom, pan, cuts, reframing, overlays or subtitles. Natural human anatomy, weight shift, breathing, eye focus and fingers. At 0-2 seconds she looks to camera and speaks clearly in a warm Indian female voice, with accurate lip sync: 'Bets are closed. Let's spin the wheel!' At 2-3 seconds she turns toward the wheel and reaches her LEFT hand to grasp the outer rim on the right side, at the two o'clock position. At 3-4 seconds she firmly PULLS the rim DOWN clockwise towards four o'clock, with visible hand-to-rim contact and physical effort, then releases. The wheel starts moving only as she pulls it and coasts clockwise. Her hand stays on the outer rim, not crossing the inner face. At 4-8 seconds she lowers her hand and watches the spinning wheel attentively with a natural excited smile; ticking of wheel pins gradually slows. At 8-10 seconds she turns smoothly to camera and returns to the exact starting stance. Only the wheel disk rotates; the rim frame, pedestal and pointer remain fixed. No cheering crowd, no music, only her clear voice and natural mechanical ticks. High-end broadcast cinematography, realistic skin and cloth, fluid human performance, not robotic.",
+      "width": 1920,
+      "height": 1080,
+      "framesPerSecond": 24,
+      "nativeAudio": true
+    },
+    {
+      "clip": "welcome",
+      "file": "studio-welcome-v2.mp4",
+      "provider": "Runway",
+      "model": "seedance-2",
+      "taskId": "09c0c994-5c97-4468-84c6-940244ae966a",
+      "prompt": "Photoreal casino presenter performance, single continuous wide locked tripod shot, EXACTLY preserve composition of the input photograph: wheel dimensions and location, studio lighting, floor, same adult woman in blue dress. No camera motion, cuts, subtitles or overlays. The wheel stays COMPLETELY STILL for the whole shot. Natural lifelike blinking, breathing, small head movements and weight shifts. She speaks to the camera in a warm confident Indian female voice with precise realistic lip sync: 'Welcome to Wheel two point zero! Choose your lucky number, and place your bets.' She speaks during the first five seconds, gently inviting with her right hand towards the game, while keeping her body beside the wheel. During seconds five to ten she stops speaking and warmly smiles, glances briefly at the wheel, then looks back to camera and naturally returns to her exact starting position. Her hands never cover the wheel face. Real human proportions and fingers, subtle facial expression, visible breathing, realistic fabric movement. Clean studio voice only, no music and no crowd. High quality natural broadcast footage, not an animated mannequin.",
+      "width": 1920,
+      "height": 1080,
+      "framesPerSecond": 24,
+      "nativeAudio": true
+    },
+    {
+      "clip": "result",
+      "file": "studio-result-v2.mp4",
+      "provider": "Runway",
+      "model": "seedance-2",
+      "taskId": "c66e9520-2af9-4893-82dd-9bda087493d3",
+      "prompt": "A single unbroken photoreal broadcast wide shot matching the source photo exactly, tripod fixed with NO camera motion or crop. Same adult female game show presenter in blue, exact same wheel position and size and red studio. The wheel remains completely stationary. She looks at the wheel's top pointer briefly, then looks to camera with a delighted but natural smile. In a clear warm Indian female voice, during the first four seconds, she says exactly: 'There is our winning number! Congratulations to our winners.' Natural accurate lips synchronized with her words. She gestures gracefully with an open palm towards the wheel WITHOUT covering the inner wheel face or touching the wheel. At seconds four through ten she is silent and lowers her hand to return to the initial starting pose, with natural small weight shifts, breathing and blinking. No applause, no crowd, no music, no additional words or numbers, no captions or overlays, no cuts. Believable human hands and natural human performance, premium realistic casino footage.",
+      "width": 1920,
+      "height": 1080,
+      "framesPerSecond": 24,
+      "nativeAudio": true
+    }
+  ],
+  "cues": {
+    "pullSeconds": 3.2083333333333335,
+    "wheelStopSeconds": 9.25,
+    "clipDurationSeconds": 10
+  },
+  "processing": "H.264 1080p 24fps, CRF21, AAC128k, loudness -18 LUFS, faststart, one-second keyframes.",
+  "synchronization": "requestVideoFrameCallback drives the prize disc. Native speed, round-aware seeks, silent offscreen takes, fallback result at server deadline."
+}

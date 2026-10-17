@@ -1,0 +1,55 @@
+APEX Superbike Racing — asset credits
+
+Current integrated game: server-synchronised 3D bike betting race (October 3, 2026).
+Uses the original motorcycles, rider, track and environment credited below.
+
+Archived cinematic footage (not loaded or played by the game):
+footage/superbike-race.mp4: generated with Higgsfield, Minimax H3 Max.
+10.144 seconds, 1344 x 768. Generation and prompt: footage/PROVENANCE.json.
+Inspired by the user reference; not captured footage, not a YouTube extraction,
+and not an official BMW asset. The film illustrates racing independently of results.
+
+Legacy photo scene assets (static reference thumbnail still used):
+photo/reference-bike.png: transparent bike/rider cutout derived from the user's
+supplied reference with built-in image_gen. Fine livery details may differ.
+photo/circuit.png: photographic circuit background generated with built-in image_gen.
+Generation prompts and provenance: photo/ASSET-PROMPTS.json.
+The former photo renderer used six copies with numbered team badges.
+These assets are not footage from the linked video or an official manufacturer asset pack.
+
+Active 3D race assets:
+
+Motorcycles, helmets, track, physics and interface: authored for this project.
+These are original generic motorcycles inspired by the supplied reference, not
+official BMW, Ducati or Triumph vehicle models. Three liveries share a base mesh
+with distinct power, acceleration and handling configurations.
+
+Rider geometry: CC0 Vitruvian / CharMorph character from Agile Lens VitruvianGodot.
+https://github.com/ibrews/VitruvianGodot
+https://github.com/ibrews/VitruvianGodot/blob/main/NOTICE.md
+Vitruvian: Sean Buckley and Olaf Delgado-Friedrichs. CharMorph and rig: Upliner.
+This project derives its own motorcycle pose, fitted black/red clothes, gloves
+and boots from the workspace's CC0 rider. No Mixamo animations are included.
+Reproduction script: tools/bike-assets/prepare-rider.py.
+
+Environment: Poly Haven CC0
+https://polyhaven.com/license
+Grass maps: https://polyhaven.com/a/grass_ground
+Terrain photograph: https://polyhaven.com/a/aerial_rocks_02
+Tree cards: local transparent Blender renders of Island Tree 01:
+https://polyhaven.com/a/island_tree_01
+Environment lighting: https://polyhaven.com/a/kloofendal_48d_partly_cloudy
+Tree cards are crossed planes using rendered tree photographs, not volumetric
+tree meshes. All assets are bundled locally.
+
+Grandstand audience: existing project-generated artwork, originally generated
+using image_gen for horse racing. Source provenance is retained in this pack as
+environment/crowd-provenance.json. This is artwork, not a photograph of real fans.
+
+Barlow and Barlow Condensed: Jeremy Tribby, SIL Open Font License 1.1.
+Full licenses in fonts/OFL-Barlow.txt and fonts/OFL-BarlowCondensed.txt.
+
+Three.js: MIT license, https://github.com/mrdoob/three.js
+React: MIT license, https://github.com/facebook/react
+Lucide: ISC license, https://github.com/lucide-icons/lucide
+Third-party runtime licenses are included in THIRD-PARTY-LICENSES.txt.

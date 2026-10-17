@@ -1,0 +1,23 @@
+{
+  "game": "Wheel 2.0 Live",
+  "created": "2026-10-15",
+  "reference": "User-supplied Screen Recording 2026-10-15 211245.mp4; visual reference only, no original provider stream or interface assets embedded.",
+  "image": {
+    "tool": "Built-in imagegen",
+    "mode": "edit reference frame",
+    "sourceArtifact": "01a1403b-cce8-7e70-85e2-db97c5fb11ca/exec-03eb98ba-757d-4614-93e6-7f6eaf62c0ae.png",
+    "file": "studio-poster-v1.jpg",
+    "prompt": "Produce a photorealistic clean studio background plate matching the supplied red wheel-game studio: scarlet curved walls with amber lighting, upright multicolour wheel, metallic rim and bolts, warm marquee arch, purple pointer, reflective black floor, adult presenter in a pale blue dress at right holding a microphone. Remove all screen UI, subtitles, names and original branding. Use a gold W on the central hub, leave the purple left display blank. Locked frontal broadcast composition. Full prompt retained in the conversation's imagegen call."
+  },
+  "video": {
+    "provider": "Runway",
+    "taskId": "530f2d03-0576-4e88-a864-76cebfe7e175",
+    "file": "studio-loop-v1.mp4",
+    "width": 1920,
+    "height": 1080,
+    "durationSeconds": 10,
+    "audio": false,
+    "prompt": "Locked-off broadcast camera in this exact red wheel game studio. Preserve EXACT image composition, camera, wheel center/size, foreground and all hard scenery throughout. Animate ONLY the adult female host on the right: gentle breathing, natural eye blinks, subtle friendly smile, small graceful open-palm gesture toward the wheel, little natural shift of body weight, then return to starting pose. Her feet remain in exactly the same position. Microphone stays near her chin. Her left hand stays OUTSIDE the wheel rim, never covers its face. The wheel is absolutely stationary, its numbers and hub do not move at all; it is a fixed scene element. No camera motion, no zoom, no cuts, no new objects, no text overlays, no subtitles, no new logos. Studio lighting constant. Photographic realism, smooth unhurried natural human movement, seamless returning to initial pose for a looping game studio background."
+  },
+  "presentation": "Generated presenter video, not an actual camera livestream. SVG wheel face and bonus display are driven by the shared server round. The independent versioned rules and probabilities are in lib/api-zod/src/wheel20-live.ts. Muted by default; optional lounge audio reuses the existing Lucky 7 Live music asset."
+}

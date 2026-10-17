@@ -1,0 +1,401 @@
+.round-win-dialog {
+  box-sizing: border-box;
+  font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  width: min(
+    390px,
+    calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right))
+  );
+  max-height: calc(
+    100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+  );
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 28px 24px 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #e4c575;
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse at 50% 0, #68512866, transparent 65%), #0c241b;
+  color: #fff;
+  text-align: center;
+  box-shadow:
+    0 20px 90px #000b,
+    0 0 45px #efc96730;
+  isolation: isolate;
+}
+.round-win-dialog *, .round-win-dialog *::before, .round-win-dialog *::after { box-sizing: border-box; }
+.round-win-dialog button { border: 0; cursor: pointer; font-family: inherit; }
+.round-win-dialog > :not(.round-win-confetti) {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+.round-win-dialog > button:not(.round-win-confirm) {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+.round-win-emblem {
+  display: grid;
+  place-items: center;
+  width: 82px;
+  height: 82px;
+  border: 1px solid #f7dc9290;
+  border-radius: 50%;
+  color: #f8d77e;
+  background: radial-gradient(circle at 35% 25%, #ebc26255, #8b692b25);
+  box-shadow:
+    0 0 0 8px #e8c57808,
+    inset 0 0 18px #f0c46618;
+}
+.round-win-emblem > svg:first-child {
+  width: 42px;
+  height: 42px;
+}
+.round-win-emblem .round-win-sparkle {
+  position: absolute;
+  right: -6px;
+  top: 0;
+  width: 22px;
+  height: 22px;
+}
+.round-win-heading {
+  padding: 0 12px;
+}
+.round-win-heading h2 {
+  margin: 0 0 8px;
+  font-size: clamp(27px, 8vw, 36px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  color: #fff2c8;
+}
+.round-win-heading p {
+  margin: 0;
+  color: #c1d4c8;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.round-win-amounts {
+  width: 100%;
+  padding: 16px 8px;
+  border-radius: 16px;
+  border: 1px solid #e4c57535;
+  background: #0003;
+}
+.round-win-label {
+  color: #aaceb8;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 10px;
+  font-weight: 700;
+}
+.round-win-profit {
+  margin: 6px 0 12px;
+  color: #f9d982;
+  font-size: clamp(25px, 8vw, 36px);
+  line-height: 1.15;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.round-win-return {
+  margin: 0;
+  color: #b9c9bf;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.round-win-profit[data-loss="true"] {
+  color: #ffb5b5;
+}
+.round-win-return strong {
+  display: inline-block;
+  max-width: 100%;
+  color: #fff3d6;
+  font-variant-numeric: tabular-nums;
+}
+.round-win-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: #95b29f;
+}
+.round-win-confirm {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #ffe9a5, #e7b956);
+  color: #1b291e;
+  font-size: 16px;
+  font-weight: 900;
+  touch-action: manipulation;
+  box-shadow: 0 4px 16px #0004;
+}
+.round-win-confirm:hover {
+  background: #ffe5a0;
+}
+.round-win-confirm:focus-visible {
+  outline: 2px solid #fff5d2;
+  outline-offset: 3px;
+}
+.round-win-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+.round-win-confetti i {
+  position: absolute;
+  top: -12px;
+  left: var(--x);
+  width: 5px;
+  height: 10px;
+  background: #f7d16e;
+  opacity: 0;
+}
+.round-win-confetti i:nth-child(3n) {
+  background: #7ef2bf;
+  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .round-win-confetti i {
+    animation: table-win-confetti 1800ms var(--delay) ease-out both;
+  }
+  .round-win-emblem {
+    animation: table-win-emblem 550ms ease-out both;
+  }
+}
+@keyframes table-win-confetti {
+  10% {
+    opacity: 0.9;
+  }
+  to {
+    transform: translate(var(--drift), 300px) rotate(var(--turn));
+    opacity: 0;
+  }
+}
+@keyframes table-win-emblem {
+  from {
+    transform: scale(0.8);
+    opacity: 0.3;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@media (max-height: 500px) {
+  .round-win-dialog {
+    width: min(
+      440px,
+      calc(
+        100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)
+      )
+    );
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 10px 12px;
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .round-win-emblem {
+    width: 56px;
+    height: 56px;
+  }
+  .round-win-emblem > svg:first-child {
+    width: 30px;
+    height: 30px;
+  }
+  .round-win-heading {
+    padding: 0 20px 0 0;
+  }
+  .round-win-heading h2 {
+    font-size: 26px;
+    margin-bottom: 4px;
+  }
+  .round-win-heading p {
+    font-size: 11px;
+  }
+  .round-win-amounts,
+  .round-win-confirm {
+    grid-column: 1 / -1;
+  }
+  .round-win-amounts {
+    padding: 8px;
+  }
+  .round-win-profit {
+    font-size: 28px;
+    margin: 3px 0 5px;
+  }
+}
+@media (max-height: 340px) {
+  .round-win-dialog {
+    padding: 12px;
+    gap: 6px 10px;
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+  .round-win-emblem {
+    width: 44px;
+    height: 44px;
+  }
+  .round-win-heading h2 {
+    font-size: 24px;
+  }
+  .round-win-heading p {
+    font-size: 10px;
+  }
+  .round-win-amounts {
+    padding: 6px;
+  }
+  .round-win-profit {
+    font-size: 26px;
+  }
+  .round-win-note {
+    font-size: 9px;
+  }
+}
+
+/* The same receipt also fits directly over a filmed table. */
+.round-win-inline {
+  position: relative;
+  pointer-events: auto;
+  width: min(340px, 100%);
+  max-height: 100%;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 8px 10px;
+  padding: 12px;
+  border-radius: 18px;
+}
+.round-win-inline .round-win-emblem { width: 44px; height: 44px; }
+.round-win-inline .round-win-emblem > svg:first-child { width: 27px; height: 27px; }
+.round-win-inline .round-win-heading { padding: 0; }
+.round-win-inline .round-win-heading h2 { font-size: 24px; margin-bottom: 4px; }
+.round-win-inline .round-win-heading p { font-size: 10px; }
+.round-win-inline .round-win-amounts,
+.round-win-inline .round-win-confirm { grid-column: 1 / -1; }
+.round-win-inline .round-win-amounts { padding: 6px; }
+.round-win-inline .round-win-profit { font-size: 26px; margin: 3px 0 5px; }
+.round-win-inline .round-win-note { font-size: 9px; }
+.round-win-inline .round-win-confirm { position: sticky; bottom: 0; min-height: 44px; }
+@container inline-win (max-height: 260px) {
+  .round-win-inline { grid-template-columns: 28px minmax(0, 1fr); gap: 5px; padding: 6px; }
+  .round-win-inline .round-win-emblem { width: 28px; height: 28px; }
+  .round-win-inline .round-win-emblem > svg:first-child { width: 20px; height: 20px; }
+  .round-win-inline .round-win-heading h2 { font-size: 19px; margin-bottom: 0; }
+  .round-win-inline .round-win-game { font-size: 9px; margin-bottom: 2px; }
+  .round-win-inline .round-win-heading p, .round-win-inline .round-win-note { display: none; }
+  .round-win-inline .round-win-amounts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 4px; gap: 2px 6px; }
+  .round-win-inline .round-win-label { grid-column: 1; grid-row: 1; font-size: 9px; }
+  .round-win-inline .round-win-profit { grid-column: 1; grid-row: 2; font-size: 18px; margin: 0; }
+  .round-win-inline .round-win-return { grid-column: 2; grid-row: 1 / 3; font-size: 9px; }
+  .round-win-inline .round-win-return strong { display: block; font-size: 18px; line-height: 1.2; }
+}
+@media (max-height: 450px) {
+  .round-win-inline {
+    width: min(420px, 100%);
+    grid-template-columns: 32px minmax(0, 1fr);
+    padding: 8px;
+    gap: 6px;
+  }
+  .round-win-inline .round-win-emblem { width: 32px; height: 32px; }
+  .round-win-inline .round-win-emblem > svg:first-child { width: 22px; height: 22px; }
+  .round-win-inline .round-win-heading h2 { font-size: 20px; margin-bottom: 2px; }
+  .round-win-inline .round-win-heading p { font-size: 9px; }
+  .round-win-inline .round-win-amounts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 6px;
+    gap: 3px 8px;
+  }
+  .round-win-inline .round-win-label { grid-column: 1; grid-row: 1; font-size: 9px; }
+  .round-win-inline .round-win-profit { grid-column: 1; grid-row: 2; font-size: 22px; margin: 0; }
+  .round-win-inline .round-win-return { grid-column: 2; grid-row: 1 / 3; font-size: 10px; }
+  .round-win-inline .round-win-return strong { display: block; font-size: 20px; line-height: 1.3; }
+  .round-win-inline .round-win-note { grid-column: 1 / -1; margin: 0; font-size: 8px; }
+  .round-win-inline .round-win-confirm { min-height: 44px; }
+}
+
+.round-win-game { display: block; margin-bottom: 7px; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #f2d68e; }
+.round-win-dialog[data-game="dragon-tiger"] { background: radial-gradient(ellipse at top, #784e2466, transparent 65%), #082b2b; }
+.round-win-dialog[data-game="rummy"], .round-win-dialog[data-game="teen-patti-live"] { background: radial-gradient(ellipse at top, #bf873b44, transparent 65%), #25151a; }
+.round-win-dialog[data-game="dice"], .round-win-dialog[data-game="plinko"] { background: radial-gradient(ellipse at top, #6d3cca66, transparent 65%), #191329; border-color: #baa0f5; }
+.round-win-dialog[data-game="lunar"], .round-win-dialog[data-game="aviator"], .round-win-dialog[data-game="jetx"] { background: radial-gradient(ellipse at top, #244c7b88, transparent 65%), #101a2b; }
+
+/* Receipts use the visible browser, outside any scaled/clipped game surface. */
+.round-win-screen {
+  position: fixed;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  box-sizing: border-box;
+  isolation: isolate;
+  pointer-events: none;
+}
+.round-win-backdrop { position: absolute; inset: 0; background: #00140b99; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); pointer-events: auto; }
+.round-win-dialog.round-win-on-screen {
+  position: relative;
+  width: min(390px, 100%);
+  min-width: 0;
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 20px 16px 16px;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: max-content;
+  pointer-events: auto;
+  outline: none;
+}
+.round-win-on-screen .round-win-emblem { width: 64px; height: 64px; }
+.round-win-on-screen .round-win-heading { padding: 0 20px; overflow-wrap: anywhere; }
+.round-win-on-screen .round-win-heading h2 { font-size: clamp(24px, 6vw, 34px); }
+.round-win-on-screen .round-win-profit { font-size: clamp(22px, 7vw, 34px); }
+.round-win-close { background: transparent; color: #fff1ce; font-size: 25px; border-radius: 50%; touch-action: manipulation; }
+.round-win-close:hover { background: #ffffff18; }
+.round-win-close:focus-visible { outline: 2px solid #fff5d2; outline-offset: -4px; }
+.round-win-on-screen .round-win-confirm { position: sticky; bottom: 0; min-height: 44px; }
+.round-win-screen:is([data-size="compact"], [data-size="small"]) {
+  .round-win-dialog.round-win-on-screen {
+    width: min(390px, 100%);
+    grid-template-columns: 44px minmax(0, 1fr);
+    padding: 12px;
+    gap: 8px 10px;
+    border-radius: 16px;
+  }
+  .round-win-on-screen .round-win-emblem { width: 44px; height: 44px; }
+  .round-win-on-screen .round-win-emblem > svg:first-child { width: 26px; height: 26px; }
+  .round-win-on-screen .round-win-heading { padding: 0 28px 0 0; }
+  .round-win-on-screen .round-win-heading h2 { font-size: 24px; margin-bottom: 3px; }
+  .round-win-on-screen .round-win-heading p { font-size: 10px; }
+  .round-win-on-screen .round-win-game { margin-bottom: 4px; font-size: 10px; }
+  .round-win-on-screen .round-win-amounts, .round-win-on-screen .round-win-confirm { grid-column: 1 / -1; }
+  .round-win-on-screen .round-win-amounts { padding: 8px; }
+  .round-win-on-screen .round-win-profit { font-size: 26px; margin: 4px 0; }
+}
+.round-win-screen[data-size="small"] {
+  .round-win-dialog.round-win-on-screen { gap: 6px; padding: 8px; }
+  .round-win-on-screen .round-win-heading h2 { font-size: 20px; }
+  .round-win-on-screen .round-win-heading p, .round-win-on-screen .round-win-note { display: none; }
+  .round-win-on-screen .round-win-amounts { padding: 5px; }
+  .round-win-on-screen .round-win-profit { font-size: 23px; }
+}
+.round-win-dialog[data-game="wingo"] { background: radial-gradient(ellipse at top, #7561ce66, transparent 65%), #1c183d; border-color: #c9b8ff; }
+.round-win-dialog[data-game="vegetable-bowl"] { background: radial-gradient(ellipse at top, #71963c66, transparent 65%), #142a20; }
+@media (prefers-reduced-motion: reduce) {
+  .round-win-screen *, .round-win-inline * { animation: none; }
+}

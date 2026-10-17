@@ -1,0 +1,118 @@
+{
+  "generatedOn": "2026-10-05",
+  "provider": "Higgsfield",
+  "model": "seedance_2_5",
+  "reference": "4602ec35-7db3-4bde-a521-8029bf6008b1",
+  "voiceReference": "55d53fda-6c73-4ae1-b8eb-68d7faa01f4e",
+  "usage": "AI-generated Hindi studio commentary. Only the server's revealed Dragon card and confirmed winner select speech. Video/audio retain lip synchronization; video is encoded as 8-bit H.264 at original 1080p resolution, AAC speech normalized to -17 LUFS.",
+  "takes": [
+    {
+      "key": "opening",
+      "index": 0,
+      "duration": 8.1,
+      "transcript": "नमस्ते! वन डे ड्रैगन टाइगर में आपका स्वागत है। पहली बेट चुनिए; ड्रैगन खुलने पर दूसरा मौका मिलेगा।",
+      "jobId": "12a24fa5-9513-431c-b17b-7f389bdc0308",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261005_095531_12a24fa5-9513-431c-b17b-7f389bdc0308.mp4",
+      "prompt": "Use the supplied first-frame image as the exact locked broadcast framing and identity. SAME adult Indian female dealer, same black-and-gold professional uniform, walnut/gold Dragon left and Tiger right casino studio, emerald felt table. Photorealistic 1080p high-end television studio. One continuous tripod shot with absolutely no crop change, zoom, camera move or cut. Her head, face and hands remain anatomically natural. She speaks DIRECTLY ON CAMERA in a warm, calm, clear Indian female Hindi voice (late 20s, medium pitch, natural neutral Hindi accent, conversational professional delivery). Exact audible Hindi dialogue, once only: \"नमस्ते! वन डे ड्रैगन टाइगर में आपका स्वागत है। पहली बेट चुनिए; ड्रैगन खुलने पर दूसरा मौका मिलेगा।\" Tight accurate lip synchronization for EVERY spoken syllable. Start speaking at 0.3 seconds and finish the whole line by 7.4 seconds. Small welcoming open-palm gesture above the back of the table, then hands return to their original resting positions. End with lips closed and relaxed eye contact. Clear dry studio microphone voice only, NO music, NO crowd, no other voice, no sound effects. No subtitles, no text, no logo, no cards or dealing, no visible card faces; leave table space clear for UI overlays. Minimal torso motion, no repeated deep breaths. Preserve the reference woman's exact identity, wardrobe, composition and lighting.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "29002147e87f521639d9d3b33c1a59a7fd221ddcd23e277b9538c0a8564252f6"
+    },
+    {
+      "index": 1,
+      "key": "ace",
+      "duration": 10.1,
+      "transcript": "ड्रैगन पर इक्का है। टाइगर का बड़ा पत्ता उसे जिताएगा, इक्का आया तो टाई। दूसरी चाल में नया भाव देखिए।",
+      "jobId": "f1772f5d-b02d-49ba-ba2c-ee2afee890e0",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261005_101737_f1772f5d-b02d-49ba-ba2c-ee2afee890e0.mp4",
+      "prompt": "Create a photorealistic 1080p broadcast dealer shot using the supplied start image as the EXACT identity, composition, wardrobe, table and studio. SAME adult Indian female dealer, black-and-gold uniform, walnut room with gold Dragon on viewer LEFT and Tiger on viewer RIGHT, green felt. Locked tripod camera, identical framing throughout, NO crop, zoom, movement or cuts. The audio reference is ONLY the required female voice identity, Hindi pronunciation, vocal timbre and studio microphone tone. Speak DIFFERENT NEW WORDS now; do not repeat or play the reference's greeting. Use exactly that same warm, calm Indian female Hindi voice. Exact new audible Hindi dialogue, ONCE ONLY: \"ड्रैगन पर इक्का है। टाइगर का बड़ा पत्ता उसे जिताएगा, इक्का आया तो टाई। दूसरी चाल में नया भाव देखिए।\" Clearly articulate every word with precise native lip synchronization. Begin at 0.2 seconds, finish the complete sentence at least 0.3 seconds before this 10-second shot ends. One subtle professional gesture toward the Dragon position on viewer's LEFT, while explaining the exposed card; mostly relaxed direct camera eye contact. Return both hands to the reference resting position and close lips at the end. Keep movement restrained and natural, normal tiny blinks, no exaggerated breathing or head bobbing. Clean dry microphone speech ONLY, no background music, no ambient sound, no second voice, no laugh. Do not add a greeting, sign-off, subtitles, text, logos, playing cards, card faces, extra people or objects. Keep the felt clear for the app's cards.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "7038fa3dd8488b0d4e9c1eb9c7353efa84d70404839ccbb6a8cee279bf481223"
+    },
+    {
+      "index": 2,
+      "key": "low",
+      "duration": 10.1,
+      "transcript": "ड्रैगन का पत्ता छोटा है। टाइगर के पास बड़े पत्तों के मौके ज़्यादा हैं। दूसरी बेट से पहले नया भाव देखिए।",
+      "jobId": "5caa6f7b-4222-4b97-bc11-e84138b933bf",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261005_101737_5caa6f7b-4222-4b97-bc11-e84138b933bf.mp4",
+      "prompt": "Create a photorealistic 1080p broadcast dealer shot using the supplied start image as the EXACT identity, composition, wardrobe, table and studio. SAME adult Indian female dealer, black-and-gold uniform, walnut room with gold Dragon on viewer LEFT and Tiger on viewer RIGHT, green felt. Locked tripod camera, identical framing throughout, NO crop, zoom, movement or cuts. The audio reference is ONLY the required female voice identity, Hindi pronunciation, vocal timbre and studio microphone tone. Speak DIFFERENT NEW WORDS now; do not repeat or play the reference's greeting. Use exactly that same warm, calm Indian female Hindi voice. Exact new audible Hindi dialogue, ONCE ONLY: \"ड्रैगन का पत्ता छोटा है। टाइगर के पास बड़े पत्तों के मौके ज़्यादा हैं। दूसरी बेट से पहले नया भाव देखिए।\" Clearly articulate every word with precise native lip synchronization. Begin at 0.2 seconds, finish the complete sentence at least 0.3 seconds before this 10-second shot ends. One subtle professional gesture toward the Dragon position on viewer's LEFT, while explaining the exposed card; mostly relaxed direct camera eye contact. Return both hands to the reference resting position and close lips at the end. Keep movement restrained and natural, normal tiny blinks, no exaggerated breathing or head bobbing. Clean dry microphone speech ONLY, no background music, no ambient sound, no second voice, no laugh. Do not add a greeting, sign-off, subtitles, text, logos, playing cards, card faces, extra people or objects. Keep the felt clear for the app's cards.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "78c0420422b6c897b9d623675ee850e59cf13bc59f622ec4676cdd37f3b472a8"
+    },
+    {
+      "index": 3,
+      "key": "seven",
+      "duration": 10.1,
+      "transcript": "ड्रैगन पर सात है। दोनों तरफ़ की जीत की संभावना बराबर है। टाइगर पर सात आया तो ऑड ईवन और लो हाई हारते हैं।",
+      "jobId": "305a0fa2-3a0e-4155-bccf-6b576ea82493",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261005_101737_305a0fa2-3a0e-4155-bccf-6b576ea82493.mp4",
+      "prompt": "Create a photorealistic 1080p broadcast dealer shot using the supplied start image as the EXACT identity, composition, wardrobe, table and studio. SAME adult Indian female dealer, black-and-gold uniform, walnut room with gold Dragon on viewer LEFT and Tiger on viewer RIGHT, green felt. Locked tripod camera, identical framing throughout, NO crop, zoom, movement or cuts. The audio reference is ONLY the required female voice identity, Hindi pronunciation, vocal timbre and studio microphone tone. Speak DIFFERENT NEW WORDS now; do not repeat or play the reference's greeting. Use exactly that same warm, calm Indian female Hindi voice. Exact new audible Hindi dialogue, ONCE ONLY: \"ड्रैगन पर सात है। दोनों तरफ़ की जीत की संभावना बराबर है। टाइगर पर सात आया तो ऑड ईवन और लो हाई हारते हैं।\" Clearly articulate every word with precise native lip synchronization. Begin at 0.2 seconds, finish the complete sentence at least 0.3 seconds before this 10-second shot ends. One subtle professional gesture toward the Dragon position on viewer's LEFT, while explaining the exposed card; mostly relaxed direct camera eye contact. Return both hands to the reference resting position and close lips at the end. Keep movement restrained and natural, normal tiny blinks, no exaggerated breathing or head bobbing. Clean dry microphone speech ONLY, no background music, no ambient sound, no second voice, no laugh. Do not add a greeting, sign-off, subtitles, text, logos, playing cards, card faces, extra people or objects. Keep the felt clear for the app's cards.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "c7425c5f1a3e2bd28e3c8ffeae89844a3ba8f6114c7f3222da638dccb9de3539"
+    },
+    {
+      "index": 4,
+      "key": "high",
+      "duration": 10.1,
+      "transcript": "ड्रैगन का पत्ता बड़ा है। उसे हराने वाले पत्ते कम बचे हैं। टाइगर के नए भाव और कार्ड के विकल्प देखिए।",
+      "jobId": "a504e116-cd6e-40a8-8a0b-330d564b61cc",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261005_101737_a504e116-cd6e-40a8-8a0b-330d564b61cc.mp4",
+      "prompt": "Create a photorealistic 1080p broadcast dealer shot using the supplied start image as the EXACT identity, composition, wardrobe, table and studio. SAME adult Indian female dealer, black-and-gold uniform, walnut room with gold Dragon on viewer LEFT and Tiger on viewer RIGHT, green felt. Locked tripod camera, identical framing throughout, NO crop, zoom, movement or cuts. The audio reference is ONLY the required female voice identity, Hindi pronunciation, vocal timbre and studio microphone tone. Speak DIFFERENT NEW WORDS now; do not repeat or play the reference's greeting. Use exactly that same warm, calm Indian female Hindi voice. Exact new audible Hindi dialogue, ONCE ONLY: \"ड्रैगन का पत्ता बड़ा है। उसे हराने वाले पत्ते कम बचे हैं। टाइगर के नए भाव और कार्ड के विकल्प देखिए।\" Clearly articulate every word with precise native lip synchronization. Begin at 0.2 seconds, finish the complete sentence at least 0.3 seconds before this 10-second shot ends. One subtle professional gesture toward the Dragon position on viewer's LEFT, while explaining the exposed card; mostly relaxed direct camera eye contact. Return both hands to the reference resting position and close lips at the end. Keep movement restrained and natural, normal tiny blinks, no exaggerated breathing or head bobbing. Clean dry microphone speech ONLY, no background music, no ambient sound, no second voice, no laugh. Do not add a greeting, sign-off, subtitles, text, logos, playing cards, card faces, extra people or objects. Keep the felt clear for the app's cards.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "cecfd8779ad54f2e213eee9a2332b8b6507bd8c308df2f06b199dcdc64ff125c"
+    },
+    {
+      "index": 5,
+      "key": "king",
+      "duration": 10.1,
+      "transcript": "ड्रैगन पर बादशाह है। टाइगर अब जीत नहीं सकता। बादशाह पर टाई होगी, बाकी पत्तों पर ड्रैगन जीतेगा।",
+      "jobId": "5b9a4b74-12a3-4231-a5bb-d2705c491fa5",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261005_101737_5b9a4b74-12a3-4231-a5bb-d2705c491fa5.mp4",
+      "prompt": "Create a photorealistic 1080p broadcast dealer shot using the supplied start image as the EXACT identity, composition, wardrobe, table and studio. SAME adult Indian female dealer, black-and-gold uniform, walnut room with gold Dragon on viewer LEFT and Tiger on viewer RIGHT, green felt. Locked tripod camera, identical framing throughout, NO crop, zoom, movement or cuts. The audio reference is ONLY the required female voice identity, Hindi pronunciation, vocal timbre and studio microphone tone. Speak DIFFERENT NEW WORDS now; do not repeat or play the reference's greeting. Use exactly that same warm, calm Indian female Hindi voice. Exact new audible Hindi dialogue, ONCE ONLY: \"ड्रैगन पर बादशाह है। टाइगर अब जीत नहीं सकता। बादशाह पर टाई होगी, बाकी पत्तों पर ड्रैगन जीतेगा।\" Clearly articulate every word with precise native lip synchronization. Begin at 0.2 seconds, finish the complete sentence at least 0.3 seconds before this 10-second shot ends. One subtle professional gesture toward the Dragon position on viewer's LEFT, while explaining the exposed card; mostly relaxed direct camera eye contact. Return both hands to the reference resting position and close lips at the end. Keep movement restrained and natural, normal tiny blinks, no exaggerated breathing or head bobbing. Clean dry microphone speech ONLY, no background music, no ambient sound, no second voice, no laugh. Do not add a greeting, sign-off, subtitles, text, logos, playing cards, card faces, extra people or objects. Keep the felt clear for the app's cards.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "3cee5d179048d1c1c85388b29c962b157eee0c0ef7b4c9eb2802c4c739bb0442"
+    },
+    {
+      "index": 6,
+      "key": "dragon-wins",
+      "duration": 4.1,
+      "transcript": "ड्रैगन का पत्ता बड़ा है। ड्रैगन जीता।",
+      "jobId": "e928a3d6-c7df-4212-b66f-a08968a41d5a",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261005_101738_e928a3d6-c7df-4212-b66f-a08968a41d5a.mp4",
+      "prompt": "Create a photorealistic 1080p broadcast dealer shot using the supplied start image as the EXACT identity, composition, wardrobe, table and studio. SAME adult Indian female dealer, black-and-gold uniform, walnut room with gold Dragon on viewer LEFT and Tiger on viewer RIGHT, green felt. Locked tripod camera, identical framing throughout, NO crop, zoom, movement or cuts. The audio reference is ONLY the required female voice identity, Hindi pronunciation, vocal timbre and studio microphone tone. Speak DIFFERENT NEW WORDS now; do not repeat or play the reference's greeting. Use exactly that same warm, calm Indian female Hindi voice. Exact new audible Hindi dialogue, ONCE ONLY: \"ड्रैगन का पत्ता बड़ा है। ड्रैगन जीता।\" Clearly articulate every word with precise native lip synchronization. Begin at 0.2 seconds, finish the complete sentence at least 0.3 seconds before this 4-second shot ends. One small gentle open-palm presentation toward the VIEWER'S LEFT Dragon position. Return both hands to the reference resting position and close lips at the end. Keep movement restrained and natural, normal tiny blinks, no exaggerated breathing or head bobbing. Clean dry microphone speech ONLY, no background music, no ambient sound, no second voice, no laugh. Do not add a greeting, sign-off, subtitles, text, logos, playing cards, card faces, extra people or objects. Keep the felt clear for the app's cards.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "1c9f8728f18bcfbc0d9ca47019c98b20ce167ea8280127bf9a7f1df333eb6155"
+    },
+    {
+      "index": 7,
+      "key": "tiger-wins",
+      "duration": 4.1,
+      "transcript": "टाइगर का पत्ता बड़ा है। टाइगर जीता।",
+      "jobId": "2d65bb2b-f299-4bec-ac5a-dd8f46e7dca2",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261005_101742_2d65bb2b-f299-4bec-ac5a-dd8f46e7dca2.mp4",
+      "prompt": "Create a photorealistic 1080p broadcast dealer shot using the supplied start image as the EXACT identity, composition, wardrobe, table and studio. SAME adult Indian female dealer, black-and-gold uniform, walnut room with gold Dragon on viewer LEFT and Tiger on viewer RIGHT, green felt. Locked tripod camera, identical framing throughout, NO crop, zoom, movement or cuts. The audio reference is ONLY the required female voice identity, Hindi pronunciation, vocal timbre and studio microphone tone. Speak DIFFERENT NEW WORDS now; do not repeat or play the reference's greeting. Use exactly that same warm, calm Indian female Hindi voice. Exact new audible Hindi dialogue, ONCE ONLY: \"टाइगर का पत्ता बड़ा है। टाइगर जीता।\" Clearly articulate every word with precise native lip synchronization. Begin at 0.2 seconds, finish the complete sentence at least 0.3 seconds before this 4-second shot ends. One small gentle open-palm presentation toward the VIEWER'S RIGHT Tiger position. Return both hands to the reference resting position and close lips at the end. Keep movement restrained and natural, normal tiny blinks, no exaggerated breathing or head bobbing. Clean dry microphone speech ONLY, no background music, no ambient sound, no second voice, no laugh. Do not add a greeting, sign-off, subtitles, text, logos, playing cards, card faces, extra people or objects. Keep the felt clear for the app's cards.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "6c8ea23c586ca974c9733c00f718b381bacdff9e0dcf7e2c2235eadd86a02934"
+    },
+    {
+      "index": 8,
+      "key": "tie",
+      "duration": 4.1,
+      "transcript": "दोनों पत्ते बराबर हैं। यह राउंड टाई है।",
+      "jobId": "cbccefb8-76af-4b8e-975d-b79c0c2cae50",
+      "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/hf_20261005_101742_cbccefb8-76af-4b8e-975d-b79c0c2cae50.mp4",
+      "prompt": "Create a photorealistic 1080p broadcast dealer shot using the supplied start image as the EXACT identity, composition, wardrobe, table and studio. SAME adult Indian female dealer, black-and-gold uniform, walnut room with gold Dragon on viewer LEFT and Tiger on viewer RIGHT, green felt. Locked tripod camera, identical framing throughout, NO crop, zoom, movement or cuts. The audio reference is ONLY the required female voice identity, Hindi pronunciation, vocal timbre and studio microphone tone. Speak DIFFERENT NEW WORDS now; do not repeat or play the reference's greeting. Use exactly that same warm, calm Indian female Hindi voice. Exact new audible Hindi dialogue, ONCE ONLY: \"दोनों पत्ते बराबर हैं। यह राउंड टाई है।\" Clearly articulate every word with precise native lip synchronization. Begin at 0.2 seconds, finish the complete sentence at least 0.3 seconds before this 4-second shot ends. A gentle balanced gesture toward both positions, calm smile. Return both hands to the reference resting position and close lips at the end. Keep movement restrained and natural, normal tiny blinks, no exaggerated breathing or head bobbing. Clean dry microphone speech ONLY, no background music, no ambient sound, no second voice, no laugh. Do not add a greeting, sign-off, subtitles, text, logos, playing cards, card faces, extra people or objects. Keep the felt clear for the app's cards.",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "3ced46731752a0b0d546381505f569453a976ebbe96d49391fa6c27b47ed4c85"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="icon" href="data:,"><title>Royal Park · Unity Horse Racing</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0d201b;color:#fff;font:14px system-ui}canvas{display:block;width:100%;height:100%;outline:none}#status{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:16px;background:#0d201b}progress{width:260px;height:5px;accent-color:#dec88d}#status[hidden],[hidden]{display:none!important}#controls{position:absolute;top:18px;left:20px;right:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px 18px;background:#10251ee8;border:1px solid #b49d5d55;border-radius:8px}strong{letter-spacing:.12em}small{color:#d9c697;font-size:10px;letter-spacing:.2em}select,button{background:#213a31;color:white;border:1px solid #6d7961;border-radius:4px;padding:8px}#footer{position:absolute;bottom:18px;left:20px;background:#10251ee8;padding:9px 14px;border-radius:4px;color:#e0d5b6;font-size:12px}</style></head>
+<body><canvas id="horse" tabindex="-1" aria-label="Unity horse racing stadium"></canvas>
+<div id="status"><small>WORLD RACING SERIES</small><strong>ROYAL PARK</strong><span id="label">Preparing horses &amp; stadium…</span><progress id="progress" max="1" value="0"></progress></div>
+<div id="controls" hidden><div><small>WORLD RACING SERIES</small><br><strong>ROYAL PARK</strong></div><span style="flex:1"></span><label>Camera <select id="camera"><option value="broadcast">Broadcast</option><option value="rail">Rail-side</option><option value="headon">Front</option><option value="grandstand">Grandstand</option><option value="closeup">Close-up</option></select></label><label>Light <select id="venue"><option value="royal">Daylight</option><option value="night">Floodlit</option><option value="dubai">Warm desert</option></select></label><button id="restart">Restart race</button><button id="pause">Pause</button><button id="full">Full screen</button></div>
+<div id="footer" hidden>8 runners · 1600m exhibition · Sample sponsor boards</div>
+<script>
+const canvas=document.getElementById('horse'),status=document.getElementById('status'),origin=location.origin;
+let instance,pending,closed=false,failed=false,paused=false;const embedded=parent!==window;
+const report=data=>{if(embedded)parent.postMessage(data,origin);};
+const fail=message=>{if(failed)return;failed=true;status.hidden=false;document.getElementById('label').textContent='Stadium could not load. Reload to try again.';document.getElementById('progress').hidden=true;report({type:'horse-unity-error',message:String(message)});};
+window.addEventListener('message',event=>{if(event.origin!==origin||event.source!==parent||!event.data)return;if(event.data.type==='horse-unity-state'){pending=event.data.state;if(instance)instance.SendMessage('HorseBridge','SetState',JSON.stringify(pending));}else if(event.data.type==='horse-unity-sponsor'&&instance)instance.SendMessage('HorseBridge','SetSponsor',JSON.stringify(event.data.sponsor));});
+document.addEventListener('visibilitychange',()=>{if(instance)instance.SendMessage('HorseBridge','SetPaused',String(document.hidden||paused));});
+canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();fail('Graphics context lost');});
+window.addEventListener('pagehide',()=>{closed=true;instance?.Quit();});
+const script=document.createElement('script');script.src='Build/WebGL.loader.js';script.onerror=()=>fail('Loader unavailable');
+script.onload=()=>createUnityInstance(canvas,{
+ dataUrl:'Build/WebGL.data',frameworkUrl:'Build/WebGL.framework.js',codeUrl:'Build/WebGL.wasm',
+ streamingAssetsUrl:'StreamingAssets',companyName:'World Racing',productName:'Royal Park Horse Racing',productVersion:'1.0',
+ matchWebGLToCanvasSize:true,devicePixelRatio:Math.min(devicePixelRatio||1,1),showBanner:(message,type)=>{if(type==='error')fail(message);}
+},p=>{document.getElementById('progress').value=p;report({type:'horse-unity-progress',progress:p});}).then(game=>{
+ if(closed){game.Quit();return;}instance=game;window.horseUnity=game;window.horseUnityReady=true;status.hidden=true;
+ if(pending)game.SendMessage('HorseBridge','SetState',JSON.stringify(pending));
+ game.SendMessage('HorseBridge','SetPaused',String(document.hidden));report({type:'horse-unity-loaded'});
+ if(!embedded){document.getElementById('controls').hidden=false;document.getElementById('footer').hidden=false;demo();}
+}).catch(fail);document.body.appendChild(script);
+function track(p,r){let s=((p*(280+2*Math.PI*r)+70)%(280+2*Math.PI*r)+(280+2*Math.PI*r))%(280+2*Math.PI*r);if(s<140)return{x:-70+s,z:-r,heading:90};s-=140;if(s<Math.PI*r){let a=-Math.PI/2+s/r;return{x:70+Math.cos(a)*r,z:Math.sin(a)*r,heading:-a*180/Math.PI};}s-=Math.PI*r;if(s<140)return{x:70-s,z:r,heading:-90};s-=140;let a=Math.PI/2+s/r;return{x:-70+Math.cos(a)*r,z:Math.sin(a)*r,heading:-a*180/Math.PI};}
+function demo(){let elapsed=-4,last=performance.now();document.getElementById('restart').onclick=()=>{elapsed=-4;};document.getElementById('pause').onclick=event=>{paused=!paused;event.target.textContent=paused?'Resume':'Pause';};document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();function frame(now){if(closed)return;const dt=Math.min(.1,(now-last)/1000);last=now;if(!paused&&!document.hidden)elapsed+=dt;if(elapsed>37)elapsed=-4;
+ const state={venue:document.getElementById('venue').value,camera:document.getElementById('camera').value,round:'demo',running:elapsed>=0,elapsed,winner:elapsed>=30?1:0,featured:0,runners:Array.from({length:8},(_,i)=>({id:i+1,...track(Math.max(0,elapsed)/(30+i*.22),35+i*1.65),gait:Math.max(0,elapsed)*1.65+i*.18}))};
+ if(!paused){instance.SendMessage('HorseBridge','SetState',JSON.stringify(state));window.horseFrame=state;}requestAnimationFrame(frame);}requestAnimationFrame(frame);}
+</script></body></html>

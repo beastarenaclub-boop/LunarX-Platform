@@ -1,0 +1,23 @@
+import {cp,mkdir,readFile,writeFile} from 'node:fs/promises';
+import path from 'node:path';
+
+const base=process.cwd(),output=path.join(base,'exports/apex-superbike-2026-10-02');
+await mkdir(output,{recursive:true});
+await cp(path.join(base,'artifacts/3d-game/dist/bike'),path.join(output,'site'),{recursive:true});
+await cp(path.join(base,'artifacts/3d-game/bike/server.mjs'),path.join(output,'server.mjs'));
+await cp(path.join(base,'artifacts/3d-game/bike/src'),path.join(output,'source/src'),{recursive:true});
+await cp(path.join(base,'artifacts/3d-game/bike/public'),path.join(output,'source/public'),{recursive:true});
+await cp(path.join(base,'artifacts/3d-game/bike/index.html'),path.join(output,'source/index.html'));
+await cp(path.join(base,'artifacts/3d-game/bike/tests'),path.join(output,'source/tests'),{recursive:true,filter:p=>!p.endsWith('inspect.mjs')});
+await writeFile(path.join(output,'START-GAME.cmd'),'@echo off\r\ncd /d "%~dp0"\r\nnode server.mjs\r\npause\r\n');
+await writeFile(path.join(output,'package.json'),JSON.stringify({name:'apex-superbike',version:'1.0.0',private:true,type:'module',scripts:{start:'node server.mjs'}},null,2));
+await writeFile(path.join(output,'source/package.json'),JSON.stringify({name:'apex-superbike-source',version:'1.0.0',private:true,type:'module',scripts:{dev:'vite --host 127.0.0.1 --port 5193',build:'tsc --noEmit && vite build',preview:'vite preview --port 5193',test:'playwright test'},dependencies:{react:'19.1.0','react-dom':'19.1.0',three:'0.185.1','lucide-react':'0.545.0'},devDependencies:{'@types/react':'19.2.14','@types/react-dom':'19.2.3','@types/three':'0.185.4','@types/node':'25.3.3','@vitejs/plugin-react':'5.0.4','@playwright/test':'1.59.1',typescript:'5.9.3',vite:'7.3.2'}},null,2));
+await writeFile(path.join(output,'source/tsconfig.json'),JSON.stringify({compilerOptions:{target:'ES2022',module:'ESNext',moduleResolution:'Bundler',jsx:'react-jsx',strict:true,skipLibCheck:true,lib:['ESNext','DOM','DOM.Iterable'],types:['vite/client'],noEmit:true},include:['src']},null,2));
+await writeFile(path.join(output,'source/vite.config.ts'),"import {defineConfig} from 'vite';\nimport react from '@vitejs/plugin-react';\nexport default defineConfig({base:'./',plugins:[react()],build:{rollupOptions:{output:{manualChunks:{three:['three']}}}}});\n");
+await writeFile(path.join(output,'source/playwright.config.ts'),"import {defineConfig} from '@playwright/test';\nexport default defineConfig({testDir:'./tests',testMatch:'*.spec.ts',workers:1,timeout:120000,expect:{timeout:45000},use:{baseURL:'http://127.0.0.1:5193',channel:'chrome',viewport:{width:1440,height:900}},webServer:{command:'npm run dev',url:'http://127.0.0.1:5193',reuseExistingServer:true}});\n");
+await cp(path.join(base,'tools/bike-assets'),path.join(output,'asset-source'),{recursive:true});
+await cp(path.join(base,'docs/apex-superbike.md'),path.join(output,'README.md'));
+await mkdir(path.join(output,'validation'),{recursive:true});
+for(const file of ['desktop-paddock.png','desktop-race.png','mobile-paddock.png','mobile-race.png','mobile-landscape.png','race-with-opponents.png'])await cp(path.join(base,'tmp/bike-validation',file),path.join(output,'validation',file));
+await cp(path.join(base,'tmp/bike-validation/test-results/.last-run.json'),path.join(output,'validation/test-run.json'));
+console.log(`Packaged playable game, editable source, licenses and screenshots: ${output}`);

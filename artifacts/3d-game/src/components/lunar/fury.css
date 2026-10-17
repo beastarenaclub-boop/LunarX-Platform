@@ -1,0 +1,252 @@
+/* Fury's presentation is scoped to its route; shared controls retain their behavior. */
+.game-viewport[data-game-viewport="fury"] { --game-screen-width: 1600px; background: #090c0e; }
+.game-viewport .fury-page {
+  --primary: 28 100% 50%; --primary-foreground: 0 0% 100%;
+  --accent: 28 100% 50%; --accent-foreground: 0 0% 100%;
+  --muted-foreground: 210 7% 64%; --border: 205 12% 19%;
+  --card-border: 205 12% 19%; --input: 205 12% 19%; --ring: 28 100% 50%;
+  background: #101315; color: #f8f9fa; font-family: Arial, sans-serif;
+}
+.game-viewport .fury-page .crash-header { min-height: 57px; padding: 8px 18px; background: #090b0d; border-color: #ffffff08; gap: 12px; backdrop-filter: none; }
+.fury-back { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #202426; color: #bbc2c5; }
+.fury-back:hover { background: #353b3e; color: white; }
+.fury-page .crash-header > div:first-child > div:first-of-type,
+.fury-page .crash-header > div:first-child > div:last-child > div:last-child { display: none; }
+.fury-page .crash-header > div:first-child > div:last-child > div:first-child { font-size: 19px; font-weight: 600; letter-spacing: -.5px; }
+.fury-page .crash-header > div:first-child span { color: #f8f9fa !important; }
+.fury-page .crash-header [data-testid="btn-balance"] { background: #1a1f22; border-color: #ffffff0e; border-radius: 7px; }
+.fury-page .crash-header [data-testid="badge-online-players"] { display: none; }
+.game-viewport .fury-page .crash-play-area { display: grid; grid-template-columns: 290px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 8px; padding: 12px 16px 16px; }
+.fury-page .crash-scene-column { grid-area: 1 / 2; }
+.game-viewport .fury-page .crash-scene { min-height: clamp(320px, calc(var(--fit-height, 100dvh) - 370px), 760px); border-radius: 10px; }
+.fury-page .crash-bet-controls { grid-area: 2 / 2; align-self: start; min-width: 0; }
+.game-viewport .fury-page .crash-dual-bets { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.fury-activity-column { grid-area: 1 / 1 / 3 / 2; display: flex; min-width: 0; min-height: 0; overflow: hidden; border: 1px solid #ffffff08; border-radius: 10px; background: #191d20; }
+.fury-activity { display: flex; flex-direction: column; gap: 0; width: 100%; min-height: 0; padding: 10px; }
+.fury-activity-tabs[role="tablist"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; height: 34px; padding: 3px; border-radius: 30px; background: #101518; }
+.fury-activity-tabs [role="tab"] { min-width: 0; min-height: 28px; border-radius: 30px; font-size: 11px; color: #a3adb2; }
+.fury-activity-tabs [role="tab"][data-state="active"] { color: white; background: #f87905; box-shadow: 0 1px 8px #ff77001c; }
+.fury-activity-summary { display: flex; justify-content: space-between; gap: 8px; padding: 15px 4px; }
+.fury-activity-summary > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.fury-activity-summary > div:last-child { text-align: right; }
+.fury-activity-summary span { color: #9ca7ac; font-size: 10px; }
+.fury-activity-summary strong { font-size: 14px; font-variant-numeric: tabular-nums; }
+.fury-yellow { color: #edd751; }
+.fury-activity-content { display: flex; flex-direction: column; flex: 1; min-height: 0; margin: 0; border-radius: 7px; background: #0e1518; overflow: hidden; }
+.fury-activity-content[data-state="inactive"] { display: none; }
+.fury-activity-scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #343c40 transparent; }
+.fury-bet-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) 38px minmax(0, 1fr); align-items: center; gap: 4px; min-height: 41px; padding: 8px; border-bottom: 1px solid #ffffff04; font-size: 10px; font-variant-numeric: tabular-nums; }
+.fury-bet-row > span { min-width: 0; overflow-wrap: anywhere; }
+.fury-bet-row > span:nth-child(n+3) { text-align: right; }
+.fury-bet-row > span:nth-child(3), .fury-player { color: #8d9ca3; }
+.fury-bet-row[data-cashed-out="true"] { background: #173b28; border-radius: 5px; border-color: #46783b20; }
+.fury-bet-row[data-cashed-out="true"] > span:nth-child(3) { color: #f0dd61; }
+.fury-table-head { min-height: 31px; color: #85939b; font-size: 9px; border-bottom: 1px solid #ffffff08; }
+.fury-activity-empty { min-height: 250px; padding: 40px 20px; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+.fury-activity-empty svg { color: #6e7d84; margin-bottom: 16px; stroke-width: 1.25; }
+.fury-activity-empty strong { font-size: 12px; font-weight: 500; color: #ced5d8; }
+.fury-activity-empty p { max-width: 180px; color: #839299; font-size: 11px; line-height: 1.7; margin-top: 9px; }
+.fury-my-heading { display: flex; justify-content: space-between; gap: 8px; padding: 14px 10px; font-size: 10px; color: #b7c1c7; border-bottom: 1px solid #ffffff08; }
+.fury-my-heading span { color: #7c8a91; }
+.fury-my-bet { display: flex; justify-content: space-between; gap: 8px; padding: 14px 10px; border-bottom: 1px solid #ffffff08; }
+.fury-my-bet > div { display: flex; flex-direction: column; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.fury-my-bet > div:last-child { text-align: right; }
+.fury-my-bet strong { font-size: 11px; }
+.fury-my-bet span { color: #82929b; font-size: 10px; }
+.fury-activity-footer { display: flex; align-items: center; gap: 6px; padding: 12px 5px 2px; font-size: 9px; color: #8c9b9f; }
+.fury-live-dot { display: inline-block; height: 5px; width: 5px; border-radius: 50%; background: #efb342; }
+
+/* Locally served Runway plates and a transparent, independently animated aircraft. */
+.fury-scene { isolation: isolate; overflow: hidden; border: 1px solid #68849555; border-radius: 12px; container-type: inline-size; background: #2d719f; }
+.fury-flight-sky, .fury-airfield, .fury-live-sky, .fury-scene-vignette { position: absolute; inset: 0; pointer-events: none; }
+.fury-live-sky { width: 100%; height: 100%; }
+.fury-flight-sky img, .fury-airfield img { width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+.fury-flight-sky { overflow: hidden; }
+.fury-flight-sky img { transform: scale(1.12); }
+.fury-airfield { right: -14%; transform: translate3d(var(--fury-ground-x), var(--fury-ground-y), 0); opacity: var(--fury-ground-opacity); transition: transform .1s linear, opacity .1s linear; }
+.fury-scene[data-phase="betting"] .fury-airfield { transition: none; }
+.fury-scene-vignette { background: linear-gradient(#06182336, transparent 32%, transparent 80%, #39241059); }
+.fury-scene-top { position: absolute; z-index: 3; left: 0; right: 0; top: 0; padding: 16px 20px 20px; background: linear-gradient(#0a192bd6, #10243b70 60%, transparent); }
+.fury-scene-brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 36px; }
+.fury-wordmark { display: flex; flex-direction: column; width: fit-content; align-items: center; font-family: Impact, 'Arial Narrow', sans-serif; font-size: 35px; font-style: italic; line-height: .9; letter-spacing: -1px; color: #ffb544; -webkit-text-stroke: .6px #813009; text-shadow: 0 1px #ffedaf, 1px 3px #8a390d, 2px 5px 5px #06131d96; transform: skewX(-5deg); }
+.fury-wordmark > span { font-family: Arial, sans-serif; font-style: normal; font-size: 8px; font-weight: 800; letter-spacing: 5px; padding-left: 5px; padding-top: 5px; -webkit-text-stroke: 0; color: #fff0c5; text-shadow: 0 1px 3px #0009; }
+.fury-flight-status { display: flex; align-items: center; gap: 7px; padding: 7px 10px; border: 1px solid #eef7ff23; border-radius: 30px; background: #1226356e; font-size: 10px; color: #eaf3f6; }
+.fury-flight-status svg { color: #faba67; }
+.fury-scene-tools { display: flex; align-items: center; gap: 8px; }
+.fury-sound-toggle { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #eef7ff35; border-radius: 50%; background: #1226358c; color: #eaf3f6; }
+.fury-sound-toggle:hover { background: #25465dcc; }
+.fury-sound-toggle[aria-pressed="false"] { color: #c1ced6; }
+@media (pointer: coarse) { .fury-sound-toggle { width: 44px; height: 44px; } }
+.fury-scene[data-phase="flying"] .fury-flight-status svg { color: #b0f4c4; }
+.fury-page .crash-history { min-height: 35px; margin-top: 10px; padding: 0; gap: 8px; border: 0; border-radius: 0; background: transparent; }
+.fury-page .crash-history > div:first-child { scrollbar-width: none; gap: 7px; }
+.fury-page .crash-history [data-multiplier-tier] { min-width: 49px; padding: 5px 8px; border: 1px solid #ffffff0b; border-radius: 5px; font-size: 11px; font-weight: 600; color: #eff6f8; background: #071e3a50; text-align: center; text-shadow: 0 1px 4px #00192780; }
+.fury-page .crash-history [data-multiplier-tier="medium"] { color: #ffdf72; background: #2c2b2245; }
+.fury-page .crash-history [data-multiplier-tier="high"] { color: #ffb069; background: #53341a5c; }
+.fury-page .crash-history button { flex: 0 0 29px; background: #102a4666; color: #e4eef3; width: 29px; height: 29px; border: 1px solid #ffffff1a; border-radius: 6px; }
+.fury-aircraft { position: absolute; z-index: 1; left: var(--fury-plane-x); top: var(--fury-plane-y); width: clamp(165px, 23%, 270px); transform: translate(-10%, -50%) rotate(var(--fury-bank)); transition: left .1s linear, top .1s linear; }
+.fury-plane-float { position: relative; }
+.fury-plane-sprite { display: block; position: relative; width: 100%; height: auto; filter: drop-shadow(0 5px 4px #142b3326); }
+.fury-plane-shadow { position: absolute; width: 80%; height: 8%; border-radius: 50%; background: #4c321b78; filter: blur(5px); left: 8%; top: 94%; transition: opacity 1s; }
+.fury-plane-shadow { opacity: var(--fury-shadow); }
+.fury-scene[data-phase="flying"][data-flight-stage="cruise"] .fury-plane-float { animation: fury-float 3.6s ease-in-out infinite; }
+.fury-scene[data-phase="betting"] .fury-aircraft { transition: none; }
+.fury-runway-dust { position: absolute; right: 85%; top: 78%; width: 58%; height: 22%; opacity: var(--fury-dust); pointer-events: none; }
+.fury-runway-dust > i { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(ellipse, #eeb9768c, #db974c33 45%, transparent 72%); }
+.fury-scene[data-phase="flying"] .fury-runway-dust > i { animation: fury-dust .65s ease-out infinite; }
+.fury-runway-dust > i:nth-child(2) { animation-delay: -.22s !important; }
+.fury-runway-dust > i:nth-child(3) { animation-delay: -.44s !important; }
+.fury-exhaust { position: absolute; width: 54%; height: 16%; top: 49%; right: 92%; transform-origin: right center; opacity: 0; filter: drop-shadow(0 0 6px #ff9138b3); }
+.fury-exhaust::before, .fury-exhaust::after { content: ""; position: absolute; inset: 0; border-radius: 100% 0 0 100%; background: linear-gradient(90deg, #ff531900, #f97c24b3 42%, #ffe084 84%, #fffadb); clip-path: polygon(100% 0, 78% 12%, 30% 5%, 42% 29%, 0 40%, 18% 53%, 7% 78%, 51% 66%, 37% 92%, 83% 80%, 100% 100%); }
+.fury-exhaust::after { inset: 30% 0 24% 32%; background: linear-gradient(90deg, transparent, #fff4bb); }
+.fury-exhaust > i { position: absolute; width: 3px; height: 2px; background: #ffe099; border-radius: 50%; left: 8%; top: 60%; box-shadow: 0 0 5px #ffbe6b; }
+.fury-exhaust > i:nth-child(2) { left: 24%; top: -18%; }
+.fury-exhaust > i:nth-child(3) { left: -10%; top: 120%; }
+.fury-scene[data-phase="flying"] .fury-exhaust > i { animation: fury-ember .6s linear infinite; }
+.fury-scene[data-phase="flying"] .fury-exhaust > i:nth-child(2) { animation-delay: -.2s; }
+.fury-scene[data-phase="flying"] .fury-exhaust > i:nth-child(3) { animation-delay: -.4s; }
+.fury-scene[data-phase="flying"] .fury-exhaust { opacity: 1; animation: fury-thrust .16s ease-in-out infinite alternate; }
+.fury-propeller { position: absolute; right: 2.8%; top: 4%; height: 72%; width: 4%; border-radius: 50%; background: linear-gradient(#fdf3c708, #fff5cd80 50%, #fdf3c708); filter: blur(1px); animation: fury-propeller .09s linear infinite alternate; }
+.fury-scene[data-phase="crashed"] .fury-aircraft { animation: fury-fly-away .65s ease-in both; }
+.fury-departure { position: absolute; z-index: 2; top: 49%; left: 50%; transform: translate(-50%, -50%); width: 228px; padding: 20px 22px 17px; border: 1px solid #e6eef526; border-radius: 12px; background: linear-gradient(140deg, #132736e6, #132b37b8); box-shadow: 0 14px 36px #11253630, inset 0 1px #ffffff0d; backdrop-filter: blur(12px); text-align: center; }
+.fury-departure-label { display: block; color: #f5e5ce; font-size: 9px; letter-spacing: 1.7px; font-weight: 600; }
+.fury-countdown { padding: 10px 0 12px; font-size: 42px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -1px; }
+.fury-countdown > span { padding-left: 4px; font-size: 20px; color: #d8b990; font-weight: 400; }
+.fury-countdown-track { height: 4px; background: #051b247a; border-radius: 8px; overflow: hidden; }
+.fury-countdown-track > div { height: 100%; background: linear-gradient(90deg, #ff7709, #ffc075); border-radius: inherit; transition: width .1s linear; }
+.fury-departure-stats { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-top: 14px; text-align: left; }
+.fury-departure-stats > div:last-child { text-align: right; }
+.fury-departure-stats span { display: block; color: #b8c4c9; font-size: 10px; margin-bottom: 4px; }
+.fury-departure-stats b { font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.fury-readout { position: absolute; z-index: 2; inset: 46% 5% auto; text-align: center; pointer-events: none; }
+.fury-readout-label { display: block; color: #e1eff4; font-size: 9px; font-weight: 600; letter-spacing: 2px; text-shadow: 0 1px 5px #092a4c8c; }
+.fury-multiplier { margin-top: 9px; font-size: clamp(62px, 10.2cqw, 112px); line-height: 1; font-weight: 800; letter-spacing: -4px; font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 4px 18px #042b5159; }
+.fury-multiplier > span { letter-spacing: -2px; font-size: .85em; font-weight: 700; }
+.fury-scene[data-phase="crashed"] .fury-readout-label { color: #ffc782; }
+.fury-scene[data-phase="crashed"] .fury-multiplier { color: #ffdab0; }
+.fury-readout p { color: #dcebf5; font-size: 11px; margin-top: 14px; text-shadow: 0 1px 6px #062c55c9; }
+.fury-scene-bottom { position: absolute; z-index: 2; left: 18px; right: 16px; bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.fury-scene-bottom > span { display: flex; align-items: center; gap: 7px; color: #ffffffd6; font-size: 8px; letter-spacing: 1.4px; text-shadow: 0 1px 4px #091d3380; }
+.fury-scene-bottom i { width: 5px; height: 5px; border-radius: 50%; background: #fbd295; box-shadow: 0 0 6px #ffad467a; }
+.fury-scene-bottom > span:last-child { background: #0f293b66; border: 1px solid #ffffff26; padding: 6px 9px; border-radius: 5px; font-size: 10px; letter-spacing: 0; }
+.fury-scene-bottom > span { flex-shrink: 0; }
+.fury-live-bets { display: flex; justify-content: flex-end; gap: 5px; min-width: 0; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 18px); }
+.fury-live-bet { flex-shrink: 0; display: flex; align-items: center; gap: 5px; padding: 6px 8px; border: 1px solid #ffffff26; border-radius: 5px; background: #1735488c; color: #fff; font-size: 10px; font-variant-numeric: tabular-nums; }
+.fury-live-bet > span { color: #ccdde7; }
+.fury-live-bet b { font-weight: 600; }
+.fury-live-bet em { color: #d3f7a9; font-style: normal; }
+.fury-live-bet[data-cashed-out="true"] { background: #1e5939cc; border-color: #b2e9a24d; }
+
+/* Compact orange control deck, preserving coin selection and timed submission. */
+.fury-page .crash-bet-panel { padding: 12px; border-radius: 10px; border-color: #ffffff0c; background: linear-gradient(130deg, #202528, #191e21); }
+.fury-bet-caption { position: absolute; top: 20px; right: 14px; font-size: 9px; letter-spacing: 1.3px; color: #8d999f; }
+.fury-bet-caption b { margin-left: 3px; color: #c5cdd1; font-weight: 500; }
+.fury-page .crash-bet-panel [role="tablist"] { margin: 0; width: 145px; max-width: 100%; height: 28px; padding: 2px; border-radius: 6px; background: #101517; }
+.fury-page .crash-bet-panel [role="tab"] { min-height: 24px; font-size: 10px; border-radius: 5px; color: #95a0a5; }
+.fury-page .crash-bet-panel [role="tab"][data-state="active"] { color: #ffe3c1; background: #f780131f; box-shadow: none; }
+.fury-page .crash-bet-manual { display: grid; grid-template-columns: minmax(0, 1fr) minmax(130px, .9fr); gap: 8px; margin-top: 8px; }
+.fury-page .crash-bet-manual[data-state="inactive"] { display: none; }
+.fury-page .crash-bet-manual > * { margin: 0; min-width: 0; }
+.fury-page .crash-amount-controls { grid-area: 1 / 1; gap: 3px; border: 1px solid #ffffff06; border-radius: 7px; background: #101719; }
+.fury-page .crash-amount-controls button { width: 28px; height: 40px; min-height: 40px; border: 0; border-radius: 6px; background: transparent; color: #a2aeb5; }
+.fury-page .crash-amount-controls input { padding: 0; height: 40px; border: 0; background: transparent; font-family: inherit; font-size: 15px; box-shadow: none; }
+.fury-page .crash-bet-action { grid-area: 1 / 2 / 3 / 3; }
+.game-viewport .fury-page .crash-bet-action { min-height: 76px; width: 100%; border-radius: 8px; }
+.fury-bet-selection { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px; padding: 10px 8px; border: 1px solid #ffb35766; background: linear-gradient(150deg, #ff981e, #f77808); box-shadow: inset 0 1px #ffdfa149, 0 3px 8px #0002; }
+.fury-bet-selection > strong { max-width: 100%; overflow-wrap: anywhere; font-size: 21px; font-weight: 700; line-height: 1.1; letter-spacing: -.5px; font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 1px 1px #9b430c3d; }
+.fury-bet-selection small { font-size: 9px; font-weight: 500; letter-spacing: .4px; color: #fff5e2; }
+.game-viewport .fury-page .auto-bet-status { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; min-height: 0; background: transparent; border: 0; color: #fff; font-size: 10px; font-weight: 500; text-align: center; padding: 0; }
+.fury-page .auto-bet-status > button { color: white; font-size: 10px; border: 1px solid #ffffff4d; background: #83360030; border-radius: 4px; padding: 3px 12px; }
+.fury-page .crash-bet-action[data-testid^="btn-cashout-"] { background: #279c51; color: white; border: 1px solid #73da8e66; }
+.fury-page .crash-bet-action[data-testid^="btn-cancel-"] { background: #7a351b; color: #fff3e4; }
+.fury-page .sticky-cashout { position: relative; inset: auto; box-shadow: none; }
+.fury-page .crash-amount-multipliers { grid-area: 2 / 1; gap: 5px; }
+.fury-page .crash-amount-multipliers button { height: 27px; min-height: 27px; border-radius: 20px; border-color: #ffffff07; color: #aeb8bd; background: #2b3236; }
+.fury-page .table-coin-controls { grid-area: 3 / 1 / 4 / 3; gap: 6px; padding-top: 1px; }
+.fury-page .coin-rack-options { display: flex; gap: 5px; overflow-x: auto; padding: 3px 2px; scrollbar-width: thin; scrollbar-color: #49545a transparent; }
+.fury-page .jetx-auto-cash { grid-area: 4 / 1 / 5 / 3; display: flex; align-items: center; gap: 9px; min-height: 32px; }
+.fury-page .jetx-auto-cash > label { color: #a6b0b5; font-size: 11px; }
+.fury-page .jetx-auto-cash > button { height: 20px; width: 36px; }
+.fury-page .jetx-auto-cash > button > span { height: 16px; width: 16px; }
+.fury-page .jetx-auto-cash > div { position: relative; margin-left: auto; width: 85px; }
+.fury-page .jetx-auto-cash input { height: 32px; padding: 4px 24px 4px 10px; font-size: 12px; background: #101719; border-color: #ffffff10; border-radius: 5px; color: #e6ecee; }
+.fury-page .jetx-auto-cash > div > span { position: absolute; right: 10px; top: 6px; font-size: 12px; color: #8c9ba3; pointer-events: none; }
+.fury-page [data-testid^="text-stake-limits-"] { grid-area: 5 / 1 / 6 / 3; text-align: left; font-size: 9px; color: #85949b; }
+.fury-page .crash-bet-manual > .sticky-cashout-spacer { display: none; }
+.fury-page .crash-bet-manual > div:has([data-testid^="switch-use-free-bet-"]) { grid-column: 1 / -1; }
+.fury-page .crash-bet-panel input[type="number"] { appearance: textfield; }
+.fury-page .crash-bet-panel input::-webkit-inner-spin-button { appearance: none; }
+.fury-page :is(button, a, input):focus-visible { outline: 2px solid #ffc376; outline-offset: 3px; }
+
+@keyframes fury-ember { from { transform: translate(15px, 0) scale(1); opacity: .9; } to { transform: translate(-40px, 5px) scale(.25); opacity: 0; } }
+@keyframes fury-float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(calc(-1 * var(--fury-bob, 9px))) rotate(1deg); } }
+@keyframes fury-dust { from { transform: translateX(0) scale(.5); opacity: .8; } to { transform: translateX(-85%) scale(1.6); opacity: 0; } }
+@keyframes fury-thrust { from { transform: scaleX(.8); opacity: .7; } to { transform: scaleX(1.1); opacity: 1; } }
+@keyframes fury-propeller { from { transform: scaleY(.45); } to { transform: scaleY(1); } }
+@keyframes fury-fly-away { to { transform: translate(220%, -100%) rotate(-12deg); opacity: 0; } }
+
+@media (max-width: 1100px) and (min-width: 900px) {
+  .game-viewport .fury-page .crash-play-area { grid-template-columns: 235px minmax(0, 1fr); padding: 10px; }
+  .fury-activity { padding: 7px; }
+  .fury-page .crash-bet-manual { grid-template-columns: minmax(0, 1fr) minmax(105px, .9fr); }
+}
+@media (max-width: 899px) {
+  .game-viewport .fury-page .crash-play-area { display: flex; flex-direction: column; padding: 10px; gap: 9px; }
+  .fury-page .crash-scene-column { flex: none; }
+  .game-viewport .fury-page .crash-scene { min-height: 400px; }
+  .fury-activity-column { min-height: 330px; max-height: 440px; flex: none; }
+  .fury-activity { min-height: 330px; }
+}
+@media (max-width: 699px) {
+  .game-viewport .fury-page .crash-header { padding: 8px 10px; flex-wrap: nowrap; min-height: 60px; gap: 8px; }
+  .fury-page .crash-header > div:first-child { gap: 7px; flex-shrink: 0; }
+  .fury-back { width: 30px; height: 36px; }
+  .fury-page .crash-header > div:first-child > div:last-child > div:first-child { font-size: 15px; letter-spacing: -.4px; }
+  .game-viewport .fury-page .crash-header > div:last-of-type { width: auto; flex: 1; justify-content: flex-end; flex-wrap: nowrap; gap: 2px; }
+  .game-viewport .fury-page .crash-header [data-testid="btn-balance"] { min-width: 0; max-width: 112px; padding-inline: 7px; flex: 0 1 auto; }
+  .fury-page .crash-header [data-testid="btn-balance"] svg,
+  .fury-page .crash-header button[aria-label="Stats"], .fury-page .crash-header button[aria-label="Provably Fair"] { display: none; }
+  .game-viewport .fury-page .crash-play-area { padding: 4px 8px 12px; }
+  .game-viewport .fury-page .crash-scene { min-height: 350px; }
+  .fury-scene-top { padding: 10px 10px 15px; }
+  .fury-wordmark { font-size: 28px; }
+  .fury-wordmark > span { font-size: 7px; letter-spacing: 3px; padding-left: 3px; }
+  .fury-flight-status { font-size: 9px; }
+  .fury-page .crash-history [data-multiplier-tier] { font-size: 10px; }
+  .fury-departure { width: 200px; padding: 15px; top: 53%; }
+  .fury-countdown { font-size: 36px; }
+  .fury-aircraft { --fury-bob: 3px; width: 145px; left: calc(7% + (93% - 140px) * var(--fury-travel)); top: var(--fury-plane-mobile-y); }
+  .fury-readout { top: 56%; }
+  .fury-multiplier { font-size: clamp(50px, 15vw, 60px); letter-spacing: -2px; }
+  .fury-readout p { margin-top: 8px; font-size: 10px; }
+  .fury-scene-bottom { left: 10px; right: 10px; bottom: 10px; }
+  .fury-scene-bottom > span { font-size: 7px; letter-spacing: .6px; }
+  .fury-page .crash-mobile-bets > [role="tablist"] { height: 44px; background: #191f23; border-radius: 7px; }
+  .fury-page .crash-mobile-bets > [role="tablist"] [role="tab"] { min-height: 36px; font-size: 11px; }
+  .fury-page .crash-mobile-bets > [role="tablist"] [role="tab"][data-state="active"] { background: #e7791026; color: #ffbc76; }
+  .fury-page .crash-bet-panel [role="tablist"] { height: 40px; width: 165px; }
+  .fury-page .crash-bet-panel [role="tab"] { min-height: 36px; font-size: 11px; }
+  .fury-bet-caption { top: 27px; }
+  .fury-page .crash-bet-manual { gap: 9px; grid-template-columns: minmax(0, 1fr) minmax(115px, .85fr); }
+  .fury-page .crash-amount-controls button { min-height: 44px; height: 44px; width: 32px; }
+  .fury-page .crash-amount-controls input { height: 44px; font-size: 17px; }
+  .fury-page .crash-amount-multipliers button { height: 36px; min-height: 36px; }
+  .game-viewport .fury-page .crash-bet-action { min-height: 91px; }
+  .fury-page .jetx-auto-cash { min-height: 44px; }
+  .fury-page .jetx-auto-cash input { height: 40px; }
+  .fury-page .jetx-auto-cash > div > span { top: 10px; }
+  .fury-page .jetx-auto-cash > button { min-height: 26px; min-width: 44px; }
+  .fury-page .fury-activity-tabs[role="tablist"] { height: 44px; }
+  .fury-activity-tabs [role="tab"] { min-height: 38px; font-size: 11px; }
+  .fury-bet-row { font-size: 11px; }
+}
+@media (max-width: 370px) {
+  .game-viewport .fury-page .crash-header { padding-inline: 7px; gap: 5px; }
+  .fury-back { width: 25px; }
+  .fury-page .crash-header > div:first-child > div:last-child > div:first-child { font-size: 13px; }
+  .fury-page .crash-header [data-testid="text-balance"] { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fury-page *, .fury-page *::before, .fury-page *::after { animation: none !important; transition: none !important; }
+  .fury-scene[data-phase="crashed"] .fury-aircraft { opacity: 0; }
+}

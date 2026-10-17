@@ -1,0 +1,48 @@
+{
+  "source": "https://renderpeople.com/free-3d-people/",
+  "terms": "https://renderpeople.com/general-terms-and-conditions/",
+  "models": [
+    {
+      "person": "Eric",
+      "level": "Near",
+      "triangles": 1799,
+      "height": 1.4875471591949463,
+      "width": 0.4999282509088516
+    },
+    {
+      "person": "Eric",
+      "level": "Far",
+      "triangles": 359,
+      "height": 1.4875471591949463,
+      "width": 0.4999282509088516
+    },
+    {
+      "person": "Carla",
+      "level": "Near",
+      "triangles": 1799,
+      "height": 1.2875182628631592,
+      "width": 0.4527614116668701
+    },
+    {
+      "person": "Carla",
+      "level": "Far",
+      "triangles": 359,
+      "height": 1.2875182628631592,
+      "width": 0.4527614116668701
+    },
+    {
+      "person": "Claudia",
+      "level": "Near",
+      "triangles": 1799,
+      "height": 1.3626692295074463,
+      "width": 0.48052340745925903
+    },
+    {
+      "person": "Claudia",
+      "level": "Far",
+      "triangles": 359,
+      "height": 1.3626692295074463,
+      "width": 0.48052340745925903
+    }
+  ]
+}

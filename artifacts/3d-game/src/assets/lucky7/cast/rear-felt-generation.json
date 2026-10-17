@@ -1,0 +1,38 @@
+{
+  "date": "2026-09-27",
+  "generationCredits": 0,
+  "source": "asha-studio-fixed.mp4; fixed-generation.json",
+  "processingScript": "scripts/clean-lucky7-rear-felt.py",
+  "outputs": [
+    {
+      "media_id": "ad3ced3b-8177-4a5e-a97f-aad72137b9e0",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/ad3ced3b-8177-4a5e-a97f-aad72137b9e0.mp4"
+    },
+    {
+      "media_id": "c5ec8159-9ba4-4b6a-b478-dcce4ba14637",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/c5ec8159-9ba4-4b6a-b478-dcce4ba14637.jpg"
+    }
+  ],
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "durationSeconds": 10.5,
+  "repairBounds": {
+    "x": 310,
+    "y": 516,
+    "width": 635,
+    "height": 64
+  },
+  "changes": [
+    "Remove the fixed dark shadow band immediately below the rear rail",
+    "Remove the warm rectangular remnant during the shake and hand release",
+    "Segment only below the rail so the vest and trim cannot seed a false hand mask",
+    "Protect shaded wrists near foreground skin and sleeve seeds"
+  ],
+  "timing": {
+    "idleEndMs": 6000,
+    "rollEndMs": 10500,
+    "releaseMs": 8625
+  },
+  "verification": "Face pixels above y=516 and foreground below y=584 are unchanged before H.264 encoding. No new animation or timing adjustments."
+}

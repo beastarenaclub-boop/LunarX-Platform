@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Game sound verification</title></head>
+<body><button id="enable">Enable sound</button><button id="select">Select</button>
+<script type="module">
+  import * as audio from '/src/game/audio.ts';
+  import * as design from '/src/game/gameSoundDesign.ts';
+  import * as recordings from '/src/game/publicDemoSounds.ts';
+  import * as seven from '/src/game/sevenSoundDesign.ts';
+  window.soundTest = { audio, design, recordings, seven, events: [], sources: [] };
+  const start = AudioBufferSourceNode.prototype.start;
+  AudioBufferSourceNode.prototype.start = function(...args) {
+    const entry = { loop: this.loop, ended: false, length: this.buffer?.length ?? 0, offset: args[1] ?? 0, duration: args[2] ?? this.buffer?.duration ?? 0 };
+    window.soundTest.events.push(entry);
+    window.soundTest.sources.push(this);
+    this.addEventListener('ended', () => { entry.ended = true; });
+    return start.apply(this, args);
+  };
+  document.querySelector('#enable').onclick = () => { audio.setVolumes(.7,.8,.25,.8); void audio.unlockAudio(); };
+  document.querySelector('#select').onclick = () => audio.playGameSound('select');
+  const initialRoute = new URLSearchParams(location.search).get('autostart');
+  if (initialRoute) {
+    // Native page startup: CDP evaluate() would grant a synthetic user gesture.
+    const engine = await import('/src/game/engine.ts');
+    const { installAudioAutostart } = await import('/src/game/audioAutostart.ts');
+    window.autoAudio = {
+      enter(path) {
+        engine.setMusicRouteAllowed(false);
+        const game = design.audioGameForRoute(path);
+        audio.setAudioGame(game);
+        engine.setMusicRouteAllowed(game !== null);
+      },
+      settings: engine.updateSettings,
+      stop: installAudioAutostart(audio.unlockAudio),
+    };
+    window.autoAudio.enter(initialRoute);
+  }
+</script></body></html>

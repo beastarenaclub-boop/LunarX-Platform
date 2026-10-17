@@ -1,0 +1,19 @@
+Soccer passing motion is derived from Carnegie Mellon University Graphics Lab
+Motion Capture Database, subject 10, capture 10_01 (soccer - kick ball), 120 Hz.
+
+Source: http://mocap.cs.cmu.edu/subjects/10/10_01.amc
+Skeleton: http://mocap.cs.cmu.edu/subjects/10/10.asf
+Terms: http://mocap.cs.cmu.edu/
+
+The source terms permit inclusion in commercially sold products but prohibit
+reselling the motion data itself, including converted versions. This capture
+is not CC0. The embedded retargeted clip is part of the Arena Sports game.
+CMU's collection was supported by NSF Grant #0196217.
+
+Conversion, trimming, directional retargeting, support-foot adjustment and
+ball-contact synchronization were performed by this project's asset pipeline.
+See football-mocap-provenance.json for source checksums and football-strike.json
+for the selected source frames and the contact marker.
+
+The separate Idle, Walk, Jog and Sprint clips remain derived from the CC0
+Quaternius Universal Animation Library. Celebrate is locally authored.

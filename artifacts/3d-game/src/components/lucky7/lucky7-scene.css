@@ -1,0 +1,129 @@
+/* Keep the complete 16:9 frame, with an intrinsic size that coin taps cannot change. */
+.lucky7-studio-table {
+  position: relative; isolation: isolate; width: 100%; aspect-ratio: 16 / 9;
+  overflow: hidden; border: 1px solid #806b3b; border-radius: 14px;
+  background: #0c241b; contain: layout paint;
+}
+.lucky7-dealer-stage, .lucky7-dealer-stage > img, .lucky7-dealer-stage > video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+}
+.lucky7-dealer-stage > img, .lucky7-dealer-stage > video {
+  display: block; object-fit: contain; object-position: center; background: #0c241b;
+}
+.lucky7-dealer-stage > video:last-of-type { transition: none; }
+.lucky7-dealer-name {
+  position: absolute; bottom: 7px; left: 9px; border: 1px solid #e8d39433;
+  background: #06150ddb; color: #f1e6c9; border-radius: 12px;
+  padding: 3px 7px; font-size: clamp(8px, 1.3vw, 10px); line-height: 1.2;
+}
+.lucky7-play-dealer {
+  position: absolute; top: 12px; right: 12px; min-height: 40px; padding: 8px 12px;
+  color: #f6df9f; background: #081b14ed; border: 1px solid #b8a065; border-radius: 10px;
+}
+.lucky7-table-title {
+  position: absolute; bottom: 3%; right: 3%; width: max-content; text-align: center;
+  color: #e7d399b0; font: 700 clamp(8px, 1.4vw, 16px) Georgia, serif; letter-spacing: .24em;
+  pointer-events: none;
+}
+.lucky7-dice {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.lucky7-photographic-dice, .lucky7-table-dice { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.lucky7-dice[data-motion="shake"] .lucky7-die { visibility: hidden; }
+.lucky7-die {
+  position: absolute; left: 43%; top: 87%; width: clamp(22px, 5.6%, 50px);
+  aspect-ratio: 1; transform: translate(-50%, -50%) rotate(-8deg);
+}
+.lucky7-die:nth-child(2) { left: 57%; transform: translate(-50%, -50%) rotate(9deg); }
+.lucky7-die .lucky7-die-face {
+  width: 100%; height: 100%; border-radius: 19%;
+  background: linear-gradient(145deg, #fffef6, #e5e0cc);
+  box-shadow: inset 1px 1px 2px #fff, 1px 3px 0 #b7b09a, 2px 5px 7px #02100888;
+}
+.lucky7-die-rolling { animation: lucky7-gentle-roll 760ms ease-out both; }
+.lucky7-die-rolling:nth-child(2) { animation-name: lucky7-gentle-roll-second; }
+.lucky7-dice[data-from-hand="true"] .lucky7-die-rolling { animation-name: lucky7-hand-throw; }
+.lucky7-dice[data-from-hand="true"] .lucky7-die-rolling:nth-child(2) { animation-name: lucky7-hand-throw-second; }
+@keyframes lucky7-gentle-roll {
+  0% { transform: translate(-50%, -75%) rotate(-28deg); }
+  45% { transform: translate(-50%, -48%) rotate(9deg); }
+  75% { transform: translate(-50%, -54%) rotate(-10deg); }
+  100% { transform: translate(-50%, -50%) rotate(-8deg); }
+}
+@keyframes lucky7-gentle-roll-second {
+  0% { transform: translate(-50%, -75%) rotate(28deg); }
+  45% { transform: translate(-50%, -48%) rotate(-7deg); }
+  75% { transform: translate(-50%, -54%) rotate(12deg); }
+  100% { transform: translate(-50%, -50%) rotate(9deg); }
+}
+@keyframes lucky7-hand-throw {
+  0% { left: 47%; top: 72.5%; transform: translate(-50%, -50%) scale(.3) rotate(-100deg); }
+  55% { left: 43.5%; top: 88%; transform: translate(-50%, -50%) rotate(12deg); }
+  73% { left: 43.2%; top: 84%; transform: translate(-50%, -50%) rotate(-18deg); }
+  100% { left: 43%; top: 87%; transform: translate(-50%, -50%) rotate(-8deg); }
+}
+@keyframes lucky7-hand-throw-second {
+  0% { left: 48.5%; top: 72.5%; transform: translate(-50%, -50%) scale(.3) rotate(110deg); }
+  57% { left: 56.5%; top: 88%; transform: translate(-50%, -50%) rotate(-12deg); }
+  76% { left: 56.8%; top: 84%; transform: translate(-50%, -50%) rotate(20deg); }
+  100% { left: 57%; top: 87%; transform: translate(-50%, -50%) rotate(9deg); }
+}
+.lucky7-dice-total {
+  position: absolute; top: 8px; left: 8px; display: flex; align-items: center; gap: 6px;
+  padding: 4px 8px; background: #04100de6; border: 1px solid #e4c97877;
+  border-radius: 10px; font-size: clamp(9px, 1.2vw, 12px); color: #eedba5;
+}
+.lucky7-dice-total strong { font-size: 1.4em; }
+.lucky7-header-details {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;
+  font-size: 10px; line-height: 1.4; color: #a4b7aa;
+}
+.lucky7-header-details p { min-width: 0; }
+.lucky7-wallet { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; justify-content: flex-end; }
+.lucky7-wallet strong { color: #65e2ad; font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lucky7-main { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+.lucky7-game .lucky7-table-column { align-self: flex-start; width: 100%; gap: 10px; }
+.lucky7-game .lucky7-betting-dock { position: relative; inset: auto; width: 100%; }
+.lucky7-game [data-live-bet-dock] { max-height: none; overflow: visible; }
+.lucky7-game .live-bet-layout {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "status status" "spots spots" "coins coins" "summary actions" "hint hint" "limits limits";
+  padding: 10px 12px; gap: 8px; min-width: 0;
+}
+.lucky7-game .live-bet-status { height: auto; min-height: 16px; }
+.lucky7-game .live-bet-spots { gap: 8px; }
+.lucky7-game .live-bet-spots button { min-height: var(--game-bet-height); padding: 4px 3px; gap: 2px; }
+.lucky7-game .live-bet-spots button > span:first-child { font-size: clamp(11px, 1.6vw, 16px); }
+.lucky7-game .live-bet-summary { padding: 0; background: transparent; border: 0; gap: 6px; flex-wrap: wrap; }
+.lucky7-game .live-bet-layout .live-bet-summary > div > span { display: inline; font-size: 9px; }
+.lucky7-game .live-bet-summary > span { font-size: 12px; white-space: nowrap; }
+.lucky7-game .live-bet-actions { position: static; background: transparent; padding: 0; }
+.lucky7-game .live-bet-actions button { height: 40px; min-height: 40px; font-size: 11px; }
+.lucky7-game .live-bet-hint { grid-area: hint; display: block; min-height: 16px; font-size: 11px; }
+.lucky7-game .live-bet-limits { display: block; font-size: 10px; overflow-wrap: anywhere; }
+.lucky7-game .coin-rack-fit .coin-rack-options {
+  grid-template-columns: repeat(var(--coin-columns, 4), minmax(0, 1fr)); gap: 6px;
+}
+.lucky7-game .coin-rack-fit .coin-rack-option { width: 48px; height: 48px; }
+.lucky7-game .coin-rack-fit .coin-rack-custom { height: 48px; }
+.lucky7-game .coin-rack-option { animation: none; transform: none; }
+.lucky7-game .live-bet-coins { margin: 0; padding: 0; border: 0; }
+@container live-coins (min-width: 560px) {
+  .lucky7-game .coin-rack-fit .coin-rack-options { grid-template-columns: var(--coin-desktop-columns); }
+}
+@media (max-width: 359px) {
+  .lucky7-header button { width: 34px; height: 36px; }
+  .lucky7-game .live-bet-layout { padding: 8px; gap: 6px; }
+}
+@media (min-width: 640px) and (max-height: 550px) {
+  .lucky7-game .lucky7-table-column {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(290px, 1fr); align-items: start;
+  }
+  .lucky7-table-column > :first-child, .lucky7-mobile-history { grid-column: 1 / -1; }
+  .lucky7-studio-table { grid-column: 1; grid-row: 2; }
+  .lucky7-game .lucky7-betting-dock { grid-column: 2; grid-row: 2 / span 2; }
+  .lucky7-game [data-testid="lucky7-payout-rules"] { grid-column: 1; grid-row: 3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lucky7-die-rolling { animation: none; }
+}

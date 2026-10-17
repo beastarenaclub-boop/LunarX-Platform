@@ -1,0 +1,6 @@
+-- Apply only to future rounds. Active rounds retain their accepted deadlines.
+UPDATE game_config
+SET betting_window_ms = 15000,
+    turbo_betting_window_ms = 15000,
+    updated_at = now()
+WHERE game_code IN ('jetx', 'fury');

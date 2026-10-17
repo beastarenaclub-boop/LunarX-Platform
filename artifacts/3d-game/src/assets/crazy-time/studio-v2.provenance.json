@@ -1,0 +1,176 @@
+﻿{
+  "provider": "Higgsfield",
+  "created": "2026-10-04",
+  "intent": "Crazy Time v2 studio, actual video-frame wheel pull synchronization; Hindi/Hinglish commentary requested",
+  "reference": {
+    "job": "9bfadb18-977b-4841-b057-2891f9cf2c43",
+    "params": {
+      "model": "gpt_image_2_5",
+      "quality": "high",
+      "resolution": "2k",
+      "aspect_ratio": "16:9",
+      "count": 1,
+      "medias": [
+        {
+          "role": "image",
+          "value": "6c10918a-9d25-4182-aae9-d8efc42f3b02"
+        }
+      ],
+      "prompt": "Edit only the presenter clothing to a conservative professional television host outfit: an opaque red knee-length A-line dress, high round neckline, elbow-length sleeves, relaxed tailored fit, no slits, with simple gold shoes. Keep the same clearly adult woman, face, hair, neutral standing pose and hands at waist. Preserve every other pixel's composition: the red and gold studio, large empty green wheel at left, wheel size and position, camera perspective, lighting and background sign. Family-friendly daytime game show presentation, full-body front view."
+    }
+  },
+  "spin": {
+    "job": "71d78614-371a-4cff-a9ba-7dd5de5283dc",
+    "params": {
+      "model": "kling3_0",
+      "mode": "pro",
+      "sound": "off",
+      "duration": 15,
+      "aspect_ratio": "16:9",
+      "count": 1,
+      "medias": [
+        {
+          "role": "start_image",
+          "value": "9bfadb18-977b-4841-b057-2891f9cf2c43"
+        },
+        {
+          "role": "end_image",
+          "value": "9bfadb18-977b-4841-b057-2891f9cf2c43"
+        }
+      ],
+      "prompt": "Match the supplied reference exactly: same professional adult woman in her modest red knee-length dress with elbow sleeves and high neckline, same face and hair, same red and gold physical studio and same fixed frontal full-body camera. Family-friendly television quiz-show presentation. One locked tripod shot, no camera movement, no zoom, no cuts. Keep the entire empty green wheel, gold rim, top triangular pointer and pedestal perfectly stationary in their original exact screen coordinates. Do not add numbers, sectors or hands to the blank green circle. Only the presenter moves. No subtitles or new text. Silent fifteen-second continuous performance. 0-1.5 seconds she smiles at the camera with both hands at waist. 1.5-2.5 she turns left toward the wheel, takes one small step and extends her right hand to the outer gold rim at its upper right edge. 2.5-3.5 seconds she grips the rim and holds her hand motionless. 3.5-4.5 seconds she performs ONE deliberate downward pulling motion along the outer right rim, then releases her grip. Her hand remains on the gold rim and never crosses the green inner circle. 4.5-7 she rests her hands at her waist and follows the top pointer with her eyes. 7-10 she naturally shifts weight, breathes, glances at the wheel then at camera. 10-12 she makes a small open-palm presentation gesture toward the wheel then lowers her hand, without touching it again. 12-15 she smiles warmly toward camera and returns to the exact neutral pose in the reference. Only ONE pull. The blank green prop circle and gold housing never change or move; wheel graphics will be composited later."
+    }
+  },
+  "betting": {
+    "job": "4f393803-9cb3-4197-8c58-e719909f2ab4",
+    "params": {
+      "model": "kling3_0",
+      "mode": "pro",
+      "sound": "off",
+      "duration": 15,
+      "aspect_ratio": "16:9",
+      "count": 1,
+      "medias": [
+        {
+          "role": "start_image",
+          "value": "9bfadb18-977b-4841-b057-2891f9cf2c43"
+        },
+        {
+          "role": "end_image",
+          "value": "9bfadb18-977b-4841-b057-2891f9cf2c43"
+        }
+      ],
+      "prompt": "Match the supplied reference exactly: same professional adult woman in her modest red knee-length dress with elbow sleeves and high neckline, same face and hair, same red and gold physical studio and same fixed frontal full-body camera. Family-friendly television quiz-show presentation. One locked tripod shot, no camera movement, no zoom, no cuts. Keep the entire empty green wheel, gold rim, top triangular pointer and pedestal perfectly stationary in their original exact screen coordinates. Do not add numbers, sectors or hands to the blank green circle. Only the presenter moves. No subtitles or new text. In this silent fifteen-second performance, she smiles at camera and makes one natural welcoming open-palm wave in the first three seconds, then lowers her hand. From three to seven seconds she uses both hands in a gentle open presenting gesture toward the space below the camera, then returns hands to waist. From seven to eleven seconds she makes a small hand gesture toward the stationary wheel without touching it, with a cheerful friendly facial expression. From eleven to fifteen seconds she changes her weight naturally, nods once and rests her hands together at her waist. She never touches or pulls the wheel. Natural quiet breathing and blinking, no exaggerated dance. Her mouth remains naturally relaxed and closed; there is no speaking. Finish in the exact starting reference pose."
+    }
+  },
+  "lastCall": {
+    "job": "237e23a2-488d-42a1-90c4-d4d8add37f0d",
+    "params": {
+      "model": "kling3_0",
+      "mode": "pro",
+      "sound": "off",
+      "duration": 8,
+      "aspect_ratio": "16:9",
+      "count": 1,
+      "medias": [
+        {
+          "role": "start_image",
+          "value": "9bfadb18-977b-4841-b057-2891f9cf2c43"
+        },
+        {
+          "role": "end_image",
+          "value": "9bfadb18-977b-4841-b057-2891f9cf2c43"
+        }
+      ],
+      "prompt": "Match the supplied reference exactly: same professional adult woman in her modest red knee-length dress with elbow sleeves and high neckline, same face and hair, same red and gold physical studio and same fixed frontal full-body camera. Family-friendly television quiz-show presentation. One locked tripod shot, no camera movement, no zoom, no cuts. Keep the entire empty green wheel, gold rim, top triangular pointer and pedestal perfectly stationary in their original exact screen coordinates. Do not add numbers, sectors or hands to the blank green circle. Only the presenter moves. No subtitles or new text. Silent eight-second continuous performance of a quiz-show presenter waiting for the next round. She looks warmly toward camera, raises one hand showing three fingers, lowers it into a small ready gesture, nods once then turns her eyes toward the wheel with hands at her waist. Her expression is anticipatory and playful, professional. She does not touch, spin or approach the wheel. Natural breathing, relaxed closed mouth, no speaking. End at the reference neutral pose."
+    }
+  },
+  "result": {
+    "job": "0dc24fef-3bfa-4ff9-90aa-f268d1cca836",
+    "params": {
+      "model": "kling3_0",
+      "mode": "pro",
+      "sound": "off",
+      "duration": 8,
+      "aspect_ratio": "16:9",
+      "count": 1,
+      "medias": [
+        {
+          "role": "start_image",
+          "value": "9bfadb18-977b-4841-b057-2891f9cf2c43"
+        },
+        {
+          "role": "end_image",
+          "value": "9bfadb18-977b-4841-b057-2891f9cf2c43"
+        }
+      ],
+      "prompt": "Match the supplied reference exactly: same professional adult woman in her modest red knee-length dress with elbow sleeves and high neckline, same face and hair, same red and gold physical studio and same fixed frontal full-body camera. Family-friendly television quiz-show presentation. One locked tripod shot, no camera movement, no zoom, no cuts. Keep the entire empty green wheel, gold rim, top triangular pointer and pedestal perfectly stationary in their original exact screen coordinates. Do not add numbers, sectors or hands to the blank green circle. Only the presenter moves. No subtitles or new text. Silent eight-second continuous result reaction. First she looks at the stationary wheel's upper pointer, smiles warmly, brings her palms together for two gentle celebratory claps, then opens her right palm toward the wheel to present the result, lowers her hand and turns back to smile at camera with hands at waist. Natural body weight movement and human facial expressions, no exaggerated celebration. Never touch or pull the wheel. Relaxed closed mouth, no speech. Finish in the neutral reference pose."
+    }
+  },
+  "voice": {
+    "status": "No speech files have been generated. Hindi/Hinglish selected; waiting for the user to choose a voice in the Higgsfield picker. Existing coin/wheel/result SFX remain enabled by the sound switch.",
+    "nativeDialogueJobs": [
+      {
+        "id": "9ceee989-83e5-44ce-9839-f48ed81938ad",
+        "status": "nsfw"
+      },
+      {
+        "id": "5e743348-a238-4674-932c-8eee3a7f98c2",
+        "status": "nsfw"
+      }
+    ]
+  },
+  "unused": {
+    "referenceJob": "6c10918a-9d25-4182-aae9-d8efc42f3b02",
+    "spinJob": "683e5d53-7490-4e97-a49f-a0c2874246a5"
+  },
+  "processing": {
+    "resolution": [
+      1920,
+      1080
+    ],
+    "video": "H.264 CRF 18, 24fps, 1-second keyframes, faststart; silent source clips",
+    "spin": {
+      "sourceRangesSeconds": [
+        [
+          0,
+          5.375
+        ],
+        [
+          10.25,
+          15.041667
+        ]
+      ],
+      "crossfadeSeconds": 0.25,
+      "timeScale": 1.512605,
+      "outputSeconds": 15,
+      "reason": "Remove generated repeat rim contact",
+      "wheelPullSeconds": 5.375,
+      "wheelStopSeconds": 12.5
+    },
+    "betting": {
+      "welcomeSourceSeconds": [
+        0,
+        8
+      ],
+      "choicesSourceSeconds": [
+        7,
+        15
+      ]
+    },
+    "foreground": "Small chroma-keyed hand region composited in canvas above server-controlled SVG wheel; actual decoded frame callback also drives the wheel clock"
+  },
+  "timingsMs": {
+    "betting": 30000,
+    "reveal": 18000,
+    "settling": 8000
+  },
+  "lobbyCover": {
+    "file": "studio-v2-lobby.jpg",
+    "source": "Browser capture of the actual composed studio and authoritative 54-sector SVG; interface controls and video hidden for the still.",
+    "dimensions": [
+      1920,
+      1080
+    ]
+  }
+}

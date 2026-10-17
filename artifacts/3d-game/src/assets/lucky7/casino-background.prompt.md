@@ -1,0 +1,7 @@
+Generated using the built-in imagegen tool for the background behind the existing dealer.
+
+Prompt:
+
+Use case: photorealistic-natural.
+Asset type: a wide realistic casino interior BACKGROUND PLATE for the upper half of an existing Lucky 7 browser game. A separate seated woman dealer will be composited in front at the exact center; do not include any person in this image.
+Primary request: a believable upscale casino room behind the dealer, photographed at seated eye level across a gaming table. Wide horizontal composition about 3:1. Center has a deep emerald velvet upholstered wall panel and restrained dark walnut and brushed brass architectural framing. At the left and right, show receding casino lounge depth with softly blurred empty gaming tables and warm amber wall sconces, small chandelier highlights and natural photographic bokeh. Keep the center calm and evenly shaded so the separate dealer's face is clear. Soft warm key illumination coming from the camera direction with subtle green ambient fill. Realistic materials, fine fabric texture, natural light falloff, shallow depth of field, convincing room perspective. Dark green and warm gold atmosphere matching an emerald felt table. Polished but realistic interior photography, not a 3D render, not an illustration. No close foreground table, no foreground rails, no foreground chair, no dice, no cards, no chips, no people, no figures, no faces, no text, no numbers, no logos, no watermark, no interface. Image should fill the frame edge to edge with the room, opaque background.

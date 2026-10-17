@@ -1,0 +1,363 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1777819746576,
+      "tag": "0000_rich_steve_rogers",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777924273999,
+      "tag": "0001_noisy_silvermane",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777931464279,
+      "tag": "0002_acoustic_satana",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777932650505,
+      "tag": "0003_overrated_kid_colt",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1777932811033,
+      "tag": "0004_demo_nudge_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1777933752218,
+      "tag": "0005_simple_stark_industries",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1777937738107,
+      "tag": "0006_nice_centennial",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1777940394946,
+      "tag": "0007_pretty_steel_serpent",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1777941228050,
+      "tag": "0008_cooing_yellowjacket",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1777973221583,
+      "tag": "0009_military_richard_fisk",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778083927470,
+      "tag": "0010_easy_ink",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1778084869558,
+      "tag": "0011_nifty_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1778086662301,
+      "tag": "0012_wooden_plazm",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1778087335068,
+      "tag": "0013_nice_maddog",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1778090606065,
+      "tag": "0014_b2b_partners",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1778103600000,
+      "tag": "0015_b2b_remote_wallet",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1778094971551,
+      "tag": "0016_soft_songbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1778095386302,
+      "tag": "0017_safe_bloodstorm",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1778146906825,
+      "tag": "0018_fearless_cerebro",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1778148015682,
+      "tag": "0019_sloppy_ghost_rider",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1778170661211,
+      "tag": "0020_silky_namor",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1778348567528,
+      "tag": "0021_absurd_madame_masque",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1778355035443,
+      "tag": "0022_add_referral_reward_paise",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1778429257497,
+      "tag": "0023_mature_praxagora",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1785000251446,
+      "tag": "0024_glorious_lucky_pierre",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1785005871654,
+      "tag": "0025_flowery_paladin",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1785006050795,
+      "tag": "0026_crash_rtp_backfill",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1787061547185,
+      "tag": "0027_flashy_maximus",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1787061954762,
+      "tag": "0028_tiresome_thunderbolt_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1787062438365,
+      "tag": "0029_jittery_peter_quill",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1787064037913,
+      "tag": "0030_romantic_miss_america",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1787066438519,
+      "tag": "0031_marvelous_giant_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1787142606519,
+      "tag": "0032_sharp_gideon",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1787156352874,
+      "tag": "0033_fuzzy_dreadnoughts",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1787162850260,
+      "tag": "0034_harsh_rocket_raccoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1790774851212,
+      "tag": "0035_dragon_tiger",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1790817600000,
+      "tag": "0036_shared_wallet",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1790967611320,
+      "tag": "0037_dragon_tiger_paise",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1790983288439,
+      "tag": "0038_wingo_shared_wallet",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1791039613402,
+      "tag": "0039_forex_shared_wallet",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1791060316816,
+      "tag": "0040_dragon_tiger_one_day",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1791081277720,
+      "tag": "0041_rtp_85_policy",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1791082088882,
+      "tag": "0042_mines_rtp_version",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1791468000000,
+      "tag": "0043_roulette_36x_limits",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1791484200000,
+      "tag": "0044_roulette_25s_betting",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1791547200000,
+      "tag": "0045_lottery_shared_wallet",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1791591103175,
+      "tag": "0046_prize_lotto",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1791597600000,
+      "tag": "0047_irland_lotto_brand",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1792022400000,
+      "tag": "0048_jetx_fury_15s_betting",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1792195200000,
+      "tag": "0049_virtual_sports_shared_wallet",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1792200000000,
+      "tag": "0050_branch_network",
+      "breakpoints": true
+    }
+  ]
+}

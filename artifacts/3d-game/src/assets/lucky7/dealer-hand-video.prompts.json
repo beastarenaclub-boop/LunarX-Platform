@@ -1,0 +1,24 @@
+{
+  "source": "Higgsfield image-to-video; fictional adult dealer",
+  "releaseMs": 3120,
+  "windupMs": 1950,
+  "release": {
+    "x": 0.481,
+    "y": 0.915,
+    "videoAspect": 1.7777777777777777
+  },
+  "clips": [
+    {
+      "file": "dealer-roll-v2.mp4",
+      "jobId": "9740cb6f-3a4d-4cb3-8608-f7c11db8a58c",
+      "model": "seedance_2_5",
+      "prompt": "Animate the provided adult woman dealer reference into a photorealistic FIVE SECOND video. Preserve exactly her identity, clothing, emerald casino room, seated position, camera scale and lighting. Camera locked, no zoom or cuts. A practiced low underhand dice toss over the table, with physically believable wrists and five fingers. 0.0s hands resting together. From 0.15 to 0.85s she glances down, cups her right hand just ABOVE the tabletop at the center and gives TWO small wrist shakes, as if holding dice. Left hand remains resting. From 0.85 to 1.35s her right forearm extends smoothly forward toward the viewer, staying LOW, below her chest. At 1.35s her right palm opens and fingers release forward just above the tabletop, a short gentle horizontal underhand toss. Her right hand NEVER rises toward her face or shoulder. 1.35 to 2.1s natural follow-through then withdraw her hand. Her gaze tracks down toward the rolling dice. 2.1 to 3.5s she watches the table calmly. 3.5 to 5s she returns both hands to the original resting pose, looks up and gives a small friendly nod. Keep all hand movements inside the frame. Actual dice are composited in the game, so no visible dice or other objects in the generated clip; only the exact hand action. No speaking, text, overlays, logos, extra people, big head tilts or waving. Start and end with the supplied framing and neutral pose."
+    },
+    {
+      "file": "dealer-idle-v2.mp4",
+      "jobId": "df55aa80-97a0-4c53-8692-4b03ac6856d4",
+      "model": "seedance_2_5",
+      "prompt": "Photorealistic adult casino dealer idle loop, from this exact supplied image. Preserve her face, black waistcoat, white shirt, seated scale and emerald casino room. Locked camera with no zoom, pan or cuts. Eight seconds of understated natural waiting: gentle breathing, two unhurried blinks, a small friendly smile; at 2 seconds briefly glance down at the tabletop and lightly adjust one resting hand, then look back at the player. At 5 seconds a brief glance to the other side of the table, followed by a very small nod. Hands stay low resting in their original position throughout. No big head tilts, no waving, no talking, no visible dice. Natural skin texture and realistic fingers. Lighting stays steady. End facing the viewer with both hands resting exactly as in the opening frame for a smooth loop. No text, logos, extra people or new objects."
+    }
+  ]
+}

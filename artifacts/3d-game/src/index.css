@@ -1,0 +1,442 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: var(--secondary-border);
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: var(--destructive-border);
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary-border: var(--sidebar-primary-border);
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent-border: var(--sidebar-accent-border);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --button-outline: rgba(255,255,255, .10);
+  --badge-outline: rgba(255,255,255, .05);
+  --opaque-button-border-intensity: 9;
+  --elevate-1: rgba(255,255,255, .04);
+  --elevate-2: rgba(255,255,255, .09);
+
+  /* Crick99bet-style palette: deep navy neutrals, bold yellow primary,
+   * cyan accent; green/orange are used inline for deposit/withdraw. */
+  --background: 215 60% 7%;
+  --foreground: 0 0% 98%;
+  --border: 215 35% 17%;
+  --card: 214 45% 11%;
+  --card-foreground: 0 0% 98%;
+  --card-border: 215 35% 19%;
+  --sidebar: 215 55% 8%;
+  --sidebar-foreground: 0 0% 95%;
+  --sidebar-border: 215 35% 15%;
+  --sidebar-primary: 48 96% 53%;
+  --sidebar-primary-foreground: 220 60% 8%;
+  --sidebar-accent: 215 35% 14%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-ring: 48 96% 53%;
+  --popover: 214 45% 10%;
+  --popover-foreground: 0 0% 98%;
+  --popover-border: 215 35% 19%;
+  --primary: 48 96% 53%;
+  --primary-foreground: 220 60% 8%;
+  --secondary: 215 35% 15%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 215 35% 14%;
+  --muted-foreground: 215 15% 66%;
+  --accent: 188 94% 50%;
+  --accent-foreground: 220 60% 8%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 215 35% 19%;
+  --ring: 48 96% 53%;
+  --chart-1: 188 94% 50%;
+  --chart-2: 48 96% 53%;
+  --chart-3: 145 70% 45%;
+  --chart-4: 25 95% 55%;
+  --chart-5: 268 75% 62%;
+
+  --app-font-sans: 'Inter', system-ui, sans-serif;
+  --app-font-serif: Georgia, serif;
+  --app-font-mono: 'JetBrains Mono', Menlo, monospace;
+  --radius: .75rem;
+  --spacing: 0.25rem;
+
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --secondary-border: hsl(var(--secondary));
+  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --muted-border: hsl(var(--muted));
+  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --destructive-border: hsl(var(--destructive));
+  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+/* Theme: NEON */
+[data-theme="neon"] {
+  --background: 280 60% 5%;
+  --card: 280 50% 8%;
+  --card-border: 290 60% 22%;
+  --sidebar: 280 60% 6%;
+  --sidebar-border: 290 60% 18%;
+  --primary: 320 100% 60%;
+  --accent: 180 100% 50%;
+  --ring: 320 100% 60%;
+  --chart-1: 180 100% 50%;
+  --chart-2: 320 100% 60%;
+  --chart-3: 270 100% 65%;
+  --border: 290 50% 18%;
+  --muted: 280 40% 14%;
+  --secondary: 280 40% 14%;
+  --input: 290 50% 22%;
+}
+
+/* Theme: MIDNIGHT */
+[data-theme="midnight"] {
+  --background: 220 50% 4%;
+  --card: 220 45% 7%;
+  --card-border: 220 35% 16%;
+  --sidebar: 220 50% 5%;
+  --sidebar-border: 220 35% 14%;
+  --primary: 210 100% 60%;
+  --accent: 190 95% 55%;
+  --ring: 210 100% 60%;
+  --chart-1: 210 100% 60%;
+  --chart-2: 190 95% 55%;
+  --chart-3: 260 80% 70%;
+  --border: 220 35% 16%;
+  --muted: 220 30% 12%;
+  --secondary: 220 30% 12%;
+  --input: 220 35% 18%;
+}
+
+/* Theme: SUNSET */
+[data-theme="sunset"] {
+  --background: 20 35% 7%;
+  --card: 22 30% 10%;
+  --card-border: 24 30% 22%;
+  --sidebar: 20 35% 8%;
+  --sidebar-border: 24 30% 18%;
+  --primary: 14 95% 58%;
+  --accent: 38 95% 60%;
+  --ring: 14 95% 58%;
+  --chart-1: 38 95% 60%;
+  --chart-2: 14 95% 58%;
+  --chart-3: 350 85% 60%;
+  --border: 24 30% 20%;
+  --muted: 22 25% 15%;
+  --secondary: 22 25% 15%;
+  --input: 24 30% 22%;
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    overscroll-behavior: none;
+  }
+  html, body, #root { height: 100%; }
+}
+
+@layer utilities {
+  input[type="search"]::-webkit-search-cancel-button { @apply hidden; }
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+  .no-default-hover-elevate {}
+  .no-default-active-elevate {}
+
+  .toggle-elevate::before, .toggle-elevate-2::before {
+    content: ""; pointer-events: none; position: absolute; inset: 0;
+    border-radius: inherit; z-index: -1;
+  }
+  .toggle-elevate.toggle-elevated::before { background-color: var(--elevate-2); }
+  .border.toggle-elevate::before { inset: -1px; }
+
+  .hover-elevate:not(.no-default-hover-elevate),
+  .active-elevate:not(.no-default-active-elevate),
+  .hover-elevate-2:not(.no-default-hover-elevate),
+  .active-elevate-2:not(.no-default-active-elevate) {
+    position: relative; z-index: 0;
+  }
+  .hover-elevate:not(.no-default-hover-elevate)::after,
+  .active-elevate:not(.no-default-active-elevate)::after,
+  .hover-elevate-2:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:not(.no-default-active-elevate)::after {
+    content: ""; pointer-events: none; position: absolute; inset: 0;
+    border-radius: inherit; z-index: 999;
+  }
+  .hover-elevate:hover::after, .active-elevate:active::after { background-color: var(--elevate-1); }
+  .hover-elevate-2:hover::after, .active-elevate-2:active::after { background-color: var(--elevate-2); }
+  .border.hover-elevate::after, .border.active-elevate::after,
+  .border.hover-elevate-2::after, .border.active-elevate-2::after { inset: -1px; }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .glow-primary { box-shadow: 0 0 32px hsl(var(--primary) / 0.45); }
+  .glow-accent { box-shadow: 0 0 32px hsl(var(--accent) / 0.45); }
+  .text-glow { text-shadow: 0 0 24px hsl(var(--primary) / 0.6); }
+
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3); border-radius: 3px;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px hsl(var(--primary) / 0.4); }
+    50% { box-shadow: 0 0 40px hsl(var(--primary) / 0.7); }
+  }
+  .animate-pulse-glow { animation: pulse-glow 1.5s ease-in-out infinite; }
+
+  @keyframes roulette-result-blink {
+    0%, 100% {
+      filter: brightness(1);
+      box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.35);
+    }
+    50% {
+      filter: brightness(1.65) saturate(1.22);
+      box-shadow:
+        0 0 0 3px rgba(253, 224, 71, 0.95),
+        0 0 24px 7px rgba(251, 191, 36, 0.6);
+    }
+  }
+  .roulette-winning-result {
+    position: relative;
+    z-index: 1;
+    outline: 2px solid rgba(253, 224, 71, 0.88);
+    outline-offset: 1px;
+    animation: roulette-result-blink 0.82s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .roulette-winning-result {
+      animation: none;
+      filter: brightness(1.2);
+      box-shadow: 0 0 0 3px rgba(253, 224, 71, 0.72);
+    }
+  }
+
+  /* ============================================================
+   * RESPONSIVE BREAKPOINT CONTRACT (matches Tailwind defaults
+   * unless noted). Use these consistently across all artifacts:
+   *   <=499px  : "tiny phone"  → max-[499px]: / @media (max-width:499px)
+   *   500-639  : "phone"       → min-[500px]:  (one-thumb optimised)
+   *   640-767  : sm:           → small tablet portrait
+   *   768-1023 : md:           → tablet
+   *   1024+    : lg:           → desktop, 3-col layouts unlock
+   *   1280+    : xl:           → wider sidebars
+   *
+   * Per-game canvas aspect ratios — override at breakpoints so
+   * each game's frame stays playable on every device. New games
+   * just declare a token + `.game-canvas-frame--<id>` utility.
+   * ============================================================ */
+  :root {
+    --game-aspect-crash: 16 / 10;
+    --game-aspect-crash-num: 1.6;
+    --game-aspect-mines: 1 / 1;
+    --game-aspect-mines-num: 1;
+    --game-aspect-plinko: 3 / 4;
+    --game-aspect-plinko-num: 0.75;
+    --game-aspect-dice: 16 / 9;
+    --game-aspect-dice-num: 1.7777;
+    /* Vertical chrome reserved for header + bet panel + bottom nav.
+     * Used to cap canvas height so the whole game fits on one screen. */
+    --game-chrome-y: 14rem;
+  }
+  @media (max-width: 499px) {
+    :root {
+      --game-aspect-crash: 4 / 3;
+      --game-aspect-crash-num: 1.3333;
+      --game-aspect-plinko: 4 / 5;
+      --game-aspect-plinko-num: 0.8;
+      --game-chrome-y: 18rem;
+    }
+  }
+  /* Landscape phones / very short viewports: keep canvas short so the bet
+   * panel and tabs remain visible without scrolling. */
+  @media (max-height: 500px) and (orientation: landscape) {
+    :root {
+      --game-aspect-crash: 21 / 9;
+      --game-aspect-crash-num: 2.3333;
+      --game-chrome-y: 9rem;
+    }
+  }
+  @media (min-width: 768px) {
+    :root {
+      --game-aspect-crash: 16 / 9;
+      --game-aspect-crash-num: 1.7777;
+    }
+  }
+  @media (min-width: 1024px) {
+    :root {
+      --game-aspect-crash: 16 / 9;
+      --game-aspect-crash-num: 1.7777;
+      --game-chrome-y: 12rem;
+    }
+  }
+
+  .game-canvas-frame {
+    --game-max-h: calc(100dvh - var(--game-chrome-y, 14rem));
+    width: 100%;
+    aspect-ratio: var(--game-aspect, 16 / 10);
+    min-height: 240px;
+    max-height: var(--game-max-h);
+    /* Cap width so height stays within the viewport: width <= height * aspect.
+     * Without this, `width: 100%` would force an oversized box and the
+     * board would scroll off-screen on short viewports. */
+    max-width: calc(var(--game-max-h) * var(--game-aspect-num, 1.6));
+    margin-inline: auto;
+  }
+  @media (min-width: 1024px) {
+    .game-canvas-frame { min-height: 400px; }
+  }
+  .game-canvas-frame--crash  { --game-aspect: var(--game-aspect-crash);  --game-aspect-num: var(--game-aspect-crash-num); }
+  .game-canvas-frame--mines  { --game-aspect: var(--game-aspect-mines);  --game-aspect-num: var(--game-aspect-mines-num); }
+  .game-canvas-frame--plinko { --game-aspect: var(--game-aspect-plinko); --game-aspect-num: var(--game-aspect-plinko-num); }
+  .game-canvas-frame--dice   { --game-aspect: var(--game-aspect-dice);   --game-aspect-num: var(--game-aspect-dice-num); }
+
+  /* Safe-area helpers for notched / gesture-bar phones */
+  .safe-pb { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-pt { padding-top: env(safe-area-inset-top, 0px); }
+
+  /* Touch target ergonomics for tiny phone screens (<500px wide) */
+  @media (max-width: 499px) {
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .touch-target-sm {
+      min-height: 44px;
+    }
+  }
+
+  /* Sticky cash-out button on tiny screens during flying phase */
+  .sticky-cashout {
+    position: relative;
+  }
+  @media (max-width: 499px) {
+    .sticky-cashout {
+      position: fixed;
+      left: 0.5rem;
+      right: 0.5rem;
+      bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+      width: auto;
+      z-index: 40;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    /* Reserve space below content so sticky button doesn't cover it */
+    .sticky-cashout-spacer { height: 5rem; }
+  }
+
+  @keyframes fly-away {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(150%, -150%) rotate(20deg); opacity: 0; }
+  }
+  .animate-fly-away { animation: fly-away 1.2s cubic-bezier(.5,0,.7,.2) forwards; }
+
+  @keyframes count-up {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .animate-count-up { animation: count-up 0.3s ease-out; }
+
+  @keyframes sunburst-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .animate-sunburst { animation: sunburst-spin 60s linear infinite; }
+  .animate-sunburst-slow { animation: sunburst-spin 90s linear infinite reverse; }
+
+  @keyframes propeller-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .animate-propeller { animation: propeller-spin 0.12s linear infinite; }
+
+  @keyframes flew-away-in {
+    0% { transform: scale(0.6); opacity: 0; }
+    60% { transform: scale(1.12); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .animate-flew-away { animation: flew-away-in 0.4s cubic-bezier(.34,1.56,.64,1) forwards; }
+}
+
+/* Iframe launcher mode — hides platform chrome (top bar, banner strip,
+ * demo signup nudge, chat panel) so the embedded game fills the iframe.
+ * Toggled by Launcher.tsx via document.body.classList.add("launcher-mode"). */
+.launcher-mode header,
+.launcher-mode [data-banner-strip],
+.launcher-mode [data-demo-nudge],
+.launcher-mode [data-chat-panel] {
+  display: none !important;
+}
+.launcher-mode .launcher-container {
+  height: 100vh;
+}

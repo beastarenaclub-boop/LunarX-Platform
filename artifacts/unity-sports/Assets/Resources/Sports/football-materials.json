@@ -1,0 +1,23 @@
+{
+  "materials": [
+    {
+      "name": "HumanSkin",
+      "albedo": "HumanAtlas.png",
+      "normal": "HumanAtlas_normal.png"
+    },
+    {
+      "name": "HumanDetail",
+      "albedo": "HumanAtlas.png"
+    },
+    {
+      "name": "FootballFace",
+      "albedo": "FootballFace.png",
+      "normal": "FootballFace_normal.png"
+    },
+    {
+      "name": "FootballUniform",
+      "albedo": "FootballKit.png",
+      "normal": "FootballKit_normal.png"
+    }
+  ]
+}

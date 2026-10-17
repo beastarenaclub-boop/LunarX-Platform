@@ -1,0 +1,27 @@
+ROYAL PARK BAY HORSE - REVISION 4
+
+This standalone asset contains only the CC0 horse and locally authored changes.
+31,997 triangles, 56 bones, up to four influences per vertex.
+FBX includes Idle, Gallop and Walk. The horse faces +Z in Unity.
+
+Source: https://grab3d.com/models/animals/horse/ (CC0, AI-assisted model).
+Rig / source running animation: afk-rig 0.1.2, Mesh2Motion (CC0).
+Standing idle, tail motion, skin smoothing and fitting were authored locally.
+See included licenses and provenance. This is not a scanned animal.
+
+Unity import:
+1. Import Thoroughbred.fbx; set Rig to Generic and enable animation import.
+2. Create a URP Lit material for its BayHorseCoat material slot.
+3. Assign Textures/BayHorse-albedo.png to Base Map and BayHorse-normal.png
+   as a Normal Map. The roughness texture is packed: green = roughness,
+   blue = metallic. It is NOT a Unity metallic/smoothness packed texture.
+   Either use a shader that reads 1-green as smoothness, or use a constant
+   smoothness around 0.25. Keep metalness at zero.
+4. Enable Loop Time for the animation clips; use no root motion when race
+   positions come from a game/server. Gallop is a one-second cycle.
+5. The game uses scale 1.18, albedo at 4096px, normal/roughness at 2048px.
+
+The existing project already configures materials and animations automatically
+through HorseBuild.Prepare and uses HorseCoat.shader for PBR coat variations.
+This asset pack contains no jockey or audience scans. The complete compiled
+game is a separate player package; the betting game remains in the workspace.

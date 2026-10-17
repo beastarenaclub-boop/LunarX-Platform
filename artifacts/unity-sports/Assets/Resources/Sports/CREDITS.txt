@@ -1,0 +1,65 @@
+Virtual sports broadcast assets
+
+Matchday stadium surfaces (2026-10-16): original downloaded Poly Haven
+Concrete Wall 006 (photography: Charlotte Baglioni; processing: Dario Barresi)
+and Metal Plate (Rob Tuytel), CC0-1.0. 1K diffuse and OpenGL normal maps.
+https://polyhaven.com/a/concrete_wall_006
+https://polyhaven.com/a/metal_plate
+https://polyhaven.com/license
+Exact source URLs and checksums: stadium-materials-provenance.json.
+Download/reproduction: tools/sports-assets/fetch-stadium-materials.mjs.
+Stadium architecture, player tunnel, dugouts, camera equipment and kit number
+atlas are authored in the project. These are original virtual venues, not
+scans of named real-world stadiums. The existing fan atlas remains generated.
+Football shirt smoothing/weights and close LOD refinement are reproduced by
+tools/sports-assets/refine-football-kit.py without changing source skin atlases.
+
+Football performance pass: the source Vitruvian face keeps its own 2K UVs;
+the existing CC0 jersey is welded, rebound and given a separate baked fabric
+material. The embedded Pass clip is retargeted from CMU Graphics Lab motion
+capture 10_01. CMU permits commercial-product inclusion but prohibits resale
+of the motion data itself. See football-mocap-LICENSE.txt and provenance JSON.
+This motion is not covered by Quaternius's CC0 animation license.
+
+Current Unity humans: CC0 Vitruvian/CharMorph head, eyes and skin textures
+from the already licensed local VitruvianGodot source, combined with the
+weighted Innerscene/MakeHuman sports body below. Detailed face, cropped hair,
+continuous shirt weights, cricket trousers, material atlases and three mesh
+LODs are assembled locally by tools/sports-assets/upgrade-unity-human.py.
+The existing source assets and their licenses remain in the workspace cache.
+
+athlete.glb: derived locally from CC0 Vitruvian / CharMorph body and head.
+Vitruvian: Sean Buckley and Olaf Delgado-Friedrichs; CharMorph: Upliner.
+Additional source credits: SirMaxim (skin LUT), Upliner (rig), Mindfront
+(eyebrows), J Hill (eyes). Source: github.com/ibrews/VitruvianGodot / NOTICE.md.
+Source files already licensed and cached by this workspace's horse asset pipeline.
+Sports cut, mesh reduction and Idle / Run / Strike clips are authored locally.
+No Mixamo animation clips are included. Reproduce with tools/sports-assets/prepare-athlete.py.
+
+grass-color.jpg, grass-normal.jpg: Poly Haven Grass Ground, CC0.
+https://polyhaven.com/a/grass_ground
+daylight.hdr: Poly Haven Kloofendal 48d Partly Cloudy, CC0.
+https://polyhaven.com/a/kloofendal_48d_partly_cloudy
+https://polyhaven.com/license
+
+crowd.png: existing generated grandstand artwork from this workspace's horse
+and bike environment pack. Not a photograph of an actual match or CC0 asset.
+Original provenance: public/assets/bike-racing/environment/crowd-provenance.json.
+No image editing was performed for this reuse. Architecture, vehicles, equipment,
+court textures and broadcast camera choreography are application-authored.
+
+football-player.glb: derived from Innerscene's CC0 MakeHuman soccer player
+(Micah). Mesh reduction, skinning, kit material variants, football kick and
+celebration authored in tools/sports-assets/prepare-football.py.
+https://www.innerscene.com/tools/library/3d-parts/soccer-player-standing-3d-person-team-sports-f55b1b4f
+Source SHA-256: 773cfa73bbcf659d7044934aaeacf1c3c9a49ae2955a51f56de7ad61ad1b6ffb
+Idle, Walk, Jog and Sprint are retargeted from Quaternius Universal Animation
+Library Standard (CC0), downloaded from the author's OpenGameArt listing.
+https://opengameart.org/content/universal-animation-library
+https://creativecommons.org/publicdomain/zero/1.0/
+Neither asset is from FIFA or EA Sports. No brand, player likeness or EA asset
+is represented as licensed by this project.
+
+football-fans.png: generated using the built-in image_gen tool, 2026-10-15.
+Not a photograph of an actual crowd. See football-fans-provenance.json for the
+prompt and original path. Used as a 4 x 4 instance atlas without raster edits.

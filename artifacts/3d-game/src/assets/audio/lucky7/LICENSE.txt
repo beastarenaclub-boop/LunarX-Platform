@@ -1,0 +1,9 @@
+Lucky 7: complete recordings of two dice rolling
+Original: 2 dice roll (29 throws), by RPG, 2013-08-30
+Source: https://opengameart.org/content/2-dice-roll-29-throws
+Download: https://opengameart.org/sites/default/files/Dice%20sound.7z
+License: CC0 1.0 Universal (public domain)
+https://creativecommons.org/publicdomain/zero/1.0/
+roll-1 = dice-16.wav; roll-2 = dice-27.wav; roll-3 = dice-29.wav.
+Edits: trim silence, remove low table resonance, pitch-preserving tempo fit, fades, peak level .68.
+Complete irregular rolling tails retained. Mono PCM WAV, 48 kHz, 16-bit.

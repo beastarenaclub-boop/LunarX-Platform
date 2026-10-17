@@ -1,0 +1,11 @@
+.wingo-shared-betting { display: grid; gap: 12px; min-width: 0; }
+.wingo-selected-stake { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 12px; color: #514477; }
+.wingo-shared-betting .coin-rack-options { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.wingo-shared-betting [data-testid="coin-settings-button"],
+.wingo-shared-betting .coin-rack-custom { color: #514477; border-color: #c5b8df; background: #f0ecfa; }
+:root .wingo-shared-betting .auto-bet-status { color: #514477; background: #f0ecfa; padding: 12px; border-radius: 10px; flex-wrap: wrap; }
+:root .wingo-shared-betting .auto-bet-status button { color: #514477; border-color: #c5b8df; min-height: 44px; }
+@media (max-width: 480px) {
+  .wingo-shared-betting .coin-rack-options { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .wingo-shared-betting .coin-rack-option, .wingo-shared-betting .coin-rack-custom { width: 38px; height: 38px; min-height: 38px; }
+}

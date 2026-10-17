@@ -1,0 +1,2 @@
+ALTER TABLE "deposit_settings" ADD COLUMN "withdraw_daily_per_user_paise" bigint DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE "deposit_settings" ADD COLUMN "withdraw_daily_platform_paise" bigint DEFAULT 0 NOT NULL;

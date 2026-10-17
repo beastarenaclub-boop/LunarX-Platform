@@ -1,0 +1,232 @@
+.entrance-puzzle .init-triangle {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  overflow: visible;
+}
+.entrance-puzzle .init-fragment {
+  color: #887a54;
+  cursor: pointer;
+}
+.entrance-puzzle .init-fragment.aligned {
+  color: #ead49a;
+}
+.seal-eye-lid {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: visitor-eye-blink 5.8s ease-in-out infinite;
+}
+.camera-eye {
+  cursor: pointer;
+}
+.camera-eye:hover {
+  filter: drop-shadow(0 0 7px #e0c785);
+}
+.camera-eye[aria-disabled="true"] {
+  cursor: default;
+}
+.eye-marked {
+  stroke: #a4e8b3;
+  filter: drop-shadow(0 0 9px #87bc77);
+}
+.eye-marked .seal-eye-lid {
+  animation: none;
+}
+.camera-eye:focus-visible {
+  outline: 2px solid #e6ca86;
+  outline-offset: 5px;
+}
+.visitor-checkin {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  text-align: left;
+}
+.visitor-checkin p {
+  font-size: 12px;
+  color: #a9b5a8;
+  line-height: 1.7;
+}
+.visitor-name {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+.visitor-name input {
+  width: 100%;
+}
+.visitor-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #49583c;
+  border-radius: 8px;
+  background: #1c271c;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.visitor-consent input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 2px;
+}
+.visitor-camera {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid #4a5940;
+  border-radius: 12px;
+  background: #080d09;
+}
+.visitor-camera > video,
+.visitor-camera > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.visitor-camera > video[hidden] {
+  display: none;
+}
+.visitor-camera > div {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #8d9b83;
+  font-size: 12px;
+}
+.visitor-camera-indicator {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 7px 10px;
+  background: #1f070bd9;
+  border: 1px solid #d07575;
+  color: #ffb8b8;
+  border-radius: 5px;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+}
+.visitor-location {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.visitor-location svg {
+  flex: none;
+  margin-top: 3px;
+}
+.visitor-saved {
+  display: grid;
+  gap: 14px;
+  text-align: center;
+  justify-items: center;
+  padding: 20px 0;
+}
+.visitor-saved > svg {
+  width: 42px;
+  height: 42px;
+  color: #9cd7ac;
+}
+.visitor-saved code {
+  overflow-wrap: anywhere;
+}
+.visitor-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px;
+  color: #a6af9c;
+  font-size: 12px;
+}
+.visitor-details {
+  padding: 22px;
+  text-align: left;
+}
+.visitor-details > img {
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  background: #070c08;
+  border-radius: 10px;
+}
+.visitor-details dl {
+  margin: 20px 0;
+}
+.visitor-details dl > div {
+  display: grid;
+  grid-template-columns: 125px minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #333e2d;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.visitor-details dt {
+  color: #97a58f;
+}
+.visitor-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.visitor-details > p,
+.visitor-details blockquote {
+  color: #9ca894;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.visitor-details blockquote {
+  margin: 16px 0 0;
+  padding-left: 14px;
+  border-left: 2px solid #a9945c;
+}
+.live-gateway > .modal-backdrop {
+  text-align: left;
+}
+.live-gateway .visitor-checkin p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+@keyframes visitor-eye-blink {
+  0%,
+  43%,
+  48%,
+  100% {
+    transform: scaleY(1);
+  }
+  45%,
+  46% {
+    transform: scaleY(0.08);
+  }
+}
+.motion-reduced .seal-eye-lid {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .seal-eye-lid {
+    animation: none;
+  }
+}
+@media (max-width: 600px) {
+  .visitor-checkin,
+  .visitor-details {
+    padding: 16px;
+  }
+  .visitor-details dl > div {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+  .visitor-consent {
+    font-size: 11px;
+  }
+  .visitor-checkin .page-actions {
+    flex-wrap: wrap;
+  }
+}

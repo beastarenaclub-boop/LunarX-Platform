@@ -1,0 +1,215 @@
+{
+  "version": "pack-camera-v2",
+  "files": [
+    {
+      "name": "aerial_rocks_02-diff.jpg",
+      "bytes": 785923,
+      "sha256": "708373b2af7fd07ac8de1500556006aaf904c41a99985a849cacc78874f38eac"
+    },
+    {
+      "name": "aerial_rocks_02-nor_gl.jpg",
+      "bytes": 1177932,
+      "sha256": "6df5263ba6c30e9343ee324d87078b926024d710b0b349025083600369df8d25"
+    },
+    {
+      "name": "aerial_rocks_02-rough.jpg",
+      "bytes": 381745,
+      "sha256": "07e842a9c9f128fb2afc2655cb09db914b5ec7c7657dcff4dcfce9c487ee0aae"
+    },
+    {
+      "name": "daylight.hdr",
+      "bytes": 1637206,
+      "sha256": "5477b7dbb2aea4a6947cb36b96339c119f90bf36a03b039af3254b5e6a22896d"
+    },
+    {
+      "name": "derby/grandstand-crowd-v1.png",
+      "bytes": 2846835,
+      "sha256": "f04cf25d1821fe3bb75c1f509054837860c6c730bf6017a012b7d76116f8dc4b"
+    },
+    {
+      "name": "derby/jockey-crouch-v1.glb",
+      "bytes": 6424872,
+      "sha256": "b0fb66dada40809fb173d0343ea0fa4631ddcde95e46d04a5b2aab3fc9f5d099"
+    },
+    {
+      "name": "derby/provenance.json",
+      "bytes": 2165,
+      "sha256": "32bf2e9dd549d5a0432098914febb3139b27c69f850d2165cb308a4fe202e8aa"
+    },
+    {
+      "name": "derby/rider-pose.json",
+      "bytes": 959,
+      "sha256": "e26fef44c7fc4c897369bbcc8eaf5a9a1abd89abea8d2177568448566af873e2"
+    },
+    {
+      "name": "earth/anatomy-validation.json",
+      "bytes": 6430,
+      "sha256": "ab15ecffcc04261f7df1802f0502e6054dfbea625fca9282e4a29ce4061a2594"
+    },
+    {
+      "name": "earth/provenance.json",
+      "bytes": 2505,
+      "sha256": "1dcfbe2f2f21872b5dca878fe4bf448340358cdaa3c72bd3a7d91875765a76ae"
+    },
+    {
+      "name": "earth/racing-loam-v1.png",
+      "bytes": 3841974,
+      "sha256": "420681fc0e1e2acad1544b6bdcd6fcbf5efc5f3aa81439b1e0d0389729a8a58e"
+    },
+    {
+      "name": "earth/thoroughbred-v2.glb",
+      "bytes": 3989220,
+      "sha256": "4f5a226483eae6f260f8c9aeb3bc1c4092298a8306f3ef2ce1534ceda0402033"
+    },
+    {
+      "name": "grass_ground-diff.jpg",
+      "bytes": 876584,
+      "sha256": "a79cc5ed65af0f80261b39a383b64a8c5272c5144d724deb43dbc29f0e4cd19b"
+    },
+    {
+      "name": "grass_ground-nor_gl.jpg",
+      "bytes": 1310516,
+      "sha256": "7000e2ccd479bb7b66dcdf4faef7b47554324566886314ca620cbf03e274e826"
+    },
+    {
+      "name": "grass_ground-rough.jpg",
+      "bytes": 328190,
+      "sha256": "111341f948b7e073edf7ac6add8777e1bf10df8959400df3863243e89bbc8c08"
+    },
+    {
+      "name": "higgsfield/coat-detail-v1.png",
+      "bytes": 2576813,
+      "sha256": "7f602b565a83d20ffcc51779d9302a21eec3c3ac4c87ed39da4f09b4b1ecc012"
+    },
+    {
+      "name": "higgsfield/provenance.json",
+      "bytes": 1420,
+      "sha256": "2e5bb87d4836032988377cfc415bbe84adabbb2f3b526e93548689d5cf14ed44"
+    },
+    {
+      "name": "higgsfield/thoroughbred-reference.png",
+      "bytes": 862728,
+      "sha256": "61155ba60e6dc8b7d5acb4f9b56cc2b32b8fb0f8bdda46a45ad05878dede0b28"
+    },
+    {
+      "name": "higgsfield/thoroughbred-v1.glb",
+      "bytes": 3651712,
+      "sha256": "f21c31b76bf0b7b9eafc06fd18a9aeeb7a4709cc5aaab333956fa989e0e30185"
+    },
+    {
+      "name": "jockey.glb",
+      "bytes": 6424836,
+      "sha256": "72297dbe72e8cdd26ae6f53752094fbc5fc392e814a2841fa9f686beaebb1162"
+    },
+    {
+      "name": "performance/horse-lod-validation.json",
+      "bytes": 5624,
+      "sha256": "bb56a2cae3ee12387b52e420f120a89ff786d5e95d0254d25a1d4fc09039804a"
+    },
+    {
+      "name": "performance/jockey-mounted-v3.glb",
+      "bytes": 4243852,
+      "sha256": "733bd572e17ec5b0e3e32f0ad6a72f02c7cc5c6cead2a0de8fbb3b383231ad67"
+    },
+    {
+      "name": "performance/provenance.json",
+      "bytes": 1474,
+      "sha256": "6d15e7f348e9ad252f0701a5387b06ff9a335b1fac006a47aa0fadf5406ce6a7"
+    },
+    {
+      "name": "performance/thoroughbred-field-v3.glb",
+      "bytes": 3282476,
+      "sha256": "3cf9642c9f543c510b5cdb750b309eac99478b43f693f5b97ff8fcdc041b1d2a"
+    },
+    {
+      "name": "racehorse.glb",
+      "bytes": 3390164,
+      "sha256": "e3176cea50f612f68f9d60ef9d17d2c24efa3eaaf44275b63419e2e2a6f4628a"
+    },
+    {
+      "name": "racewear/jockey-racewear-v2.glb",
+      "bytes": 8132176,
+      "sha256": "e102cdcca9c321d48be7018e3b2e82a384e23804969846db71efc9ee092276a0"
+    },
+    {
+      "name": "racewear/provenance.json",
+      "bytes": 3566,
+      "sha256": "675c54beb24d381cfd58c218fbbe9a7c9595cfec30e57053b7c053902df9c9f0"
+    },
+    {
+      "name": "racewear/racewear-validation.json",
+      "bytes": 1180,
+      "sha256": "783393b74ddd844a5c26ca263233c95d583cdc350707eff7c118f20c5e377b4f"
+    },
+    {
+      "name": "racewear/thoroughbred-coat-v2.png",
+      "bytes": 2111315,
+      "sha256": "20cec669ef7e476496b30f40beb66a01ffdc435eff49eb8b83402a8cc2b7c66b"
+    },
+    {
+      "name": "raked_dirt-diff.jpg",
+      "bytes": 746309,
+      "sha256": "edc0d6b5d7532fc3e4db4086cd3612b7267ddfb3cc509c34793aa774964520a6"
+    },
+    {
+      "name": "raked_dirt-nor_gl.jpg",
+      "bytes": 1226421,
+      "sha256": "4abc25e1be4cfaf8cee77755128083282b120ab6edf4a00d702b68b8354a107c"
+    },
+    {
+      "name": "raked_dirt-rough.jpg",
+      "bytes": 246280,
+      "sha256": "7e6e0f7c20b62622067bdd87886b9392cb8cd173da70942cc403270a6da356fd"
+    },
+    {
+      "name": "spectator.glb",
+      "bytes": 93800,
+      "sha256": "cdd03fe5803b3f3641b9ce3442400a91562a3635826bf2d3b3f4a6a6095ac9d3"
+    },
+    {
+      "name": "stadium/hospitality-facade-v1.png",
+      "bytes": 2466377,
+      "sha256": "1de7b7d48d18f5a6cd41bfc383616fdbd859750c91f61b0210c12e7fd22a8fc4"
+    },
+    {
+      "name": "stadium/provenance.json",
+      "bytes": 3822,
+      "sha256": "e24b979f9d9b6186696d55923be2c0e60660782f5fa7d9b661374ac9d7c5b7fc"
+    },
+    {
+      "name": "stadium/spectators-atlas-v1.png",
+      "bytes": 1265053,
+      "sha256": "d858d55aa82f7f4c7e6327a972b38c94b89e952e036dd822937b8d2476e963f3"
+    },
+    {
+      "name": "tree-canopy-0.png",
+      "bytes": 876273,
+      "sha256": "1bd6ca26428119344ff3c96a6914605a4890608fb6e319a41209d41638171d59"
+    },
+    {
+      "name": "tree-canopy-1.png",
+      "bytes": 871870,
+      "sha256": "da22ec2b663f540be6acfb78f30286dfd9a204877231506037ee9e4f2c71caec"
+    },
+    {
+      "name": "tree.glb",
+      "bytes": 2199716,
+      "sha256": "7d0f53e22ab18be4321cf36540de515b5ae9d6d0d02f62947022f71b374a96ed"
+    },
+    {
+      "name": "shared-horse/gallop-v1.webp",
+      "bytes": 370502,
+      "sha256": "a1c14257e9c5fa2664da4722445b2b2dd3a07cfd0e54b14a7bc307deba67f434"
+    },
+    {
+      "name": "shared-horse/idle-v1.webp",
+      "bytes": 19660,
+      "sha256": "1599cb4a612bea4d2fe020720e330b70e88bfc92d8262e1237ea27ded89e404e"
+    },
+    {
+      "name": "shared-horse/manifest.json",
+      "bytes": 858,
+      "sha256": "573f69f19e0fc7c278c43d3f419dc357a7027aec31ff395c35b48cb846daff3e"
+    }
+  ]
+}

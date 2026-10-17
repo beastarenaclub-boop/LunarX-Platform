@@ -1,0 +1,47 @@
+{
+  "version": 3,
+  "generatedPresenter": true,
+  "description": "Four original generated Hindi host performances. Same-frame tracked foreground keeps the walking host and physical hand in front of the server-controlled SVG wheel. This is animated presentation, not a live camera feed.",
+  "format": {
+    "codec": "H.264/AAC",
+    "encodedWidth": 1920,
+    "encodedHeight": 1350,
+    "visibleHeight": 1080,
+    "matteTop": 1080,
+    "matteHeight": 270,
+    "fps": 24,
+    "audioSampleRate": 48000,
+    "loudnessLUFS": -16
+  },
+  "cues": {
+    "pull": 2.75,
+    "stop": 9.25,
+    "duration": 10
+  },
+  "clips": {
+    "welcome": {
+      "file": "studio-welcome-v3.mp4",
+      "generationTask": "61e298ac-2f8f-4d94-a095-87d9270ed55c",
+      "foregroundTask": "7afc8586-13d9-43f6-8fc5-f0aa1e4af35a",
+      "prompt": "A single continuous locked-off 16:9 tripod broadcast shot, matching the input image's studio and composition exactly. Same adult Indian female presenter in the blue dress, same face, hair, microphone, shoes and lighting. Wheel, pointer, sign, pedestal, floor and camera stay fixed. Wheel remains perfectly stationary. Keep her whole body and feet in view, entirely in the open stage space to the RIGHT of the wheel, never crossing or hiding the wheel face. Natural human skin, grounded feet, heel-to-toe footsteps, weight transfer, dress and hair motion, no sliding or teleporting. No camera zoom, cuts, subtitles, graphics, music or crowd. Her microphone carries clear warm confident Indian female Hindi speech with precise visible lip synchronization, like a professional live game-show anchor. ACTION: She actively hosts while walking. During seconds 0-4 she takes THREE clearly visible natural steps diagonally toward the front-right of the stage, about one metre from her starting mark. She faces camera while speaking and makes a welcoming open-palm gesture. During seconds 4-8 she turns slightly and takes THREE visible natural steps back to her original mark beside the wheel, still speaking and making eye contact with the camera. During seconds 8-10 she settles naturally into the exact original pose. Her horizontal position must visibly travel, not just sway in place. Never go farther right than 86 percent of the frame. DIALOGUE, spoken naturally across seconds 0.3-8.5 with bright anchoring energy: 'Namaskar! Wheel two point zero mein aapka swagat hai. Main hoon aapki host. Apna number chuniye, naya round shuru ho raha hai!' Sound: her clear close-microphone Hindi voice and subtle genuine footsteps. This is a talking and walking presenter performance, not a silent idle loop."
+    },
+    "lastCall": {
+      "file": "studio-last-call-v3.mp4",
+      "generationTask": "acb9bf2c-0534-4415-a805-e67431077aff",
+      "foregroundTask": "ece85b5f-907a-4dfa-b8ae-00a3991efbcc",
+      "prompt": "A single continuous locked-off 16:9 tripod broadcast shot, matching the input image's studio and composition exactly. Same adult Indian female presenter in the blue dress, same face, hair, microphone, shoes and lighting. Wheel, pointer, sign, pedestal, floor and camera stay fixed. Wheel remains perfectly stationary. Keep her whole body and feet in view, entirely in the open stage space to the RIGHT of the wheel, never crossing or hiding the wheel face. Natural human skin, grounded feet, heel-to-toe footsteps, weight transfer, dress and hair motion, no sliding or teleporting. No camera zoom, cuts, subtitles, graphics, music or crowd. Her microphone carries clear warm confident Indian female Hindi speech with precise visible lip synchronization, like a professional live game-show anchor. ACTION: For seconds 0-3 she takes TWO clearly visible natural steps forward and to her right on the open stage, gesturing with her free hand to invite the audience to choose. For seconds 3-5 she pauses on this new mark, talks directly to camera with animated natural eyebrows and counting fingers. For seconds 5-8 she takes TWO clearly visible natural steps back towards the wheel, glances to its rim, then looks to camera, returning to the exact starting pose by seconds 9-10. She must actually walk with visible lifted feet and changing body position, not sway. Stay between 68 and 86 percent of the image width. DIALOGUE in clear expressive Hindi, paced across seconds 0.3-8.7: 'Kaunsa number hoga aapka favourite? Number select karke apni bet confirm kijiye. Bas kuch second baaki hain. Taiyaar rahiye, ab wheel ghoomega!' Her clear speech must be prominent throughout, no silent demonstration."
+    },
+    "spin": {
+      "file": "studio-spin-v3.mp4",
+      "generationTask": "84671498-61be-4954-a322-b8d51056ddbd",
+      "foregroundTask": "da4ccef4-122c-4674-a99d-f956c37ed998",
+      "prompt": "Photoreal single continuous locked tripod broadcast wide shot. EXACT input composition, same adult woman in blue dress holding microphone, fixed wheel centre/size, same lighting and set. No cuts, zoom, captions, music or crowd. She is a professional Hindi game-show anchor with a warm confident Indian female voice and accurate visible lip sync. Seconds 0-2: she faces camera and announces clearly: 'Bets band! Chaliye, wheel ghumate hain!' Seconds 2-3: she takes ONE natural step towards the wheel and visibly grasps its outer RIGHT rim at two o'clock with her free hand. Seconds 3-4: she firmly pulls the rim DOWN clockwise toward four o'clock, bending naturally with visible effort and real hand contact; she then releases. The disk moves ONLY when she pulls. Keep her fingers on the outer rim, never across the inner wheel face. Seconds 4-8: she steps back to her original standing mark, watches the spinning wheel and continues speaking excitedly into the microphone: 'Wheel ghoom raha hai! Nazar rakhiye, dekhte hain kaunsa number aata hai!' During seconds 8-10 she smiles and looks from wheel to camera, returning to the exact starting pose. Mechanical ticking slows as the wheel coasts. Real heel-to-toe foot contact, body weight, fingers, breathing, cloth motion. Human performance, not a mannequin. Only the disk rotates, structure and pointer stay absolutely fixed. Clear Hindi commentary is prominent, no music."
+    },
+    "result": {
+      "file": "studio-result-v3.mp4",
+      "generationTask": "19813f91-f56d-435b-b8f5-afb21527f186",
+      "foregroundTask": "c775a8ae-d77c-4ec1-9a79-d09bac308a0a",
+      "prompt": "A single continuous locked-off 16:9 tripod broadcast shot, matching the input image's studio and composition exactly. Same adult Indian female presenter in the blue dress, same face, hair, microphone, shoes and lighting. Wheel, pointer, sign, pedestal, floor and camera stay fixed. Wheel remains perfectly stationary. Keep her whole body and feet in view, entirely in the open stage space to the RIGHT of the wheel, never crossing or hiding the wheel face. Natural human skin, grounded feet, heel-to-toe footsteps, weight transfer, dress and hair motion, no sliding or teleporting. No camera zoom, cuts, subtitles, graphics, music or crowd. Her microphone carries clear warm confident Indian female Hindi speech with precise visible lip synchronization, like a professional live game-show anchor. ACTION: During seconds 0-1 the host glances at the wheel's top pointer, takes one natural step forward on the open right side of the stage and looks directly at camera. During seconds 1-5 she smiles and enthusiastically presents the result with a small open-palm gesture towards the wheel, keeping hands outside its inner face. During seconds 5-7 she takes one natural step back, and returns to the exact starting pose by second 9. Her feet visibly lift with real ground contact and cloth motion. DIALOGUE must FINISH by second 5.5, delivered warmly and clearly in Hindi: 'Aur yeh raha winning number! Sabhi winners ko badhai! Agle round ke liye taiyaar rahiye.' After 5.5 seconds she smiles silently with natural blinking and breathing. Do not speak any specific winning number. Keep wheel COMPLETELY stationary; no captions, applause, music or additional voices."
+    }
+  }
+}

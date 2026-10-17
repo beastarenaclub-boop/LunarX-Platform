@@ -1,0 +1,54 @@
+{
+  "source": "Higgsfield; fictional adult dealer; start/end frame extracted from existing idle take",
+  "referenceMediaId": "48549648-b6f0-4f7d-ad23-f191390c1cf3",
+  "clips": [
+    {
+      "file": "dealer-greeting.mp4",
+      "jobId": "2fc28eff-d186-4937-93fb-612f61232773",
+      "model": "seedance_2_5",
+      "mode": "omni_reference",
+      "duration": 5,
+      "resolution": "720p",
+      "aspect_ratio": "16:9",
+      "generate_audio": true,
+      "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+      "use_unlim": false,
+      "count": 1,
+      "medias": [
+        {
+          "role": "start_image",
+          "value": "48549648-b6f0-4f7d-ad23-f191390c1cf3"
+        },
+        {
+          "role": "end_image",
+          "value": "48549648-b6f0-4f7d-ad23-f191390c1cf3"
+        }
+      ],
+      "prompt": "Photorealistic casino dealer greeting, exactly FIVE seconds, fixed tripod camera. Animate this exact fictional adult woman; preserve her face, hair, white shirt, black waistcoat, seated posture, lighting, scale and entire composition. The supplied image is BOTH the opening and ending pose, both hands resting low on the green felt. 0.0-0.5 seconds she smiles warmly at the viewer and begins lifting BOTH empty hands. At 0.7-1.8 seconds she brings both palms together vertically at chest height in a clear respectful Indian NAMASTE gesture, fingers naturally together pointing upward, and speaks exactly one short friendly word in Hindi: 'Namaste!' synchronized to visible mouth movement, warm natural female voice. A tiny courteous nod, not a bow. Hold joined palms briefly until 2.4 seconds. At 2.5-4.3 seconds separate and lower both hands back to the original resting position; 4.3-5.0 seconds hold the exact initial neutral pose and gentle smile. Humanly accurate hands and five fingers; wrists and elbows anatomically natural. Keep hands entirely in front of her torso between the shoulders, no waving sideways. No dice or new props, no captions/text, no overlays, no extra people, no camera movement, no zoom, no cuts, no changes of room or clothing. Clean isolated spoken word only; no background music or ambient audio."
+    },
+    {
+      "file": "dealer-win.mp4",
+      "jobId": "a5ba9175-9ae2-461d-bd70-952e637c3ad4",
+      "model": "seedance_2_5",
+      "mode": "omni_reference",
+      "duration": 5,
+      "resolution": "720p",
+      "aspect_ratio": "16:9",
+      "generate_audio": true,
+      "folder_id": "84fd2888-105a-4fe5-ad28-a40bcbc73e9e",
+      "use_unlim": false,
+      "count": 1,
+      "medias": [
+        {
+          "role": "start_image",
+          "value": "48549648-b6f0-4f7d-ad23-f191390c1cf3"
+        },
+        {
+          "role": "end_image",
+          "value": "48549648-b6f0-4f7d-ad23-f191390c1cf3"
+        }
+      ],
+      "prompt": "Photorealistic casino dealer celebration, exactly FIVE seconds, fixed tripod camera. Animate this exact fictional adult woman; preserve her identity, hair, white shirt, black waistcoat, seated posture, lighting, scale and entire composition. The supplied image is BOTH the opening and ending pose with both hands resting low on the green felt. 0.0-0.5 seconds her expression turns to a warm happy smile, eyes looking directly at the player. 0.5-3.0 seconds she raises BOTH EMPTY HANDS in front of her chest and gives THREE distinct, realistic claps to congratulate the player: palms move apart, contact with a natural clap sound, apart again. Accurately synchronized contact sounds. Natural anatomically correct wrists and five fingers on each hand. All clapping stays in front of her torso inside the shoulder width, below chin level; do not obscure face. Small happy nod, no exaggerated head movement. 3.0-4.3 seconds gently lower both hands back to the original resting position. 4.3-5.0 seconds hold the exact original resting pose and friendly smile. No speech, no dice, no props, no music, no ambient audio, no text, no overlays, no extra people, no camera movement, no zoom or cuts, no changes of room or clothing. Match the start and end images precisely."
+    }
+  ]
+}

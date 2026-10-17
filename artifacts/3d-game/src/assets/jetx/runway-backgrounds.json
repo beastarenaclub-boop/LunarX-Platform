@@ -1,0 +1,24 @@
+{
+  "provider": "Runway",
+  "date": "2026-10-14",
+  "assets": [
+    {
+      "file": "airport-runway-v3.webp",
+      "original": "airport-runway-v3.png",
+      "taskId": "883454a7-d3c8-491e-99f9-fca319d799fd",
+      "prompt": "Use case: stylized-concept. Asset: single clean 2D game background, no UI. Recreate and polish the airport environment in @airport with the same composition: side-on airfield, level horizontal runway, small curved hangars, a control tower left of center, glass terminal right of center, distant city and layered pink dusk clouds. Preserve the JetX recording's soft dusty rose, mauve and deep indigo palette. Improve the painted 3D game-art quality with defined cloud edges, convincing atmospheric depth, elegant glass reflections, warm amber airport beacons and very subtle runway edge lights. Buildings are modest in scale at the horizon 55 percent down the image, never foreground skyscrapers. The lower 40 percent is spacious dark indigo tarmac with a subtle horizontal dashed runway line, naturally grading to near black at bottom for game controls. Keep center clear for a separately drawn yellow plane and white multiplier. Orthographic side view, no vanishing-point road. No aircraft, people, text, logos, numbers, buttons, HUD or watermark. One continuous full-bleed environment."
+    },
+    {
+      "file": "clouds-runway-v3.webp",
+      "original": "clouds-runway-v3.png",
+      "taskId": "c66888d3-2db2-4bff-8613-39af85a05828",
+      "prompt": "Use case: stylized-concept. Asset: single clean flight game background, no UI. Refine the supplied cloud-sky reference into polished painted 3D game environment art matching a soft dusty rose sunset airport. Preserve lavender-blue upper sky, peach-pink cumulus clouds and dark muted mauve lower sky. Improve volume, fine illuminated cloud edges and atmospheric depth. Compose cloud masses mostly toward the left edge, right edge and lower third, leaving broad quiet lavender sky at the center for a yellow jet and white multiplier drawn separately. A subtle distant pink horizon at 62 percent height, no hard horizon line, no visible ground. Bottom 22 percent gently fades into dark indigo for controls. Elegant restrained colors rather than saturated neon. No aircraft, people, parachutes, text, symbols, logos, buttons, interface, borders or watermark. One standalone full-bleed landscape."
+    },
+    {
+      "file": "night-runway-v3.webp",
+      "original": "night-runway-v3.png",
+      "taskId": "4aae2fca-a492-4249-8355-d58df0ded799",
+      "prompt": "Use case: stylized-concept. Asset: single clean high-altitude night game background, no UI. Polish the supplied night sky reference into a premium painted 3D game environment continuing a lavender pink sunset flight. Deep midnight navy and soft violet sky with a subtle blue diagonal atmospheric glow, sparse tiny distant stars, softly lit lavender cloud wisps low on the horizon. Move the softly glowing pink moon into the upper-right quadrant at 74 percent width and 27 percent height, diameter 13 percent of the image width. Moon must remain round, with subtle crater detail. Leave center clean and low contrast for a separately drawn yellow jet and large white multiplier. Bottom 25 percent gradually fades into near black. Restrained atmospheric depth, refined tonal gradients. No foreground objects, aircraft, people, parachutes, text, logos, buttons, UI, frame or watermark. One continuous full-bleed environment."
+    }
+  ]
+}

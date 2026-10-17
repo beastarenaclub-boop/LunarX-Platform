@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-27",
+  "generationCredits": 0,
+  "source": "Native 720p closed-cup and Asha waiting generations from single-generation.json and quiet-generation.json",
+  "outputs": [
+    {
+      "media_id": "cd9bfa31-0216-4f94-85be-f6ea512bdd71",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/cd9bfa31-0216-4f94-85be-f6ea512bdd71.mp4"
+    },
+    {
+      "media_id": "8a6fdb1f-1f2c-4b57-a599-8f02422ce1e0",
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/8a6fdb1f-1f2c-4b57-a599-8f02422ce1e0.jpg"
+    }
+  ],
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "durationSeconds": 10.5,
+  "idle": {
+    "startMs": 0,
+    "endMs": 6000
+  },
+  "roll": {
+    "startMs": 6000,
+    "endMs": 10500,
+    "releaseMs": 8625,
+    "sourceStartMs": 2000,
+    "x": 0.512972,
+    "y": 0.813515
+  },
+  "normalPlaybackRate": 1,
+  "maxPlaybackRate": 1.1,
+  "changes": [
+    "Source begins with closed hands shaking, pickup removed",
+    "Native-resolution processing; one H.264 encode, CRF18",
+    "No cross-dissolves or browser opacity fades",
+    "Mild luma detail sharpening; no image blur",
+    "Original studio framing preserved with background feature alignment",
+    "LUCKY 7 lettering rendered on the felt behind dice"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "date": "2026-09-27",
+  "kind": "continuity-edit",
+  "generationCredits": 0,
+  "master": {
+    "media_id": "e84519c8-687a-468a-8de1-62323229ec99",
+    "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/e84519c8-687a-468a-8de1-62323229ec99.mp4",
+    "width": 960,
+    "height": 540,
+    "fps": 24,
+    "duration": 20.25
+  },
+  "source": "single-generation.json",
+  "waitingSource": "https://d2ol7oe51mr4n9.cloudfront.net/user_3DfogZPGkbXS9yE4AofyWrtGEMw/3a11c541-c5f3-4ba9-bffb-d50748caeb9b.mp4",
+  "idle": {
+    "startMs": 14250,
+    "endMs": 20250
+  },
+  "handoff": {
+    "sourceFrame": 111,
+    "sourceMs": 4625,
+    "masterMs": 8125
+  },
+  "changes": [
+    "One master URL for both decoders",
+    "Always seated greeting",
+    "Captured-frame bridge across seeks; no intermediate idle flash",
+    "Soft seated-tail and waiting-seam joins",
+    "Clean felt removes released props and shadow residue while protecting fingers",
+    "Smooth dice growth after release, enlarged at rest"
+  ]
+}
