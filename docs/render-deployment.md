@@ -17,6 +17,48 @@ Review the account's current compute, disk, bandwidth and workspace charges
 before provisioning. The existing media assets make bandwidth usage relevant.
 Provider prices: <https://render.com/pricing>.
 
+## Live deployment
+
+Deployed on 17 October 2026 from application commit
+`d9c680060ce3d743ba88006a4bfd2047c680de74`:
+
+- Website: <https://lunarx-web.onrender.com>
+- Web service: `srv-db9nceom7kps73e1jl8g`
+- Private API: `srv-db9ncb7avr4c73enfk60`
+- PostgreSQL: `dpg-db9nbvfbtjjs73cc6ij0-a`
+- API disk: `dsk-db9ncbfavr4c73enfkp0`
+
+Both service deploys reached `live`; the database reached `available`.
+These resources were created through the authenticated Render API using this
+repository's configuration. No LunarX Blueprint currently manages them. Use
+these existing services for releases rather than creating duplicate resources
+with the Deploy to Render button. Review any future Blueprint adoption before
+syncing it against these resources.
+
+The gateway's `API_UPSTREAM` is explicitly `lunarx-api:4000`, matching the API's
+`PORT=4000`. Render's private-service URL currently reports port 10000 even
+though its detected open port is 4000. Preserve the actual listener port when
+editing this connection; do not replace it blindly with the displayed URL or
+the Blueprint's `hostport` reference.
+
+The bootstrap admin email and generated password are stored in the private
+API service's Render environment variables. Retrieve them from that service's
+Environment page; no credentials are stored in Git. Existing local accounts,
+balances and SQLite data were not imported.
+
+Live verification passed for `/api/healthz`, the game and horse-riding HTML and
+JavaScript, missing-file handling, admin bootstrap/login, Secure/HttpOnly
+session cookies, and an authenticated WebSocket welcome through the gateway.
+The authenticated lobby rendered in Chrome at 1440x1000 and 390x844, without
+JavaScript exceptions or failed static-asset responses during those checks.
+These checks did not place wagers or exercise payments.
+
+The apex, `www`, `b2b`, `admin` and `panel` domains are attached to `lunarx-web`
+but remain unverified pending DNS changes. The apex still resolved to the
+previous server (`2.57.91.91`) at verification time. The admin and operator
+panels are built into the web image, but public access through their custom
+hostnames still requires the DNS and TLS steps below.
+
 ## Source and deployment
 
 1. Connect the Render account and authorize access to the source repository.
@@ -26,7 +68,7 @@ Provider prices: <https://render.com/pricing>.
    deploying an older branch will not deploy the current game. Exclude local
    databases, exports, credentials, `.env` files and dependencies.
    If using another release branch, change both `branch` entries in `render.yaml`.
-3. Grant the Render GitHub app access to the private `LunarX-Platform` repository.
+3. For a new environment, grant the Render GitHub app access to `LunarX-Platform`.
    Create a Blueprint from that repository using branch `main` and `render.yaml`
    at the root, or use the **Deploy to Render** button in the repository README.
    Enter `SUPER_ADMIN_EMAIL` and a unique `SUPER_ADMIN_PASSWORD` of at least
@@ -53,10 +95,10 @@ the target hostname shown on **lunarx-web -> Settings -> Custom Domains**.
 | Type | Name | Value |
 | --- | --- | --- |
 | A | `@` | `216.24.57.1` (verify the value displayed by Render before cutover) |
-| CNAME | `www` | The actual `lunarx-web` service's `*.onrender.com` hostname |
-| CNAME | `b2b` | The same Render hostname |
-| CNAME | `admin` | The same Render hostname |
-| CNAME | `panel` | The same Render hostname |
+| CNAME | `www` | `lunarx-web.onrender.com` |
+| CNAME | `b2b` | `lunarx-web.onrender.com` |
+| CNAME | `admin` | `lunarx-web.onrender.com` |
+| CNAME | `panel` | `lunarx-web.onrender.com` |
 
 Replace conflicting A/CNAME records only for these web hostnames. Remove their
 conflicting AAAA records because Render's documented custom-domain ingress uses
@@ -93,13 +135,14 @@ required. This configuration does not add MFA or a comprehensive WAF.
 
 ## Local verification
 
-Preparation status (17 October 2026): the Blueprint passed validation against
-Render's current JSON schema and the API Docker image built successfully. The
-fresh frontend Docker build was interrupted when the Windows C: drive ran out
-of space. The integration smoke test could not create its temporary Docker
-network because Docker stopped responding. Frontend compilation and runtime
-smoke tests therefore remain required; no successful production deployment is
-implied by the presence of these files.
+Verification status (17 October 2026): the Blueprint passed both the current
+JSON schema and authenticated Render CLI validation. All four frontend bundles
+and the API compiled locally. The local frontend checks avoided duplicating
+the public asset directories because the Windows C: drive had limited space.
+Both full Docker builds then succeeded on Render, including their public
+assets. Migrations and live runtime checks passed as described above. The local
+isolated Docker smoke test remains unrun because Docker Desktop was stopped;
+the live checks do not claim to cover every scenario in that local test.
 
 From the repository root, with Docker Desktop running Linux containers:
 

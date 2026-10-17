@@ -5,9 +5,17 @@ Game website, admin panel, master/agent panels, API and database migrations for
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fbeastarenaclub-boop%2FLunarX-Platform)
 
+Live deployment: **https://lunarx-web.onrender.com**. The API, website and
+database were deployed and verified on 17 October 2026. Custom domains are
+attached in Render; Hostinger DNS cutover is still pending.
+
 ## Deploy on Render
 
-1. Connect the GitHub account that can access this private repository to Render.
+These steps create a new environment. The existing deployment was provisioned
+through the Render API and is not managed by a Blueprint; use its existing
+services for releases. See [deployment details](docs/render-deployment.md).
+
+1. Connect the GitHub account that can access this repository to Render.
    In the Render GitHub app, grant access to **LunarX-Platform**.
 2. Click **Deploy to Render** above, or choose **New > Blueprint** in Render.
    Select this repository, branch **main**, and Blueprint path **render.yaml**.
@@ -23,9 +31,10 @@ are in [lib/db/drizzle](lib/db/drizzle). Database contents, users, balances,
 passwords and local exports are not included. Existing data requires a separate
 database import. GitHub stores the application source; Render runs the database.
 
-Preparing this repository does not deploy it. The API image and Blueprint have
-passed their recorded checks; a fresh frontend build and runtime verification
-remain pending. See the deployment guide for validation details.
+Both Docker images built successfully on Render. Live checks passed for API
+health, admin login, secure cookies, authenticated WebSocket connections, and
+the lobby at desktop and mobile sizes. See the deployment guide for the exact
+verification scope and remaining domain setup.
 
 ## Local Docker setup
 
