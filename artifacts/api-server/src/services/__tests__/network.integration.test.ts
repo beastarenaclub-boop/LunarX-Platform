@@ -86,6 +86,12 @@ test(
         role: string;
         total: number;
         balance: string;
+        masterId: string;
+        name: string;
+        domain: string;
+        url: string;
+        loginUrl: string;
+        website: { masterId: string; name: string; url: string } | null;
         user: { id: string; email: string; channel: string };
         players: { id: string; agent_id: string | null }[];
         nodes: {
@@ -93,6 +99,7 @@ test(
           parent_id: string | null;
           parent_name: string | null;
           kind: string;
+          website_url: string;
         }[];
         entries: {
           source_id: string;
@@ -238,6 +245,24 @@ test(
         201,
       );
       const otherClient = await login(`${prefix}-other@example.test`);
+      const website = await call(publicB2b, `/network/website/${master.id}`);
+      assert.deepEqual(Object.keys(website).sort(), ["domain", "loginUrl", "masterId", "name", "url"].sort(), "Public website metadata contains no account or financial data");
+      assert.equal(website.masterId, master.id);
+      assert.equal(website.name, "North Branch");
+      assert.equal(website.url, `http://localhost:5202/branch/${master.id}/`);
+      assert.equal(website.loginUrl, `${website.url}login`);
+      assert.equal((await call(masterClient, "/network/context")).website?.url, website.url);
+      assert.equal((await call(agentClient, "/network/context")).website?.url, website.url);
+      assert.equal((await call(otherClient, "/network/context")).website?.masterId, otherMaster.id);
+      assert.equal((await call(company, "/network/context")).website, null);
+      await call(publicB2c, `/network/website/${master.id}`, undefined, "GET", 404);
+      await call(publicB2b, `/network/website/${agent.id}`, undefined, "GET", 404);
+      await call(publicB2b, "/network/website/unknown-master", undefined, "GET", 404);
+      await call(publicB2b, "/network/nodes", undefined, "GET", 401);
+      await call(company, `/network/nodes/${otherMaster.id}`, {status:"suspended"}, "PATCH");
+      await call(publicB2b, `/network/website/${otherMaster.id}`, undefined, "GET", 404);
+      await call(company, `/network/nodes/${otherMaster.id}`, {status:"active"}, "PATCH");
+      assert.equal((await call(publicB2b, `/network/website/${otherMaster.id}`)).masterId, otherMaster.id);
       await call(
         otherClient,
         `/network/nodes/${agent.id}`,
@@ -248,6 +273,7 @@ test(
       assert.equal((await call(otherClient, "/network/players")).total, 0);
       const branchNodes = (await call(masterClient, "/network/nodes")).nodes;
       const agentNodes = (await call(agentClient, "/network/nodes")).nodes;
+      assert.ok(branchNodes.every(node => node.website_url === website.url), "Master and its agents share their customer playing website");
       assert.equal(
         agentNodes.length,
         1,

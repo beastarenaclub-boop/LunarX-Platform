@@ -13,9 +13,24 @@ import { requireAuth } from "../middlewares/auth";
 import { badRequest, conflict, forbidden, notFound } from "../lib/errors";
 import { hashPassword } from "../lib/password";
 import { networkIdentity } from "../services/network";
+import { networkWebsite } from "../services/networkWebsite";
+import { requestSite } from "../middlewares/siteChannel";
 import { postEntry, publishWalletBalance } from "../services/wallet";
 
 const router: IRouter = Router();
+// Public branch pages expose only the active master's display name and links.
+router.get("/website/:masterId", async (req, res, next) => {
+  try {
+    if (requestSite(req) !== "b2b") throw notFound();
+    const id = z.string().regex(/^[A-Za-z0-9_-]{1,100}$/).parse(req.params.masterId);
+    const [master] = await db.select({ id: networkNodesTable.id, name: networkNodesTable.name })
+      .from(networkNodesTable).innerJoin(usersTable, eq(usersTable.id, networkNodesTable.userId))
+      .where(and(eq(networkNodesTable.id, id), eq(networkNodesTable.kind, "master"),
+        eq(networkNodesTable.status, "active"), eq(usersTable.status, "active")));
+    if (!master) throw notFound("This branch website is unavailable");
+    res.set("Cache-Control", "no-store").json(networkWebsite(master.id, master.name));
+  } catch (e) { next(e); }
+});
 router.use(requireAuth);
 function isDuplicate(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
@@ -72,7 +87,11 @@ async function audit(
 
 router.get("/context", async (req, res, next) => {
   try {
-    res.json(await networkIdentity(req.user!));
+    const actor = await networkIdentity(req.user!);
+    const masterId = actor.node?.kind === "master" ? actor.node.id : actor.node?.parentId;
+    const [master] = masterId ? await db.select({ id: networkNodesTable.id, name: networkNodesTable.name })
+      .from(networkNodesTable).where(eq(networkNodesTable.id, masterId)) : [];
+    res.json({ ...actor, website: master ? networkWebsite(master.id, master.name) : null });
   } catch (e) {
     next(e);
   }
@@ -94,7 +113,10 @@ router.get("/nodes", async (req, res, next) => {
       COALESCE((SELECT sum(amount)::text FROM network_settlements s WHERE s.node_id=n.id),'0') AS settled,
       COALESCE((SELECT sum(amount)::text FROM wallet_ledger w WHERE w.user_id=n.user_id),'0') AS float_balance
       FROM network_nodes n JOIN users u ON u.id=n.user_id WHERE ${condition} ORDER BY n.created_at DESC`);
-    res.json({ nodes: rows.rows });
+    res.json({ nodes: rows.rows.map(node => ({ ...node,
+      website_url: networkWebsite(String(node.kind === "master" ? node.id : node.parent_id),
+        String(node.kind === "master" ? node.name : node.parent_name)).url,
+    })) });
   } catch (e) {
     next(e);
   }

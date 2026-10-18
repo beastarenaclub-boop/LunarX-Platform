@@ -52,6 +52,7 @@ import {
 } from "@/components/ui/sheet";
 import { useAuth } from "@/lib/auth";
 import { useSiteChannel } from "@/lib/siteChannel";
+import { useMasterWebsite } from "@/lib/masterWebsite";
 import { formatRupees } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -292,6 +293,7 @@ function FavouritePanel({
 export default function Home() {
   const { user } = useAuth();
   const site = useSiteChannel();
+  const masterWebsite = useMasterWebsite();
   const [, navigate] = useLocation();
   const qc = useQueryClient();
   const balance = useLobbyWallet();
@@ -457,11 +459,11 @@ export default function Home() {
           <Link
             href="/"
             className="lobby-brand"
-            aria-label="Lunar home"
+            aria-label={masterWebsite ? `${masterWebsite.name} home` : "Lunar home"}
             data-testid="link-home"
             onClick={resetFilters}
           >
-            LUNAR<span>PLAY</span>
+            {masterWebsite ? <span className="max-w-[160px] truncate" title={masterWebsite.name}>{masterWebsite.name}</span> : <>LUNAR<span>PLAY</span></>}
           </Link>
         </div>
         <nav className="lobby-primary-nav" aria-label="Game categories">

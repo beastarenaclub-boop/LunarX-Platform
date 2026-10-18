@@ -1,5 +1,6 @@
 export * from "./generated/api";
 export { NetworkPanel } from "./network-panel";
+export type { NetworkSection } from "./network-panel";
 export { setOperatorPanel, getOperatorPanel } from "./operator-session";
 export * from "./generated/api.schemas";
 export {

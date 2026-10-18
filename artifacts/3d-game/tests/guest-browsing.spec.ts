@@ -105,3 +105,37 @@ test("login return links cannot leave the site or loop through authentication", 
     await expect(page.getByRole("heading", { name: "TOP Games", exact: true })).toBeVisible();
   }
 });
+
+for (const width of [390, 1440]) {
+  test(`a master's playing website keeps game and login navigation within its branch at ${width}px`, async ({ page }) => {
+    const observed = await guestSite(page, "b2b");
+    await page.route("**/api/network/website/north-branch", route => route.fulfill({ json: {
+      masterId: "north-branch", name: "North Branch", domain: "b2b.example.test",
+      url: "https://b2b.example.test/branch/north-branch/", loginUrl: "https://b2b.example.test/branch/north-branch/login",
+    } }));
+    await page.setViewportSize({width, height:900});
+    await page.goto("/branch/north-branch/");
+    await expect(page.getByRole("link", {name:"North Branch home"})).toBeVisible();
+    await expect(page.getByTestId("card-game-mines")).toHaveAttribute("href", "/branch/north-branch/mines");
+    await page.getByTestId("card-game-mines").click();
+    await expect(page).toHaveURL(/\/branch\/north-branch\/login\?next=%2Fmines$/);
+    await page.reload();
+    await expect(page.getByTestId("input-login-email")).toBeVisible();
+    expect(observed.privateReads).toEqual([]);
+    await page.getByTestId("input-login-email").fill("guest-flow@example.test");
+    await page.getByTestId("input-login-password").fill("browser-test-password");
+    await page.getByTestId("btn-login-submit").click();
+    await expect(page).toHaveURL(/\/branch\/north-branch\/mines$/);
+    await expect(page.locator('[data-game-viewport="mines"]')).toBeVisible();
+    expect(observed.writes).toEqual([]);
+    expect(observed.errors).toEqual([]);
+  });
+}
+
+test("invalid or inactive branch links cannot display an unrelated lobby", async ({page}) => {
+  await guestSite(page, "b2b");
+  await page.route("**/api/network/website/**", route => route.fulfill({status:404,json:{error:{message:"Branch unavailable"}}}));
+  await page.goto("/branch/inactive/");
+  await expect(page.getByRole("heading", {name:"Branch website unavailable"})).toBeVisible();
+  await expect(page.getByTestId("card-game-mines")).toHaveCount(0);
+});

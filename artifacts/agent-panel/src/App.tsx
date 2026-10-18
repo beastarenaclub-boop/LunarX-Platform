@@ -12,12 +12,17 @@ import { queryClient } from "@/lib/queryClient";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { Layout } from "@/components/Layout";
 import Login from "@/pages/login";
-import { NetworkPanel, getOperatorPanel } from "@workspace/api-client-react";
+import { NetworkPanel, getOperatorPanel, type NetworkSection } from "@workspace/api-client-react";
+
+const sectionRoutes: Record<NetworkSection, string> = {
+  Overview: "/", Downline: "/downline", Agents: "/agents", Players: "/users",
+  Ledger: "/ledger", Settlements: "/settlements", "Wallet ledger": "/transactions", Website: "/website",
+};
 
 function PanelPage({
   tab,
 }: {
-  tab: "Overview" | "Downline" | "Agents" | "Players";
+  tab: NetworkSection;
 }) {
   const [, navigate] = useLocation();
   const search = useSearch();
@@ -28,6 +33,7 @@ function PanelPage({
       initialTab={tab}
       initialAgentId={tab === "Players" ? (params.get("agent") ?? "") : ""}
       initialMasterId={tab === "Agents" ? (params.get("master") ?? "") : ""}
+      onTabChange={section => navigate(sectionRoutes[section])}
       onBrowse={(section, nodeId) =>
         navigate(
           `${section === "Agents" ? "/agents" : "/users"}${nodeId ? `?${section === "Agents" ? "master" : "agent"}=${encodeURIComponent(nodeId)}` : ""}`,
@@ -71,6 +77,10 @@ function ProtectedRoutes() {
         <Route path="/downline" component={DownlinePage} />
         <Route path="/agents" component={AgentsPage} />
         <Route path="/users" component={UsersPage} />
+        <Route path="/ledger"><PanelPage tab="Ledger" /></Route>
+        <Route path="/settlements"><PanelPage tab="Settlements" /></Route>
+        <Route path="/transactions"><PanelPage tab="Wallet ledger" /></Route>
+        <Route path="/website"><PanelPage tab="Website" /></Route>
         <Route path="/" component={OverviewPage} />
         <Route component={OverviewPage} />
       </Switch>

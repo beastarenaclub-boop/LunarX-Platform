@@ -2,6 +2,7 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
 import { NetworkTree } from "./network-tree";
+import { WebsiteLinks, type NetworkWebsite } from "./network-website";
 import { useRealtimeTopic, useRealtimeResync } from "./realtime";
 
 const walletStyles = `
@@ -18,6 +19,10 @@ const walletStyles = `
 .net-directory-counts strong{color:#123d36;font-size:28px;font-variant-numeric:tabular-nums}
 .net-directory-counts small{color:#71848c;font-weight:400}
 .net-directory-filters{margin-top:16px}.net-directory-filters .net-field{flex:1}
+.net-website-row{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:16px 0;border-bottom:1px solid #edf1f3}
+.net-website-row>div:first-child{min-width:0;flex:1 1 220px}.net-website-row strong{display:block;font-size:13px;margin-bottom:6px}.net-website-row a:not(.net-link-button){display:block;overflow-wrap:anywhere;color:#11745f}
+.net-panel .net-link-button{display:inline-flex;border:1px solid #cde0d9;border-radius:7px;padding:8px 13px;background:white;color:#11745f;font-weight:600;font-size:13px;text-decoration:none}
+.net-panel .net-link-button:focus-visible{outline:2px solid #1ba88b;outline-offset:2px}
 @media(max-width:700px){
 .net-agent-directory,.net-agent-directory tbody{display:block;width:100%}
 .net-agent-directory thead{display:none}
@@ -45,10 +50,12 @@ export type NetworkNode = {
   earned: string;
   settled: string;
   float_balance: string;
+  website_url?: string;
 };
 type Node = NetworkNode;
 type Context = {
   role: Role;
+  website?: NetworkWebsite | null;
   node: null | {
     id: string;
     userId: string;
@@ -167,16 +174,20 @@ function Pager({
   );
 }
 
+export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website";
+
 export function NetworkPanel({
   initialTab = "Overview",
   initialAgentId = "",
   initialMasterId = "",
   onBrowse,
+  onTabChange,
 }: {
-  initialTab?: "Overview" | "Downline" | "Agents" | "Players";
+  initialTab?: NetworkSection;
   initialAgentId?: string;
   initialMasterId?: string;
   onBrowse?: (section: "Agents" | "Players", nodeId?: string) => void;
+  onTabChange?: (section: NetworkSection) => void;
 }) {
   const qc = useQueryClient();
   const [tab, setTab] = useState<string>(initialTab),
@@ -199,6 +210,10 @@ export function NetworkPanel({
   }>(null);
   const [error, setError] = useState(""),
     [notice, setNotice] = useState("");
+  function changeTab(section: NetworkSection) {
+    setTab(section);
+    onTabChange?.(section);
+  }
   const context = useQuery({
     queryKey: ["network", "context"],
     queryFn: () => api<Context>("/context"),
@@ -432,6 +447,7 @@ export function NetworkPanel({
   )?.error;
   const nodeActions = (n: Node, includeBrowse = true) => (
     <div className="net-row-actions">
+      {n.website_url && <a className="net-link-button" href={n.website_url} target="_blank" rel="noopener noreferrer" aria-label={`Open ${n.name} website`}>Website</a>}
       {includeBrowse &&
         (n.kind === "master" ? (
           <button onClick={() => showAgents(n.id)}>
@@ -511,7 +527,7 @@ export function NetworkPanel({
                   aria-pressed={channel === c}
                   onClick={() => {
                     setChannel(c);
-                    setTab("Overview");
+                    changeTab("Overview");
                     setPlayerOffset(0);
                     setLedgerOffset(0);
                     setBranch("");
@@ -554,7 +570,7 @@ export function NetworkPanel({
             <button onClick={refreshBalances} disabled={nodes.isFetching}>
               Refresh balance
             </button>
-            <button onClick={() => setTab("Wallet ledger")}>
+            <button onClick={() => changeTab("Wallet ledger")}>
               View transactions
             </button>
           </div>
@@ -572,6 +588,13 @@ export function NetworkPanel({
             : "Public signup · 100% of net game revenue belongs to the company"}
         </span>
       </div>
+      {context.data.website && <div className="net-channel">
+        <div><strong>Customer Playing Website</strong><br /><span>{context.data.website.domain} · {context.data.website.name}</span></div>
+        <div className="net-actions">
+          <a className="net-link-button" href={context.data.website.url} target="_blank" rel="noopener noreferrer">Open website</a>
+          <button onClick={() => changeTab("Website")}>Website links</button>
+        </div>
+      </div>}
       {channel === "b2b" && (
         <div className="net-directory-counts" aria-label="Downline totals">
           {role !== "agent" && (
@@ -607,6 +630,7 @@ export function NetworkPanel({
           "Ledger",
           "Settlements",
           "Wallet ledger",
+          ...(channel === "b2b" ? ["Website"] : []),
         ].map((t) => (
           <button
             key={t}
@@ -614,7 +638,7 @@ export function NetworkPanel({
             onClick={() => {
               if (t === "Agents") return showAgents();
               if (t === "Players") return showUsers();
-              setTab(t);
+              changeTab(t as NetworkSection);
               if (t === "Downline") setAgentFilter("");
               setError("");
             }}
@@ -647,6 +671,18 @@ export function NetworkPanel({
           </button>
         </p>
       )}
+      {tab === "Website" && (context.data.website
+        ? <WebsiteLinks website={context.data.website} />
+        : role === "admin" ? <section className="net-card" aria-label="Master websites">
+          <h2>Customer playing websites</h2><p>Open the website where each master's customers browse and play. New masters receive their branch link automatically.</p>
+          {nodes.data?.nodes.filter(n => n.kind === "master").map(n => <div key={n.id} className="net-website-row">
+            <div><strong>{n.name}</strong><span className={`net-badge ${n.status}`}>{n.status}</span>
+              {n.website_url && <a href={n.website_url} target="_blank" rel="noopener noreferrer">{n.website_url}</a>}
+            </div>
+            {n.website_url && <a className="net-link-button" href={n.website_url} target="_blank" rel="noopener noreferrer">Open website</a>}
+          </div>)}
+          {nodes.data && !nodes.data.nodes.some(n => n.kind === "master") && <p className="net-empty">Create a master to get its website link.</p>}
+        </section> : <section className="net-card"><p>Website links could not be loaded.</p><button onClick={refreshBalances}>Retry</button></section>)}
       {(tab === "Overview" || tab === "Ledger" || tab === "Wallet ledger") && (
         <div className="net-filters">
           {role === "admin" && channel === "b2b" && (

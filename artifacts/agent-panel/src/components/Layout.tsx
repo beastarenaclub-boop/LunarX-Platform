@@ -11,6 +11,10 @@ import {
   Link as LinkIcon,
   Menu,
   X,
+  Globe,
+  ReceiptText,
+  Wallet,
+  Handshake,
 } from "lucide-react";
 
 const NAV = [
@@ -18,12 +22,17 @@ const NAV = [
   { href: "/downline", label: "Downline tree", icon: GitBranch },
   { href: "/agents", label: "Total Agents", icon: Users, masterOnly: true },
   { href: "/users", label: "Total Users", icon: Users },
+  { href: "/ledger", label: "Profit & loss", icon: ReceiptText },
+  { href: "/transactions", label: "Wallet transactions", icon: Wallet },
+  { href: "/settlements", label: "Settlements", icon: Handshake },
+  { href: "/website", label: "Website links", icon: Globe },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const panelName = getOperatorPanel() === "master" ? "Master Panel" : "Agent Panel";
 
   // Close the drawer whenever the route changes (mobile navigation).
   useEffect(() => {
@@ -46,7 +55,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LinkIcon className="h-5 w-5 text-emerald-400" />
-            <span className="font-semibold">Master / Agent Panel</span>
+            <span className="font-semibold">{panelName}</span>
           </div>
           <button
             type="button"
@@ -58,7 +67,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <X className="h-5 w-5" />
           </button>
         </div>
-        <p className="text-xs text-slate-400 mt-1">Aviator platform</p>
+        <p className="text-xs text-slate-400 mt-1">LunarX · Branch management</p>
       </div>
       <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
         {NAV.filter(
@@ -90,7 +99,7 @@ export function Layout({ children }: { children: ReactNode }) {
             {user?.email}
           </div>
           <div className="uppercase text-[10px] tracking-wide">
-            {user?.role}
+            {getOperatorPanel() ?? user?.role}
           </div>
         </div>
         <Button
@@ -140,7 +149,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </button>
           <LinkIcon className="h-4 w-4 text-emerald-400" />
           <span className="font-semibold text-sm truncate">
-            Master / Agent Panel
+            {panelName}
           </span>
         </header>
         <main className="flex-1 overflow-auto">
