@@ -9,6 +9,8 @@ async function setup(
 ) {
   const state = {
     fail: false,
+    hold: undefined as Promise<void> | undefined,
+    referencePrefix: "BANK-",
     requests: [] as URL[],
     mutations: [] as string[],
     errors: [] as string[],
@@ -103,6 +105,7 @@ async function setup(
       path === "/api/network/payment-history" ||
       path === "/api/payments/history"
     ) {
+      if (state.hold) await state.hold;
       if (state.fail)
         return route.fulfill({
           status: 503,
@@ -140,7 +143,7 @@ async function setup(
               status: "approved",
               type: "deposit",
               method: "manual",
-              reference: `BANK-${i + offset}`,
+              reference: `${state.referencePrefix}${i + offset}`,
               createdAt: "2026-10-19T05:00:00Z",
               reviewedAt: "2026-10-19T06:00:00Z",
               paidAt: null,
@@ -169,6 +172,7 @@ async function setup(
       return route.fulfill({ json: null });
     return route.fulfill({ json: [] });
   });
+
   return {
     ...state,
     state,
@@ -308,3 +312,32 @@ for (const role of ["admin", "master", "agent", "customer"] as const)
     expect(fixture.errors).toEqual([]);
     expect(fixture.mutations).toEqual([]);
   });
+
+test("customer history remount waits for fresh data without showing an earlier cache", async ({
+  page,
+}) => {
+  const fixture = await setup(page, "customer");
+  await page.goto(`${customer}/wallet?tab=history`);
+  const section = page.getByRole("region", {
+    name: "Connected payment history",
+    exact: true,
+  });
+  await expect(section.getByText("BANK-0", { exact: false })).toBeVisible();
+  await page.getByRole("tab", { name: "Withdraw", exact: true }).click();
+  await expect(section).toHaveCount(0);
+  let release!: () => void;
+  fixture.state.hold = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  fixture.state.referencePrefix = "NEW-";
+  try {
+    await page.getByRole("tab", { name: "History", exact: true }).click();
+    await expect(section.getByRole("status")).toBeVisible();
+    await expect(section.getByText("BANK-0", { exact: false })).toHaveCount(0);
+  } finally {
+    release();
+  }
+  await expect(section.getByText("NEW-0", { exact: false })).toBeVisible();
+  expect(fixture.errors).toEqual([]);
+  expect(fixture.mutations).toEqual([]);
+});

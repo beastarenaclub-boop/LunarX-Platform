@@ -71,6 +71,8 @@ export function PaymentHistory({
 }) {
   const customer = role === "customer",
     filters = useTransactionFilters();
+  // Never reuse an earlier panel/session's payment data after remounting.
+  const [instanceId] = useState(() => crypto.randomUUID());
   const [master, setMaster] = useState(""),
     [agent, setAgent] = useState(""),
     [review, setReview] = useState("all");
@@ -88,10 +90,11 @@ export function PaymentHistory({
     ? "/api/payments/history"
     : "/api/network/payment-history";
   const result = useQuery({
-    queryKey: ["network", "payment-history", role, params.toString()],
+    queryKey: ["network", "payment-history", instanceId, role, params.toString()],
     queryFn: ({ signal }) =>
       customFetch<History>(`${endpoint}?${params}`, { signal }),
     retry: false,
+    gcTime: 0,
     refetchInterval: 30_000,
   });
   async function download() {

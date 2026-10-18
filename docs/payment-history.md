@@ -11,6 +11,8 @@ This release adds read-only reporting over existing deposit requests, withdrawal
 
 The authenticated GET endpoints are `/api/network/payment-history` and `/api/payments/history`. Both return `Cache-Control: no-store`. Suspended account and branch checks continue to apply. Historical branch attribution uses **current membership**, not an immutable snapshot of the original payment's owner.
 
+The history component uses a separate cache for each mount and immediately discards inactive queries. Returning to the screen waits for a fresh response instead of showing a prior panel session's payment records.
+
 ## Filters and export
 
 All, today, yesterday, weekly, monthly and custom dates use India time. The date is the original request date, not the review or payout date. Search matches literal request IDs/references; operator searches additionally match customer and branch identities. Filters include record type, status, amount and wallet reconciliation. Counts and totals cover all matching records, independently of the page size.
