@@ -24,6 +24,7 @@ const NAV = [
   { href: "/users", label: "Total Users", icon: Users },
   { href: "/ledger", label: "Commission & P&L", icon: ReceiptText },
   { href: "/transactions", label: "Wallet transactions", icon: Wallet },
+  { href: "/payments", label: "Payment history", icon: Wallet },
   { href: "/settlements", label: "Settlements", icon: Handshake },
   { href: "/weekly", label: "Weekly account", icon: ReceiptText, masterOnly: true },
   { href: "/website", label: "Website links", icon: Globe },

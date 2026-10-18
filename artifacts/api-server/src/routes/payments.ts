@@ -10,6 +10,7 @@ import {
 import { nanoid } from "nanoid";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
+import {paymentHistory,paymentHistoryCsv} from '../services/paymentHistory';
 import {
   createPaymentRequest,
   listPaymentRequests,
@@ -91,6 +92,15 @@ const WithdrawInput = z.object({
   upiId: z.string().min(4).max(64),
   notes: z.string().max(200).optional(),
   game: GameScope,
+});
+
+router.get('/history',requireAuth,async(req,res,next)=>{
+  try{
+    const result=await paymentHistory(req.user!,req.query,true);
+    res.set('Cache-Control','no-store');
+    if(result.format==='csv')res.type('text/csv').attachment('my-payment-history.csv').send(paymentHistoryCsv(result.items,true));
+    else res.json(result);
+  }catch(e){next(e);}
 });
 
 router.get("/deposit-limits", requireAuth, async (_req, res, next) => {

@@ -4,6 +4,7 @@ import { customFetch } from "./custom-fetch";
 import { NetworkTree } from "./network-tree";
 import { NetworkReport } from "./network-report";
 import { NetworkTransactions } from "./network-transactions";
+import { PaymentHistory } from "./payment-history";
 import { WebsiteLinks, type NetworkWebsite } from "./network-website";
 import { NetworkBranding } from "./network-branding";
 import { NetworkWeekly, type WeeklyStatus } from "./network-weekly";
@@ -154,7 +155,7 @@ function Pager({
   );
 }
 
-export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account";
+export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account" | "Payment history";
 
 export function NetworkPanel({
   initialTab = "Overview",
@@ -548,6 +549,7 @@ export function NetworkPanel({
           "Settlements",
           ...(channel === 'b2b' && role!=='agent' ? ['Weekly account'] : []),
           "Wallet ledger",
+          "Payment history",
           ...(channel === "b2b" ? ["Website"] : []),
         ].map((t) => (
           <button
@@ -961,6 +963,7 @@ export function NetworkPanel({
         </section>
       )}
       {(tab === "Settlements" || tab === "Wallet ledger") && <NetworkTransactions key={tab+channel} kind={tab === "Settlements" ? "settlements" : "wallet"} role={role!} nodes={nodes.data?.nodes??[]} channel={channel} />}
+      {tab === "Payment history" && <PaymentHistory key={channel} role={role!} nodes={nodes.data?.nodes??[]} channel={channel}/>}
       {modal && (
         <div className="net-modal-backdrop">
           <section

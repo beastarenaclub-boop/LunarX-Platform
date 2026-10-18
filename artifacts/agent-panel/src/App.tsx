@@ -18,6 +18,7 @@ const sectionRoutes: Record<NetworkSection, string> = {
   Overview: "/", Downline: "/downline", Agents: "/agents", Players: "/users",
   Ledger: "/ledger", Settlements: "/settlements", "Wallet ledger": "/transactions", Website: "/website",
   "Weekly account":"/weekly",
+  "Payment history":"/payments",
 };
 
 function PanelPage({
@@ -81,6 +82,7 @@ function ProtectedRoutes() {
         <Route path="/ledger"><PanelPage tab="Ledger" /></Route>
         <Route path="/settlements"><PanelPage tab="Settlements" /></Route>
         <Route path="/transactions"><PanelPage tab="Wallet ledger" /></Route>
+        <Route path="/payments"><PanelPage tab="Payment history" /></Route>
         <Route path="/website"><PanelPage tab="Website" /></Route>
         <Route path="/weekly"><PanelPage tab="Weekly account" /></Route>
         <Route path="/" component={OverviewPage} />

@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests",
-  testMatch: ["commission-dashboard.spec.ts", "master-panel.spec.ts", "transaction-filters.spec.ts"],
+  testMatch: ["commission-dashboard.spec.ts", "master-panel.spec.ts", "transaction-filters.spec.ts", "payment-history.spec.ts"],
   workers: 1,
   retries: 0,
   timeout: 45_000,

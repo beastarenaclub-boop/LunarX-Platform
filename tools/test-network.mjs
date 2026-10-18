@@ -30,6 +30,7 @@ const child = spawn(
     "src/services/__tests__/networkReportRange.test.ts",
     "src/services/__tests__/transactionFilters.test.ts",
     "src/services/__tests__/network.integration.test.ts",
+    "src/services/__tests__/paymentHistory.integration.test.ts",
   ],
   {
     cwd: resolve(root, "artifacts/api-server"),

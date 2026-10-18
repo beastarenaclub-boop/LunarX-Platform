@@ -19,6 +19,7 @@ import {
   getListMyDepositsQueryKey,
   getListMyWithdrawalsQueryKey,
   getGetWalletBalanceQueryKey,
+  PaymentHistory,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,7 +83,7 @@ export default function WalletPage() {
   const [tab, setTab] = useState<string>(() => {
     try {
       const t = new URLSearchParams(window.location.search).get("tab");
-      return t === "withdraw" ? "withdraw" : "deposit";
+      return t === "withdraw" || t === "history" ? t : "deposit";
     } catch {
       return "deposit";
     }
@@ -321,11 +322,8 @@ export default function WalletPage() {
   const [, navigate] = useLocation();
   const search = useSearch();
   useEffect(() => {
-    setTab(
-      new URLSearchParams(search).get("tab") === "withdraw"
-        ? "withdraw"
-        : "deposit",
-    );
+    const selected=new URLSearchParams(search).get('tab');
+    setTab(selected==='withdraw'||selected==='history'?selected:'deposit');
   }, [search]);
 
   const kycApproved = kyc.data?.status === "approved";
@@ -408,7 +406,7 @@ export default function WalletPage() {
           navigate(`/wallet?tab=${value}`, { replace: true });
         }}
       >
-        <TabsList className="grid grid-cols-2 w-full">
+        <TabsList className="grid grid-cols-3 w-full">
           <TabsTrigger value="deposit" data-testid="tab-deposit">
             <ArrowDownToLine className="w-4 h-4 mr-2" />
             Deposit
@@ -417,6 +415,7 @@ export default function WalletPage() {
             <ArrowUpFromLine className="w-4 h-4 mr-2" />
             Withdraw
           </TabsTrigger>
+          <TabsTrigger value="history" data-testid="tab-payment-history">History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="deposit" className="wallet-panel">
@@ -901,6 +900,7 @@ export default function WalletPage() {
             }
           />
         </TabsContent>
+        <TabsContent value="history"><PaymentHistory /></TabsContent>
       </Tabs>
     </SiteLayout>
   );
