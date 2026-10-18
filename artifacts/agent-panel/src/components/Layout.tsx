@@ -25,7 +25,7 @@ const NAV = [
   { href: "/ledger", label: "Profit & loss", icon: ReceiptText },
   { href: "/transactions", label: "Wallet transactions", icon: Wallet },
   { href: "/settlements", label: "Settlements", icon: Handshake },
-  { href: "/weekly", label: "Weekly account", icon: ReceiptText },
+  { href: "/weekly", label: "Weekly account", icon: ReceiptText, masterOnly: true },
   { href: "/website", label: "Website links", icon: Globe },
 ];
 

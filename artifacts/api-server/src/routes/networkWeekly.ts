@@ -11,6 +11,7 @@ const router: IRouter = Router();
 router.get("/", async (req, res, next) => {
   try {
     const actor = await networkIdentity(req.user!);
+    if(actor.role==='agent')throw forbidden('Weekly commission accounts are available to the master and platform administrator');
     const masterId =
       actor.role === "admin"
         ? z.string().min(1).parse(req.query.masterId)

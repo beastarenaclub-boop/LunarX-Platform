@@ -102,7 +102,8 @@ router.get("/context", async (req, res, next) => {
     const actor = await networkIdentity(req.user!);
     const masterId = actor.node?.kind === "master" ? actor.node.id : actor.node?.parentId;
     const website=masterId?await masterWebsite(masterId):null;
-    res.json({ ...actor, website, weekly: masterId ? await weeklyStatus(masterId) : null });
+    const weekly=masterId?await weeklyStatus(masterId):null;
+    res.json({ ...actor, website, weekly: actor.role==='agent' && weekly ? {locked:weekly.locked} : weekly });
   } catch (e) {
     next(e);
   }

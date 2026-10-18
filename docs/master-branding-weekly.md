@@ -49,8 +49,9 @@ non-secret configuration and secret placeholders for reproducible provisioning.
   status reset is required. Clearing all overdue commission unlocks the branch.
 
 Master: `/master/weekly`. Admin: `/admin/network` → **Weekly account**, select a master,
-review the payment and confirm only after checking the received funds. Agents can read
-their branch's weekly status but cannot submit or approve master payments.
+review the payment and confirm only after checking the received funds. Agents see
+whether the branch is locked; master commission amounts, statements and payment
+references are restricted to the master and platform administrator.
 
 ## Verification
 

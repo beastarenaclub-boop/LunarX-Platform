@@ -707,6 +707,8 @@ test(
       await db.execute(sql`SELECT network_open_wager('test',${`${prefix}-unlocked`},${player.id},'mines',100)`);
       await call(masterClient,`/network/nodes/${agent.id}`,{name:'North Agent'},'PATCH');
       await call(masterClient,'/network/weekly');
+      await call(agentClient,'/network/weekly',undefined,'GET',403);
+      assert.deepEqual(Object.keys((await call(agentClient,'/network/context') as any).weekly),['locked'],'Agents see access status without master commission amounts');
       await call(company,`/network/weekly?masterId=${master.id}`);
     } finally {
       await new Promise<void>((resolve, reject) =>

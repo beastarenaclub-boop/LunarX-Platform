@@ -59,7 +59,7 @@ type Node = NetworkNode;
 type Context = {
   role: Role;
   website?: NetworkWebsite | null;
-  weekly?: WeeklyStatus | null;
+  weekly?: Pick<WeeklyStatus,'locked'> | null;
   node: null | {
     id: string;
     userId: string;
@@ -595,7 +595,7 @@ export function NetworkPanel({
         </span>
       </div>
       {context.data.website && tab !== 'Website' && <WebsiteLinks website={context.data.website} />}
-      {context.data.weekly && <div className="net-channel"><div><strong>{context.data.weekly.locked?'Branch locked — weekly payment overdue':'Weekly commission account'}</strong><br/><span>Monday payment window · Tuesday 00:00 lock · India time</span></div><button onClick={()=>changeTab('Weekly account')}>View weekly account</button></div>}
+      {context.data.weekly && <div className="net-channel"><div><strong>{context.data.weekly.locked?'Branch locked — contact your account manager':'Branch active'}</strong><br/><span>{role==='agent'?'Weekly settlement is managed by your master.':'Monday payment window · Tuesday 00:00 lock · India time'}</span></div>{role!=='agent'&&<button onClick={()=>changeTab('Weekly account')}>View weekly account</button>}</div>}
       {channel === "b2b" && (
         <div className="net-directory-counts" aria-label="Downline totals">
           {role !== "agent" && (
@@ -630,7 +630,7 @@ export function NetworkPanel({
           "Players",
           "Ledger",
           "Settlements",
-          ...(channel === 'b2b' ? ['Weekly account'] : []),
+          ...(channel === 'b2b' && role!=='agent' ? ['Weekly account'] : []),
           "Wallet ledger",
           ...(channel === "b2b" ? ["Website"] : []),
         ].map((t) => (
@@ -688,7 +688,7 @@ export function NetworkPanel({
         </section> : <section className="net-card"><p>Website links could not be loaded.</p><button onClick={refreshBalances}>Retry</button></section>)}
       {tab==='Weekly account' && <>
         {role==='admin'&&<section className="net-card"><h2>Master weekly accounts</h2><p>Review received payments here. Confirming a payment updates branch access automatically.</p><label className="net-field"><span>Master</span><select value={weeklyMaster} onChange={e=>setWeeklyMaster(e.target.value)}><option value="">Choose master</option>{nodes.data?.nodes.filter(n=>n.kind==='master').map(n=><option key={n.id} value={n.id}>{n.name}{n.weekly?.locked?' — LOCKED':''}{n.weekly?` · Due ${money(n.weekly.duePaise)}`:''}</option>)}</select></label></section>}
-        {(role==='admin'?weeklyMaster:context.data.website?.masterId)&&<NetworkWeekly key={role==='admin'?weeklyMaster:context.data.website!.masterId} masterId={role==='admin'?weeklyMaster:context.data.website!.masterId} admin={role==='admin'} canSubmit={role!=='agent'}/>}
+        {role==='agent'?<section className="net-card"><p>Weekly settlement is managed by your master. Contact your master about branch access.</p></section>:(role==='admin'?weeklyMaster:context.data.website?.masterId)&&<NetworkWeekly key={role==='admin'?weeklyMaster:context.data.website!.masterId} masterId={role==='admin'?weeklyMaster:context.data.website!.masterId} admin={role==='admin'}/>}
       </>}
       {(tab === "Overview" || tab === "Ledger" || tab === "Wallet ledger") && (
         <div className="net-filters">
