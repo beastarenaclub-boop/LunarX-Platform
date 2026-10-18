@@ -6,6 +6,7 @@ import {
 } from "@workspace/db";
 import { eq, and, isNull, sql, desc, gte } from "drizzle-orm";
 import { logger } from "../lib/logger";
+import { DEMO_RUNTIME } from "../demo/runtime";
 
 export async function createFraudFlag(input: {
   userId: string;
@@ -132,6 +133,7 @@ export function recordBetTiming(userId: string): {
   flagged: boolean;
   reason?: string;
 } {
+  if (DEMO_RUNTIME) return { flagged: false };
   const now = Date.now();
   const times = betTimestamps.get(userId) ?? [];
   times.push(now);

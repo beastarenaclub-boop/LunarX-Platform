@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "b2c:dev": "node artifacts/3d-game/node_modules/vite/bin/vite.js --config artifacts/3d-game/vite.b2c.config.ts",
+    "b2c:build": "node artifacts/3d-game/node_modules/vite/bin/vite.js build --config artifacts/3d-game/vite.b2c.config.ts",
     "network:test": "node tools/test-network.mjs",
     "network:test:browser": "cd artifacts/api-server && node --import tsx ../../tools/test-network-browser.mjs",
     "wheel:live:dev": "node artifacts/3d-game/node_modules/vite/bin/vite.js --config artifacts/3d-game/vite.wheel20-live.config.ts",
@@ -69,7 +71,8 @@
     "bike:arcade:test": "node artifacts/3d-game/node_modules/@playwright/test/cli.js test --config artifacts/3d-game/bike/playwright.config.ts",
     "instant:test": "cd artifacts/api-server && node --import tsx --test src/services/__tests__/instantCollection.test.ts",
     "instant:test:browser": "node artifacts/3d-game/node_modules/@playwright/test/cli.js test --config artifacts/3d-game/playwright.instant-collection.config.ts",
-    "instant:dev": "node tools/start-instant-dev.mjs"
+    "instant:dev": "node tools/start-instant-dev.mjs",
+    "demo:test": "node artifacts/api-server/build.mjs && cd artifacts/api-server && node --import tsx --test src/demo/__tests__/*.test.ts"
   },
   "private": true,
   "devDependencies": {

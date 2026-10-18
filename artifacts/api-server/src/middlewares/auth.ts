@@ -4,6 +4,8 @@ import { unauthorized, forbidden } from "../lib/errors";
 import type { UserRole } from "@workspace/db";
 import { requestSite, requestOperatorPanel, sessionCookie } from "./siteChannel";
 import { assertNetworkActive, networkIdentity } from "../services/network";
+import { isDemoToken } from "../demo/sessions";
+import { DEMO_RUNTIME } from "../demo/runtime";
 
 export const SESSION_COOKIE = "sid";
 
@@ -14,6 +16,8 @@ export async function loadSession(
 ) {
   const sid = req.cookies?.[sessionCookie(req)];
   if (!sid || typeof sid !== "string") return next();
+  // Demo tokens are resolved by the isolated demo gateway, never by real auth.
+  if (!DEMO_RUNTIME && isDemoToken(sid)) return next();
   try {
     const session = await getActiveSession(sid);
     if (!session) return next();

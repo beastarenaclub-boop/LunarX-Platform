@@ -9,7 +9,7 @@ if (!output) throw new Error("Usage: node deploy/render/prepare-nginx.mjs <outpu
 // Reuse the existing asset, SPA, Unity and media routes rather than maintaining
 // a separate list of game URLs for the hosted deployment.
 const panels = [
-  { artifact: "3d-game", directory: "web", hosts: "lunarx.live www.lunarx.live b2b.lunarx.live", primary: true },
+  { artifact: "3d-game", directory: "web", hosts: "lunarx.live www.lunarx.live b2b.lunarx.live crypto777.in www.crypto777.in", primary: true },
   { artifact: "admin-panel", directory: "admin", hosts: "admin.lunarx.live" },
   { artifact: "agent-panel", directory: "operator", hosts: "panel.lunarx.live" },
 ];

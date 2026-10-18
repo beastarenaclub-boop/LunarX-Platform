@@ -74,3 +74,4 @@ exports/
 test-results/
 .config/
 .openai/
+artifacts/api-server/src/demo/schema.generated.sql

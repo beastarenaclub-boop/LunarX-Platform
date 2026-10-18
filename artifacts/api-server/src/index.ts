@@ -1,4 +1,5 @@
-import { startCrashSettlement } from "./services/crashRounds";
+import { startGameEngines } from "./lib/gameEngines";
+import { demoUpgrade } from "./demo/bridge";
 import app from "./app";
 import { logger } from "./lib/logger";
 import {
@@ -12,20 +13,6 @@ import { startCommissionScheduler } from "./services/commission-scheduler";
 import { startDemoCleanupScheduler } from "./services/demo-cleanup-scheduler";
 import { startRainScheduler } from "./services/rain-scheduler";
 import { startWebhookDispatcher } from "./services/webhookDispatcher";
-import { startBlackjackTimeoutSweeper } from "./services/blackjack";
-import { startChickenTimeoutSweeper } from "./services/chickenRoad";
-import { startTableRoundEngines } from "./services/tableRounds";
-import { startDragonTigerEngine } from "./services/dragonTiger";
-import { startOneDayDragonTigerEngine } from "./services/dragonTigerOneDay";
-import { startRummyEngine } from "./services/rummy";
-import { startWingoEngine } from "./services/wingo";
-import { startLotteryEngine } from "./services/lottery";
-import { startPrizeLottoEngine } from "./services/prizeLotto";
-import { startForexEngine } from "./services/forex";
-import { startVirtualSportsEngine } from "./services/virtualSports";
-import { startHorseGameEngine } from "./services/horseGame";
-import { startBikeLiveGameEngine } from "./services/bikeLiveGame";
-import { startHorseLiveGameEngine } from "./services/horseLiveGame";
 import { attachRealtime } from "./realtime/gateway";
 
 const rawPort = process.env["PORT"];
@@ -48,28 +35,14 @@ seedRoles()
   .then(() => bootstrapSuperAdmin())
   .then(() => ensureGameConfigDefaults())
   .then(() => {
+    startGameEngines();
     startReconciliationScheduler();
     startCommissionScheduler();
     startDemoCleanupScheduler();
     startRainScheduler();
     startWebhookDispatcher();
-    startBlackjackTimeoutSweeper();
-    startChickenTimeoutSweeper();
     // Shared server-scheduled rounds for the five table games (recovers or
     // voids+refunds any rounds interrupted by the previous shutdown first).
-    startTableRoundEngines();
-    startDragonTigerEngine();
-    startOneDayDragonTigerEngine();
-    startRummyEngine();
-    startWingoEngine();
-    startLotteryEngine();
-    startPrizeLottoEngine();
-    startCrashSettlement();
-    startForexEngine();
-    startVirtualSportsEngine();
-    startHorseGameEngine();
-    startHorseLiveGameEngine();
-    startBikeLiveGameEngine();
   })
   .catch((err) => {
     logger.error({ err }, "startup seeding failed");
@@ -78,7 +51,7 @@ seedRoles()
 const server = app.listen(port, "0.0.0.0", () => {
   logger.info({ port }, "Server listening on 0.0.0.0");
 });
-attachRealtime(server);
+attachRealtime(server, demoUpgrade);
 server.on("error", (err: Error) => {
   logger.error({ err }, "Error listening on port");
   process.exit(1);

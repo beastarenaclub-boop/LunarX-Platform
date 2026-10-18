@@ -15,6 +15,74 @@ Both B2C and B2B visitors can browse and search the game lobby without signing
 in. Opening a game or an account page requires login and then returns the
 player to the selected page. Public signup remains available only on B2C.
 
+## Additional B2C storefront
+
+The reference-style dark casino frontend is available at `/b2c`. The existing
+default lobby and all game engines remain shared. Admin has a **B2C Website**
+sidebar entry at `/admin/b2c-website` with desktop/mobile previews.
+
+Run `npm run b2c:dev` from the repository root, then open
+**http://127.0.0.1:5180/**. Its `/api` and `/ws` requests proxy to the existing
+local service at `http://127.0.0.1:5200`; use `API_PROXY_TARGET` to change that.
+The local admin preview expects this B2C dev server to be running.
+
+`npm run b2c:build` produces `artifacts/3d-game/dist/b2c` with the new lobby at
+`/` and the same playable game routes. It does not replace `dist/public` or
+publish to a domain. For hosting, reuse the existing game gateway's SPA, media,
+embedded-game, `/api` and WebSocket routing with this build as its website root.
+Point API traffic to the existing backend and preserve the website Host header.
+Domain, HTTPS and backend origin configuration still need to be completed when
+the new domain is selected.
+
+Set `VITE_B2C_BRAND` in `artifacts/3d-game/.env.local` before starting/building
+to override the **CRYPTO777** name. The header uses the supplied logo at
+`public/media/b2c/brand-logo.png`; `VITE_B2C_LOGO` can override its URL.
+Set `VITE_B2C_SITE_URL` in the admin
+frontend environment to the chosen storefront URL when deploying the admin.
+The default production admin preview is the existing website's `/b2c` route.
+
+Demo creates an anonymous ID for **one hour of playable practice**, with unlimited
+demo coins and no signup. Refreshing or opening another tab reuses the same ID
+and does not extend expiry. Deposits, withdrawals, transfers and account changes
+are blocked by the server. Signing in starts a separate real session without
+copying demo balances or wins.
+
+The API runs the same game routers and engines in an isolated worker backed by
+PGlite **in memory only**, with no database credentials or file storage. Temporary
+identities and their gameplay are removed on logout/expiry; restarting the API
+ends all demos. No visitor IP, email, device fingerprint or demo analytics are
+saved. The admin Dashboard's **Demo users live** card polls every five seconds;
+it counts distinct sessions active within the last 60 seconds, not tabs.
+
+Build the API before running demo: `node artifacts/api-server/build.mjs` generates
+the volatile schema from the shared game schema and builds `demo-worker.mjs`.
+Deploy both API bundles and their dependencies together. The current design uses
+one API instance; multiple instances require session affinity and aggregated
+presence before scaling. Game availability/settings sync into demo every 30 seconds.
+Run `npm run demo:test` for session, isolation and playable-game checks.
+
+Login, signup permissions, game availability and balances use the existing API.
+Recent wins display the player's settled wins from their latest 50 bets; no
+public winner amounts or fixture results are fabricated.
+
+The B2C graphics are AI recreations of the supplied reference style. Banner,
+casino, instant, sports and avatar images are local files in
+`artifacts/3d-game/public/media/b2c`; `generation-manifest.json` records the
+built-in image tool prompts. `game-banner-prompts.json` records the new Crash
+Games and Instant Games poster prompts. The hero rotates those posters and Live
+Casino every six seconds, with manual controls and interaction/reduced-motion
+pausing. The match poster is no longer used in the carousel.
+The public layout has an eight-column game grid; the demo/account lobby uses
+a provider sidebar and six columns on wide screens. These graphics only apply
+to the additional storefront.
+
+NOW TRENDING and TOP WINNERS continuously scroll in a seamless loop. Both rows
+support touch swipes, previous/next controls and pause/resume. Autoplay pauses
+on hover, keyboard focus, open dialogs and hidden tabs, and respects reduced motion.
+
+Browser checks: `node artifacts/3d-game/node_modules/@playwright/test/cli.js test --config artifacts/3d-game/playwright.b2c.config.ts`
+(uses installed Chrome by default; override `PLAYWRIGHT_CHANNEL` if needed).
+
 ## Deploy on Render
 
 These steps create a new environment. The existing deployment was provisioned

@@ -7,7 +7,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 
 interface AuthCtx {
-  user: UserPublic | null;
+  user: (UserPublic & { demoExpiresAt?: string }) | null;
   isLoading: boolean;
   refresh: () => Promise<void>;
 }
@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throwOnError: false,
     },
   });
-  const user: UserPublic | null = me.data ?? null;
+  const user: AuthCtx["user"] = me.data ?? null;
 
   const value: AuthCtx = {
     user,

@@ -1,3 +1,4 @@
+import { demoPresence } from "../demo/bridge";
 import { isRetiredGame } from "../lib/retiredGames";
 import express, { Router, type IRouter } from "express";
 import {
@@ -93,6 +94,7 @@ import { runReconciliation, listReconciliationEntries } from "../services/reconc
 import { z } from "zod";
 
 const router: IRouter = Router();
+router.get("/demo-presence", requireRole("admin", "super_admin"), demoPresence);
 
 /**
  * Single helper used by every exit branch of the withdrawal-decision

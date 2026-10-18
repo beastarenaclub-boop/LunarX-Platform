@@ -9,6 +9,7 @@ import { logger } from "./lib/logger";
 import { loadSession } from "./middlewares/auth";
 import { csrfProtect } from "./middlewares/csrf";
 import { errorHandler } from "./middlewares/error";
+import { demoGateway } from "./demo/bridge";
 
 const app: Express = express();
 
@@ -30,6 +31,8 @@ if (trustProxy && trustProxy !== "false" && trustProxy !== "0") {
 app.use(
   pinoHttp({
     logger,
+    autoLogging: { ignore: (req) => /(?:^|;\s*)sid=demo_/.test(req.headers.cookie ?? "") ||
+      /^\/api\/auth\/demo-(login|heartbeat)(?:\?|$)/.test(req.url ?? "") },
     serializers: {
       req(req) {
         return {
@@ -84,6 +87,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(loadSession);
 app.use(csrfProtect);
+app.use(demoGateway);
 
 app.use("/api", router);
 app.use("/v1", v1Router);

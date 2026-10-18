@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
 import { rm } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
@@ -14,8 +15,9 @@ async function buildAll() {
   const distDir = path.resolve(artifactDir, "dist");
   await rm(distDir, { recursive: true, force: true });
 
-  await esbuild({
-    entryPoints: [path.resolve(artifactDir, "src/index.ts")],
+  execFileSync(process.execPath, ["--import", "tsx", "src/demo/generate-schema.ts"], { cwd: artifactDir, stdio: "inherit" });
+
+  const common = {
     platform: "node",
     bundle: true,
     format: "esm",
@@ -29,6 +31,7 @@ async function buildAll() {
     // - use path traversal to read files (e.g. @google-cloud/secret-manager loads sibling .proto files)
     external: [
       "*.node",
+      "@electric-sql/pglite",
       "sharp",
       "better-sqlite3",
       "sqlite3",
@@ -102,6 +105,7 @@ async function buildAll() {
       "electron",
     ],
     sourcemap: "linked",
+    loader: { ".sql": "text" },
     plugins: [
       // pino relies on workers to handle logging, instead of externalizing it we use a plugin to handle it
       esbuildPluginPino({ transports: ["pino-pretty"] })
@@ -117,6 +121,15 @@ globalThis.__filename = __bannerUrl.fileURLToPath(import.meta.url);
 globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     `,
     },
+  };
+  await esbuild({ ...common, entryPoints: [path.resolve(artifactDir, "src/index.ts")], define: { __DEMO_WORKER__: "false" } });
+  await esbuild({ ...common,
+    entryPoints: { "demo-worker": path.resolve(artifactDir, "src/demo/worker.ts") },
+    define: { __DEMO_WORKER__: "true" },
+    plugins: [{ name: "isolated-demo-store", setup(build) {
+      build.onResolve({ filter: /^@workspace\/db$/ }, () => ({ path: path.resolve(artifactDir, "src/demo/database.ts") }));
+      build.onResolve({ filter: /(?:^|\/)rouletteAdmission$/ }, () => ({ path: path.resolve(artifactDir, "src/demo/rouletteAdmission.ts") }));
+    } }, ...common.plugins],
   });
 }
 

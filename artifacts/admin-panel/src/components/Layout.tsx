@@ -30,11 +30,13 @@ import {
   ToggleRight,
   Menu,
   X,
+  Globe,
 } from "lucide-react";
 
 const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/network", label: "B2B / B2C Network", icon: Building2 },
+  { href: "/b2c-website", label: "B2C Website", icon: Globe },
   { href: "/users", label: "Users", icon: Users },
   { href: "/kyc", label: "KYC", icon: ClipboardCheck },
   { href: "/bets", label: "Bets", icon: Dice5 },

@@ -915,6 +915,11 @@ export default function Home() {
               </button>
             ))}
             <div className="lobby-drawer-divider" />
+            <Link href="/b2c" onClick={() => setMenuOpen(false)}>
+              <Grid2X2 size={19} />
+              B2C Website
+              <ChevronRight size={15} />
+            </Link>
             {ACCOUNT_LINKS.map((item) => (
               <Link
                 key={item.href}

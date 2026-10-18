@@ -53,6 +53,15 @@ function Stat({
 
 export default function Dashboard() {
   const qc = useQueryClient();
+  const demos = useQuery<{ activeDemoUsers: number }>({
+    queryKey: ["admin-demo-presence"],
+    refetchInterval: 5_000,
+    queryFn: async () => {
+      const response = await fetch(`${BASE}/admin/demo-presence`, { credentials: "include" });
+      if (!response.ok) throw new Error("Could not load demo presence");
+      return response.json();
+    },
+  });
   const { data, isLoading, error } = useAdminDashboard({
     query: {
       queryKey: getAdminDashboardQueryKey(),
@@ -117,6 +126,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Stat label="Users total" value={data.usersTotal} testId="stat-users-total" />
         <Stat label="Users active" value={data.usersActive} testId="stat-users-active" />
+        <Stat label="Demo users live" value={demos.isError ? "Unavailable" : demos.data?.activeDemoUsers ?? "…"} testId="stat-demo-live" />
         <Stat label="Users suspended" value={data.usersSuspended ?? 0} />
         <Stat label="KYC pending" value={data.kycPending} testId="stat-kyc-pending" />
         <Stat

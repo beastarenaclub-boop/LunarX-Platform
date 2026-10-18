@@ -1,0 +1,13 @@
+.demo-session-banner { position: relative; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; color: #fff; background: #104d3e; border-bottom: 1px solid #d8b855; font: 13px/1.4 Arial, sans-serif; }
+.demo-session-banner strong { color: #ffe18a; }
+.demo-session-banner small { display: block; color: #d5e6df; }
+.demo-session-controls { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.demo-session-controls time { font-variant-numeric: tabular-nums; font-size: 17px; }
+.demo-session-controls button { border: 1px solid #87b4a3; padding: 5px 9px; border-radius: 3px; cursor: pointer; background: #153d33; color: white; }
+.demo-session-controls button:focus-visible { outline: 2px solid #ffe18a; outline-offset: 3px; }
+.demo-wallet { min-height: 75dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 32px 20px; text-align: center; background: #22292f; color: #fff; }
+.demo-wallet-coins { font-size: 90px; color: #ffd96c; line-height: 1; }
+.demo-wallet h1 { font-size: 26px; font-weight: 700; }
+.demo-wallet p { max-width: 520px; color: #ced8d7; }
+.demo-wallet a { background: #126e58; padding: 12px 24px; border-radius: 3px; }
+@media (max-width: 480px) { .demo-session-banner { padding: 7px 9px; font-size: 11px; gap: 7px; } .demo-session-controls { gap: 7px; } .demo-session-controls time { font-size: 14px; } }

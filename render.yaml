@@ -33,7 +33,7 @@ services:
       - key: GAME_BASE_URL
         value: https://lunarx.live
       - key: CORS_ORIGINS
-        value: https://lunarx.live,https://www.lunarx.live,https://b2b.lunarx.live,https://admin.lunarx.live,https://panel.lunarx.live
+        value: https://lunarx.live,https://www.lunarx.live,https://b2b.lunarx.live,https://admin.lunarx.live,https://panel.lunarx.live,https://crypto777.in,https://www.crypto777.in
       - key: B2B_HOSTS
         value: b2b.lunarx.live
       - key: OPERATOR_HOSTS
@@ -64,6 +64,7 @@ services:
       - b2b.lunarx.live
       - admin.lunarx.live
       - panel.lunarx.live
+      - crypto777.in
     envVars:
       - key: PORT
         value: "10000"

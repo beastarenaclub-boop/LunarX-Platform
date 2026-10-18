@@ -344,20 +344,6 @@ router.post("/agent-login", authRateLimiter, async (req, res, next) => {
   }
 });
 
-// Demo / guest mode has been removed — the platform now requires a real
-// account for all play. The endpoint stays registered so any older client
-// that still calls it gets a clear, explicit rejection (rather than a 404),
-// and no session or shadow user can ever be created without real signup/login.
-router.post("/demo-login", (_req, res) => {
-  res.status(403).json({
-    error: {
-      code: "DEMO_DISABLED",
-      message:
-        "Demo mode is no longer available. Please sign up or sign in to play.",
-    },
-  });
-});
-
 router.post("/logout", async (req, res, next) => {
   try {
     const sid = req.cookies?.[sessionCookie(req)];

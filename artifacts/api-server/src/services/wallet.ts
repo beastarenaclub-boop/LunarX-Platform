@@ -2,6 +2,8 @@ import { INSTANT_COLLECTION } from "@workspace/api-zod/instant-collection";
 import { db, walletsTable, walletLedgerTable, type LedgerEntryType } from "@workspace/db";
 import { and, eq, desc, or, lt, sql } from "drizzle-orm";
 import { bus } from "../realtime/eventBus";
+import { DEMO_RUNTIME } from "../demo/runtime";
+import { DEMO_COINS } from "../demo/sessions";
 
 // Game codes remain accepted by legacy clients. All resolve to one wallet.
 // "lunar" is the existing storage key, not a restriction on where funds work.
@@ -93,6 +95,7 @@ export async function ensureWallet(
 }
 
 export async function getBalance(walletId: string, tx: TxClient | typeof db = db): Promise<bigint> {
+  if (DEMO_RUNTIME) return DEMO_COINS;
   const rows = await tx
     .select({
       // SUM over bigint returns numeric; coalesce to 0 string and parse.
@@ -159,7 +162,7 @@ async function postEntryCore(tx: TxClient, input: PostEntryInput) {
     .from(walletLedgerTable)
     .where(eq(walletLedgerTable.walletId, wallet.id));
   const current = BigInt(sumRows[0]?.total ?? "0");
-  const next = current + input.amount;
+  const next = DEMO_RUNTIME ? DEMO_COINS : current + input.amount;
 
   if (enforceNonNegative && next < 0n) {
     throw new Error("INSUFFICIENT_FUNDS");

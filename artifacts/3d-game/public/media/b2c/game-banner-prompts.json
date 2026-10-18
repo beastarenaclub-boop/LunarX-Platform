@@ -1,0 +1,19 @@
+{
+  "tool": "Built-in image_gen",
+  "activeBanners": [
+    "crash-games-banner.png",
+    "casino-banner.png",
+    "instant-games-banner.png"
+  ],
+  "note": "Match poster removed from the storefront carousel. Existing live casino artwork retained.",
+  "prompts": [
+    {
+      "key": "crash-games-banner",
+      "prompt": "Use case: ads-marketing. Asset type: final full-bleed panoramic hero poster for the existing CRYPTO777 B2C games website. Generate an extremely wide, short 4.25:1 composition, preferably 2550x600 pixels. This is ONE complete poster, not a collage of panels. Subject: on the left, a dramatic polished silver futuristic jet banking upward across a dark midnight blue sky with electric cyan light trails; center-left, a powerful red helicopter flying above a cinematic ember-orange city, merging naturally into the same scene with red-orange flight trails. These are the existing JetX and Fury Flight game themes. On the right half, enormous razor-sharp dimensional chrome-and-gold headline exactly \"CRASH GAMES\", with the smaller clear line exactly \"JETX  •  FURY FLIGHT\" underneath. Keep every word completely within the frame and clear of the outer 8% horizontal edge margins. Premium glossy 3D game key art, polished metal, dramatic action, gold and electric blue highlights, dark black-blue background, glowing depth and controlled cinematic particles. Strong readable composition even at small website slider size. All important content and typography must sit within the central 55% of image height so a short wide banner crop preserves it. No match, no cricket, no players, no stadium, no dates, no real sports teams, no guaranteed winnings or money claims, no website logo, no buttons, no UI, no borders, no extra words."
+    },
+    {
+      "key": "instant-games-banner",
+      "prompt": "Use case: ads-marketing. Asset type: final full-bleed panoramic hero poster for the existing CRYPTO777 B2C games website. Generate an extremely wide, short 4.25:1 horizontal composition, preferably 2550x600 pixels. ONE continuous premium casino game poster. On the left, an enormous faceted glowing emerald diamond rising above a sophisticated dark emerald mines tile grid, a couple of polished black spherical game bombs with short gold fuses. In the middle, glossy gold and pink balls cascading through a luminous violet Plinko pegboard, coins and controlled sparkling highlights connect both halves. On the right half, monumental highly readable dimensional gold headline exactly \"INSTANT GAMES\", and the smaller clear exact line \"MINES  •  PLINKO  •  DICE\" underneath, with a pair of glossy ivory dice near the lower right as supporting game objects. Palette: deep black emerald transitioning to midnight purple, electric green gems, warm gold and magenta highlights. High-detail luxurious 3D game key art matching Indian casino website game posters. Every title fully inside frame and clear of outer 8% edge margins. Important text and objects stay inside central 55% of image height to remain intact when used in a short wide carousel. Attractive and mature visual style. No cricket, no matches, no athletes, no dates, no sports teams, no website logo, no people, no claims about winning, no UI, no buttons, no border, no extra words."
+    }
+  ]
+}

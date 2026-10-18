@@ -1,4 +1,5 @@
 import type { Server as HttpServer, IncomingMessage } from "node:http";
+import type { Duplex } from "node:stream";
 import { WebSocketServer, WebSocket } from "ws";
 import { getActiveSession, findUserById } from "../services/auth";
 import { sessionCookie, requestSite, requestOperatorPanel } from "../middlewares/siteChannel";
@@ -89,7 +90,7 @@ async function authenticate(req: IncomingMessage): Promise<{ userId: string; rol
   }
 }
 
-export function attachRealtime(httpServer: HttpServer): WebSocketServer {
+export function attachRealtime(httpServer: HttpServer, alternativeUpgrade?: (req: IncomingMessage, socket: Duplex, head: Buffer) => boolean): WebSocketServer {
   const wss = new WebSocketServer({ noServer: true });
 
   httpServer.on("upgrade", (req, socket, head) => {
@@ -102,6 +103,7 @@ export function attachRealtime(httpServer: HttpServer): WebSocketServer {
       // Let other upgrade handlers (if any) deal with it.
       return;
     }
+    if (alternativeUpgrade?.(req, socket, head)) return;
     void authenticate(req).then((auth) => {
       if (!auth) {
         socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");

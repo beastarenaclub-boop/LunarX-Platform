@@ -36,6 +36,7 @@ import PartnerDetailPage from "@/pages/partner-detail";
 import DeveloperDocsPage from "@/pages/developer-docs";
 import IntegrationDemoPage from "@/pages/integration-demo";
 import NotFound from "@/pages/not-found";
+import B2CWebsite from "@/pages/b2c-website";
 
 function ProtectedRoutes() {
   const { user, loading } = useAuth();
@@ -69,6 +70,7 @@ function ProtectedRoutes() {
         <Route path="/fraud" component={FraudPage} />
         <Route path="/agents" component={AgentsPage} />
         <Route path="/network" component={NetworkPage} />
+        <Route path="/b2c-website" component={B2CWebsite} />
         <Route path="/partners/:id" component={PartnerDetailPage} />
         <Route path="/partners" component={PartnersPage} />
         <Route path="/developer-docs" component={DeveloperDocsPage} />

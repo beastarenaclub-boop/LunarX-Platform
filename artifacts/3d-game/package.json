@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev:b2c": "vite --config vite.b2c.config.ts --host 0.0.0.0",
+    "build:b2c": "vite build --config vite.b2c.config.ts",
+    "serve:b2c": "vite preview --config vite.b2c.config.ts --host 0.0.0.0",
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
     "build": "vite build --config vite.config.ts",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",

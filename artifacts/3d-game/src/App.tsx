@@ -25,12 +25,15 @@ import RealtimeBridge from "@/components/lunar/RealtimeBridge";
 import SharedWalletBridge from "@/components/SharedWalletBridge";
 import GameViewport from "@/components/GameViewport";
 import "@/components/site/site.css";
-import { Rocket } from "lucide-react";
+import LoadingScreen from "@/components/game/LoadingScreen";
 import { CRASH_THEMES } from "@/game/crashThemes";
 import { setAudioGame, unlockAudio } from "@/game/audio";
 import { audioGameForRoute } from "@/game/gameSoundDesign";
 import { installAudioAutostart } from "@/game/audioAutostart";
+import { B2C_STANDALONE } from "@/components/b2c/config";
+import { DemoSessionBanner, DemoWallet } from "@/components/b2c/DemoSession";
 
+const B2C = lazy(() => import("@/pages/B2C"));
 const Launcher = lazy(() => import("@/pages/Launcher"));
 const Lunar = lazy(() => import("@/pages/Lunar"));
 const Mines = lazy(() => import("@/pages/Mines"));
@@ -101,16 +104,7 @@ const CRASH_ROUTES = Object.values(CRASH_THEMES).map((t) => ({
 }));
 
 function AuthSplash() {
-  return (
-    <div className="min-h-[100dvh] flex items-center justify-center bg-white text-slate-900">
-      <div className="flex flex-col items-center gap-3 animate-pulse">
-        <div className="w-12 h-12 rounded-xl bg-[#e7ff00] flex items-center justify-center shadow-[0_0_20px_rgba(250,204,21,0.3)]">
-          <Rocket className="w-6 h-6 text-[#080808]" />
-        </div>
-        <span className="text-sm text-slate-500">Loading…</span>
-      </div>
-    </div>
-  );
+  return <LoadingScreen />;
 }
 
 // Browsing the lobby is public; playing and account pages require a session.
@@ -119,6 +113,7 @@ function Protected({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   if (isLoading) return <AuthSplash />;
   if (!user) return <Redirect to={`/login?next=${encodeURIComponent(location + window.location.search + window.location.hash)}`} />;
+  if (user.isDemo && ["/wallet", "/profile", "/promotions", "/help"].includes(location)) return <DemoWallet />;
   return <>{children}</>;
 }
 
@@ -193,6 +188,7 @@ function App() {
   return (
     <AuthProvider>
       <TooltipProvider>
+        <DemoSessionBanner />
         <EngineHost />
         <RealtimeBridge enabled={CRASH_ROUTES.some(entry => entry.route === location)} />
         <SharedWalletBridge />
@@ -202,7 +198,7 @@ function App() {
           {/* Auth screens — logged-out only. */}
           <Route path="/login">
             <GuestOnly>
-              <Login />
+              {B2C_STANDALONE ? <B2C initialLogin /> : <Login />}
             </GuestOnly>
           </Route>
           <Route path="/signup">
@@ -228,7 +224,8 @@ function App() {
           <Route path="/launcher" component={Launcher} />
 
           {/* Everyone can browse the catalog before choosing a game. */}
-          <Route path="/" component={Home} />
+          <Route path="/b2c"><B2C /></Route>
+          <Route path="/">{B2C_STANDALONE ? <B2C /> : <Home />}</Route>
           {/* Playing and account access still require authentication. */}
           {INSTANT_COLLECTION.map(game => <Route key={game.code} path={'/' + game.code}><Protected><Suspense fallback={<AuthSplash />}>{game.code === "7up7down" ? <SevenUpDown /> : <InstantCollection key={game.code} gameCode={game.code} />}</Suspense></Protected></Route>)}
           <Route path="/fury-flight"><Redirect to="/fury" /></Route>

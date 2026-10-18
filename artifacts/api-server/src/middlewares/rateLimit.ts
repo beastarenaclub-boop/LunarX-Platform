@@ -1,5 +1,6 @@
 import rateLimit from "express-rate-limit";
 import type { Request } from "express";
+import { DEMO_RUNTIME } from "../demo/runtime";
 
 // Tests can bypass the demo-login rate limiters by sending
 // `x-test-bypass: ${TEST_RATE_LIMIT_BYPASS}` when that env var is set. The env
@@ -103,6 +104,9 @@ export const bettingRateLimiter = rateLimit({
 });
 
 export const bettingIpRateLimiter = rateLimit({
+  // Demo requests arrive through one internal loopback proxy. The normal
+  // per-session betting limiter still applies; do not group all demos by IP.
+  skip: () => DEMO_RUNTIME,
   windowMs: 60 * 1000,
   limit: 60,
   standardHeaders: "draft-7",
