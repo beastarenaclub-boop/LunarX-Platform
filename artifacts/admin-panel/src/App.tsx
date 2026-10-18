@@ -10,6 +10,7 @@ import Dashboard from "@/pages/dashboard";
 import UsersPage from "@/pages/users";
 import UserDetail from "@/pages/user-detail";
 import AccessHistoryPage from "@/pages/access-history";
+import CollectionDemoPage from "@/pages/collection-demo";
 import KycPage from "@/pages/kyc";
 import BetsPage from "@/pages/bets";
 import RoundProfitPage from "@/pages/round-profit";
@@ -55,6 +56,7 @@ function ProtectedRoutes() {
         <Route path="/" component={Dashboard} />
         <Route path="/users" component={UsersPage} />
         <Route path="/access" component={AccessHistoryPage} />
+        <Route path="/collection-demo" component={CollectionDemoPage} />
         <Route path="/users/:id" component={UserDetail} />
         <Route path="/kyc" component={KycPage} />
         <Route path="/bets" component={BetsPage} />
