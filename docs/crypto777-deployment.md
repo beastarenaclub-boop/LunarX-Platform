@@ -241,3 +241,42 @@ Casino Results matched, reload restored the receipt without replaying the toss,
 and the second toss was exercised at mobile width. Layouts at 320, 390 and 1440
 pixels passed with no JavaScript errors. The served MP4 hash matches the reviewed
 asset (3153647 bytes). All five public API health endpoints returned 200.
+
+### Shared 30-second Coin Flip and palm reveal
+
+Published and verified on 18 October 2026 from application commit
+`2d9b1505276da9b98a3a6b60af4d728e7fca56be`. API deployment
+`dep-dbagds8m7kps738ooe9g` and web deployment
+`dep-dbagfics728c73ae12d0` are live. The API replacement briefly
+interrupted the gateway; restarting the existing web gateway restored public
+health before the frontend rollout. No database migration was needed.
+
+Every shared round now has 15 seconds of betting, a ten-second stadium toss and
+five seconds showing the result. Rounds continue without wagers. The AI
+presenter holds out her open palm, with the server-confirmed Heads/Tails coin
+rendered directly on her hand. Playback follows the server clock; the result
+also works with reduced motion or missing video.
+
+Auto-bet is off by default. Start repeats the selected side and fixed amount
+once per round, for the selected count, with optional net loss/profit limits.
+Stop, reload, navigation, hiding the tab, lost connectivity or an uncertain
+wager stops future bets. Accepted wagers still settle. Admission, recovery and
+settlement retain the original round and cannot double-debit or double-credit.
+
+Validation passed: nine isolated API integration tests, twenty distinct Coin
+Flip browser cases, twenty-five neighboring-game browser cases, both TypeScript
+checks and both production builds. The Coin Flip browser cases passed across
+the main run and a targeted rerun after fixture timing corrections.
+
+Live verification used one volatile demo session. A passive result matched the
+coin on the presenter's palm before any wager. Two automatic INR 100 Tails bets
+were sent to distinct rounds, and both returned INR 194 after Tails landed.
+The plan then stopped; reload kept it off. Receipts matched Casino Results.
+Three consecutive results had deadline gaps of 30004 and 30003 milliseconds.
+Demo wallet balances retain the existing unlimited practice behavior; exact
+wallet debits/credits were checked in the isolated API suite.
+
+The served video hash matched the reviewed asset. Layouts at 320, 390 and 1440
+pixels passed, with no JavaScript errors or horizontal overflow. Public API
+health returned 200 for Crypto777, LunarX, B2B, Admin and operator domains.
+See [Coin Flip stadium rounds](coin-flip-studio.md) for recovery and media details.

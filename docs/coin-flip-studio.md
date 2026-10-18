@@ -20,7 +20,7 @@ Assets: stadium-palm-toss.mp4, palm-reveal.jpg and palm-provenance.json under pu
 
 ## Auto-bet and recovery
 
-Auto-bet starts only from its explicit Start button. It repeats the chosen side and fixed stake, once per shared round, for 1?1000 rounds (default 10). Optional net loss and profit limits stop future bets. A previous wager must reconcile before the next is placed. Stop remains usable during a round; an accepted wager still settles.
+Auto-bet starts only from its explicit Start button. It repeats the chosen side and fixed stake, once per shared round, for 1 to 1000 rounds (default 10). Optional net loss and profit limits stop future bets. A previous wager must reconcile before the next is placed. Stop remains usable during a round; an accepted wager still settles.
 
 The plan lives only in memory. Hiding the tab, going offline, a stale/failed snapshot, a rejected or uncertain request, insufficient funds, reload or navigation stops future auto bets. It never automatically resumes. Pending requests persist the original round, side and amount for manual recovery; no new round ID is substituted during retry.
 
