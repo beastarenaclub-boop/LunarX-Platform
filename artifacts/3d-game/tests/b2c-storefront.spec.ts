@@ -7,10 +7,11 @@ async function setup(
     offline?: boolean;
     signup?: boolean;
     path?: string;
+    demoSession?: boolean;
   } = {},
 ) {
   let loggedIn = !!options.loggedIn;
-  let demo = false;
+  let demo = !!options.demoSession;
   const expiresAt = new Date(Date.now() + 3600000).toISOString();
   const errors: string[] = [];
   const mutations: string[] = [];
@@ -20,7 +21,13 @@ async function setup(
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
-    if (path === "/api/network/website") return route.fulfill({ contentType: "application/json", body: "null" });
+    if (path === "/api/network/website") {
+      // Production demo sessions reject account/network routes. Public branding
+      // must still load after a demo starts and the storefront reloads.
+      if ((await request.headerValue("cookie"))?.includes("sid=demo_regression"))
+        return route.fulfill({ status: 403, json: { error: { message: "Demo gameplay only" } } });
+      return route.fulfill({ contentType: "application/json", body: "null" });
+    }
     if (request.method() === "POST") mutations.push(path);
     const user = {
       id: "b2c-test",
@@ -118,6 +125,16 @@ async function setup(
   await expect(page.locator(".b2c-site")).toBeVisible({ timeout: 45_000 });
   return { errors, mutations };
 }
+
+test("demo session can reload the storefront's public branding", async ({ page, baseURL }) => {
+  await page.context().addCookies([{ name: "sid", value: "demo_regression", url: baseURL! }]);
+  const { errors } = await setup(page, { loggedIn: true, demoSession: true });
+  await expect(page.getByRole("region", { name: "Demo session", exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("region", { name: "Demo session", exact: true })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Play options" })).toBeVisible();
+  expect(errors).toEqual([]);
+});
 
 test("standalone landing, banner controls and real catalog artwork", async ({
   page,

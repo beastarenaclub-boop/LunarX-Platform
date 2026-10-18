@@ -28,6 +28,9 @@ function BranchWebsite({ id, children }: { id?: string; children: ReactNode }) {
     queryFn: () =>
       customFetch<MasterWebsite | null>(
         id ? `/api/network/website/${encodeURIComponent(id)}` : '/api/network/website',
+        // Branding is public and resolved from the host/path. A demo cookie
+        // would route this request into the isolated gameplay allowlist.
+        { credentials: "omit" },
       ),
     retry: false,
   });
