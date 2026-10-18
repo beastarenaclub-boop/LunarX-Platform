@@ -2,7 +2,7 @@
 
 ## Normal Play and Agent Play
 
-The shared storefront is configured for two account channels:
+The shared storefront is live on two account channels:
 
 | Website | Channel | Account creation |
 | --- | --- | --- |
@@ -16,25 +16,49 @@ Master-specific branch pages retain their own navigation. Account sessions
 remain host-only, and the API enforces the player's channel on login and requests.
 Demo remains available on Normal Play only, matching the existing API policy.
 
-Activation checklist (the new hostname is not yet recorded as live):
+Deployment configuration, applied on 19 October 2026 (IST):
 
-1. Add `play.crypto777.in` to the existing private API's `B2B_HOSTS` and append
-   `https://play.crypto777.in` to `CORS_ORIGINS`, preserving every current value.
-   Keep `PLAY_HOST=play.lunarx.live` for existing master website links.
-2. Deploy the API's current production source with the updated environment.
-3. Attach `play.crypto777.in` to the existing `lunarx-web` service. Add only the
-   Hostinger CNAME `play -> lunarx-web.onrender.com`, TTL 300, keeping the apex,
-   `www`, mail and other records unchanged. Verify the domain and valid HTTPS.
-4. Deploy the web release. Its Docker build includes the new storefront host;
-   the gateway preserves the Host header for API and WebSocket requests.
-5. Verify both channel responses at `/api/auth/site`, signup rejection on Agent
-   Play, normal signup availability, desktop/mobile rendering, login return
-   routes, the two admin previews, demo and existing LunarX health.
+- The existing private API includes `play.crypto777.in` in `B2B_HOSTS` and
+  `https://play.crypto777.in` in `CORS_ORIGINS`. Previous values are preserved.
+  `PLAY_HOST=play.lunarx.live` still generates existing master website links.
+- `play.crypto777.in` is attached to the existing `lunarx-web` service and
+  verified by Render. Hostinger has CNAME `play -> lunarx-web.onrender.com`,
+  TTL 300; the apex and `www` records are unchanged. Both authoritative
+  nameservers, Google and Cloudflare return the record. HTTPS validates.
+- The web Docker build selects the Crypto777 storefront on all three hosts.
+  The gateway preserves Host for API and WebSocket requests.
 
 The existing deployment is not Blueprint-managed. `render.yaml` records the
 same host/CORS additions for future provisioning; changing it alone does not
 update the live API environment. No database migration or account conversion
 is required.
+
+## Verified dual-channel release: 19 October 2026
+
+- Initial application commit: `428b0111eb3173d3114610f38f2968edb4d4ecc3`.
+- Final web commit: `1d47c9e4504efadf69e65b7f0889b2ea8ee087ee`.
+- Web deployment `dep-dbak3sk9v7es738r2i70`: live.
+- API environment deployment `dep-dbajv3fbtjjs73ffdn8g`: live, from
+  `558b5dc0e490ddc3d92e35c05c1e1a6411bb70a3`. API source was unchanged;
+  only the channel host and CORS configuration changed.
+- Both Crypto777 websites and the existing LunarX, Play, admin and panel
+  domains returned HTTP 200 for `/api/healthz`.
+- Live `/api/auth/site` returns B2C/public signup for the apex and B2B/no
+  public signup for `play.crypto777.in`. Agent signup and demo requests return
+  403; the agent login explains how to obtain an agent-created player account.
+- Browser checks passed at 320, 390 and 1440 pixels with loaded game artwork,
+  correct selected play links, no horizontal overflow and no JavaScript errors.
+- Normal Demo starts, survives navigation to Dice and logs out. Public website
+  branding now loads without session cookies, so the isolated demo allowlist
+  cannot block the page after a reload. Gameplay still uses its demo session.
+- Production admin login and both real website previews passed, including
+  the 390-pixel preview and the selected website's external link.
+- All 14 storefront browser tests, player/admin type checks and production
+  builds passed. The Render Blueprint validated successfully.
+
+Final browser verification used ordinary DNS and valid HTTPS, with no hostname
+override. The API restart briefly interrupted gateway requests; the web rollout
+restored health. No accounts were converted and no database migration ran.
 
 ## Existing normal-player deployment
 
@@ -43,11 +67,13 @@ the apex domain. It is served by the existing `lunarx-web` Render gateway and
 uses the existing private API, PostgreSQL database, persistent game data and
 admin panel. There is no second production database.
 
-The web Docker build sets `VITE_B2C_HOSTS=crypto777.in,www.crypto777.in`.
-Only these hosts select the B2C storefront at `/`; other hosts keep their
+The web Docker build sets
+`VITE_B2C_HOSTS=crypto777.in,www.crypto777.in,play.crypto777.in`.
+These hosts select the Crypto777 storefront at `/`; other hosts keep their
 existing lobby. Both frontends use the same game assets and API proxy, including
 WebSockets. A standalone B2C build remains available with `npm run b2c:build`.
-The admin build sets `VITE_B2C_SITE_URL=https://crypto777.in` for its B2C preview.
+The admin build sets `VITE_B2C_SITE_URL=https://crypto777.in` and
+`VITE_B2C_AGENT_SITE_URL=https://play.crypto777.in` for its two previews.
 
 ## Existing resources
 
@@ -66,9 +92,11 @@ change the production database schema or import local data.
 
 ## Release procedure
 
-Auto-deploy remains disabled. Deploy the same reviewed Git commit to the API,
-then the web gateway, and verify health, real admin login, B2C rendering, demo
-bets, live demo presence, withdrawal rejection and logout. The API has a
+Auto-deploy remains disabled. Frontend-only changes need a web deployment.
+For API changes, deploy the reviewed source to the API before the web gateway,
+then verify health, real admin login, player rendering and the changed flows.
+Demo runtime changes also require checks for practice bets, live demo presence,
+withdrawal rejection and logout. The API has a
 persistent disk, so its deployment briefly interrupts connections. Its shared
 game engines retain their existing restart/recovery behavior.
 

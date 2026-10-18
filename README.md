@@ -18,11 +18,11 @@ player to the selected page. Public signup remains available only on B2C.
 ## Crypto777 player storefronts
 
 The **CRYPTO777** dark casino frontend uses **https://crypto777.in/** for normal
-players and is configured for **https://play.crypto777.in/** for agent-created
+players and **https://play.crypto777.in/** for agent-created
 players. The lobby has Normal Play and Agent Play links; the admin's
 **Crypto777 Websites** page previews both. Agent Play keeps public signup disabled
-and uses the existing agent accounts and channel isolation. Activation of the
-new hostname requires the Render/DNS steps in the deployment guide.
+and uses the existing agent accounts and channel isolation. Both websites are
+deployed on the existing Render gateway with verified custom domains and HTTPS.
 
 `www.crypto777.in` redirects to the normal website at the apex. It is also available at
 **https://lunarx.live/b2c**. The existing default lobby and all game engines
@@ -43,13 +43,14 @@ The production web Docker build sets
 `VITE_B2C_HOSTS=crypto777.in,www.crypto777.in,play.crypto777.in`, so the shared gateway serves this
 storefront at `/` on those hosts while retaining the existing lobby elsewhere.
 All player origins must be included in the backend's CORS configuration;
-`play.crypto777.in` must also be included in `B2B_HOSTS` before activation.
+`play.crypto777.in` is also included in the production `B2B_HOSTS` configuration.
 
 Set `VITE_B2C_BRAND` in `artifacts/3d-game/.env.local` before starting/building
 to override the **CRYPTO777** name. The header uses the supplied logo at
 `public/media/b2c/brand-logo.png`; `VITE_B2C_LOGO` can override its URL.
 The production admin Docker build sets
-`VITE_B2C_SITE_URL=https://crypto777.in` for its storefront preview and link.
+`VITE_B2C_SITE_URL=https://crypto777.in` and
+`VITE_B2C_AGENT_SITE_URL=https://play.crypto777.in` for its two previews and links.
 Other deployments can override that value; without an override, the admin
 preview falls back to the existing website's `/b2c` route.
 
@@ -59,7 +60,7 @@ the favicon on game and account routes; the `/b2c` preview restores the original
 favicon when returning to the LunarX lobby. The supplied header logo remains
 available at `public/media/b2c/brand-logo.png`.
 
-Demo creates an anonymous ID for **one hour of playable practice**, with unlimited
+Normal Play's Demo creates an anonymous ID for **one hour of playable practice**, with unlimited
 demo coins and no signup. Refreshing or opening another tab reuses the same ID
 and does not extend expiry. Deposits, withdrawals, transfers and account changes
 are blocked by the server. Signing in starts a separate real session without
