@@ -76,12 +76,14 @@ export function PaymentHistory({
   const [master, setMaster] = useState(""),
     [agent, setAgent] = useState(""),
     [review, setReview] = useState("all");
+  const [method, setMethod] = useState("all");
   const [exporting, setExporting] = useState(false),
     [exportError, setExportError] = useState("");
   const params = new URLSearchParams({
     ...filters.query,
     channel,
     reconciliation: review,
+    method,
     ...(!customer && channel === "b2b" && (master || agent)
       ? { nodeId: agent || master }
       : {}),
@@ -208,6 +210,7 @@ export function PaymentHistory({
         ]}
       />
       <div className="ph-selectors">
+        <label>Deposit method<select aria-label="Deposit method" value={method} onChange={e => { setMethod(e.target.value); filters.setOffset(0); }}><option value="all">All payment records</option><option value="manual">Manual deposits</option><option value="auto">Automatic deposits</option></select></label>
         <label>
           Wallet reconciliation
           <select

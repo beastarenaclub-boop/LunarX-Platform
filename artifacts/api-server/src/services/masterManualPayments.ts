@@ -44,11 +44,19 @@ export async function authorizeCollection(user: User, masterId: string, tx?: Tra
     );
   const [master] = await (tx ? query.for("share") : query);
   if (!master) throw notFound("Master not found");
-  if (!isNetworkAdmin(user) && (user.role !== "agent" || master.userId !== user.id))
-    throw forbidden("Only the owning master or administrator can manage these payments");
   if (!isNetworkAdmin(user) && !master.manualPaymentsEnabled)
     throw forbidden("Manual payment access has not been assigned by admin");
-  return master;
+  let reviewAgentId: string | null = null;
+  if (!isNetworkAdmin(user) && master.userId !== user.id) {
+    const agentQuery = (tx ?? db).select().from(networkNodesTable).where(and(
+      eq(networkNodesTable.userId, user.id), eq(networkNodesTable.kind, "agent"), eq(networkNodesTable.parentId, masterId),
+    ));
+    const [agent] = await (tx ? agentQuery.for("share") : agentQuery);
+    if (user.role !== "agent" || !agent?.manualPaymentsEnabled || agent.status !== "active")
+      throw forbidden("Only the master or an assigned agent can review these payments");
+    reviewAgentId = agent.id;
+  }
+  return { ...master, reviewAgentId };
 }
 
 export async function masterAccount(masterId: string) {
@@ -97,6 +105,10 @@ export async function createMasterDeposit(
       const [master] = await tx.select().from(networkNodesTable).where(eq(networkNodesTable.id, masterId)).for("share");
       if (!master?.manualPaymentsEnabled)
         throw forbidden("Manual payments are unavailable. Contact support.");
+      const [customer] = await tx.select().from(usersTable).where(eq(usersTable.id, user.id)).for("share");
+      const [agent] = customer?.b2bAgentId ? await tx.select().from(networkNodesTable).where(eq(networkNodesTable.id, customer.b2bAgentId)).for("share") : [];
+      if (!agent || agent.kind !== "agent" || agent.parentId !== masterId || agent.status !== "active" || customer?.status !== "active")
+        throw conflict("Customer branch changed. Refresh payment details.");
       const [account] = await tx
         .select()
         .from(masterPaymentAccountsTable)
@@ -119,6 +131,7 @@ export async function createMasterDeposit(
           upiRef: input.upiRef!.trim().toUpperCase(),
           upiId: account.upiId,
           collectionMasterId: masterId,
+          fundingAgentId: agent.id,
           collectionAccountVersion: account.version,
         })
         .returning();
@@ -139,6 +152,7 @@ export async function listMasterDeposits(
   limit: number,
   offset: number,
   status?: "pending" | "approved" | "rejected",
+  agentId?: string | null,
 ) {
   return db
     .select({ deposit: paymentRequestsTable, customer: usersTable.email })
@@ -150,6 +164,7 @@ export async function listMasterDeposits(
         eq(paymentRequestsTable.kind, "deposit"),
         eq(paymentRequestsTable.method, "manual"),
         status ? eq(paymentRequestsTable.status, status) : undefined,
+        agentId ? sql`COALESCE(${paymentRequestsTable.fundingAgentId}, ${usersTable.b2bAgentId}) = ${agentId}` : undefined,
       ),
     )
     .orderBy(
@@ -173,7 +188,7 @@ export async function decideMasterDeposit(
   const updates: Parameters<typeof publishWalletBalance>[0][] = [];
   try {
     const result = await db.transaction(async (tx) => {
-      await authorizeCollection(user, masterId, tx);
+      const access = await authorizeCollection(user, masterId, tx);
       const [deposit] = await tx
         .select()
         .from(paymentRequestsTable)
@@ -183,6 +198,7 @@ export async function decideMasterDeposit(
             eq(paymentRequestsTable.collectionMasterId, masterId),
             eq(paymentRequestsTable.kind, "deposit"),
             eq(paymentRequestsTable.method, "manual"),
+            access.reviewAgentId ? sql`COALESCE(${paymentRequestsTable.fundingAgentId}, (SELECT b2b_agent_id FROM users WHERE id=${paymentRequestsTable.userId})) = ${access.reviewAgentId}` : undefined,
           ),
         )
         .for("update");
@@ -190,6 +206,7 @@ export async function decideMasterDeposit(
       if (deposit.status !== "pending")
         throw conflict("This deposit has already been reviewed");
       let ledgerEntryId: string | null = null;
+      let fundingAgentId = deposit.fundingAgentId;
       if (decision === "approve") {
         const [master] = await tx
           .select()
@@ -216,11 +233,12 @@ export async function decideMasterDeposit(
               .where(eq(networkNodesTable.id, customer.b2bAgentId))
               .for("share")
           : [];
-        if (!agent || agent.parentId !== masterId || agent.status !== "active")
+        if (!agent || agent.parentId !== masterId || agent.status !== "active" || (deposit.fundingAgentId && deposit.fundingAgentId !== agent.id))
           throw badRequest(
             "Customer branch has changed. Contact the administrator.",
           );
         await assertNetworkActive(customer);
+        fundingAgentId = agent.id;
         for (const uid of [agent.userId, customer.id].sort()) {
           await tx.execute(
             sql`SELECT pg_advisory_xact_lock(hashtextextended(${`network-funds:${uid}`},0))`,
@@ -275,6 +293,7 @@ export async function decideMasterDeposit(
           processedAt: new Date(),
           rejectionReason: decision === "reject" ? reason!.trim() : null,
           ledgerEntryId,
+          fundingAgentId,
         })
         .where(eq(paymentRequestsTable.id, id))
         .returning();
@@ -290,6 +309,7 @@ export async function decideMasterDeposit(
           after: {
             status,
             masterId,
+            fundingAgentId,
             amount: deposit.amount.toString(),
             reason: reason ?? null,
           },

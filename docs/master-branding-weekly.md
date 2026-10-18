@@ -27,8 +27,11 @@ The customer submits the amount and bank UTR. The request snapshots the receivin
 master, UPI ID and account version. Stale/foreign account details and duplicate
 UTRs within a master are rejected. Submitting a UTR does not credit the wallet.
 Masters review requests under **Manual payments**, verify the received bank funds,
-then approve or reject with a reason. Agents cannot edit QR details or review
-deposits. Admin can manage each master's account from Network > Manual payments.
+then approve or reject with a reason. An enabled master can assign **Allow deposit
+approval using my QR** while creating/managing its own agents. Assigned agents
+can review only their customers' deposits from `/agent/manual-payments`; they
+cannot change the master's QR. Revoking either permission blocks agent reviews.
+Admin can manage each master's account from Network > Manual payments.
 
 Approval atomically debits the customer's agent's available wallet float and credits the
 customer's shared wallet, with an audit entry and balance updates. The agent
@@ -37,6 +40,25 @@ use this same operation; simultaneous reviews cannot credit twice. Rejection
 does not move money. These transfers do not issue platform deposit bonuses or
 count as game revenue/company weekly commission. Existing requests retain their
 original receiver when the master later edits or disables the QR.
+
+**Collection report** (`/agent/collections`, `/master/collections`, or admin Network)
+keeps each agent's collections separate. Masters/admin select an agent; agents
+automatically see only their own report. Weeks run Monday 00:00 IST inclusive to
+the next Monday 00:00 IST exclusive, using approval time. Manual, Automatic, and
+combined filters include only approved deposits; totals cover all matching rows,
+independently of pagination. Payment history and its CSV also support deposit
+method filtering. These filters do not enable additional payment methods.
+
+Migration `0055_deposit_funding_agent.sql` snapshots the funding agent on new
+requests and approvals. Legacy records without a snapshot use current membership;
+database ownership constraints keep customer/agent membership permanent.
+
+For an audited legacy master-funded deposit, the admin-only endpoint
+`POST /api/network/manual-payments/:masterId/deposits/:id/funding-correction`
+accepts a required reason. It verifies the original debit and customer credit,
+then atomically debits the agent and refunds the original master. It preserves
+the original ledger and player credit. Repeated/concurrent requests are no-ops
+after the first correction; insufficient agent funds roll back both entries.
 
 Migration `0053_master_manual_payments.sql` must run before the updated API.
 Deploy the player, operator and admin bundles along with the API. No new secret,

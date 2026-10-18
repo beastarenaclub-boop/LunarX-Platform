@@ -20,6 +20,7 @@ const sectionRoutes: Record<NetworkSection, string> = {
   "Weekly account":"/weekly",
   "Payment history":"/payments",
   "Manual payments":"/manual-payments",
+  "Collection report":"/collections",
 };
 
 function PanelPage({
@@ -85,6 +86,7 @@ function ProtectedRoutes() {
         <Route path="/transactions"><PanelPage tab="Wallet ledger" /></Route>
         <Route path="/payments"><PanelPage tab="Payment history" /></Route>
         <Route path="/manual-payments"><PanelPage tab="Manual payments" /></Route>
+        <Route path="/collections"><PanelPage tab="Collection report" /></Route>
         <Route path="/website"><PanelPage tab="Website" /></Route>
         <Route path="/weekly"><PanelPage tab="Weekly account" /></Route>
         <Route path="/" component={OverviewPage} />

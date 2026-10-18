@@ -9,6 +9,7 @@ import {
 import { badRequest, forbidden } from "../lib/errors";
 
 const options = z.object({
+  method: z.enum(["all", "manual", "auto"]).default("all"),
   type: z.enum(["deposit", "withdrawal_request", "payout"]).optional(),
   status: z
     .enum([
@@ -66,6 +67,7 @@ export async function paymentHistory(
   if (actor && actor.role !== "admin" && filter.channel !== "b2b")
     throw forbidden();
   const parts: SQL[] = [sql`u.role='player'`, sql`p.currency='INR'`];
+  if (extra.method !== "all") parts.push(sql`p.type='deposit' AND p.method=${extra.method}`);
   if (customer) parts.push(sql`u.id=${user.id}`);
   else {
     parts.push(sql`u.channel=${filter.channel}`);
@@ -209,6 +211,7 @@ export function paymentHistoryCsv(
     "amount",
     "currency",
     "status",
+    "method",
     "reference",
     "walletAmount",
     "walletEntries",

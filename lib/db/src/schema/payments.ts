@@ -70,6 +70,7 @@ export const paymentRequestsTable = pgTable(
     upiRef: text("upi_ref"),
     upiId: text("upi_id"),
     collectionMasterId: text("collection_master_id").references(() => networkNodesTable.id),
+    fundingAgentId: text("funding_agent_id").references(() => networkNodesTable.id),
     collectionAccountVersion: integer("collection_account_version"),
     notes: text("notes"),
     rejectionReason: text("rejection_reason"),

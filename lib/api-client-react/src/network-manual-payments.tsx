@@ -166,7 +166,7 @@ function AccountForm({
   );
 }
 
-export function NetworkManualPayments({ masterId }: { masterId: string }) {
+export function NetworkManualPayments({ masterId, canEditAccount = true }: { masterId: string; canEditAccount?: boolean }) {
   const qc = useQueryClient();
   const [status, setStatus] = useState("pending"),
     [offset, setOffset] = useState(0);
@@ -200,9 +200,9 @@ export function NetworkManualPayments({ masterId }: { masterId: string }) {
   return (
     <>
       <section className="net-card" aria-label="Manual payment settings">
-        <h2>Your manual payment QR</h2>
+        <h2>{canEditAccount ? "Your manual payment QR" : "Master's payment QR"}</h2>
         <p>
-          Receive customer payments in your own UPI account. Verify the bank
+          Customer payments go to the master's UPI account. Verify the bank
           credit and UTR before approving a deposit.
         </p>
         {account.isPending ? (
@@ -212,6 +212,8 @@ export function NetworkManualPayments({ masterId }: { masterId: string }) {
             {account.error.message}{" "}
             <button onClick={() => void account.refetch()}>Retry</button>
           </p>
+        ) : !canEditAccount ? (
+          <div><p>{account.data?.label ?? "Payment account unavailable"}</p><strong>{account.data?.upiId}</strong><p>Only your master can change this QR. You can review deposits from your own customers.</p></div>
         ) : (
           <AccountForm
             key={`${masterId}:${account.data?.version ?? 0}`}
@@ -373,7 +375,7 @@ export function NetworkManualPayments({ masterId }: { masterId: string }) {
                     checked={confirmed}
                     onChange={(e) => setConfirmed(e.target.checked)}
                   />{" "}
-                  I checked my bank account and received this amount with this
+                  I verified the master's bank account received this amount with this
                   UTR.
                 </label>
               ) : (

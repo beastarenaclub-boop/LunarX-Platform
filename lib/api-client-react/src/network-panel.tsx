@@ -8,6 +8,7 @@ import { PaymentHistory } from "./payment-history";
 import { WebsiteLinks, type NetworkWebsite } from "./network-website";
 import { NetworkBranding } from "./network-branding";
 import { NetworkManualPayments } from "./network-manual-payments";
+import { NetworkCollections } from "./network-collections";
 import { NetworkWeekly, type WeeklyStatus } from "./network-weekly";
 import { useRealtimeTopic, useRealtimeResync } from "./realtime";
 
@@ -63,6 +64,8 @@ export type NetworkNode = {
 type Node = NetworkNode;
 type Context = {
   role: Role;
+  manualPaymentsAllowed: boolean;
+  collectionMasterId: string | null;
   website?: NetworkWebsite | null;
   weekly?: Pick<WeeklyStatus,'locked'> | null;
   node: null | {
@@ -158,7 +161,7 @@ function Pager({
   );
 }
 
-export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account" | "Payment history" | "Manual payments";
+export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account" | "Payment history" | "Manual payments" | "Collection report";
 
 export function NetworkPanel({
   initialTab = "Overview",
@@ -202,7 +205,7 @@ export function NetworkPanel({
     refetchInterval:30_000,
   });
   const role = context.data?.role;
-  const canManageManualPayments = role === "admin" || (role === "master" && context.data?.node?.manualPaymentsEnabled === true);
+  const canManageManualPayments = role === "admin" || context.data?.manualPaymentsAllowed === true;
   const refreshBalances = () => {
     void qc.invalidateQueries({ queryKey: ["network"] });
   };
@@ -279,7 +282,7 @@ export function NetworkPanel({
                 shareBps: Math.round(Number(get("share")) * 100),
                 ...(role === "admin"
                   ? { companyFeeBps: Math.round(Number(get("fee")) * 100), manualPaymentsEnabled: data.has("manualPaymentsEnabled") }
-                  : {}),
+                  : role === "master" && canManageManualPayments ? { manualPaymentsEnabled: data.has("manualPaymentsEnabled") } : {}),
               }
             : {}),
         };
@@ -291,7 +294,7 @@ export function NetworkPanel({
           body: {
             name: get("name"),
             status: get("status"),
-            ...(role === "admin" && modal.node!.kind === "master"
+            ...((role === "admin" && modal.node!.kind === "master") || (role === "master" && modal.node!.kind === "agent" && (canManageManualPayments || modal.node!.manual_payments_enabled))
               ? { manualPaymentsEnabled: data.has("manualPaymentsEnabled") }
               : {}),
             ...(!(role === "admin" && modal.node!.kind === "agent")
@@ -557,6 +560,7 @@ export function NetworkPanel({
           ...(channel === 'b2b' && role!=='agent' ? ['Weekly account'] : []),
           "Wallet ledger",
           "Payment history",
+          ...(channel === "b2b" ? ["Collection report"] : []),
           ...(channel === "b2b" && canManageManualPayments ? ["Manual payments"] : []),
           ...(channel === "b2b" ? ["Website"] : []),
         ].map((t) => (
@@ -972,6 +976,7 @@ export function NetworkPanel({
       )}
       {(tab === "Settlements" || tab === "Wallet ledger") && <NetworkTransactions key={tab+channel} kind={tab === "Settlements" ? "settlements" : "wallet"} role={role!} nodes={nodes.data?.nodes??[]} channel={channel} />}
       {tab === "Payment history" && <PaymentHistory key={channel} role={role!} nodes={nodes.data?.nodes??[]} channel={channel}/>}
+      {tab === "Collection report" && <NetworkCollections role={role!} nodes={nodes.data?.nodes??[]} />}
       {tab === "Manual payments" && !canManageManualPayments && <section className="net-card"><p>Manual payment access has not been assigned by admin.</p></section>}
       {tab === "Manual payments" && canManageManualPayments && <>
         {role === "admin" && <section className="net-card"><label className="net-field"><span>Master payment account</span><select value={weeklyMaster} onChange={e => setWeeklyMaster(e.target.value)}><option value="">Choose master</option>{nodes.data?.nodes.filter(n => n.kind === "master").map(n => <option key={n.id} value={n.id}>{n.name}</option>)}</select></label></section>}
@@ -980,7 +985,7 @@ export function NetworkPanel({
           <p>{n.manual_payments_enabled ? "Assigned: this master can collect and review manual QR payments." : "Not assigned: the button and payment access are disabled for this master. Admin can still review existing requests."}</p>
           <button disabled={mutate.isPending} onClick={() => mutate.mutate({ path: `/nodes/${n.id}`, method: "PATCH", body: { manualPaymentsEnabled: !n.manual_payments_enabled } })}>{n.manual_payments_enabled ? "Revoke manual payment access" : "Assign manual payment access"}</button>
         </section>)}
-        {(role === "admin" ? weeklyMaster : context.data.node?.id) && <NetworkManualPayments key={role === "admin" ? weeklyMaster : context.data.node!.id} masterId={role === "admin" ? weeklyMaster : context.data.node!.id} />}
+        {(role === "admin" ? weeklyMaster : context.data.collectionMasterId) && <NetworkManualPayments key={role === "admin" ? weeklyMaster : context.data.collectionMasterId!} masterId={role === "admin" ? weeklyMaster : context.data.collectionMasterId!} canEditAccount={role !== "agent"} />}
       </>}
       {modal && (
         <div className="net-modal-backdrop">
@@ -1096,10 +1101,10 @@ export function NetworkPanel({
                   </small>
                 </Field>
               )}
-              {role === "admin" && (modal.kind === "create" || (modal.kind === "edit" && modal.node?.kind === "master")) && (
-                <Field label="Allow manual QR payments">
+              {((role === "admin" && (modal.kind === "create" || (modal.kind === "edit" && modal.node?.kind === "master"))) || (role === "master" && (modal.kind === "create" || modal.kind === "edit") && (canManageManualPayments || modal.node?.manual_payments_enabled))) && (
+                <Field label={role === "master" ? "Allow deposit approval using my QR" : "Allow manual QR payments"}>
                   <input type="checkbox" name="manualPaymentsEnabled" defaultChecked={modal.node?.manual_payments_enabled ?? false} style={{ width: 16, height: 16, padding: 0 }} />
-                  <small>Show Manual payments and let this master collect and review customer deposits. Disabled unless you assign access.</small>
+                  <small>{role === "master" ? "This agent can review only its own customers. Your QR stays in use; coins come from this agent's wallet." : "Show Manual payments and let this master collect and review customer deposits. Disabled unless you assign access."}</small>
                 </Field>
               )}
               {modal.kind === "fund" && (

@@ -219,6 +219,16 @@ try {
     path: resolve(output, "master-desktop.png"),
     fullPage: true,
   });
+  await masterPage.goto("http://127.0.0.1:4196/master/agents");
+  await masterPage.getByRole("row").filter({ hasText: "QR Browser Agent" }).getByRole("button", { name: "Manage", exact: true }).click();
+  await masterPage.getByLabel("Allow deposit approval using my QR").check();
+  await masterPage.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(masterPage.getByLabel("Allow deposit approval using my QR")).toHaveCount(0);
+  const agentPage = await pageFor(agent, "sid_agent", 4196);
+  await agentPage.goto("http://127.0.0.1:4196/agent/manual-payments");
+  await expect(agentPage.getByRole("heading", { name: "Master's payment QR" })).toBeVisible();
+  await expect(agentPage.getByRole("region", { name: "Manual payment settings" })).toContainText("browser.master@upi");
+  await expect(agentPage.getByRole("button", { name: "Save payment details" })).toHaveCount(0);
   const customerPage = await pageFor(player, "sid_b2b", 4191);
   await customerPage.goto("http://127.0.0.1:4191/wallet");
   await expect(customerPage.getByTestId("text-upi-id")).toHaveText(
@@ -235,13 +245,13 @@ try {
     "123456789012",
   );
   assert.equal((await getBalanceByUser(player.id)).balance, 0n);
-  await masterPage
+  await agentPage
     .getByRole("button", { name: "Refresh requests", exact: true })
     .click();
-  await masterPage
+  await agentPage
     .getByRole("button", { name: "Review & approve", exact: true })
     .click();
-  const review = masterPage.getByRole("region", {
+  const review = agentPage.getByRole("region", {
     name: "Review deposit",
     exact: true,
   });
@@ -252,7 +262,7 @@ try {
   await review
     .getByRole("button", { name: "Confirm received & credit" })
     .click();
-  await expect(masterPage.getByRole("status")).toHaveText(
+  await expect(agentPage.getByRole("status")).toHaveText(
     "Deposit approved and customer wallet credited.",
   );
   assert.equal((await getBalanceByUser(player.id)).balance, 20000n);
@@ -262,13 +272,21 @@ try {
   await expect(customerPage.getByTestId("list-deposits")).toContainText(
     "approved",
   );
+  await masterPage.goto("http://127.0.0.1:4196/master/manual-payments");
   await masterPage.getByLabel("Deposit status").selectOption("approved");
   await expect(
     masterPage.getByRole("region", { name: "Manual deposit requests" }),
   ).toContainText("123456789012");
+  await agentPage.goto("http://127.0.0.1:4196/agent/collections");
+  await expect(agentPage.getByRole("region", { name: "Agent collection report" })).toContainText("123456789012");
+  await agentPage.getByLabel("Deposit method").selectOption("auto");
+  await expect(agentPage.getByText("No approved deposits for this week and filter.")).toBeVisible();
+  await agentPage.getByLabel("Deposit method").selectOption("manual");
+  await expect(agentPage.getByRole("region", { name: "Agent collection report" })).toContainText("123456789012");
   for (const [name, page] of [
     ["master", masterPage],
     ["customer", customerPage],
+    ["agent-collections", agentPage],
   ]) {
     await page.setViewportSize({ width: 390, height: 844 });
     assert.equal(
@@ -292,9 +310,12 @@ try {
   await expect(masterPage.getByLabel("UPI ID", { exact: true })).toHaveCount(0);
   await customerPage.reload();
   await expect(customerPage.getByTestId("img-upi-qr")).toHaveCount(0);
+  await agentPage.goto("http://127.0.0.1:4196/agent/manual-payments");
+  await expect(agentPage.getByText("Manual payment access has not been assigned by admin.")).toBeVisible();
+  await expect(agentPage.getByRole("button", { name: "Review & approve", exact: true })).toHaveCount(0);
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: admin assignment/revocation, hidden unauthorized navigation, QR upload, branch wallet, UTR submission, funded approval and mobile layout",
+    "PASS: admin/master assignment, agent approval using master QR, correct funding, collection method filters, parent revocation and mobile layouts",
   );
 } finally {
   for (const context of contexts) await context.close();

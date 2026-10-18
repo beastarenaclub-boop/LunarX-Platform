@@ -26,7 +26,8 @@ const NAV = [
   { href: "/ledger", label: "Commission & P&L", icon: ReceiptText },
   { href: "/transactions", label: "Wallet transactions", icon: Wallet },
   { href: "/payments", label: "Payment history", icon: Wallet },
-  { href: "/manual-payments", label: "Manual payments", icon: Wallet, masterOnly: true },
+  { href: "/manual-payments", label: "Manual payments", icon: Wallet },
+  { href: "/collections", label: "Collection report", icon: ReceiptText },
   { href: "/settlements", label: "Settlements", icon: Handshake },
   { href: "/weekly", label: "Weekly account", icon: ReceiptText, masterOnly: true },
   { href: "/website", label: "Website links", icon: Globe },
@@ -39,12 +40,12 @@ export function Layout({ children }: { children: ReactNode }) {
   const panelName = getOperatorPanel() === "master" ? "Master Panel" : "Agent Panel";
   const context = useQuery({
     queryKey: ["network", "context"],
-    queryFn: () => customFetch<{ role: string; node: { manualPaymentsEnabled: boolean } | null }>("/api/network/context"),
+    queryFn: () => customFetch<{ role: string; manualPaymentsAllowed: boolean }>("/api/network/context"),
     enabled: !!user,
     retry: false,
     refetchInterval: 30000,
   });
-  const canCollect = context.data?.role === "master" && context.data.node?.manualPaymentsEnabled === true;
+  const canCollect = context.data?.manualPaymentsAllowed === true;
 
   // Close the drawer whenever the route changes (mobile navigation).
   useEffect(() => {

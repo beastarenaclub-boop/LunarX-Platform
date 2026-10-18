@@ -429,6 +429,98 @@ test(
         "POST",
         400,
       );
+      // Delegation preserves the master's QR and isolates each agent's queue.
+      const cAccount = await call(c.master.client, path(c.id), settings, "PUT");
+      const agentId = c.player.user.b2bAgentId!;
+      await call(c.master.client, `/network/nodes/${agentId}`, { manualPaymentsEnabled: true }, "PATCH");
+      assert.equal((await call(c.agent.client, "/network/context")).manualPaymentsAllowed, true);
+      assert.equal((await call(c.agent.client, path(c.id))).upiId, settings.upiId);
+      await call(c.agent.client, path(c.id), { ...settings, upiId: "agent@upi" }, "PUT", 403);
+      await call(b.master.client, `/network/nodes/${agentId}`, { manualPaymentsEnabled: true }, "PATCH", 403);
+      const sibling = await user("c-sibling", "agent");
+      const [siblingNode] = await db.insert(networkNodesTable).values({ userId: sibling.user.id, kind: "agent", parentId: c.id, name: "Sibling", createdBy: c.master.user.id }).returning();
+      const siblingPlayer = await user("c-sibling-player", "player", siblingNode!.id);
+      const pendingBody = { ...depositBody, accountId: c.id, accountVersion: cAccount.version };
+      const own = await call(c.player.client, "/payments/deposits", pendingBody);
+      const other = await call(siblingPlayer.client, "/payments/deposits", { ...pendingBody, upiRef: "999999999999" });
+      const queue = await call(c.agent.client, `${path(c.id)}/deposits`);
+      assert.deepEqual(queue.items.map((x: { id: string }) => x.id), [own.id]);
+      await call(c.agent.client, `${path(c.id)}/deposits/${other.id}/decision`, { decision: "approve" }, "POST", 404);
+      await call(c.master.client, `/network/nodes/${agentId}`, { manualPaymentsEnabled: false }, "PATCH");
+      await call(c.agent.client, `${path(c.id)}/deposits/${own.id}/decision`, { decision: "approve" }, "POST", 403);
+      await call(c.master.client, `/network/nodes/${agentId}`, { manualPaymentsEnabled: true }, "PATCH");
+      await call(admin.client, `/network/nodes/${c.id}`, { manualPaymentsEnabled: false }, "PATCH");
+      assert.equal((await call(c.agent.client, "/network/context")).manualPaymentsAllowed, false);
+      await call(c.agent.client, `${path(c.id)}/deposits`, undefined, "GET", 403);
+      await call(admin.client, `/network/nodes/${c.id}`, { manualPaymentsEnabled: true }, "PATCH");
+      await postEntry({ userId: c.agent.user.id, type: "adjustment", amount: 100000n, refType: "test" });
+      await call(c.agent.client, `${path(c.id)}/deposits/${own.id}/decision`, { decision: "approve" });
+      assert.equal((await getBalanceByUser(c.agent.user.id)).balance, 80000n);
+      assert.equal((await getBalanceByUser(c.player.user.id)).balance, 20000n);
+      assert.equal((await getBalanceByUser(c.master.user.id)).balance, 0n);
+      const moved = await call(c.player.client, "/payments/deposits", { ...pendingBody, upiRef: "888888888888" });
+      await assert.rejects(db.update(usersTable).set({ b2bAgentId: siblingNode!.id }).where(eq(usersTable.id, c.player.user.id)));
+      await db.update(paymentRequestsTable).set({ fundingAgentId: siblingNode!.id }).where(eq(paymentRequestsTable.id, moved.id));
+      await call(c.master.client, `${path(c.id)}/deposits/${moved.id}/decision`, { decision: "approve" }, "POST", 400);
+
+      // Monday boundaries use approval time, and totals are independent of pagination.
+      const week = "2026-10-12";
+      await db.update(paymentRequestsTable).set({ processedAt: new Date("2026-10-11T18:30:00Z"), createdAt: new Date("2026-10-01T00:00:00Z") }).where(eq(paymentRequestsTable.id, own.id));
+      const makeRecord = async (name: string, when: string, method: "manual" | "auto", amount: bigint, status: "approved" | "pending" = "approved") => {
+        const [r] = await db.insert(paymentRequestsTable).values({ userId: c.player.user.id, kind: "deposit", method, status, amount, fundingAgentId: agentId, collectionMasterId: c.id, processedAt: new Date(when), upiRef: name + prefix }).returning(); return r!;
+      };
+      await makeRecord("auto", "2026-10-18T18:29:59.999Z", "auto", 30000n);
+      await makeRecord("before", "2026-10-11T18:29:59.999Z", "manual", 90000n);
+      await makeRecord("after", "2026-10-18T18:30:00Z", "manual", 90000n);
+      await makeRecord("pending", "2026-10-14T00:00:00Z", "manual", 90000n, "pending");
+      const reportPath = `/network/collections?week=${week}`;
+      const report = await call(c.agent.client, `${reportPath}&limit=1`);
+      assert.equal(report.total, 2);
+      assert.equal(report.items.length, 1);
+      assert.deepEqual(report.totals, { total: "50000", manual: "20000", auto: "30000" });
+      assert.equal(report.range.to, "2026-10-19");
+      assert.equal((await call(c.agent.client, `${reportPath}&method=manual`)).totals.total, "20000");
+      assert.equal((await call(c.agent.client, `${reportPath}&method=auto`)).totals.total, "30000");
+      await call(c.agent.client, `${reportPath}&agentId=${siblingNode!.id}`, undefined, "GET", 403);
+      await call(b.master.client, `${reportPath}&agentId=${agentId}`, undefined, "GET", 403);
+      await call(c.master.client, reportPath, undefined, "GET", 400);
+      await call(c.agent.client, "/network/collections?week=2026-10-13", undefined, "GET", 400);
+      assert.equal((await call(c.master.client, `${reportPath}&agentId=${agentId}`)).total, 2);
+      assert.equal((await call(c.agent.client, reportPath)).totals.total, "50000");
+      const history = await call(c.agent.client, "/network/payment-history?period=all&method=auto");
+      assert.equal(history.total, 1);
+      assert.equal(history.items[0].method, "auto");
+
+      // Historical correction is atomic and idempotent; no second player credit.
+      async function legacy(amount: bigint) {
+        const [r] = await db.insert(paymentRequestsTable).values({ userId: c.player.user.id, kind: "deposit", method: "manual", status: "approved", amount, collectionMasterId: c.id, processedAt: new Date() }).returning();
+        await postEntry({ userId: c.master.user.id, type: "adjustment", amount, refType: "test" });
+        const old = await postEntry({ userId: c.master.user.id, type: "adjustment", amount: -amount, refType: "master_deposit_funding", refId: r!.id });
+        const credit = await postEntry({ userId: c.player.user.id, type: "deposit", amount, refType: "deposit", refId: r!.id });
+        await db.update(paymentRequestsTable).set({ ledgerEntryId: credit.entry.id }).where(eq(paymentRequestsTable.id, r!.id));
+        return { ...r!, originalDebit: old.entry.id, originalCredit: credit.entry.id };
+      }
+      const oldDeposit = await legacy(10000n);
+      const correction = `${path(c.id)}/deposits/${oldDeposit.id}/funding-correction`;
+      const reason = { reason: "Correct original master funding to customer agent" };
+      await call(c.master.client, correction, reason, "POST", 403);
+      await call(c.agent.client, correction, reason, "POST", 403);
+      const corrections = await Promise.all([call(admin.client, correction, reason), call(admin.client, correction, reason)]);
+      assert.equal(corrections.filter(r => !r.alreadyCorrected).length, 1);
+      assert.equal((await getBalanceByUser(c.agent.user.id)).balance, 70000n);
+      assert.equal((await getBalanceByUser(c.master.user.id)).balance, 10000n);
+      assert.equal((await getBalanceByUser(c.player.user.id)).balance, 30000n);
+      const entries = await db.select().from(walletLedgerTable).where(eq(walletLedgerTable.refId, oldDeposit.id));
+      assert.equal(entries.length, 4);
+      assert.ok(entries.some(e => e.id === oldDeposit.originalDebit));
+      assert.equal(entries.filter(e => e.refType === "deposit").length, 1);
+      assert.equal(entries.reduce((s, e) => s + e.amount, 0n), 0n);
+      await call(admin.client, `${path(c.id)}/deposits/${own.id}/funding-correction`, reason, "POST", 409);
+      const insufficient = await legacy(90000n);
+      await call(admin.client, `${path(c.id)}/deposits/${insufficient.id}/funding-correction`, reason, "POST", 400);
+      assert.equal((await getBalanceByUser(c.agent.user.id)).balance, 70000n);
+      assert.equal((await getBalanceByUser(c.master.user.id)).balance, 10000n);
+      assert.equal((await db.select().from(walletLedgerTable).where(eq(walletLedgerTable.refId, insufficient.id))).length, 2);
       await db.execute(
         sql`UPDATE network_nodes SET status='suspended' WHERE id=${a.id}`,
       );

@@ -10,7 +10,8 @@ import {
 } from "../services/masterManualPayments";
 import { assertBranchOperations } from "../services/networkWeekly";
 import { paymentRequest } from "../lib/serialize";
-import { badRequest } from "../lib/errors";
+import { badRequest, forbidden } from "../lib/errors";
+import { correctBranchFunding } from "../services/branchFundingCorrection";
 
 const router: IRouter = Router();
 const settingsInput = z
@@ -58,12 +59,14 @@ router.get("/:masterId", async (req, res, next) => {
 router.put("/:masterId", async (req, res, next) => {
   try {
     const masterId = String(req.params.masterId);
-    await authorizeCollection(req.user!, masterId);
+    const access = await authorizeCollection(req.user!, masterId);
+    if (access.reviewAgentId) throw forbidden("Only the master can change the payment QR");
     if (req.user!.role === "agent") await assertBranchOperations(req.user!.id);
     const input = settingsInput.parse(req.body);
     validateQr(input.qrData);
     const result = await db.transaction(async (tx) => {
-      await authorizeCollection(req.user!, masterId, tx);
+      const access = await authorizeCollection(req.user!, masterId, tx);
+      if (access.reviewAgentId) throw forbidden("Only the master can change the payment QR");
       const [account] = await tx
         .insert(masterPaymentAccountsTable)
         .values({ masterId, ...input })
@@ -102,7 +105,7 @@ router.put("/:masterId", async (req, res, next) => {
 router.get("/:masterId/deposits", async (req, res, next) => {
   try {
     const id = String(req.params.masterId);
-    await authorizeCollection(req.user!, id);
+    const access = await authorizeCollection(req.user!, id);
     const query = z
       .object({
         limit: z.coerce.number().int().min(1).max(100).default(25),
@@ -115,6 +118,7 @@ router.get("/:masterId/deposits", async (req, res, next) => {
       query.limit + 1,
       query.offset,
       query.status,
+      access.reviewAgentId,
     );
     res
       .set("Cache-Control", "no-store")
@@ -151,5 +155,11 @@ router.post("/:masterId/deposits/:id/decision", async (req, res, next) => {
   } catch (e) {
     next(e);
   }
+});
+router.post("/:masterId/deposits/:id/funding-correction", async (req, res, next) => {
+  try {
+    const { reason } = z.object({ reason: z.string().trim().min(10).max(500) }).strict().parse(req.body);
+    res.json(await correctBranchFunding(req.user!, String(req.params.masterId), String(req.params.id), reason));
+  } catch (e) { next(e); }
 });
 export default router;

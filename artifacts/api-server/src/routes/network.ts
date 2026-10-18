@@ -20,6 +20,7 @@ import brandingRouter from "./networkBranding";
 import reportsRouter from "./networkReports";
 import paymentHistoryRouter from "./networkPaymentHistory";
 import manualPaymentsRouter from "./networkManualPayments";
+import collectionsRouter from "./networkCollections";
 import { parseTransactionQuery, transactionConditions, transactionPage } from "../services/transactionFilters";
 import { customMaster } from "../middlewares/siteChannel";
 import { requestSite } from "../middlewares/siteChannel";
@@ -46,6 +47,7 @@ router.use('/reports',reportsRouter);
 router.use('/payment-history',paymentHistoryRouter);
 router.use('/weekly',weeklyRouter);
 router.use('/manual-payments',manualPaymentsRouter);
+router.use('/collections',collectionsRouter);
 router.use(async(req,_res,next)=>{
   try { if(!['GET','HEAD'].includes(req.method) && req.user?.role==='agent')await assertBranchOperations(req.user.id); next(); }
   catch(e){next(e);}
@@ -110,7 +112,9 @@ router.get("/context", async (req, res, next) => {
     const masterId = actor.node?.kind === "master" ? actor.node.id : actor.node?.parentId;
     const website=masterId?await masterWebsite(masterId):null;
     const weekly=masterId?await weeklyStatus(masterId):null;
-    res.set('Cache-Control', 'no-store').json({ ...actor, website, weekly: actor.role==='agent' && weekly ? {locked:weekly.locked} : weekly });
+    const [collectionMaster] = masterId ? await db.select().from(networkNodesTable).where(eq(networkNodesTable.id, masterId)) : [];
+    const manualPaymentsAllowed = !!actor.node?.manualPaymentsEnabled && !!collectionMaster?.manualPaymentsEnabled;
+    res.set('Cache-Control', 'no-store').json({ ...actor, manualPaymentsAllowed, collectionMasterId: masterId ?? null, website, weekly: actor.role==='agent' && weekly ? {locked:weekly.locked} : weekly });
   } catch (e) {
     next(e);
   }
@@ -150,12 +154,14 @@ router.post("/nodes", async (req, res, next) => {
     if (actor.role === "agent")
       throw forbidden("Only admin creates masters; only masters create agents");
     const input = createNode.parse(req.body);
-    if (actor.role !== "admin" && input.manualPaymentsEnabled !== undefined)
-      throw forbidden("Only admin can assign manual payment access");
     if (actor.role === "master" && input.companyFeeBps !== 1000)
       throw forbidden("Company fee is controlled by admin");
     const passwordHash = await hashPassword(input.password);
     const node = await db.transaction(async (tx) => {
+      if (actor.role === "master" && input.manualPaymentsEnabled) {
+        const [master] = await tx.select().from(networkNodesTable).where(eq(networkNodesTable.id, actor.node.id)).for("share");
+        if (!master?.manualPaymentsEnabled) throw forbidden("Admin must assign manual payment access before you can delegate it");
+      }
       const existing = await tx
         .select({ id: usersTable.id })
         .from(usersTable)
@@ -181,7 +187,7 @@ router.post("/nodes", async (req, res, next) => {
           parentId: actor.node?.id ?? null,
           companyFeeBps: actor.node?.companyFeeBps ?? input.companyFeeBps,
           shareBps: input.shareBps,
-          manualPaymentsEnabled: actor.role === "admin" && input.manualPaymentsEnabled === true,
+          manualPaymentsEnabled: input.manualPaymentsEnabled === true,
           createdBy: req.user!.id,
         })
         .returning();
@@ -217,8 +223,18 @@ router.patch("/nodes/:id", async (req, res, next) => {
         .where(eq(networkNodesTable.id, String(req.params.id)))
         .for("update");
       if (!node) throw notFound();
-      if (input.manualPaymentsEnabled !== undefined && (actor.role !== "admin" || node.kind !== "master"))
-        throw forbidden("Only admin can assign manual payment access to a master");
+      if (input.manualPaymentsEnabled !== undefined) {
+        if (node.kind === "master") {
+          if (actor.role !== "admin") throw forbidden("Only admin can assign master payment access");
+        } else {
+          if (actor.role !== "master" || node.parentId !== actor.node.id)
+            throw forbidden("Only the owning master can assign agent payment review access");
+          if (input.manualPaymentsEnabled) {
+            const [master] = await tx.select().from(networkNodesTable).where(eq(networkNodesTable.id, actor.node.id)).for("share");
+            if (!master?.manualPaymentsEnabled) throw forbidden("Admin must assign manual payment access before you can delegate it");
+          }
+        }
+      }
       if (
         actor.role !== "admin" &&
         !(actor.role === "master" && node.parentId === actor.node.id)
