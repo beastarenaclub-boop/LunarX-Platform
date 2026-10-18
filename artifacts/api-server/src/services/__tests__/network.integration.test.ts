@@ -710,6 +710,56 @@ test(
       await call(agentClient,'/network/weekly',undefined,'GET',403);
       assert.deepEqual(Object.keys((await call(agentClient,'/network/context') as any).weekly),['locked'],'Agents see access status without master commission amounts');
       await call(company,`/network/weekly?masterId=${master.id}`);
+
+      // Reporting has its own historical fixtures; do not alter settlement tests above.
+      const reportMaster = await call(company, '/network/nodes', {email:`${prefix}-reports@example.test`,name:'Report Master',password}, 'POST', 201);
+      const reportClient = await login(`${prefix}-reports@example.test`);
+      const reportAgents: {id:string}[] = [];
+      for (const label of ['one','two','empty']) reportAgents.push(await call(reportClient,'/network/nodes',{email:`${prefix}-report-${label}@example.test`,name:`Report ${label}`,password,shareBps:5000},'POST',201));
+      const reportAgentClient = await login(`${prefix}-report-one@example.test`);
+      const seed = async (suffix:string, at:string, agentId:string, stake:number, payout:number, revision=1) => {
+        const net=stake-payout;
+        for (const [kind,id,amount] of [['company','company',net/10],['master',reportMaster.id,net*45/100],['agent',agentId,net*45/100]] as const)
+          await db.execute(sql`INSERT INTO network_ledger(source,source_id,revision,user_id,game_code,channel,master_id,agent_id,account_id,account_kind,amount,gross_stake,gross_payout,terms,created_at)
+            VALUES('report-test',${`${prefix}-${suffix}`},${revision},${player.id},'test','b2b',${reportMaster.id},${agentId},${id},${kind},${amount},${stake},${payout},'{}',${at}::timestamptz)`);
+      };
+      await seed('before','2024-02-28T18:29:59.999Z',reportAgents[0]!.id,900000,0);
+      await seed('first','2024-02-28T18:30:00Z',reportAgents[0]!.id,10000,0);
+      await seed('first','2024-02-29T12:00:00Z',reportAgents[0]!.id,0,20000,2);
+      await seed('second','2024-02-29T18:29:59.999Z',reportAgents[1]!.id,20000,0);
+      await seed('after','2024-02-29T18:30:00Z',reportAgents[0]!.id,900000,0);
+      type ReportResult = {range:{from:string;to:string};totals:{stake:string;payout:string;net:string;company:string|null;master:string|null;agent:string|null;wagers:number;players:number};options:{masters:{id:string}[];agents:{id:string}[]};agents:({id:string}&ReportResult['totals'])[];masters:{id:string}[];days:({day:string}&ReportResult['totals'])[]};
+      const custom='/network/reports?period=custom&from=2024-02-29&to=2024-02-29';
+      const reportCall = async (client:Client,query=custom) => await call(client,query) as unknown as ReportResult;
+      const adminReport=await reportCall(company,`${custom}&masterId=${reportMaster.id}`);
+      assert.deepEqual(adminReport.totals,{stake:'30000',payout:'20000',net:'10000',company:'1000',master:'4500',agent:'4500',wagers:2,players:1},'No duplicate stakes across three accounts; signed corrections reconcile');
+      assert.equal(adminReport.days.length,1);assert.equal(adminReport.days[0]!.day,'2024-02-29');
+      assert.equal(adminReport.agents.length,3,'Zero-activity agents remain visible');
+      assert.equal(adminReport.agents.find(a=>a.id===reportAgents[2]!.id)!.stake,'0');
+      const masterReport=await reportCall(reportClient);
+      assert.equal(masterReport.totals.company,null);assert.equal(masterReport.totals.master,'4500');assert.equal(masterReport.totals.agent,'4500');
+      assert.equal(masterReport.options.masters.length,0);assert.equal(masterReport.options.agents.length,3);
+      const filtered=await reportCall(reportClient,`${custom}&agentId=${reportAgents[0]!.id}`);
+      assert.equal(filtered.totals.master,'-4500');assert.equal(filtered.totals.stake,'10000');assert.equal(filtered.agents.length,1);
+      const ownReport=await reportCall(reportAgentClient);
+      assert.equal(ownReport.totals.company,null);assert.equal(ownReport.totals.master,null);assert.equal(ownReport.totals.agent,'-4500');
+      assert.equal(ownReport.options.agents.length,1);assert.deepEqual(ownReport.masters,[]);
+      assert(ownReport.days.every(d=>d.company===null&&d.master===null));
+      for (const [client,query,status] of [
+        [reportClient,`${custom}&masterId=${master.id}`,403],
+        [reportClient,`${custom}&agentId=${agent.id}`,403],
+        [reportAgentClient,`${custom}&agentId=${reportAgents[1]!.id}`,403],
+        [reportAgentClient,`${custom}&masterId=${reportMaster.id}`,403],
+        [company,`${custom}&masterId=${otherMaster.id}&agentId=${reportAgents[0]!.id}`,400],
+        [company,`${custom}&channel=b2c&agentId=${reportAgents[0]!.id}`,400],
+        [reportClient,`${custom}&channel=b2c`,403],
+        [publicB2b,custom,401],
+        [company,'/network/reports?period=custom&from=2024-03-01&to=2024-02-29',400],
+      ] as const) await call(client,query,undefined,'GET',status);
+      const empty=await reportCall(reportClient,'/network/reports?period=custom&from=2024-03-02&to=2024-03-03');
+      assert.equal(empty.totals.stake,'0');assert.deepEqual(empty.days,[]);
+      for(const period of ['today','yesterday','weekly','monthly']) await reportCall(reportClient,`/network/reports?period=${period}`);
+      const directReport=await reportCall(company,`${custom}&channel=b2c`);assert.deepEqual(directReport.agents,[]);assert.deepEqual(directReport.masters,[]);assert.equal(directReport.totals.master,null);assert.equal(directReport.totals.agent,null);
     } finally {
       await new Promise<void>((resolve, reject) =>
         server.close((e) => (e ? reject(e) : resolve())),

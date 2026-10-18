@@ -4,6 +4,7 @@ import {
   getAdminDashboardQueryKey,
   useRealtimeTopic,
   useRealtimeResync,
+  NetworkReport,
 } from "@workspace/api-client-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -123,6 +124,7 @@ export default function Dashboard() {
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <p className="text-sm text-slate-500">Operator overview</p>
       </div>
+      <NetworkReport />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Stat label="Users total" value={data.usersTotal} testId="stat-users-total" />
         <Stat label="Users active" value={data.usersActive} testId="stat-users-active" />

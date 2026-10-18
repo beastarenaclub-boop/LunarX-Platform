@@ -17,6 +17,7 @@ import { networkWebsite, masterWebsite } from "../services/networkWebsite";
 import { weeklyStatus, assertBranchOperations } from "../services/networkWeekly";
 import weeklyRouter from "./networkWeekly";
 import brandingRouter from "./networkBranding";
+import reportsRouter from "./networkReports";
 import { customMaster } from "../middlewares/siteChannel";
 import { requestSite } from "../middlewares/siteChannel";
 import { postEntry, publishWalletBalance } from "../services/wallet";
@@ -38,6 +39,7 @@ router.get("/website/:masterId", async (req, res, next) => {
   } catch (e) { next(e); }
 });
 router.use(requireAuth);
+router.use('/reports',reportsRouter);
 router.use('/weekly',weeklyRouter);
 router.use(async(req,_res,next)=>{
   try { if(!['GET','HEAD'].includes(req.method) && req.user?.role==='agent')await assertBranchOperations(req.user.id); next(); }

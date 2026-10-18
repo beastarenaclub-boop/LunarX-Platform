@@ -27,6 +27,7 @@ const child = spawn(
     "tsx",
     "--test",
     "src/services/__tests__/networkMath.test.ts",
+    "src/services/__tests__/networkReportRange.test.ts",
     "src/services/__tests__/network.integration.test.ts",
   ],
   {

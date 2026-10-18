@@ -18,11 +18,11 @@ import {
 } from "lucide-react";
 
 const NAV = [
-  { href: "/", label: "Branch & ledger", icon: LayoutDashboard },
+  { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/downline", label: "Downline tree", icon: GitBranch },
   { href: "/agents", label: "Total Agents", icon: Users, masterOnly: true },
   { href: "/users", label: "Total Users", icon: Users },
-  { href: "/ledger", label: "Profit & loss", icon: ReceiptText },
+  { href: "/ledger", label: "Commission & P&L", icon: ReceiptText },
   { href: "/transactions", label: "Wallet transactions", icon: Wallet },
   { href: "/settlements", label: "Settlements", icon: Handshake },
   { href: "/weekly", label: "Weekly account", icon: ReceiptText, masterOnly: true },

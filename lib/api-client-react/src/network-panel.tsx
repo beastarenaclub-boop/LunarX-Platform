@@ -2,6 +2,7 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
 import { NetworkTree } from "./network-tree";
+import { NetworkReport } from "./network-report";
 import { WebsiteLinks, type NetworkWebsite } from "./network-website";
 import { NetworkBranding } from "./network-branding";
 import { NetworkWeekly, type WeeklyStatus } from "./network-weekly";
@@ -81,25 +82,6 @@ export type NetworkPlayer = {
   agent_id: string | null;
 };
 type Player = NetworkPlayer;
-type Entry = {
-  id: string;
-  created_at: string;
-  source: string;
-  source_id: string;
-  revision: number;
-  game_code: string;
-  player_email: string;
-  account_name: string;
-  account_kind: string;
-  amount: string;
-  gross_stake: string;
-  gross_payout: string;
-  terms: {
-    companyFeeBps: number;
-    masterShareBps: number;
-    agentShareBps: number;
-  };
-};
 type Settlement = {
   id: string;
   name: string;
@@ -201,11 +183,8 @@ export function NetworkPanel({
   const [masterFilter, setMasterFilter] = useState(initialMasterId);
   const [agentFilter, setAgentFilter] = useState(initialAgentId);
   const [search, setSearch] = useState(""),
-    [playerOffset, setPlayerOffset] = useState(0),
-    [ledgerOffset, setLedgerOffset] = useState(0);
-  const [from, setFrom] = useState(""),
-    [to, setTo] = useState(""),
-    [branch, setBranch] = useState("");
+    [playerOffset, setPlayerOffset] = useState(0);
+  const [branch, setBranch] = useState("");
   const [modal, setModal] = useState<null | {
     kind: "create" | "edit" | "fund" | "settle";
     requestId?: string;
@@ -257,29 +236,6 @@ export function NetworkPanel({
         `/players?${new URLSearchParams({ channel, q: search, offset: String(playerOffset), ...(channel === "b2b" && agentFilter ? { agentId: agentFilter } : {}) })}`,
       ),
     enabled: !!role && showPlayers,
-    refetchInterval: 15000,
-  });
-  const ledgerParams = new URLSearchParams({
-    channel,
-    offset: String(ledgerOffset),
-    ...(from ? { from } : {}),
-    ...(to ? { to } : {}),
-    ...(branch ? { nodeId: branch } : {}),
-  });
-  const ledger = useQuery({
-    queryKey: ["network", "ledger", ledgerParams.toString()],
-    queryFn: () =>
-      api<{
-        entries: Entry[];
-        total: number;
-        summary: {
-          account_kind: string;
-          amount: string;
-          stake: string;
-          payout: string;
-        }[];
-      }>(`/ledger?${ledgerParams}`),
-    enabled: !!role,
     refetchInterval: 15000,
   });
   const settlements = useQuery({
@@ -434,11 +390,6 @@ export function NetworkPanel({
     nodes.data?.nodes.filter(
       (n) => role === "admin" || n.parent_id === context.data.node?.id,
     ) ?? [];
-  const totals = ledger.data?.summary ?? [];
-  const company = totals.find((r) => r.account_kind === "company"),
-    master = totals.find((r) => r.account_kind === "master"),
-    agent = totals.find((r) => r.account_kind === "agent");
-  const first = company ?? master ?? agent;
   const ownDue = own
     ? (BigInt(own.earned) - BigInt(own.settled)).toString()
     : "0";
@@ -448,7 +399,7 @@ export function NetworkPanel({
       : role === "master"
         ? "Master panel"
         : "Agent panel";
-  const queryError = [nodes, players, ledger, settlements, wallet].find(
+  const queryError = [nodes, players, settlements, wallet].find(
     (q) => q.isError,
   )?.error;
   const nodeActions = (n: Node, includeBrowse = true) => (
@@ -535,7 +486,6 @@ export function NetworkPanel({
                     setChannel(c);
                     changeTab("Overview");
                     setPlayerOffset(0);
-                    setLedgerOffset(0);
                     setBranch("");
                     setAgentFilter("");
                     setMasterFilter("");
@@ -690,86 +640,18 @@ export function NetworkPanel({
         {role==='admin'&&<section className="net-card"><h2>Master weekly accounts</h2><p>Review received payments here. Confirming a payment updates branch access automatically.</p><label className="net-field"><span>Master</span><select value={weeklyMaster} onChange={e=>setWeeklyMaster(e.target.value)}><option value="">Choose master</option>{nodes.data?.nodes.filter(n=>n.kind==='master').map(n=><option key={n.id} value={n.id}>{n.name}{n.weekly?.locked?' — LOCKED':''}{n.weekly?` · Due ${money(n.weekly.duePaise)}`:''}</option>)}</select></label></section>}
         {role==='agent'?<section className="net-card"><p>Weekly settlement is managed by your master. Contact your master about branch access.</p></section>:(role==='admin'?weeklyMaster:context.data.website?.masterId)&&<NetworkWeekly key={role==='admin'?weeklyMaster:context.data.website!.masterId} masterId={role==='admin'?weeklyMaster:context.data.website!.masterId} admin={role==='admin'}/>}
       </>}
-      {(tab === "Overview" || tab === "Ledger" || tab === "Wallet ledger") && (
-        <div className="net-filters">
-          {role === "admin" && channel === "b2b" && (
-            <Field label="Branch / agent">
-              <select
-                value={branch}
-                onChange={(e) => {
-                  setBranch(e.target.value);
-                  setLedgerOffset(0);
-                }}
-              >
-                <option value="">All branches</option>
-                {nodes.data?.nodes.map((n) => (
-                  <option key={n.id} value={n.id}>
-                    {n.kind} · {n.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          )}
-          {tab !== "Wallet ledger" && (
-            <>
-              <Field label="From (IST)">
-                <input
-                  type="date"
-                  value={from}
-                  onChange={(e) => {
-                    setFrom(e.target.value);
-                    setLedgerOffset(0);
-                  }}
-                />
-              </Field>
-              <Field label="To (IST)">
-                <input
-                  type="date"
-                  value={to}
-                  onChange={(e) => {
-                    setTo(e.target.value);
-                    setLedgerOffset(0);
-                  }}
-                />
-              </Field>
-            </>
-          )}
-        </div>
+      {tab === "Wallet ledger" && role === "admin" && channel === "b2b" && (
+        <div className="net-filters"><Field label="Branch / agent"><select value={branch} onChange={e=>setBranch(e.target.value)}>
+          <option value="">All branches</option>{nodes.data?.nodes.map(n=><option key={n.id} value={n.id}>{n.kind} · {n.name}</option>)}
+        </select></Field></div>
       )}
+      {(tab === "Overview" || tab === "Ledger") && <NetworkReport channel={channel} ledger={tab === "Ledger"} />}
       {tab === "Overview" && (
         <>
-          <div className="net-stats">
-            {[
-              { label: "Settled stakes", value: first?.stake },
-              { label: "Player returns", value: first?.payout },
-              {
-                label: role === "admin" ? "Company P&L" : "My P&L",
-                value:
-                  role === "admin"
-                    ? company?.amount
-                    : role === "master"
-                      ? master?.amount
-                      : agent?.amount,
-              },
-              ...(role === "admin" && channel === "b2b"
-                ? [
-                    { label: "Master P&L", value: master?.amount },
-                    { label: "Agent P&L", value: agent?.amount },
-                  ]
-                : []),
-              ...(role !== "admin"
-                ? [
-                    { label: "Outstanding · all time", value: ownDue },
-                    { label: "Wallet float", value: own?.float_balance },
-                  ]
-                : []),
-            ].map((s) => (
-              <article key={s.label}>
-                <span>{s.label}</span>
-                <strong>{money(s.value)}</strong>
-              </article>
-            ))}
-          </div>
+          {role !== "admin" && <div className="net-stats">
+            <article><span>Outstanding · all time</span><strong>{money(ownDue)}</strong></article>
+            <article><span>Wallet float · current</span><strong>{money(own?.float_balance)}</strong></article>
+          </div>}
           <div className="net-grid">
             <section className="net-card">
               <h2>How your shares work</h2>
@@ -1114,76 +996,6 @@ export function NetworkPanel({
             offset={playerOffset}
             total={players.data?.total ?? 0}
             onChange={setPlayerOffset}
-          />
-        </section>
-      )}
-      {tab === "Ledger" && (
-        <section className="net-card">
-          <h2>Commission & profit/loss ledger</h2>
-          <p>
-            Positive = earned; negative = loss. Each correction has a new
-            revision. Amounts never overwrite prior entries.
-          </p>
-          <div className="net-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  {[
-                    "Time (IST) / reference",
-                    "Player / game",
-                    "Account",
-                    "Stake / return",
-                    "Share",
-                    "Saved percentages",
-                  ].map((t) => (
-                    <th key={t}>{t}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {ledger.data?.entries.map((l) => (
-                  <tr key={l.id}>
-                    <td>
-                      {date(l.created_at)}
-                      <small>
-                        {l.source_id} · rev {l.revision}
-                      </small>
-                    </td>
-                    <td>
-                      {l.player_email}
-                      <small>{l.game_code}</small>
-                    </td>
-                    <td>
-                      {l.account_name}
-                      <small>{l.account_kind}</small>
-                    </td>
-                    <td>
-                      {money(l.gross_stake)}
-                      <small>Return {money(l.gross_payout)}</small>
-                    </td>
-                    <td
-                      className={
-                        BigInt(l.amount) < 0n ? "net-negative" : "net-positive"
-                      }
-                    >
-                      {money(l.amount)}
-                    </td>
-                    <td>
-                      <small>Company fee {pct(l.terms.companyFeeBps)}</small>
-                      <small>
-                        Master {pct(l.terms.masterShareBps)} · Agent{" "}
-                        {pct(l.terms.agentShareBps)}
-                      </small>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <Pager
-            offset={ledgerOffset}
-            total={ledger.data?.total ?? 0}
-            onChange={setLedgerOffset}
           />
         </section>
       )}
