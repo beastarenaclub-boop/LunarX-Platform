@@ -162,3 +162,24 @@ Validation commands:
 - node artifacts/api-server/test-account.mjs (volatile PGlite integration tests; no production database)
 - node artifacts/3d-game/node_modules/@playwright/test/cli.js test --config artifacts/3d-game/playwright.account.config.ts
 - TypeScript checks for both applications and production builds for API/web
+
+Published and verified on 18 October 2026 from application commit
+`597e98eea5f58575d3b97da9794173964d4bd368`: API deployment
+`dep-dbaf5ddg1s2s73bsl8tg` and web deployment
+`dep-dbaf7ds9v7es7389qmn0` are both live. Five account API tests, six
+isolated demo runtime tests, all sixteen storefront/account browser cases,
+both TypeScript checks and the production builds passed.
+
+Live checks on crypto777.in passed for all six report endpoints and all three
+settings pages, the nine profile cards and dropdown entries, desktop/mobile
+layout, session-list token redaction and demo account restrictions. A settled
+practice Dice bet appeared in the new casino report. No browser JavaScript
+errors were observed. Public storefront checks also passed at 320, 390 and
+1440 pixels; branding, login, assets, the existing LunarX lobby and all five
+domain health endpoints remained healthy. Password changes/revocation were
+exercised only against isolated test accounts, not production credentials.
+
+The API replacement briefly caused public gateway 502 responses. Restarting
+the existing web gateway restored access before the frontend release. For
+future API-only updates, check the public /api/healthz path as well as Render's
+private-service status and refresh the gateway if its upstream stops responding.
