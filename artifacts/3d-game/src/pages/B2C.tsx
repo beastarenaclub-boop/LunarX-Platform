@@ -63,6 +63,7 @@ import { B2C_BRAND, B2C_HEADLINE, B2C_HOME, B2C_ICON, B2C_LOGO } from "@/compone
 import { applyB2CBranding } from "@/components/b2c/branding";
 import { ACCOUNT_OPTIONS } from "@/components/site/AccountOptions";
 import { B2CSlider } from "@/components/b2c/B2CSlider";
+import { PlayOptions } from "@/components/b2c/PlayOptions";
 import {
   B2C_AVATAR,
   B2C_BANNERS,
@@ -71,6 +72,7 @@ import {
   b2cArtwork,
 } from "@/components/b2c/artwork";
 import { useAuth } from "@/lib/auth";
+import { useSiteChannel } from "@/lib/siteChannel";
 import { formatRupees } from "@/lib/format";
 import { getLoginDestination } from "@/lib/loginDestination";
 import { toast } from "sonner";
@@ -170,6 +172,8 @@ export default function B2C({
   initialLogin?: boolean;
 }) {
   const { user, isLoading } = useAuth();
+  const site = useSiteChannel();
+  const canDemo = site.data?.channel === "b2c";
   const [, navigate] = useLocation();
   const qc = useQueryClient();
   const [demoPending, setDemoPending] = useState(false);
@@ -309,6 +313,7 @@ export default function B2C({
     else openLogin(route);
   }
   async function startDemo() {
+    if (!canDemo) return;
     if (demoPending || isLoading) return;
     setDemoPending(true);
     try {
@@ -502,17 +507,18 @@ export default function B2C({
               >
                 Login
               </button>
-              <button
+              {canDemo && <button
                 className="b2c-button"
                 disabled={demoPending || isLoading}
                 onClick={startDemo}
               >
                 {demoPending ? "Starting…" : "Demo"}
-              </button>
+              </button>}
             </>
           )}
         </div>
       </header>
+      <PlayOptions />
       {!browse && brandIntro}
       <div className="b2c-layout">
         {browse && (

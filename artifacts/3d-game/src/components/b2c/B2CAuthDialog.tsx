@@ -96,7 +96,11 @@ export function B2CAuthDialog({
           <DialogTitle>{registering ? "Create account" : "Login"}</DialogTitle>
         </div>
         <DialogDescription className="b2c-auth-intro">
-          Welcome to <strong>{B2C_BRAND}</strong>. Your next game is waiting.
+          {site.data?.channel === "b2b" ? (
+            <>Welcome to <strong>{B2C_BRAND}</strong>. Sign in with the player account supplied by your agent. Contact your agent for an account.</>
+          ) : (
+            <>Welcome to <strong>{B2C_BRAND}</strong>. Your next game is waiting.</>
+          )}
         </DialogDescription>
         <form onSubmit={submit} className="b2c-auth-form">
           {registering && (
@@ -196,6 +200,7 @@ export function B2CAuthDialog({
           )}
         </form>
         <p className="b2c-auth-intro text-xs">For account security, we record your IP address, approximate IP location and browser/device details. Exact GPS location is not collected.</p>
+        {site.data?.channel === "b2c" && <>
         <div className="b2c-or">
           <span />
           or
@@ -212,6 +217,7 @@ export function B2CAuthDialog({
           <ShieldCheck size={14} /> Play for 1 hour with unlimited demo coins.
           No signup. Demo winnings cannot be withdrawn.
         </p>
+        </>}
       </DialogContent>
     </Dialog>
   );

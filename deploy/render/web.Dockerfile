@@ -11,9 +11,9 @@ COPY artifacts/agent-panel ./artifacts/agent-panel
 COPY deploy/render/prepare-nginx.mjs ./deploy/render/prepare-nginx.mjs
 
 RUN pnpm install --frozen-lockfile --ignore-scripts
-RUN VITE_B2C_HOSTS=crypto777.in,www.crypto777.in pnpm --filter @workspace/3d-game build
+RUN VITE_B2C_HOSTS=crypto777.in,www.crypto777.in,play.crypto777.in pnpm --filter @workspace/3d-game build
 RUN pnpm --filter @workspace/horse-riding build
-RUN VITE_B2C_SITE_URL=https://crypto777.in pnpm --filter @workspace/admin-panel build
+RUN VITE_B2C_SITE_URL=https://crypto777.in VITE_B2C_AGENT_SITE_URL=https://play.crypto777.in pnpm --filter @workspace/admin-panel build
 RUN pnpm --filter @workspace/agent-panel build
 RUN node deploy/render/prepare-nginx.mjs /tmp/lunarx.conf.template
 

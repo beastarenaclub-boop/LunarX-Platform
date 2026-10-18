@@ -15,12 +15,18 @@ Both B2C and B2B visitors can browse and search the game lobby without signing
 in. Opening a game or an account page requires login and then returns the
 player to the selected page. Public signup remains available only on B2C.
 
-## Additional B2C storefront
+## Crypto777 player storefronts
 
-The **CRYPTO777** dark casino frontend uses **https://crypto777.in/**, with
-`www.crypto777.in` redirecting to the apex. It is also available at
+The **CRYPTO777** dark casino frontend uses **https://crypto777.in/** for normal
+players and is configured for **https://play.crypto777.in/** for agent-created
+players. The lobby has Normal Play and Agent Play links; the admin's
+**Crypto777 Websites** page previews both. Agent Play keeps public signup disabled
+and uses the existing agent accounts and channel isolation. Activation of the
+new hostname requires the Render/DNS steps in the deployment guide.
+
+`www.crypto777.in` redirects to the normal website at the apex. It is also available at
 **https://lunarx.live/b2c**. The existing default lobby and all game engines
-remain shared. Admin has a **B2C Website** sidebar entry at `/admin/b2c-website`
+remain shared. Admin has a **Crypto777 Websites** sidebar entry at `/admin/b2c-website`
 with desktop/mobile previews. See [domain and release status](docs/crypto777-deployment.md).
 
 Run `npm run b2c:dev` from the repository root, then open
@@ -34,9 +40,10 @@ publish to a domain. For hosting, reuse the existing game gateway's SPA, media,
 embedded-game, `/api` and WebSocket routing with this build as its website root.
 Point API traffic to the existing backend and preserve the website Host header.
 The production web Docker build sets
-`VITE_B2C_HOSTS=crypto777.in,www.crypto777.in`, so the shared gateway serves this
+`VITE_B2C_HOSTS=crypto777.in,www.crypto777.in,play.crypto777.in`, so the shared gateway serves this
 storefront at `/` on those hosts while retaining the existing lobby elsewhere.
-Both origins are included in the existing backend's CORS configuration.
+All player origins must be included in the backend's CORS configuration;
+`play.crypto777.in` must also be included in `B2B_HOSTS` before activation.
 
 Set `VITE_B2C_BRAND` in `artifacts/3d-game/.env.local` before starting/building
 to override the **CRYPTO777** name. The header uses the supplied logo at

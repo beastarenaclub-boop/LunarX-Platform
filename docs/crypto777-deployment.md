@@ -1,4 +1,42 @@
-# Crypto777 B2C deployment
+# Crypto777 player websites
+
+## Normal Play and Agent Play
+
+The shared storefront is configured for two account channels:
+
+| Website | Channel | Account creation |
+| --- | --- | --- |
+| `https://crypto777.in/` | Normal Play / B2C | Public signup |
+| `https://play.crypto777.in/` | Agent Play / B2B | Existing agent-created accounts |
+
+Both use the Crypto777 design, shared games and existing API. The lobby links
+to both player websites and the existing `https://panel.lunarx.live/agent/`
+operator panel. The admin's **Crypto777 Websites** page previews both channels.
+Master-specific branch pages retain their own navigation. Account sessions
+remain host-only, and the API enforces the player's channel on login and requests.
+Demo remains available on Normal Play only, matching the existing API policy.
+
+Activation checklist (the new hostname is not yet recorded as live):
+
+1. Add `play.crypto777.in` to the existing private API's `B2B_HOSTS` and append
+   `https://play.crypto777.in` to `CORS_ORIGINS`, preserving every current value.
+   Keep `PLAY_HOST=play.lunarx.live` for existing master website links.
+2. Deploy the API's current production source with the updated environment.
+3. Attach `play.crypto777.in` to the existing `lunarx-web` service. Add only the
+   Hostinger CNAME `play -> lunarx-web.onrender.com`, TTL 300, keeping the apex,
+   `www`, mail and other records unchanged. Verify the domain and valid HTTPS.
+4. Deploy the web release. Its Docker build includes the new storefront host;
+   the gateway preserves the Host header for API and WebSocket requests.
+5. Verify both channel responses at `/api/auth/site`, signup rejection on Agent
+   Play, normal signup availability, desktop/mobile rendering, login return
+   routes, the two admin previews, demo and existing LunarX health.
+
+The existing deployment is not Blueprint-managed. `render.yaml` records the
+same host/CORS additions for future provisioning; changing it alone does not
+update the live API environment. No database migration or account conversion
+is required.
+
+## Existing normal-player deployment
 
 The B2C storefront uses `crypto777.in`, with `www.crypto777.in` redirecting to
 the apex domain. It is served by the existing `lunarx-web` Render gateway and

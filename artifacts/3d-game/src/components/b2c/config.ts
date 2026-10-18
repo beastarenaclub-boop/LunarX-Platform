@@ -1,5 +1,5 @@
-// A shared deployment can serve the B2C storefront on its own domain while
-// retaining the existing lobby on all other hosts. Separate B2C builds also work.
+// Storefront presentation is independent of the server's B2C/B2B account channel.
+// Both Crypto777 player domains share this design and the existing game routes.
 const storefrontHosts = (import.meta.env.VITE_B2C_HOSTS ?? "")
   .split(",")
   .map((host: string) => host.trim().toLowerCase())
@@ -14,3 +14,8 @@ export const B2C_LOGO =
   import.meta.env.VITE_B2C_LOGO?.trim() ||
   `${import.meta.env.BASE_URL}media/b2c/brand-logo.png`;
 export const B2C_HOME = B2C_STANDALONE ? "/" : "/b2c";
+export const CRYPTO777_PLAY_URLS = {
+  normal: "https://crypto777.in/",
+  agent: "https://play.crypto777.in/",
+  panel: "https://panel.lunarx.live/agent/",
+} as const;
