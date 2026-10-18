@@ -11,10 +11,12 @@ async function masterPanel(
   const website = {
     masterId,
     name,
-    domain: "b2b.lunarx.live",
-    url: `https://b2b.lunarx.live/branch/${masterId}/`,
-    loginUrl: `https://b2b.lunarx.live/branch/${masterId}/login`,
+    domain: "play.lunarx.live",
+    url: `https://play.lunarx.live/branch/${masterId}/`,
+    loginUrl: `https://play.lunarx.live/branch/${masterId}/login`,
   };
+  let branding={brand_name:name,logo_data:null as string|null,custom_domain:null as string|null,domain_token:'test-ownership-token',domain_status:'pending',cnameTarget:'lunarx-web.onrender.com',website};
+  const weekly={locked:true,overduePaise:'5000',duePaise:'5000',startedAt:'2026-10-12T00:00:00+05:30',weekStart:'2026-10-19T00:00:00+05:30',nextDeadline:'2026-10-27T00:00:00+05:30',masterId,weeks:[],payments:[]};
   const own = {
     id: masterId,
     user_id: "owner",
@@ -73,6 +75,8 @@ async function masterPanel(
     if (req.method() !== "GET") {
       const body = req.postDataJSON();
       writes.push({ path, body });
+      if(path===`/api/network/branding/${masterId}`){branding={...branding,brand_name:body.brandName,logo_data:body.logoData};website.name=body.brandName;}
+      if(path===`/api/network/branding/${masterId}/domain`)branding={...branding,custom_domain:body.domain};
       if (path === "/api/network/nodes")
         agents.push({
           ...agents[0]!,
@@ -106,10 +110,13 @@ async function masterPanel(
             shareBps: 10000,
           },
           website,
+          weekly,
         },
       });
     if (path === "/api/network/nodes")
       return route.fulfill({ json: { nodes: [own, ...agents] } });
+    if(path===`/api/network/branding/${masterId}`)return route.fulfill({json:branding});
+    if(path==='/api/network/weekly')return route.fulfill({json:weekly});
     if (path === "/api/network/players")
       return route.fulfill({
         json: {
@@ -152,10 +159,10 @@ for (const width of [390, 1440]) {
       page.getByRole("heading", { name: "Master panel", exact: true }),
     ).toBeVisible();
     await expect(
-      page.getByText("b2b.lunarx.live · North Branch", { exact: true }),
+      page.getByRole('link',{name:'Open player website',exact:true}),
     ).toBeVisible();
     await page
-      .getByRole("button", { name: "Website links", exact: true })
+      .getByRole("button", { name: "Website", exact: true })
       .click();
     await expect(page).toHaveURL(/\/master\/website$/);
     await page.reload();
@@ -215,6 +222,30 @@ test("each master receives its own playing link", async ({ page }) => {
   ).toHaveAttribute("href", state.website.url);
   await expect(page.getByText("South Branch", { exact: true })).toBeVisible();
   await expect(page.getByText("North Branch", { exact: true })).toHaveCount(0);
+});
+
+for(const width of [390,1440])test(`master updates branding, reads DNS instructions and submits weekly payment at ${width}px`,async({page})=>{
+  const state=await masterPanel(page);
+  await page.setViewportSize({width,height:900});
+  await page.goto(`${panelBase}/master/website`);
+  await page.getByLabel('Website name',{exact:true}).fill('North Star Games');
+  await page.getByRole('button',{name:'Save branding',exact:true}).click();
+  await expect(page.getByText('North Star Games',{exact:true})).toBeVisible();
+  await page.getByLabel('Your custom domain',{exact:true}).fill('play.northstar.example');
+  await page.getByRole('button',{name:'Save domain',exact:true}).click();
+  await expect(page.getByText('_lunarx.play.northstar.example',{exact:true})).toBeVisible();
+  await expect(page.getByText('test-ownership-token',{exact:true})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Share on WhatsApp'})).toHaveAttribute('href',/wa.me/);
+  await page.getByRole('button',{name:'View weekly account',exact:true}).click();
+  await expect(page).toHaveURL(/\/master\/weekly$/);
+  await expect(page.getByRole('alert')).toContainText('Branch locked');
+  await page.getByLabel('Amount paid (INR)',{exact:true}).fill('50');
+  await page.getByLabel('Payment reference / UTR',{exact:true}).fill('TEST-UTR-123');
+  await page.getByRole('button',{name:'Submit for confirmation'}).click();
+  await expect(page.getByRole('status')).toContainText('submitted for confirmation');
+  expect(state.writes.at(-1)).toMatchObject({path:'/api/network/weekly/payments',body:{masterId:'north',amountPaise:'5000',reference:'TEST-UTR-123'}});
+  expect(state.errors).toEqual([]);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
 test("master can create an agent and fund only its downline", async ({

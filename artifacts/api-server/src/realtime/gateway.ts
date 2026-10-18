@@ -2,7 +2,8 @@ import type { Server as HttpServer, IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
 import { WebSocketServer, WebSocket } from "ws";
 import { getActiveSession, findUserById } from "../services/auth";
-import { sessionCookie, requestSite, requestOperatorPanel } from "../middlewares/siteChannel";
+import { sessionCookie, requestSite, requestOperatorPanel, resolveCustomSite, customMaster } from "../middlewares/siteChannel";
+import { userBelongsToMaster } from "../services/network";
 import { assertNetworkActive, networkIdentity } from "../services/network";
 import { bus, type RealtimeEvent } from "./eventBus";
 import { ALLOWED_ROLES_PER_TOPIC, type ClientToServer, type ServerToClient } from "./protocol";
@@ -79,6 +80,7 @@ function topicAllowed(topic: string, ctx: ClientCtx): boolean {
 }
 
 async function authenticate(req: IncomingMessage): Promise<{ userId: string; role: string; sessionId: string } | null> {
+  try { await resolveCustomSite(req); } catch { return null; }
   const sid = readCookie(req.headers.cookie, sessionCookie(req));
   if (!sid) return null;
   try {
@@ -87,6 +89,7 @@ async function authenticate(req: IncomingMessage): Promise<{ userId: string; rol
     const user = await findUserById(session.userId);
     if (!user || user.status !== "active") return null;
     if(user.role === "player" && user.channel !== requestSite(req)) return null;
+    if(customMaster(req) && !(await userBelongsToMaster(user,customMaster(req)!)))return null;
     await assertNetworkActive(user);
     const panel = requestOperatorPanel(req);
     if (panel && (await networkIdentity(user)).role !== panel) return null;

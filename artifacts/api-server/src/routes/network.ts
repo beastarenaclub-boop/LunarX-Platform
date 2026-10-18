@@ -13,25 +13,37 @@ import { requireAuth } from "../middlewares/auth";
 import { badRequest, conflict, forbidden, notFound } from "../lib/errors";
 import { hashPassword } from "../lib/password";
 import { networkIdentity } from "../services/network";
-import { networkWebsite } from "../services/networkWebsite";
+import { networkWebsite, masterWebsite } from "../services/networkWebsite";
+import { weeklyStatus, assertBranchOperations } from "../services/networkWeekly";
+import weeklyRouter from "./networkWeekly";
+import brandingRouter from "./networkBranding";
+import { customMaster } from "../middlewares/siteChannel";
 import { requestSite } from "../middlewares/siteChannel";
 import { postEntry, publishWalletBalance } from "../services/wallet";
 
 const router: IRouter = Router();
+router.get('/website',async(req,res,next)=>{
+  try { const id=customMaster(req); const website=id?await masterWebsite(id):null;if(id&&!website)throw notFound('Website unavailable');res.set('Cache-Control','no-store').json(website); }
+  catch(e){next(e);}
+});
 // Public branch pages expose only the active master's display name and links.
 router.get("/website/:masterId", async (req, res, next) => {
   try {
     if (requestSite(req) !== "b2b") throw notFound();
     const id = z.string().regex(/^[A-Za-z0-9_-]{1,100}$/).parse(req.params.masterId);
-    const [master] = await db.select({ id: networkNodesTable.id, name: networkNodesTable.name })
-      .from(networkNodesTable).innerJoin(usersTable, eq(usersTable.id, networkNodesTable.userId))
-      .where(and(eq(networkNodesTable.id, id), eq(networkNodesTable.kind, "master"),
-        eq(networkNodesTable.status, "active"), eq(usersTable.status, "active")));
+    if(customMaster(req) && customMaster(req)!==id)throw notFound();
+    const master = await masterWebsite(id);
     if (!master) throw notFound("This branch website is unavailable");
-    res.set("Cache-Control", "no-store").json(networkWebsite(master.id, master.name));
+    res.set("Cache-Control", "no-store").json(master);
   } catch (e) { next(e); }
 });
 router.use(requireAuth);
+router.use('/weekly',weeklyRouter);
+router.use(async(req,_res,next)=>{
+  try { if(!['GET','HEAD'].includes(req.method) && req.user?.role==='agent')await assertBranchOperations(req.user.id); next(); }
+  catch(e){next(e);}
+});
+router.use('/branding',brandingRouter);
 function isDuplicate(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
   const databaseError = error as { code?: string; cause?: unknown };
@@ -89,9 +101,8 @@ router.get("/context", async (req, res, next) => {
   try {
     const actor = await networkIdentity(req.user!);
     const masterId = actor.node?.kind === "master" ? actor.node.id : actor.node?.parentId;
-    const [master] = masterId ? await db.select({ id: networkNodesTable.id, name: networkNodesTable.name })
-      .from(networkNodesTable).where(eq(networkNodesTable.id, masterId)) : [];
-    res.json({ ...actor, website: master ? networkWebsite(master.id, master.name) : null });
+    const website=masterId?await masterWebsite(masterId):null;
+    res.json({ ...actor, website, weekly: masterId ? await weeklyStatus(masterId) : null });
   } catch (e) {
     next(e);
   }
@@ -113,10 +124,13 @@ router.get("/nodes", async (req, res, next) => {
       COALESCE((SELECT sum(amount)::text FROM network_settlements s WHERE s.node_id=n.id),'0') AS settled,
       COALESCE((SELECT sum(amount)::text FROM wallet_ledger w WHERE w.user_id=n.user_id),'0') AS float_balance
       FROM network_nodes n JOIN users u ON u.id=n.user_id WHERE ${condition} ORDER BY n.created_at DESC`);
-    res.json({ nodes: rows.rows.map(node => ({ ...node,
+    const websites=await db.execute(sql`SELECT master_id,brand_name,custom_domain,domain_status FROM network_websites`);
+    const settings=new Map(websites.rows.map(w=>[String(w.master_id),w]));
+    res.json({ nodes: await Promise.all(rows.rows.map(async node => ({ ...node,
+      weekly: node.kind==='master' ? await weeklyStatus(String(node.id)) : null,
       website_url: networkWebsite(String(node.kind === "master" ? node.id : node.parent_id),
-        String(node.kind === "master" ? node.name : node.parent_name)).url,
-    })) });
+        String(node.kind === "master" ? node.name : node.parent_name),settings.get(String(node.kind === 'master'?node.id:node.parent_id))).url,
+    }))) });
   } catch (e) {
     next(e);
   }

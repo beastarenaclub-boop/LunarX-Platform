@@ -1,7 +1,7 @@
 # Master panels and customer playing websites
 
-The customer playing domain is `b2b.lunarx.live`. Every master has a shareable
-landing page at `https://b2b.lunarx.live/branch/<master-id>/`. These are branch
+The customer playing domain is `play.lunarx.live`. Every master has a shareable
+landing page at `https://play.lunarx.live/branch/<master-id>/`. These are branch
 paths on the existing playing domain; they do not require separate domains or
 DNS records. Master and agent login remains at `panel.lunarx.live`.
 
@@ -30,6 +30,7 @@ agents manage their own customers. Company settlements remain admin-controlled.
 
 Validation covers the isolated PostgreSQL network suite, master panel browser
 flows, and guest browsing/login at mobile and desktop sizes. The API and web
-gateway both require deployment, in that order. No database migration or new
-environment variable is needed. Links use the first configured `B2B_HOSTS`
-hostname and HTTPS, with HTTP only for the local development hostname.
+gateway both require deployment. Branding/custom-domain settings and weekly
+collection use migration 0051. See [master branding and weekly collection](master-branding-weekly.md)
+for configuration, payment confirmation and Monday grace rules. Links use
+`PLAY_HOST`, falling back to the first `B2B_HOSTS` hostname for local installations.

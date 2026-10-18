@@ -5,6 +5,12 @@ import { forbidden } from "../lib/errors";
 export const isNetworkAdmin = (user: Pick<User, "role">) =>
   user.role === "admin" || user.role === "super_admin";
 
+export async function userBelongsToMaster(user:User,masterId:string) {
+  if(user.role!=='player' || !user.b2bAgentId)return false;
+  const [agent]=await db.select().from(networkNodesTable).where(eq(networkNodesTable.id,user.b2bAgentId));
+  return agent?.parentId===masterId;
+}
+
 export async function networkIdentity(user: User) {
   if (isNetworkAdmin(user)) return { role: "admin" as const, node: null };
   const [node] = await db

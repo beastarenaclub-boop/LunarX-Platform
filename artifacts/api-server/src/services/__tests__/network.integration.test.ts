@@ -246,7 +246,7 @@ test(
       );
       const otherClient = await login(`${prefix}-other@example.test`);
       const website = await call(publicB2b, `/network/website/${master.id}`);
-      assert.deepEqual(Object.keys(website).sort(), ["domain", "loginUrl", "masterId", "name", "url"].sort(), "Public website metadata contains no account or financial data");
+      assert.deepEqual(Object.keys(website).sort(), ["domain", "loginUrl", "masterId", "name", "url", "defaultUrl", "logoUrl"].sort(), "Public website metadata contains no account or financial data");
       assert.equal(website.masterId, master.id);
       assert.equal(website.name, "North Branch");
       assert.equal(website.url, `http://localhost:5202/branch/${master.id}/`);
@@ -643,6 +643,71 @@ test(
         sql`SELECT source,source_id FROM network_ledger WHERE user_id=${player.id} GROUP BY source,source_id HAVING sum(amount) <> max(CASE WHEN account_kind='company' THEN 0 ELSE 0 END)+sum(CASE WHEN account_kind='company' THEN gross_stake-gross_payout ELSE 0 END)`,
       );
       assert.equal(mismatch.rows.length, 0);
+
+      // Brand ownership, persistence and custom-host isolation.
+      const logo='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=';
+      await call(agentClient,`/network/branding/${master.id}`,undefined,'GET',403);
+      await call(otherClient,`/network/branding/${master.id}`,{brandName:'Wrong',logoData:null},'PATCH',403);
+      await call(masterClient,`/network/branding/${master.id}`,{brandName:'North Play',logoData:'data:image/svg+xml;base64,PHN2Zz4='},'PATCH',400);
+      await call(masterClient,`/network/branding/${master.id}`,{brandName:'North Play',logoData:logo},'PATCH');
+      assert.equal((await call(publicB2b,`/network/website/${master.id}`)).name,'North Play');
+      await call(masterClient,`/network/branding/${master.id}/domain`,{domain:'https://bad.example/path'},'PUT',400);
+      await call(masterClient,`/network/branding/${master.id}/domain`,{domain:'panel.lunarx.live'},'PUT',400);
+      const domain=`${prefix}.example.test`;
+      await call(masterClient,`/network/branding/${master.id}/domain`,{domain},'PUT');
+      await call(otherClient,`/network/branding/${otherMaster.id}/domain`,{domain},'PUT',409);
+      await call(otherClient,`/network/branding/${otherMaster.id}/domain`,{domain:`www.${domain}`},'PUT',409);
+      // Provider/DNS is intentionally not contacted in tests; simulate verified state in this isolated DB.
+      await db.execute(sql`UPDATE network_websites SET domain_status='active' WHERE master_id=${master.id}`);
+      const brandClient={host:domain};
+      assert.equal((await call(brandClient,'/network/website')).url,`https://${domain}/`);
+      assert.equal((await call(masterClient,'/network/context')).website?.url,`https://${domain}/`);
+      await call(brandClient,`/network/website/${otherMaster.id}`,undefined,'GET',404);
+      const domainLogin=await call(brandClient,'/auth/login',{email:player.email,password});
+      assert.equal(domainLogin.user.id,player.id);
+      await call({host:`unassigned-${prefix}.example.test`},'/auth/login',{email:player.email,password},'POST',401);
+
+      // Monday 00:00 IST close, full Monday grace, Tuesday 00:00 automatic lock.
+      await db.execute(sql`SELECT network_open_wager('weekly-open',${prefix},${player.id},'mines',100)`);
+      const anchor=await db.execute(sql`SELECT date_trunc('week',clock_timestamp() AT TIME ZONE 'Asia/Kolkata') AT TIME ZONE 'Asia/Kolkata' AS monday`);
+      const monday=new Date(String(anchor.rows[0]!.monday));
+      await db.execute(sql`UPDATE network_nodes SET weekly_started_at=${new Date(monday.getTime()-7*86400000)} WHERE id=${master.id}`);
+      for(const [suffix,amount] of [['profit','10000'],['refund','-2000']] as const) {
+        await db.execute(sql`INSERT INTO network_ledger(source,source_id,revision,user_id,game_code,channel,master_id,agent_id,account_id,account_kind,amount,gross_stake,gross_payout,terms,created_at)
+          VALUES('weekly-test',${`${prefix}-${suffix}`},1,${player.id},'test','b2b',${master.id},${agent.id},'company','company',${amount}::bigint,0,0,'{}',${new Date(monday.getTime()-3600000)})`);
+      }
+      for(const [time,due] of [[monday, '0'],[new Date(monday.getTime()+86400000-1),'0'],[new Date(monday.getTime()+86400000),'8000']] as const) {
+        const result=await db.execute(sql`SELECT network_weekly_due(${master.id},${time})::text AS due`);
+        assert.equal(result.rows[0]!.due,due,'Monday grace boundary in India time');
+      }
+      // Make the synthetic week overdue regardless of the weekday on the test runner.
+      await db.execute(sql`UPDATE network_nodes SET weekly_started_at=${new Date(monday.getTime()-14*86400000)} WHERE id=${master.id}`);
+      await db.execute(sql`INSERT INTO network_ledger(source,source_id,revision,user_id,game_code,channel,master_id,agent_id,account_id,account_kind,amount,gross_stake,gross_payout,terms,created_at)
+        VALUES('weekly-test',${`${prefix}-old`},1,${player.id},'test','b2b',${master.id},${agent.id},'company','company',1000,0,0,'{}',${new Date(monday.getTime()-8*86400000)})`);
+      await call(masterClient,'/network/context'); // Locked masters can still reach settlement.
+      await call(masterClient,`/network/nodes/${agent.id}`,{name:'Blocked change'},'PATCH',403);
+      await assert.rejects(db.execute(sql`SELECT network_open_wager('test',${`${prefix}-locked`},${player.id},'mines',100)`));
+      const {postEntry}=await import('../wallet');
+      await assert.rejects(postEntry({userId:player.id,type:'bet',amount:-100n,refType:'weekly-test',refId:prefix}));
+      await db.execute(sql`SELECT network_close_wager('weekly-open',${prefix},100,250,true)`);
+      await postEntry({userId:player.id,type:'win',amount:250n,refType:'weekly-test',refId:prefix});
+      const payment={masterId:master.id,amountPaise:'4000',reference:'TEST-BANK-001',requestId:randomUUID()};
+      await call(agentClient,'/network/weekly/payments',payment,'POST',403);
+      await call(otherClient,'/network/weekly/payments',payment,'POST',403);
+      await call(masterClient,'/network/weekly/payments',{...payment,amountPaise:'9001'},'POST',400);
+      const payments=await Promise.all([call(masterClient,'/network/weekly/payments',payment,'POST',201),call(masterClient,'/network/weekly/payments',payment,'POST',201)]);
+      assert.equal(payments[0]!.id,payments[1]!.id,'Idempotent concurrent payment submission');
+      await call(masterClient,`/network/weekly/payments/${payments[0]!.id}/review`,{status:'confirmed',note:'not allowed'},'POST',403);
+      await assert.rejects(db.execute(sql`SELECT network_open_wager('test',${`${prefix}-pending`},${player.id},'mines',100)`));
+      await call(company,`/network/weekly/payments/${payments[0]!.id}/review`,{status:'confirmed',note:'Bank receipt checked'});
+      await call(company,`/network/weekly/payments/${payments[0]!.id}/review`,{status:'confirmed',note:'Bank receipt checked'});
+      await assert.rejects(db.execute(sql`UPDATE network_weekly_payments SET status='pending' WHERE id=${payments[0]!.id}`));
+      const rest=await call(masterClient,'/network/weekly/payments',{...payment,amountPaise:'5000',requestId:randomUUID(),reference:'TEST-BANK-002'},'POST',201);
+      await call(company,`/network/weekly/payments/${rest.id}/review`,{status:'confirmed',note:'Bank receipt checked'});
+      await db.execute(sql`SELECT network_open_wager('test',${`${prefix}-unlocked`},${player.id},'mines',100)`);
+      await call(masterClient,`/network/nodes/${agent.id}`,{name:'North Agent'},'PATCH');
+      await call(masterClient,'/network/weekly');
+      await call(company,`/network/weekly?masterId=${master.id}`);
     } finally {
       await new Promise<void>((resolve, reject) =>
         server.close((e) => (e ? reject(e) : resolve())),

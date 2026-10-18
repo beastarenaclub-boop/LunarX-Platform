@@ -17,6 +17,7 @@ import { NetworkPanel, getOperatorPanel, type NetworkSection } from "@workspace/
 const sectionRoutes: Record<NetworkSection, string> = {
   Overview: "/", Downline: "/downline", Agents: "/agents", Players: "/users",
   Ledger: "/ledger", Settlements: "/settlements", "Wallet ledger": "/transactions", Website: "/website",
+  "Weekly account":"/weekly",
 };
 
 function PanelPage({
@@ -81,6 +82,7 @@ function ProtectedRoutes() {
         <Route path="/settlements"><PanelPage tab="Settlements" /></Route>
         <Route path="/transactions"><PanelPage tab="Wallet ledger" /></Route>
         <Route path="/website"><PanelPage tab="Website" /></Route>
+        <Route path="/weekly"><PanelPage tab="Weekly account" /></Route>
         <Route path="/" component={OverviewPage} />
         <Route component={OverviewPage} />
       </Switch>

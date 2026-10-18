@@ -262,7 +262,7 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
         <div className="mx-auto w-12 h-12 rounded-xl bg-primary/15 text-primary flex items-center justify-center mb-2">
           <Rocket className="w-6 h-6" />
         </div>
-        <CardTitle>{site.data?.channel === "b2b" ? "B2B Player Login" : "Sign in to Lunar"}</CardTitle>
+        <CardTitle>{site.data?.channel === "b2b" ? "Player Login" : "Sign in to Lunar"}</CardTitle>
         {site.data?.channel === "b2b" && <p className="text-sm text-muted-foreground">Use the account created by your agent. Contact your agent for a new account.</p>}
       </CardHeader>
       <CardContent>{inner}</CardContent>

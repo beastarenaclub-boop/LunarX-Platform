@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { customFetch } from "@workspace/api-client-react";
 import { Router } from "wouter";
@@ -8,6 +8,7 @@ type MasterWebsite = {
   name: string;
   url: string;
   loginUrl: string;
+  logoUrl?: string | null;
 };
 const Context = createContext<MasterWebsite | null>(null);
 export const useMasterWebsite = () => useContext(Context);
@@ -18,19 +19,23 @@ const branchBase = window.location.pathname.match(
 );
 
 export function MasterWebsiteRoot({ children }: { children: ReactNode }) {
-  if (!branchBase) return <>{children}</>;
-  return <BranchWebsite id={branchBase[1]!}>{children}</BranchWebsite>;
+  return <BranchWebsite id={branchBase?.[1]}>{children}</BranchWebsite>;
 }
 
-function BranchWebsite({ id, children }: { id: string; children: ReactNode }) {
+function BranchWebsite({ id, children }: { id?: string; children: ReactNode }) {
   const website = useQuery({
     queryKey: ["master-website", id],
     queryFn: () =>
-      customFetch<MasterWebsite>(
-        `/api/network/website/${encodeURIComponent(id)}`,
+      customFetch<MasterWebsite | null>(
+        id ? `/api/network/website/${encodeURIComponent(id)}` : '/api/network/website',
       ),
     retry: false,
   });
+  useEffect(()=>{
+    if(!website.data)return;
+    document.title=`${website.data.name} · Games`;
+    if(website.data.logoUrl){let icon=document.querySelector<HTMLLinkElement>('link[rel="icon"]');if(!icon){icon=document.createElement('link');icon.rel='icon';document.head.append(icon);}icon.href=website.data.logoUrl;}
+  },[website.data]);
   if (website.isPending)
     return (
       <div className="min-h-screen grid place-items-center" role="status">
@@ -42,8 +47,7 @@ function BranchWebsite({ id, children }: { id: string; children: ReactNode }) {
       <main className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center">
         <h1 className="text-2xl font-bold">Branch website unavailable</h1>
         <p>
-          This link may be invalid or the branch may be inactive. Contact your
-          agent for the correct website.
+          This website is currently unavailable. Please retry or contact your account manager.
         </p>
         <button
           type="button"
@@ -56,7 +60,7 @@ function BranchWebsite({ id, children }: { id: string; children: ReactNode }) {
     );
   return (
     <Context.Provider value={website.data}>
-      <Router base={`/branch/${id}`}>{children}</Router>
+      {id ? <Router base={`/branch/${id}`}>{children}</Router> : children}
     </Context.Provider>
   );
 }

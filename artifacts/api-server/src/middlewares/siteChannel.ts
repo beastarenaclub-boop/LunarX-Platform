@@ -1,4 +1,12 @@
 import type { Request } from "express";
+import { domainMaster } from "../services/networkWebsite";
+
+const masterKey=Symbol('verifiedMasterDomain');
+type SiteRequest=Pick<Request,'headers'> & { [masterKey]?: string | null };
+export const customMaster=(req:SiteRequest)=>req[masterKey]??null;
+export async function resolveCustomSite(req:SiteRequest) {
+  req[masterKey]=await domainMaster(req.headers.host);
+}
 
 function hosts(value: string | undefined, fallback: string) {
   return (value ?? fallback)
@@ -8,9 +16,10 @@ function hosts(value: string | undefined, fallback: string) {
 }
 
 export function requestSite(
-  req: Pick<Request, "headers">,
+  req: SiteRequest,
 ): "b2c" | "b2b" | "operator" {
   const host = (req.headers.host ?? "").toLowerCase();
+  if(customMaster(req))return 'b2b';
   if (
     hosts(process.env.B2B_HOSTS, "localhost:5202,127.0.0.1:5202").includes(host)
   )

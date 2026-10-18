@@ -29,6 +29,7 @@ import "./site.css";
 import { useSiteChannel } from "@/lib/siteChannel";
 import { ACCOUNT_OPTIONS } from "./AccountOptions";
 import { B2C_STANDALONE, B2C_BRAND, B2C_ICON } from "@/components/b2c/config";
+import { useMasterWebsite } from '@/lib/masterWebsite';
 const accountBrand = B2C_STANDALONE ? B2C_BRAND : "Lunar Play";
 
 const links = [
@@ -42,6 +43,8 @@ const links = [
 ];
 
 export function SiteBrand() {
+  const website=useMasterWebsite();
+  if(website)return <Link href="/" className="site-brand" aria-label={`${website.name} home`}>{website.logoUrl?<img src={website.logoUrl} alt={website.name} style={{maxWidth:180,maxHeight:44,objectFit:'contain'}}/>:website.name}</Link>;
   if (B2C_STANDALONE) return <Link href="/" className="site-brand" aria-label={`${B2C_BRAND} home`}><img className="account-brand-icon" src={B2C_ICON} alt="" />{B2C_BRAND}</Link>;
   return (
     <Link href="/" className="site-brand" aria-label="Lunar Play home">
@@ -131,10 +134,11 @@ function SiteHeader() {
 }
 
 export function SiteFooter() {
+  const website=useMasterWebsite();
   return (
     <footer className="site-footer">
       <span>
-        {accountBrand.toUpperCase()} <span className="site-footer-dot">·</span> All your games.
+        {(website?.name??accountBrand).toUpperCase()} <span className="site-footer-dot">·</span> All your games.
         One wallet.
       </span>
       <div>
@@ -157,6 +161,7 @@ export function SiteLayout({
   children: ReactNode;
   className?: string;
 }) {
+  const website=useMasterWebsite();
   const { user } = useAuth();
   const [location, navigate] = useLocation();
   const qc = useQueryClient();
@@ -173,8 +178,8 @@ export function SiteLayout({
     },
   });
   useEffect(() => {
-    document.title = `${title} — ${accountBrand}`;
-  }, [title]);
+    document.title = `${title} — ${website?.name??accountBrand}`;
+  }, [title,website?.name]);
   return (
     <div className={`site-shell ${className}`}>
       <a href="#site-main" className="site-skip-link">
@@ -194,7 +199,7 @@ export function SiteLayout({
             </div>
             <div>
               <strong>{user?.displayName || "Your account"}</strong>
-              <span>{user?.email || "Welcome to Lunar Play"}</span>
+              <span>{user?.email || `Welcome to ${website?.name??accountBrand}`}</span>
             </div>
           </div>
           <p className="site-nav-label">MY ACCOUNT</p>
@@ -253,20 +258,21 @@ export function AuthLayout({
   children: ReactNode;
   title?: string;
 }) {
+  const website=useMasterWebsite();
   useEffect(() => {
-    document.title = `${title} — ${accountBrand}`;
-  }, [title]);
+    document.title = `${title} — ${website?.name??accountBrand}`;
+  }, [title,website?.name]);
   return (
     <div className="site-shell auth-shell">
       <SiteHeader />
       <main className="site-auth-main">
-        <section className="site-auth-story" aria-label="Welcome to Lunar Play">
+        <section className="site-auth-story" aria-label={`Welcome to ${website?.name??accountBrand}`}>
           <img
             src={vaultArtwork}
             alt="An illuminated gold vault in a dark casino"
           />
           <div className="site-auth-story-copy">
-            <p className="site-eyebrow">WELCOME TO LUNAR PLAY</p>
+            <p className="site-eyebrow">WELCOME TO {(website?.name??accountBrand).toUpperCase()}</p>
             <h1>
               Every game.
               <br />
@@ -275,7 +281,7 @@ export function AuthLayout({
             <p>
               Your favourites, your balance and your next game.
               <br />
-              All together in your Lunar account.
+              All together in your {website?.name??accountBrand} account.
             </p>
             <div className="site-auth-features">
               <span>

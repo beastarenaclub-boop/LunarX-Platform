@@ -2,8 +2,8 @@ import type { Request, Response, NextFunction } from "express";
 import { getActiveSession, findUserById } from "../services/auth";
 import { unauthorized, forbidden } from "../lib/errors";
 import type { UserRole } from "@workspace/db";
-import { requestSite, requestOperatorPanel, sessionCookie } from "./siteChannel";
-import { assertNetworkActive, networkIdentity } from "../services/network";
+import { requestSite, requestOperatorPanel, sessionCookie, customMaster } from "./siteChannel";
+import { assertNetworkActive, networkIdentity, userBelongsToMaster } from "../services/network";
 import { isDemoToken } from "../demo/sessions";
 import { DEMO_RUNTIME } from "../demo/runtime";
 
@@ -25,6 +25,7 @@ export async function loadSession(
     if (!user) return next();
     if (user.status !== "active") return next();
     if (user.role === "player" && user.channel !== requestSite(req)) return next();
+    if(customMaster(req) && !(await userBelongsToMaster(user,customMaster(req)!)))return next();
     try {
       await assertNetworkActive(user);
       const panel = requestOperatorPanel(req);

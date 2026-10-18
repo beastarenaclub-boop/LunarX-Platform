@@ -10,6 +10,7 @@ import { loadSession } from "./middlewares/auth";
 import { csrfProtect } from "./middlewares/csrf";
 import { errorHandler } from "./middlewares/error";
 import { demoGateway } from "./demo/bridge";
+import { resolveCustomSite } from "./middlewares/siteChannel";
 
 const app: Express = express();
 
@@ -85,6 +86,7 @@ app.use(
 );
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(async(req,_res,next)=>{try{await resolveCustomSite(req);next();}catch(e){next(e);}});
 app.use(loadSession);
 app.use(csrfProtect);
 app.use(demoGateway);

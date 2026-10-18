@@ -45,7 +45,7 @@ export default function Signup() {
     });
   }
 
-  if (!site.data?.signupEnabled) return <AuthLayout title="B2B accounts"><Card className="w-full max-w-sm"><CardContent className="p-6"><p>{site.isPending ? "Loading account options…" : site.isError ? "Account options unavailable. Please refresh." : "Only your agent can create a B2B account. Contact your agent for login details."}</p><Link href="/login">Sign in</Link></CardContent></Card></AuthLayout>;
+  if (!site.data?.signupEnabled) return <AuthLayout title="Player accounts"><Card className="w-full max-w-sm"><CardContent className="p-6"><p>{site.isPending ? "Loading account options…" : site.isError ? "Account options unavailable. Please refresh." : "Contact your account manager for a player account and login details."}</p><Link href="/login">Sign in</Link></CardContent></Card></AuthLayout>;
   return (
     <AuthLayout title="Create your account">
       <Card className="w-full max-w-sm">

@@ -3,6 +3,7 @@ import { mockGames } from "./fixtures/compact-game-data";
 
 async function guestSite(page: Page, channel: "b2c" | "b2b", signedIn = false) {
   await mockGames(page);
+  await page.route('**/api/network/website',route=>route.fulfill({json:null}));
   const privateReads: string[] = [];
   const writes: string[] = [];
   const errors: string[] = [];
@@ -104,6 +105,19 @@ test("login return links cannot leave the site or loop through authentication", 
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole("heading", { name: "TOP Games", exact: true })).toBeVisible();
   }
+});
+
+test('custom-domain lobby uses master brand and never shows B2B to customers',async({page})=>{
+  await guestSite(page,'b2b');
+  await page.route('**/api/network/website',route=>route.fulfill({json:{masterId:'north',name:'North Star Games',url:'https://play.north.example/',loginUrl:'https://play.north.example/login',logoUrl:null}}));
+  await page.goto('/');
+  await expect(page.getByTestId('link-home')).toHaveText('North Star Games');
+  await page.getByTestId('card-game-mines').click();
+  await expect(page.getByText('Player Login',{exact:true})).toBeVisible();
+  await expect(page.locator('body')).not.toContainText(/\bB2B\b/i);
+  await expect(page.getByRole('link',{name:'North Star Games home'})).toBeVisible();
+  await page.goto('/signup');
+  await expect(page.locator('body')).not.toContainText(/\bB2B\b/i);
 });
 
 for (const width of [390, 1440]) {

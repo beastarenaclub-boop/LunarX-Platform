@@ -11,6 +11,14 @@ export function errorHandler(
   res: Response,
   _next: NextFunction,
 ) {
+  let cause=err;
+  for(let depth=0;depth<5 && cause && typeof cause==='object';depth++) {
+    const detail=cause as {message?:string;cause?:unknown};
+    if(detail.message==='Branch temporarily locked. Contact your account manager.') {
+      res.status(403).json({error:{code:'BRANCH_LOCKED',message:detail.message}});return;
+    }
+    cause=detail.cause;
+  }
   if (err instanceof ZodError) {
     res.status(400).json({
       error: { code: "VALIDATION_ERROR", message: "Invalid request", details: err.issues },

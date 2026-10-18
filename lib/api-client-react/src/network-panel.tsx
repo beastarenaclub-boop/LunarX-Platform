@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
 import { NetworkTree } from "./network-tree";
 import { WebsiteLinks, type NetworkWebsite } from "./network-website";
+import { NetworkBranding } from "./network-branding";
+import { NetworkWeekly, type WeeklyStatus } from "./network-weekly";
 import { useRealtimeTopic, useRealtimeResync } from "./realtime";
 
 const walletStyles = `
@@ -51,11 +53,13 @@ export type NetworkNode = {
   settled: string;
   float_balance: string;
   website_url?: string;
+  weekly?: WeeklyStatus | null;
 };
 type Node = NetworkNode;
 type Context = {
   role: Role;
   website?: NetworkWebsite | null;
+  weekly?: WeeklyStatus | null;
   node: null | {
     id: string;
     userId: string;
@@ -174,7 +178,7 @@ function Pager({
   );
 }
 
-export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website";
+export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account";
 
 export function NetworkPanel({
   initialTab = "Overview",
@@ -210,6 +214,7 @@ export function NetworkPanel({
   }>(null);
   const [error, setError] = useState(""),
     [notice, setNotice] = useState("");
+  const [weeklyMaster,setWeeklyMaster]=useState('');
   function changeTab(section: NetworkSection) {
     setTab(section);
     onTabChange?.(section);
@@ -218,6 +223,7 @@ export function NetworkPanel({
     queryKey: ["network", "context"],
     queryFn: () => api<Context>("/context"),
     retry: false,
+    refetchInterval:30_000,
   });
   const role = context.data?.role;
   const refreshBalances = () => {
@@ -588,13 +594,8 @@ export function NetworkPanel({
             : "Public signup · 100% of net game revenue belongs to the company"}
         </span>
       </div>
-      {context.data.website && <div className="net-channel">
-        <div><strong>Customer Playing Website</strong><br /><span>{context.data.website.domain} · {context.data.website.name}</span></div>
-        <div className="net-actions">
-          <a className="net-link-button" href={context.data.website.url} target="_blank" rel="noopener noreferrer">Open website</a>
-          <button onClick={() => changeTab("Website")}>Website links</button>
-        </div>
-      </div>}
+      {context.data.website && tab !== 'Website' && <WebsiteLinks website={context.data.website} />}
+      {context.data.weekly && <div className="net-channel"><div><strong>{context.data.weekly.locked?'Branch locked — weekly payment overdue':'Weekly commission account'}</strong><br/><span>Monday payment window · Tuesday 00:00 lock · India time</span></div><button onClick={()=>changeTab('Weekly account')}>View weekly account</button></div>}
       {channel === "b2b" && (
         <div className="net-directory-counts" aria-label="Downline totals">
           {role !== "agent" && (
@@ -629,6 +630,7 @@ export function NetworkPanel({
           "Players",
           "Ledger",
           "Settlements",
+          ...(channel === 'b2b' ? ['Weekly account'] : []),
           "Wallet ledger",
           ...(channel === "b2b" ? ["Website"] : []),
         ].map((t) => (
@@ -672,7 +674,7 @@ export function NetworkPanel({
         </p>
       )}
       {tab === "Website" && (context.data.website
-        ? <WebsiteLinks website={context.data.website} />
+        ? <><WebsiteLinks website={context.data.website} />{role==='master'&&<NetworkBranding masterId={context.data.website.masterId}/>}</>
         : role === "admin" ? <section className="net-card" aria-label="Master websites">
           <h2>Customer playing websites</h2><p>Open the website where each master's customers browse and play. New masters receive their branch link automatically.</p>
           {nodes.data?.nodes.filter(n => n.kind === "master").map(n => <div key={n.id} className="net-website-row">
@@ -680,9 +682,14 @@ export function NetworkPanel({
               {n.website_url && <a href={n.website_url} target="_blank" rel="noopener noreferrer">{n.website_url}</a>}
             </div>
             {n.website_url && <a className="net-link-button" href={n.website_url} target="_blank" rel="noopener noreferrer">Open website</a>}
+            <details style={{width:'100%'}}><summary>Website branding & domain</summary><NetworkBranding masterId={n.id}/></details>
           </div>)}
           {nodes.data && !nodes.data.nodes.some(n => n.kind === "master") && <p className="net-empty">Create a master to get its website link.</p>}
         </section> : <section className="net-card"><p>Website links could not be loaded.</p><button onClick={refreshBalances}>Retry</button></section>)}
+      {tab==='Weekly account' && <>
+        {role==='admin'&&<section className="net-card"><h2>Master weekly accounts</h2><p>Review received payments here. Confirming a payment updates branch access automatically.</p><label className="net-field"><span>Master</span><select value={weeklyMaster} onChange={e=>setWeeklyMaster(e.target.value)}><option value="">Choose master</option>{nodes.data?.nodes.filter(n=>n.kind==='master').map(n=><option key={n.id} value={n.id}>{n.name}{n.weekly?.locked?' — LOCKED':''}{n.weekly?` · Due ${money(n.weekly.duePaise)}`:''}</option>)}</select></label></section>}
+        {(role==='admin'?weeklyMaster:context.data.website?.masterId)&&<NetworkWeekly key={role==='admin'?weeklyMaster:context.data.website!.masterId} masterId={role==='admin'?weeklyMaster:context.data.website!.masterId} admin={role==='admin'} canSubmit={role!=='agent'}/>}
+      </>}
       {(tab === "Overview" || tab === "Ledger" || tab === "Wallet ledger") && (
         <div className="net-filters">
           {role === "admin" && channel === "b2b" && (

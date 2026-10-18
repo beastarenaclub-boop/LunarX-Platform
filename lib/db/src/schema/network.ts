@@ -13,6 +13,7 @@ import {
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
+import { sql } from 'drizzle-orm';
 import { usersTable } from "./users";
 
 export const networkNodesTable = pgTable(
@@ -35,6 +36,7 @@ export const networkNodesTable = pgTable(
       .default("active"),
     companyFeeBps: integer("company_fee_bps").notNull().default(1000),
     shareBps: integer("share_bps").notNull().default(10000),
+    weeklyStartedAt: timestamp('weekly_started_at',{withTimezone:true}).notNull().default(sql`clock_timestamp()`),
     createdBy: text("created_by")
       .notNull()
       .references(() => usersTable.id),
@@ -52,6 +54,20 @@ export const networkNodesTable = pgTable(
 );
 
 export type NetworkNode = typeof networkNodesTable.$inferSelect;
+
+export const networkWebsitesTable=pgTable('network_websites',{
+  masterId:text('master_id').primaryKey().references(()=>networkNodesTable.id),
+  brandName:text('brand_name'),logoData:text('logo_data'),customDomain:text('custom_domain').unique(),
+  domainToken:text('domain_token').notNull(),domainStatus:text('domain_status').notNull().default('pending'),
+  providerDomainId:text('provider_domain_id'),updatedAt:timestamp('updated_at',{withTimezone:true}).notNull().defaultNow(),
+});
+export const networkWeeklyPaymentsTable=pgTable('network_weekly_payments',{
+  id:text('id').primaryKey(),masterId:text('master_id').notNull().references(()=>networkNodesTable.id),
+  amount:bigint('amount',{mode:'bigint'}).notNull(),reference:text('reference').notNull(),requestId:text('request_id').notNull().unique(),
+  status:text('status').notNull().default('pending'),submittedBy:text('submitted_by').notNull().references(()=>usersTable.id),
+  reviewedBy:text('reviewed_by').references(()=>usersTable.id),reviewNote:text('review_note'),
+  createdAt:timestamp('created_at',{withTimezone:true}).notNull().default(sql`clock_timestamp()`),reviewedAt:timestamp('reviewed_at',{withTimezone:true}),
+},t=>[index('network_weekly_payments_master_idx').on(t.masterId,t.status)]);
 
 const terms = () =>
   jsonb("terms")

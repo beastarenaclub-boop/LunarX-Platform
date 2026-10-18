@@ -38,8 +38,8 @@ import {
   passwordResetRateLimiter,
 } from "../middlewares/rateLimit";
 import { logger } from "../lib/logger";
-import { requestSite, requestOperatorPanel, sessionCookie } from "../middlewares/siteChannel";
-import { assertNetworkActive } from "../services/network";
+import { requestSite, requestOperatorPanel, sessionCookie, customMaster } from "../middlewares/siteChannel";
+import { assertNetworkActive, userBelongsToMaster } from "../services/network";
 import { forbidden } from "../lib/errors";
 
 const router: IRouter = Router();
@@ -61,7 +61,7 @@ const COOKIE_OPTS = (expires: Date) => ({
 
 router.post("/signup", authRateLimiter, async (req, res, next) => {
   try {
-    if (requestSite(req) !== "b2c") throw forbidden("B2B accounts can only be created by your agent");
+    if (requestSite(req) !== "b2c") throw forbidden("Player accounts can only be created by your account manager");
     const input = SignupBody.parse(req.body);
     const normalized = normalizeEmail(input.email);
     // Reserve the demo email namespace. Demo status is identified purely by the
@@ -259,6 +259,7 @@ router.post("/login", authRateLimiter, async (req, res, next) => {
     if (user.role === "player" && user.channel !== requestSite(req)) {
       throw unauthorized("Use the website where your account was created");
     }
+    if(customMaster(req) && !(await userBelongsToMaster(user,customMaster(req)!)))throw unauthorized('Use the website provided by your account manager');
     if (user.role === "agent") throw unauthorized("Use the master or agent panel to sign in");
     await assertNetworkActive(user);
 

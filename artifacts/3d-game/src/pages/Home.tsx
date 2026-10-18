@@ -337,8 +337,8 @@ export default function Home() {
   });
 
   useEffect(() => {
-    document.title = "Lunar — Instant Games & Live Casino";
-  }, []);
+    document.title = `${masterWebsite?.name ?? 'Lunar'} — Instant Games & Live Casino`;
+  }, [masterWebsite?.name]);
   useEffect(() => {
     const read = () => {
       let ids: string[] = [];
@@ -463,7 +463,7 @@ export default function Home() {
             data-testid="link-home"
             onClick={resetFilters}
           >
-            {masterWebsite ? <span className="max-w-[160px] truncate" title={masterWebsite.name}>{masterWebsite.name}</span> : <>LUNAR<span>PLAY</span></>}
+            {masterWebsite?.logoUrl ? <img src={masterWebsite.logoUrl} alt={masterWebsite.name} style={{maxWidth:160,maxHeight:44,objectFit:'contain'}}/> : masterWebsite ? <span className="max-w-[160px] truncate" title={masterWebsite.name}>{masterWebsite.name}</span> : <>LUNAR<span>PLAY</span></>}
           </Link>
         </div>
         <nav className="lobby-primary-nav" aria-label="Game categories">
@@ -791,7 +791,7 @@ export default function Home() {
           <footer className="lobby-footer">
             <div>
               <Link href="/" className="lobby-brand" onClick={resetFilters}>
-                LUNAR<span>PLAY</span>
+                {masterWebsite?.name ?? <>LUNAR<span>PLAY</span></>}
               </Link>
               <p>Make time for a little extraordinary.</p>
             </div>
@@ -899,7 +899,7 @@ export default function Home() {
 
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent side="left" className="lobby-drawer">
-          <SheetTitle className="lobby-drawer-title">LUNAR PLAY</SheetTitle>
+          <SheetTitle className="lobby-drawer-title">{masterWebsite?.name ?? 'LUNAR PLAY'}</SheetTitle>
           <SheetDescription>Find your next favourite game.</SheetDescription>
           <nav aria-label="Browse games" className="lobby-drawer-links">
             {CATEGORIES.map(({ id, name, icon: Icon }) => (

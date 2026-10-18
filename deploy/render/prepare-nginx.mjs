@@ -9,7 +9,7 @@ if (!output) throw new Error("Usage: node deploy/render/prepare-nginx.mjs <outpu
 // Reuse the existing asset, SPA, Unity and media routes rather than maintaining
 // a separate list of game URLs for the hosted deployment.
 const panels = [
-  { artifact: "3d-game", directory: "web", hosts: "lunarx.live www.lunarx.live b2b.lunarx.live crypto777.in www.crypto777.in", primary: true },
+  { artifact: "3d-game", directory: "web", hosts: "lunarx.live www.lunarx.live play.lunarx.live crypto777.in www.crypto777.in", primary: true },
   { artifact: "admin-panel", directory: "admin", hosts: "admin.lunarx.live" },
   { artifact: "agent-panel", directory: "operator", hosts: "panel.lunarx.live" },
 ];
@@ -46,6 +46,7 @@ for (const panel of panels) {
 // Launch URLs may carry access tokens. Log paths without query strings.
 const logFormat = `log_format lunarx '$remote_addr - $request_method $uri $server_protocol $status $body_bytes_sent';\n`;
 const upstream = `upstream lunarx_api {\n zone lunarx_api 64k;\n resolver \${NGINX_RESOLVERS} valid=10s ipv6=off;\n server \${API_DNS_UPSTREAM} resolve;\n}\n`;
+const legacy = `server { listen \${PORT}; server_name b2b.lunarx.live; return 308 https://play.lunarx.live$request_uri; }\n`;
 await mkdir(path.dirname(path.resolve(output)), { recursive: true });
-await writeFile(output, logFormat + upstream + configurations.join("\n"));
+await writeFile(output, logFormat + upstream + legacy + configurations.join("\n"));
 console.log(`Prepared Render gateway: ${output}`);
