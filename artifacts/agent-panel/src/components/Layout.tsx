@@ -1,8 +1,9 @@
 import { Link, useLocation } from "wouter";
 import { useState, useEffect, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { getOperatorPanel } from "@workspace/api-client-react";
+import { customFetch, getOperatorPanel } from "@workspace/api-client-react";
 import {
   LayoutDashboard,
   GitBranch,
@@ -36,6 +37,14 @@ export function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const panelName = getOperatorPanel() === "master" ? "Master Panel" : "Agent Panel";
+  const context = useQuery({
+    queryKey: ["network", "context"],
+    queryFn: () => customFetch<{ role: string; node: { manualPaymentsEnabled: boolean } | null }>("/api/network/context"),
+    enabled: !!user,
+    retry: false,
+    refetchInterval: 30000,
+  });
+  const canCollect = context.data?.role === "master" && context.data.node?.manualPaymentsEnabled === true;
 
   // Close the drawer whenever the route changes (mobile navigation).
   useEffect(() => {
@@ -74,7 +83,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </div>
       <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
         {NAV.filter(
-          (item) => !item.masterOnly || getOperatorPanel() === "master",
+          (item) => (!item.masterOnly || getOperatorPanel() === "master") && (item.href !== "/manual-payments" || canCollect),
         ).map((item) => {
           const active =
             location === item.href ||

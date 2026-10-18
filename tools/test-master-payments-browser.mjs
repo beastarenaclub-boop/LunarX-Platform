@@ -28,7 +28,7 @@ const output = resolve(root, "tmp/master-manual-browser");
 await mkdir(output, { recursive: true });
 for (const artifact of process.env.MASTER_QR_SKIP_BUILD === "1"
   ? []
-  : ["agent-panel", "3d-game"]) {
+  : ["agent-panel", "admin-panel", "3d-game"]) {
   await build({
     configFile: resolve(root, `artifacts/${artifact}/vite.config.ts`),
     logLevel: "error",
@@ -63,6 +63,7 @@ const mime = {
 try {
   for (const [port, artifact] of [
     [4196, "agent-panel"],
+    [4195, "admin-panel"],
     [4191, "3d-game"],
   ]) {
     const dir = resolve(output, artifact);
@@ -71,7 +72,7 @@ try {
       try {
         const pathname = decodeURIComponent(
           new URL(req.url, "http://localhost").pathname,
-        ).replace(/^\/(agent|master)(\/|$)/, "/");
+        ).replace(/^\/(agent|master|admin)(\/|$)/, "/");
         let file = resolve(dir, `.${pathname}`);
         if (!file.startsWith(`${dir}${sep}`) && file !== dir) {
           res.writeHead(403);
@@ -115,6 +116,7 @@ try {
     const session = await createSession(u.id, null, null);
     return { ...u, sid: session.id };
   }
+  const admin = await user("Admin", "admin");
   const master = await user("Master", "agent");
   const [node] = await db
     .insert(networkNodesTable)
@@ -122,7 +124,7 @@ try {
       userId: master.id,
       kind: "master",
       name: "QR Browser Branch",
-      createdBy: master.id,
+      createdBy: admin.id,
     })
     .returning();
   const agent = await user("Agent", "agent");
@@ -164,6 +166,18 @@ try {
   }
   const masterPage = await pageFor(master, "sid_master", 4196);
   await masterPage.goto("http://127.0.0.1:4196/master/manual-payments");
+  await expect(masterPage.getByText("Manual payment access has not been assigned by admin.")).toBeVisible();
+  await expect(masterPage.getByRole("link", { name: "Manual payments", exact: true })).toHaveCount(0);
+  await expect(masterPage.getByRole("button", { name: "Manual payments", exact: true })).toHaveCount(0);
+  await expect(masterPage.getByLabel("UPI ID", { exact: true })).toHaveCount(0);
+  const adminPage = await pageFor(admin, "sid", 4195);
+  await adminPage.goto("http://127.0.0.1:4195/admin/network");
+  await adminPage.getByRole("button", { name: "Manual payments", exact: true }).click();
+  await adminPage.getByLabel("Master payment account").selectOption(node.id);
+  await adminPage.getByRole("button", { name: "Assign manual payment access", exact: true }).click();
+  await expect(adminPage.getByRole("button", { name: "Revoke manual payment access", exact: true })).toBeVisible();
+  await masterPage.reload();
+  await expect(masterPage.getByRole("link", { name: "Manual payments", exact: true })).toBeVisible();
   await masterPage
     .getByLabel("Payment receiver name", { exact: true })
     .fill("Master QR Receiver");
@@ -268,9 +282,18 @@ try {
       fullPage: true,
     });
   }
+  await adminPage.getByRole("button", { name: "Revoke manual payment access", exact: true }).click();
+  await expect(adminPage.getByRole("button", { name: "Assign manual payment access", exact: true })).toBeVisible();
+  await masterPage.reload();
+  await expect(masterPage.getByText("Manual payment access has not been assigned by admin.")).toBeVisible();
+  await expect(masterPage.getByRole("link", { name: "Manual payments", exact: true })).toHaveCount(0);
+  await expect(masterPage.getByRole("button", { name: "Manual payments", exact: true })).toHaveCount(0);
+  await expect(masterPage.getByLabel("UPI ID", { exact: true })).toHaveCount(0);
+  await customerPage.reload();
+  await expect(customerPage.getByTestId("img-upi-qr")).toHaveCount(0);
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: QR upload, save/reload, branch wallet, UTR submission, manual approval, funded credit and mobile layout",
+    "PASS: admin assignment/revocation, hidden unauthorized navigation, QR upload, branch wallet, UTR submission, funded approval and mobile layout",
   );
 } finally {
   for (const context of contexts) await context.close();

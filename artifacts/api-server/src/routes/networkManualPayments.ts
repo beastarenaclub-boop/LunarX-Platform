@@ -63,6 +63,7 @@ router.put("/:masterId", async (req, res, next) => {
     const input = settingsInput.parse(req.body);
     validateQr(input.qrData);
     const result = await db.transaction(async (tx) => {
+      await authorizeCollection(req.user!, masterId, tx);
       const [account] = await tx
         .insert(masterPaymentAccountsTable)
         .values({ masterId, ...input })

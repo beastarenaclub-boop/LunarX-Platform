@@ -52,6 +52,7 @@ export type NetworkNode = {
   status: string;
   company_fee_bps: number;
   share_bps: number;
+  manual_payments_enabled: boolean;
   players: number;
   earned: string;
   settled: string;
@@ -70,6 +71,7 @@ type Context = {
     name: string;
     companyFeeBps: number;
     shareBps: number;
+    manualPaymentsEnabled: boolean;
   };
 };
 export type NetworkPlayer = {
@@ -200,6 +202,7 @@ export function NetworkPanel({
     refetchInterval:30_000,
   });
   const role = context.data?.role;
+  const canManageManualPayments = role === "admin" || (role === "master" && context.data?.node?.manualPaymentsEnabled === true);
   const refreshBalances = () => {
     void qc.invalidateQueries({ queryKey: ["network"] });
   };
@@ -275,7 +278,7 @@ export function NetworkPanel({
             ? {
                 shareBps: Math.round(Number(get("share")) * 100),
                 ...(role === "admin"
-                  ? { companyFeeBps: Math.round(Number(get("fee")) * 100) }
+                  ? { companyFeeBps: Math.round(Number(get("fee")) * 100), manualPaymentsEnabled: data.has("manualPaymentsEnabled") }
                   : {}),
               }
             : {}),
@@ -288,6 +291,9 @@ export function NetworkPanel({
           body: {
             name: get("name"),
             status: get("status"),
+            ...(role === "admin" && modal.node!.kind === "master"
+              ? { manualPaymentsEnabled: data.has("manualPaymentsEnabled") }
+              : {}),
             ...(!(role === "admin" && modal.node!.kind === "agent")
               ? { shareBps: Math.round(Number(get("share")) * 100) }
               : {}),
@@ -551,7 +557,7 @@ export function NetworkPanel({
           ...(channel === 'b2b' && role!=='agent' ? ['Weekly account'] : []),
           "Wallet ledger",
           "Payment history",
-          ...(channel === "b2b" && role !== "agent" ? ["Manual payments"] : []),
+          ...(channel === "b2b" && canManageManualPayments ? ["Manual payments"] : []),
           ...(channel === "b2b" ? ["Website"] : []),
         ].map((t) => (
           <button
@@ -966,8 +972,14 @@ export function NetworkPanel({
       )}
       {(tab === "Settlements" || tab === "Wallet ledger") && <NetworkTransactions key={tab+channel} kind={tab === "Settlements" ? "settlements" : "wallet"} role={role!} nodes={nodes.data?.nodes??[]} channel={channel} />}
       {tab === "Payment history" && <PaymentHistory key={channel} role={role!} nodes={nodes.data?.nodes??[]} channel={channel}/>}
-      {tab === "Manual payments" && role !== "agent" && <>
+      {tab === "Manual payments" && !canManageManualPayments && <section className="net-card"><p>Manual payment access has not been assigned by admin.</p></section>}
+      {tab === "Manual payments" && canManageManualPayments && <>
         {role === "admin" && <section className="net-card"><label className="net-field"><span>Master payment account</span><select value={weeklyMaster} onChange={e => setWeeklyMaster(e.target.value)}><option value="">Choose master</option>{nodes.data?.nodes.filter(n => n.kind === "master").map(n => <option key={n.id} value={n.id}>{n.name}</option>)}</select></label></section>}
+        {role === "admin" && nodes.data?.nodes.filter(n => n.id === weeklyMaster).map(n => <section className="net-card" key={n.id} aria-label="Master manual payment permission">
+          <h2>Manual payment access</h2>
+          <p>{n.manual_payments_enabled ? "Assigned: this master can collect and review manual QR payments." : "Not assigned: the button and payment access are disabled for this master. Admin can still review existing requests."}</p>
+          <button disabled={mutate.isPending} onClick={() => mutate.mutate({ path: `/nodes/${n.id}`, method: "PATCH", body: { manualPaymentsEnabled: !n.manual_payments_enabled } })}>{n.manual_payments_enabled ? "Revoke manual payment access" : "Assign manual payment access"}</button>
+        </section>)}
         {(role === "admin" ? weeklyMaster : context.data.node?.id) && <NetworkManualPayments key={role === "admin" ? weeklyMaster : context.data.node!.id} masterId={role === "admin" ? weeklyMaster : context.data.node!.id} />}
       </>}
       {modal && (
@@ -1082,6 +1094,12 @@ export function NetworkPanel({
                     Suspending a branch stops its downline from signing in or
                     placing new bets.
                   </small>
+                </Field>
+              )}
+              {role === "admin" && (modal.kind === "create" || (modal.kind === "edit" && modal.node?.kind === "master")) && (
+                <Field label="Allow manual QR payments">
+                  <input type="checkbox" name="manualPaymentsEnabled" defaultChecked={modal.node?.manual_payments_enabled ?? false} style={{ width: 16, height: 16, padding: 0 }} />
+                  <small>Show Manual payments and let this master collect and review customer deposits. Disabled unless you assign access.</small>
                 </Field>
               )}
               {modal.kind === "fund" && (

@@ -71,7 +71,7 @@ const credentials = z.object({
   name: z.string().trim().min(2).max(100),
 });
 const createNode = credentials
-  .extend({ companyFeeBps: bps.default(1000), shareBps: bps.default(10000) })
+  .extend({ companyFeeBps: bps.default(1000), shareBps: bps.default(10000), manualPaymentsEnabled: z.boolean().optional() })
   .strict();
 const pagination = z.object({
   limit: z.coerce.number().int().min(1).max(200).default(50),
@@ -110,7 +110,7 @@ router.get("/context", async (req, res, next) => {
     const masterId = actor.node?.kind === "master" ? actor.node.id : actor.node?.parentId;
     const website=masterId?await masterWebsite(masterId):null;
     const weekly=masterId?await weeklyStatus(masterId):null;
-    res.json({ ...actor, website, weekly: actor.role==='agent' && weekly ? {locked:weekly.locked} : weekly });
+    res.set('Cache-Control', 'no-store').json({ ...actor, website, weekly: actor.role==='agent' && weekly ? {locked:weekly.locked} : weekly });
   } catch (e) {
     next(e);
   }
@@ -150,6 +150,8 @@ router.post("/nodes", async (req, res, next) => {
     if (actor.role === "agent")
       throw forbidden("Only admin creates masters; only masters create agents");
     const input = createNode.parse(req.body);
+    if (actor.role !== "admin" && input.manualPaymentsEnabled !== undefined)
+      throw forbidden("Only admin can assign manual payment access");
     if (actor.role === "master" && input.companyFeeBps !== 1000)
       throw forbidden("Company fee is controlled by admin");
     const passwordHash = await hashPassword(input.password);
@@ -179,6 +181,7 @@ router.post("/nodes", async (req, res, next) => {
           parentId: actor.node?.id ?? null,
           companyFeeBps: actor.node?.companyFeeBps ?? input.companyFeeBps,
           shareBps: input.shareBps,
+          manualPaymentsEnabled: actor.role === "admin" && input.manualPaymentsEnabled === true,
           createdBy: req.user!.id,
         })
         .returning();
@@ -203,6 +206,7 @@ router.patch("/nodes/:id", async (req, res, next) => {
         shareBps: bps.optional(),
         status: z.enum(["active", "suspended"]).optional(),
         name: z.string().trim().min(2).max(100).optional(),
+        manualPaymentsEnabled: z.boolean().optional(),
       })
       .strict()
       .parse(req.body);
@@ -213,6 +217,8 @@ router.patch("/nodes/:id", async (req, res, next) => {
         .where(eq(networkNodesTable.id, String(req.params.id)))
         .for("update");
       if (!node) throw notFound();
+      if (input.manualPaymentsEnabled !== undefined && (actor.role !== "admin" || node.kind !== "master"))
+        throw forbidden("Only admin can assign manual payment access to a master");
       if (
         actor.role !== "admin" &&
         !(actor.role === "master" && node.parentId === actor.node.id)

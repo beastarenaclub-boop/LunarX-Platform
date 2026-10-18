@@ -379,6 +379,13 @@
       "when": 1792363200000,
       "tag": "0053_master_manual_payments",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1792366800000,
+      "tag": "0054_master_payment_permission",
+      "breakpoints": true
     }
   ]
 }

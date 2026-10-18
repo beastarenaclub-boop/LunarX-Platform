@@ -9,7 +9,7 @@ import {
   type User,
 } from "@workspace/db";
 import { badRequest, conflict, forbidden, notFound } from "../lib/errors";
-import { networkIdentity, assertNetworkActive } from "./network";
+import { networkIdentity, assertNetworkActive, isNetworkAdmin } from "./network";
 import { postEntry, publishWalletBalance } from "./wallet";
 import { type CreatePaymentInput } from "./payments";
 
@@ -27,17 +27,13 @@ export async function collectionMaster(user: User) {
   return agent.parentId;
 }
 
-export async function authorizeCollection(user: User, masterId: string) {
-  const actor = await networkIdentity(user);
-  if (
-    actor.role !== "admin" &&
-    !(actor.role === "master" && actor.node.id === masterId)
-  ) {
-    throw forbidden(
-      "Only the owning master or administrator can manage these payments",
-    );
-  }
-  const [master] = await db
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+export async function authorizeCollection(user: User, masterId: string, tx?: Transaction) {
+  // Writers validate the active network identity before opening their transaction.
+  // Recheck ownership and permission using that same transaction connection.
+  if (!tx) await networkIdentity(user);
+  const query = (tx ?? db)
     .select()
     .from(networkNodesTable)
     .where(
@@ -46,7 +42,12 @@ export async function authorizeCollection(user: User, masterId: string) {
         eq(networkNodesTable.kind, "master"),
       ),
     );
+  const [master] = await (tx ? query.for("share") : query);
   if (!master) throw notFound("Master not found");
+  if (!isNetworkAdmin(user) && (user.role !== "agent" || master.userId !== user.id))
+    throw forbidden("Only the owning master or administrator can manage these payments");
+  if (!isNetworkAdmin(user) && !master.manualPaymentsEnabled)
+    throw forbidden("Manual payment access has not been assigned by admin");
   return master;
 }
 
@@ -61,6 +62,8 @@ export async function masterAccount(masterId: string) {
 export async function playerCollectionAccounts(user: User) {
   const masterId = await collectionMaster(user);
   if (!masterId) return null;
+  const [master] = await db.select().from(networkNodesTable).where(eq(networkNodesTable.id, masterId));
+  if (!master?.manualPaymentsEnabled) return [];
   const account = await masterAccount(masterId);
   return account?.active
     ? [
@@ -90,6 +93,10 @@ export async function createMasterDeposit(
     throw badRequest("Enter the UTR using only letters and digits");
   try {
     return await db.transaction(async (tx) => {
+      // Serialize collection with an admin revoking this master's permission.
+      const [master] = await tx.select().from(networkNodesTable).where(eq(networkNodesTable.id, masterId)).for("share");
+      if (!master?.manualPaymentsEnabled)
+        throw forbidden("Manual payments are unavailable. Contact support.");
       const [account] = await tx
         .select()
         .from(masterPaymentAccountsTable)
@@ -166,6 +173,7 @@ export async function decideMasterDeposit(
   const updates: Parameters<typeof publishWalletBalance>[0][] = [];
   try {
     const result = await db.transaction(async (tx) => {
+      await authorizeCollection(user, masterId, tx);
       const [deposit] = await tx
         .select()
         .from(paymentRequestsTable)

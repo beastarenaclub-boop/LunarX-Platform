@@ -36,6 +36,7 @@ export const networkNodesTable = pgTable(
       .default("active"),
     companyFeeBps: integer("company_fee_bps").notNull().default(1000),
     shareBps: integer("share_bps").notNull().default(10000),
+    manualPaymentsEnabled: boolean("manual_payments_enabled").notNull().default(false),
     weeklyStartedAt: timestamp('weekly_started_at',{withTimezone:true}).notNull().default(sql`clock_timestamp()`),
     createdBy: text("created_by")
       .notNull()

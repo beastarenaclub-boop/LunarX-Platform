@@ -142,6 +142,20 @@ test(
         qrData: null,
         active: true,
       };
+      // No master is opted in automatically, and only admin can assign access.
+      assert.equal((await call(a.master.client, "/network/context")).node.manualPaymentsEnabled, false);
+      await call(a.master.client, path(a.id), undefined, "GET", 403);
+      await call(a.master.client, path(a.id), settings, "PUT", 403);
+      await call(a.master.client, `/network/nodes/${a.id}`, { manualPaymentsEnabled: true }, "PATCH", 403);
+      await call(a.master.client, `/network/nodes/${a.player.user.b2bAgentId}`, { manualPaymentsEnabled: true }, "PATCH", 403);
+      await call(a.agent.client, `/network/nodes/${a.id}`, { manualPaymentsEnabled: true }, "PATCH", 403);
+      await call(admin.client, `/network/nodes/${a.player.user.b2bAgentId}`, { manualPaymentsEnabled: true }, "PATCH", 403);
+      const newMasterInput = { name: "Assigned master", email: `${prefix}-assigned@example.test`, password: "Permission-test-12345", manualPaymentsEnabled: true };
+      await call(a.master.client, "/network/nodes", newMasterInput, "POST", 403);
+      assert.equal((await call(admin.client, "/network/nodes", newMasterInput, "POST", 201)).manualPaymentsEnabled, true);
+      assert.equal((await call(admin.client, "/network/nodes", { name: "Unassigned master", email: `${prefix}-unassigned@example.test`, password: "Permission-test-12345" }, "POST", 201)).manualPaymentsEnabled, false);
+      for (const branch of [a, b]) await call(admin.client, `/network/nodes/${branch.id}`, { manualPaymentsEnabled: true }, "PATCH");
+      assert.equal((await call(a.master.client, "/network/context")).node.manualPaymentsEnabled, true);
       assert.deepEqual(
         await call(a.player.client, "/payments/upi-accounts"),
         [],
@@ -360,6 +374,19 @@ test(
         accountVersion: updated.version,
         upiRef: "123456789015",
       });
+      await call(admin.client, `/network/nodes/${a.id}`, { manualPaymentsEnabled: false }, "PATCH");
+      assert.equal((await call(a.master.client, "/network/context")).node.manualPaymentsEnabled, false);
+      assert.equal((await call(b.master.client, "/network/context")).node.manualPaymentsEnabled, true);
+      await call(a.master.client, path(a.id), undefined, "GET", 403);
+      await call(a.master.client, path(a.id), settings, "PUT", 403);
+      await call(a.master.client, `${path(a.id)}/deposits`, undefined, "GET", 403);
+      await call(a.master.client, `${path(a.id)}/deposits/${adminDeposit.id}/decision`, { decision: "approve" }, "POST", 403);
+      await call(a.master.client, `${path(a.id)}/deposits/${adminDeposit.id}/decision`, { decision: "reject", reason: "Not received" }, "POST", 403);
+      assert.deepEqual(await call(a.player.client, "/payments/upi-accounts"), []);
+      await call(a.player.client, "/payments/deposits", { ...depositBody, accountVersion: updated.version, upiRef: "123456789099" }, "POST", 403);
+      assert.equal((await getBalanceByUser(a.master.user.id)).balance, 80000n);
+      assert.equal((await getBalanceByUser(a.player.user.id)).balance, 20000n);
+      // Admin can still resolve requests received before permission was revoked.
       await call(admin.client, `/admin/deposits/${adminDeposit.id}/decision`, {
         decision: "approve",
       });
@@ -367,6 +394,7 @@ test(
       assert.equal((await getBalanceByUser(a.player.user.id)).balance, 40000n);
       const foreignList = await call(b.master.client, `${path(b.id)}/deposits`);
       assert.deepEqual(foreignList.items, []);
+      await call(admin.client, `/network/nodes/${a.id}`, { manualPaymentsEnabled: true }, "PATCH");
       await call(
         a.master.client,
         path(a.id),
@@ -390,6 +418,8 @@ test(
       );
       // An unconfigured branch cannot fall through to a platform collector.
       const c = await branch("C");
+      await call(c.player.client, "/payments/deposits", { ...depositBody, accountId: c.id }, "POST", 403);
+      await call(admin.client, `/network/nodes/${c.id}`, { manualPaymentsEnabled: true }, "PATCH");
       await call(
         c.player.client,
         "/payments/deposits",

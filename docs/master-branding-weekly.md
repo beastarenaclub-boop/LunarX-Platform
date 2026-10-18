@@ -2,6 +2,15 @@
 
 ## Customer manual QR payments
 
+Admin must first assign **Allow manual QR payments** when creating or managing a
+master in Network, or use **Network > Manual payments > Assign manual payment
+access**. Permission defaults to off for all existing and new masters. Only admin
+can grant or revoke it; agents and masters cannot grant it to themselves.
+Without permission the master's navigation button is hidden, direct API and page
+access are blocked, and its customers cannot fetch a QR or submit new deposits.
+Revocation also blocks master reviews; admin retains access to resolve existing
+requests. Migration `0054_master_payment_permission.sql` adds this permission.
+
 Master panel: `/master/manual-payments`. Each master can save a receiver name,
 UPI ID, optional PNG/JPEG/WebP QR image and an on/off switch. Images are stored
 in PostgreSQL, so they survive service restarts without a disk. The customer
