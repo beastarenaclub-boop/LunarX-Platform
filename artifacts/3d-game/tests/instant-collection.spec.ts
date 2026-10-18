@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { collectionGame, collectionMultiplier, collectionPayout, INSTANT_COLLECTION, REQUESTED_INSTANT_CODES, progressive, type CollectionRound } from "@workspace/api-zod/instant-collection";
-async function setup(page: Page, code: string, options: { drop?: boolean; lose?: boolean; low?: boolean; offline?: boolean; audio?: boolean; music?: boolean } = {}) {
+async function setup(page: Page, code: string, options: { drop?: boolean; lose?: boolean; low?: boolean; offline?: boolean; audio?: boolean; music?: boolean; delay?: number; cap?: number } = {}) {
   let balance = options.low ? 0n : 1000000n, round: CollectionRound | null = null, dropped = false;
   const posts: { path: string; input: any }[] = [], errors: string[] = [];
   page.on("pageerror", e => errors.push(e.message));
@@ -16,7 +16,7 @@ async function setup(page: Page, code: string, options: { drop?: boolean; lose?:
     else if (path.startsWith("/api/instant/")) {
       if (options.offline) return route.fulfill({ status: 503, json: { detail: "Unavailable" } });
       const game = collectionGame(path.split("/")[3])!;
-      if (path.endsWith("/config")) body = { enabled: true, minStakePaise: "100", maxStakePaise: "1000000", rtp: .97, maxMultiplier: 1000 };
+      if (path.endsWith("/config")) body = { enabled: true, minStakePaise: "100", maxStakePaise: "1000000", rtp: .97, maxMultiplier: options.cap ?? 1000 };
       else if (path.endsWith("/state")) body = { round: round?.status === "active" ? round : null, history: round ? [round] : [] };
       else if (route.request().method() === "POST") {
         const input = route.request().postDataJSON(); posts.push({ path, input });
@@ -24,6 +24,10 @@ async function setup(page: Page, code: string, options: { drop?: boolean; lose?:
           if (round?.requestId !== input.requestId) {
             balance -= BigInt(input.stakeAmount);
             round = { id: "instant-round", gameCode: game.code, requestId: input.requestId, status: progressive(game.kind) ? "active" : options.lose ? "lost" : "won", stakeAmount: input.stakeAmount, payoutAmount: "0", cashoutAmount: input.stakeAmount, multiplier: progressive(game.kind) ? 1 : game.kind === "dice" ? 2.32 : game.kind === "fishing" ? 6 : 1.94, step: 0, options: input.options, revealed: [], hazards: null, outcome: game.kind === "dice" ? [5, 3] : game.kind === "fishing" ? [4] : [0], serverSeedHash: "committed-hash", serverSeed: progressive(game.kind) ? null : "revealed-seed", clientSeed: input.clientSeed, createdAt: new Date().toISOString(), rtp: .97, maxMultiplier: 1000 };
+            if (game.kind === "coin") {
+              round.outcome = [(input.options.choice === "tails" ? 1 : 0) ^ Number(!!options.lose)];
+              round.multiplier = options.lose ? 0 : Math.min(options.cap ?? 1000, round.multiplier);
+            }
             if (round.status === "won") { round.payoutAmount = collectionPayout(BigInt(round.stakeAmount), round.multiplier).toString(); balance += BigInt(round.payoutAmount); }
           }
           if (options.drop && !dropped) { dropped = true; return route.abort("connectionreset"); }
@@ -35,6 +39,7 @@ async function setup(page: Page, code: string, options: { drop?: boolean; lose?:
           } else { round.status = "cashed_out"; round.payoutAmount = round.cashoutAmount; round.serverSeed = "revealed-seed"; balance += BigInt(round.payoutAmount); }
         }
         body = round;
+        if (options.delay) await new Promise(resolve => setTimeout(resolve, options.delay));
       }
     } else if (path.includes("/config/")) body = { enabled: true, houseEdge: .03, maxMultiplier: 1000 };
     else if (path.includes("banners") || path.includes("coin-packs") || path.includes("upi-accounts")) body = [];
@@ -44,6 +49,127 @@ async function setup(page: Page, code: string, options: { drop?: boolean; lose?:
   await page.goto(code === "lobby" ? "/" : `/${code}`);
   return { posts, errors, get balance() { return balance; } };
 }
+
+for (const side of ["Heads", "Tails"]) for (const lose of [false, true]) test(`coin studio: ${side} ${lose ? "loss" : "win"} matches receipt and wallet`, async ({ page }) => {
+  const f = await setup(page, "coin-flip", { lose });
+  await page.getByRole("button", { name: `Bet on ${side}`, exact: true }).click();
+  await page.getByTestId("chip-coin-flip-500").click();
+  await expect(page.getByLabel("Bet amount", { exact: true })).toHaveValue("500");
+  await expect(page.getByTestId("coin-potential-return")).toHaveText("₹970.00");
+  expect(f.posts).toHaveLength(0);
+  await page.getByTestId("collection-play").click();
+  const landed = lose ? side === "Heads" ? "tails" : "heads" : side.toLowerCase();
+  await expect(page.getByTestId("collection-result")).toContainText(`${landed.toUpperCase()} LANDED · YOU PICKED ${side.toUpperCase()}`);
+  await expect(page.getByTestId("collection-result")).toContainText(lose ? "Round over" : "Returned to your wallet");
+  await expect(page.getByTestId("coin-face")).toHaveAttribute("data-side", landed);
+  expect(f.posts).toHaveLength(1);
+  expect(f.posts[0].input.options.choice).toBe(side.toLowerCase());
+  expect(f.posts[0].input.stakeAmount).toBe("50000");
+  expect(f.balance).toBe(lose ? 950000n : 1047000n);
+  await expect(page.getByTestId("collection-balance")).toContainText(lose ? "9,500.00" : "10,470.00");
+  await page.reload();
+  await expect(page.getByTestId("coin-face")).toHaveAttribute("data-side", landed);
+  await expect(page.getByTestId("collection-result")).toContainText(`YOU PICKED ${side.toUpperCase()}`);
+  expect(f.posts).toHaveLength(1);
+  expect(f.errors).toEqual([]);
+});
+
+test("coin studio: animated coin lands on tails, locks controls, host video pauses, mobile fits", async ({ page }) => {
+  const f = await setup(page, "coin-flip", { delay: 1200 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  const host = page.getByTestId("coin-host-video");
+  await expect.poll(() => host.evaluate((v: HTMLVideoElement) => v.readyState)).toBeGreaterThanOrEqual(2);
+  await expect.poll(() => host.evaluate((v: HTMLVideoElement) => v.paused)).toBe(false);
+  await page.getByRole("button", { name: "Pause host video", exact: true }).click();
+  await expect.poll(() => host.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
+  await page.getByRole("button", { name: "Play host video", exact: true }).click();
+  await expect.poll(() => host.evaluate((v: HTMLVideoElement) => v.paused)).toBe(false);
+  await page.getByRole("button", { name: "Bet on Tails", exact: true }).click();
+  await page.getByTestId("collection-play").dblclick();
+  await expect(page.getByTestId("coin-face")).toHaveAttribute("data-side", "flipping");
+  await expect(page.getByRole("button", { name: "Bet on Heads", exact: true })).toBeDisabled();
+  await expect(page.getByLabel("Bet amount", { exact: true })).toBeDisabled();
+  await expect(page.getByTestId("chip-coin-flip-500")).toBeDisabled();
+  await expect(page.getByTestId("collection-play")).toBeDisabled();
+  const angle = await page.getByTestId("coin-face").evaluate(e => getComputedStyle(e).transform);
+  await expect.poll(() => page.getByTestId("coin-face").evaluate(e => getComputedStyle(e).transform)).not.toBe(angle);
+  await expect(page.getByTestId("coin-face")).toHaveAttribute("data-side", "tails");
+  await expect(page.getByTestId("collection-play")).toBeEnabled();
+  expect(await page.getByTestId("coin-face").evaluate(e => new DOMMatrixReadOnly(getComputedStyle(e).transform).m11)).toBeCloseTo(-1);
+  expect(f.posts).toHaveLength(1);
+  await page.screenshot({ path: "tmp/coin-studio/desktop.png", fullPage: true });
+  for (const width of [390, 320, 844]) {
+    await page.setViewportSize({ width, height: width === 844 ? 390 : 844 });
+    await expect(page.getByTestId("collection-play")).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    await page.screenshot({ path: `tmp/coin-studio/mobile-${width}.png`, fullPage: true });
+    const coinBox = await page.getByTestId("coin-face").boundingBox();
+    const resultBox = await page.getByTestId("collection-result").boundingBox();
+    expect(coinBox!.y + coinBox!.height).toBeLessThan(resultBox!.y + 2);
+    await page.getByTestId("collection-play").scrollIntoViewIfNeeded();
+    await expect(page.getByTestId("collection-play")).toBeInViewport();
+    await page.screenshot({ path: `tmp/coin-studio/controls-${width}.png`, fullPage: true });
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(host).toHaveCount(0);
+  await expect(page.getByTestId("coin-face")).toHaveAttribute("data-side", "tails");
+  expect(f.errors).toEqual([]);
+});
+
+test("coin studio: pending tails restores original amount and reuses the request", async ({ page }) => {
+  const f = await setup(page, "coin-flip", { drop: true });
+  await page.getByRole("button", { name: "Bet on Tails", exact: true }).click();
+  await page.getByLabel("Bet amount", { exact: true }).fill("123.45");
+  await page.getByTestId("collection-play").click();
+  await expect(page.getByTestId("collection-play")).toContainText("Retry pending bet");
+  await page.reload();
+  await expect(page.getByLabel("Bet amount", { exact: true })).toHaveValue("123.45");
+  await expect(page.getByRole("button", { name: "Bet on Tails", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "Bet on Heads", exact: true })).toBeDisabled();
+  await expect(page.getByTestId("collection-result")).toContainText("Recover your flip");
+  await page.getByTestId("collection-play").click();
+  await expect(page.getByTestId("collection-result")).toContainText("TAILS LANDED");
+  expect(f.posts).toHaveLength(2);
+  expect(f.posts[0].input).toEqual(f.posts[1].input);
+  expect(f.balance).toBe(1011604n);
+});
+
+test("coin studio: timed-out confirmation recovers and missing host video does not block play", async ({ page }) => {
+  await page.route("**/dealer-idle.mp4", route => route.abort());
+  const f = await setup(page, "coin-flip");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await expect(page.getByTestId("coin-host-video")).toHaveCount(0);
+  await expect.poll(() => page.locator(".cf-host-poster").evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  let original: unknown;
+  await page.route("**/api/instant/coin-flip/place", async route => {
+    if (!original) { original = route.request().postDataJSON(); return; }
+    await route.fallback();
+  });
+  await page.getByTestId("collection-play").click();
+  await expect(page.getByTestId("collection-play")).toContainText("Retry pending bet", { timeout: 20000 });
+  await expect(page.getByRole("alert")).toContainText("timed out");
+  await expect(page.getByTestId("collection-play")).toBeEnabled();
+  await page.getByTestId("collection-play").click();
+  await expect(page.getByTestId("collection-result")).toContainText("Returned to your wallet");
+  expect(f.posts).toHaveLength(1);
+  expect(f.posts[0].input).toEqual(original);
+  expect(f.balance).toBe(1009400n);
+  expect(f.errors).toEqual([]);
+});
+
+test("coin studio: account chips, decimal return rounding and server payout cap", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("account:instant-test:button-values:v1", JSON.stringify([25, 50, 75, 250, 750, 25000])));
+  const f = await setup(page, "coin-flip", { cap: 1.5 });
+  await expect(page.getByTestId("chip-coin-flip-25")).toBeVisible();
+  await expect(page.getByTestId("chip-coin-flip-25000")).toHaveCount(0);
+  await page.getByTestId("chip-coin-flip-75").click();
+  await expect(page.getByLabel("Bet amount", { exact: true })).toHaveValue("75");
+  await page.getByLabel("Bet amount", { exact: true }).fill("1.01");
+  await expect(page.getByTestId("coin-potential-return")).toHaveText("₹1.51");
+  await page.getByTestId("collection-play").click();
+  await expect(page.getByTestId("collection-result")).toContainText("₹1.51 returned");
+  expect(f.balance).toBe(1000050n);
+});
 // The continuous 7 Up 7 Down table has its own server-clock suite in seven-up-down.spec.ts.
 for (const game of INSTANT_COLLECTION.filter(game => game.kind !== "dice")) test(`${game.name}: play, settle, recover, responsive`, async ({ page }) => {
   const f = await setup(page, game.code);

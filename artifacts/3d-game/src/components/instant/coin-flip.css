@@ -1,0 +1,1094 @@
+.cf-page {
+  --cf-gold: #eaca83;
+  --cf-muted: #8d9c95;
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse at 28% 0, #1a3029 0, transparent 58%), #0b1310;
+  color: #f4f5ed;
+  padding: 0 38px 18px;
+  font-family: Inter, system-ui, sans-serif;
+  color-scheme: dark;
+}
+.cf-page * {
+  box-sizing: border-box;
+}
+.cf-page button,
+.cf-page a {
+  -webkit-tap-highlight-color: transparent;
+}
+.cf-page button:focus-visible,
+.cf-page a:focus-visible,
+.cf-page input:focus-visible {
+  outline: 2px solid #f5d28d;
+  outline-offset: 4px;
+}
+.cf-page button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.cf-header {
+  max-width: 1440px;
+  margin: auto;
+  height: 94px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.cf-brand,
+.cf-header-tools,
+.cf-wallet {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.cf-brand > div > span {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  color: var(--cf-gold);
+}
+.cf-brand h1 {
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.8px;
+  margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cf-edition {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  padding: 5px 7px;
+  border: 1px solid #657262;
+  border-radius: 4px;
+  color: #cad1b9;
+}
+.cf-icon {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #ffffff13;
+  background: #ffffff04;
+  border-radius: 50%;
+  color: #d0d9d1;
+}
+.cf-icon:hover {
+  background: #ffffff0d;
+}
+.cf-wallet {
+  gap: 11px;
+  border-right: 1px solid #ffffff14;
+  padding-right: 25px;
+}
+.cf-wallet > svg {
+  color: var(--cf-gold);
+}
+.cf-wallet small {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: var(--cf-muted);
+  margin-bottom: 3px;
+}
+.cf-wallet strong {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.cf-header-tools {
+  gap: 9px;
+}
+.cf-layout {
+  max-width: 1440px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 18px;
+  align-items: stretch;
+}
+.cf-experience {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cf-studio {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 580px;
+  flex: 1;
+  border: 1px solid #b3bc862b;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #10251e, #14392d 52%, #0f241d);
+}
+.cf-studio:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 33px, #0002 34px 38px),
+    radial-gradient(ellipse at 34% 35%, #7292582b, transparent 65%);
+  z-index: -1;
+}
+.cf-studio-arch {
+  position: absolute;
+  inset: 32px 8% 60px;
+  border: 1px solid #cfb87b3b;
+  border-radius: 220px 220px 0 0;
+  box-shadow:
+    0 0 0 12px #0e251d,
+    0 0 0 13px #cfb87b1f;
+  z-index: -1;
+}
+.cf-studio-heading {
+  position: absolute;
+  left: 40px;
+  top: 38px;
+  z-index: 3;
+}
+.cf-eyebrow {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: var(--cf-gold);
+}
+.cf-studio-heading h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(38px, 4.1vw, 64px);
+  line-height: 1.06;
+  letter-spacing: -2px;
+  font-weight: 400;
+  margin: 18px 0 12px;
+}
+.cf-studio-heading h2 em {
+  color: #efd79f;
+  font-weight: 400;
+}
+.cf-studio-heading p {
+  font-size: 12px;
+  color: #b9c8b7;
+  margin: 0;
+}
+.cf-host {
+  position: absolute;
+  width: 47%;
+  height: 86%;
+  right: 1%;
+  top: 6%;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 75%, transparent 98%);
+  border-radius: 180px 180px 0 0;
+}
+.cf-host:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 25px 0 35px -20px #14372b,
+    inset -22px 0 35px -20px #11291f;
+  pointer-events: none;
+}
+.cf-host-poster,
+.cf-host-video {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 36%;
+}
+.cf-host-caption {
+  position: absolute;
+  z-index: 2;
+  bottom: 29%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  text-shadow: 0 2px 9px #000;
+  background: linear-gradient(90deg, transparent, #04120bbb, transparent);
+  padding: 9px 3px;
+}
+.cf-host-caption span {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.7px;
+  color: #f4e5be;
+}
+.cf-host-caption small {
+  display: block;
+  font-size: 9px;
+  margin-top: 4px;
+  color: #d9d9cb;
+}
+.cf-host-toggle {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #07180fa6;
+  border: 1px solid #d9d5ac4a;
+  color: #e6e6cd;
+}
+.cf-table {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  height: 44%;
+  bottom: -10%;
+  border-radius: 50% 50% 0 0;
+  background: radial-gradient(ellipse at 42% 0, #347554, #143e2d 55%, #091e16);
+  border-top: 7px solid #9e8545;
+  box-shadow:
+    0 -4px 0 #1e150b,
+    0 -7px 0 #d5b06b,
+    0 -28px 60px #0003;
+  transform: perspective(500px) rotateX(20deg);
+  z-index: 1;
+}
+.cf-coin-scene {
+  position: absolute;
+  left: 11%;
+  top: 39%;
+  width: 240px;
+  height: 240px;
+  perspective: 950px;
+  z-index: 3;
+}
+.cf-coin-lift {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-12deg);
+}
+.cf-coin {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.cf-coin-front,
+.cf-coin-back {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow:
+    0 0 0 2px #bfa96d,
+    0 0 0 5px #765b33;
+}
+.cf-coin-front {
+  transform: translateZ(3px);
+}
+.cf-coin-back {
+  transform: rotateY(180deg) translateZ(3px);
+}
+.cf-coin img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.cf-coin-shadow {
+  position: absolute;
+  width: 76%;
+  height: 18px;
+  left: 12%;
+  bottom: -30px;
+  border-radius: 50%;
+  background: #0009;
+  filter: blur(8px);
+  z-index: -1;
+}
+.cf-coin-halo {
+  position: absolute;
+  inset: -45px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe7a429, transparent 68%);
+  pointer-events: none;
+}
+.cf-studio.is-flipping .cf-coin-lift {
+  animation: cf-float 0.8s ease-in-out infinite alternate;
+}
+.cf-result {
+  position: absolute;
+  bottom: 25px;
+  left: 28px;
+  right: 28px;
+  z-index: 4;
+  text-align: center;
+  min-height: 73px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cf-result strong {
+  font-size: 24px;
+  letter-spacing: -0.5px;
+  font-weight: 600;
+  margin: 7px 0 4px;
+  text-shadow: 0 2px 12px #0008;
+}
+.cf-result small {
+  font-size: 11px;
+  color: #b8c8bb;
+}
+.cf-result.is-win strong {
+  color: #d5f5bb;
+}
+.cf-result.is-loss .cf-eyebrow {
+  color: #d5c7ab;
+}
+.cf-recent {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  min-height: 66px;
+  background: #111f19;
+  border: 1px solid #ffffff0c;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.cf-recent > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9eafa1;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.cf-recent-coins {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.cf-recent-coins > span {
+  flex: 0 0 29px;
+  width: 29px;
+  height: 29px;
+}
+.cf-recent-coins img {
+  width: 100%;
+  height: 100%;
+}
+.cf-recent-coins small {
+  font-size: 11px;
+  color: #7e9385;
+}
+.cf-recent .cf-icon {
+  height: 32px;
+  width: 32px;
+}
+.cf-bet-panel {
+  min-width: 0;
+  background: #14221b;
+  border: 1px solid #daeac51a;
+  border-radius: 18px;
+  padding: 23px;
+  display: flex;
+  flex-direction: column;
+}
+.cf-panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #c9d4bc;
+  margin-bottom: 25px;
+}
+.cf-panel-title span {
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 650;
+}
+.cf-panel-title svg {
+  color: #acbb9c;
+}
+.cf-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 13px;
+}
+.cf-step > span {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  border: 1px solid #b8c59835;
+  border-radius: 50%;
+  color: #b4bfa3;
+}
+.cf-step h3 {
+  font-size: 13px;
+  font-weight: 550;
+  flex: 1;
+}
+.cf-step small {
+  font-size: 9px;
+  color: #a8b79d;
+}
+.cf-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.cf-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  border: 1px solid #ffffff1c;
+  border-radius: 12px;
+  background: #0d1914;
+  padding: 12px 8px 13px;
+  transition:
+    border-color 0.18s,
+    background 0.18s;
+}
+.cf-choice:hover {
+  border-color: #b6bd9a;
+}
+.cf-choice.is-selected {
+  border-color: #d9bd7a;
+  background: linear-gradient(145deg, #413c20, #1d2b1e);
+  box-shadow: inset 0 0 0 1px #dbc38220;
+}
+.cf-choice img {
+  width: 67px;
+  height: 67px;
+  margin: 0 0 9px;
+  filter: drop-shadow(0 5px 5px #0005);
+}
+.cf-choice strong {
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: #f1e9d8;
+}
+.cf-choice small {
+  font-size: 10px;
+  margin-top: 5px;
+  color: #acb9a1;
+}
+.cf-choice-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid #ffffff26;
+  display: grid;
+  place-items: center;
+}
+.cf-choice.is-selected .cf-choice-check {
+  background: #e4c582;
+  border-color: #e4c582;
+  color: #263322;
+}
+.cf-stake-step {
+  margin: 25px 0 14px;
+}
+.cf-amount-label {
+  display: flex;
+  justify-content: space-between;
+  color: #bec8b4;
+  font-size: 10px;
+  margin-bottom: 7px;
+}
+.cf-amount-label small {
+  font-size: 9px;
+  color: #7f9482;
+}
+.cf-amount {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ffffff25;
+  border-radius: 8px;
+  background: #0b1812;
+  padding: 5px;
+  gap: 4px;
+  height: 48px;
+}
+.cf-amount > span {
+  color: #b0bea7;
+  padding-left: 9px;
+}
+.cf-amount input {
+  min-width: 0;
+  width: 100%;
+  flex: 1;
+  background: none;
+  border: 0;
+  outline: none;
+  font-size: 19px;
+  font-weight: 600;
+  padding: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.cf-amount button {
+  min-width: 33px;
+  height: 33px;
+  border: 1px solid #ffffff0b;
+  background: #203024;
+  border-radius: 5px;
+  color: #c7d2ba;
+  font-size: 12px;
+}
+.cf-limits {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #869b87;
+  margin: 7px 0 14px;
+  gap: 5px;
+}
+.cf-limits button {
+  font-size: 9px;
+  color: #d6c690;
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: #ffffff08;
+}
+.cf-bet-panel .coin-rack-fit .coin-rack-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+.cf-bet-panel .coin-rack-fit .coin-rack-option {
+  width: 43px;
+  height: 43px;
+}
+.cf-bet-panel .coin-rack-fit .coin-rack-custom {
+  height: 43px;
+  font-size: 11px;
+}
+.cf-return {
+  border-top: 1px solid #ffffff12;
+  margin-top: 20px;
+  padding-top: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cf-return span {
+  font-size: 11px;
+  color: #bbc8b1;
+}
+.cf-return small {
+  display: block;
+  font-size: 9px;
+  color: #839882;
+  margin-top: 3px;
+}
+.cf-return strong {
+  font-size: 21px;
+  letter-spacing: -0.5px;
+  font-weight: 550;
+  color: #e8d59c;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.cf-play {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  width: 100%;
+  height: 52px;
+  margin-top: 22px;
+  background: linear-gradient(120deg, #f0d797, #cfac61);
+  color: #1c2819;
+  border: 1px solid #f8e0a4;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 750;
+  box-shadow:
+    0 3px 0 #786137,
+    0 8px 24px #070d0966;
+}
+.cf-play:not(:disabled):hover {
+  filter: brightness(1.09);
+}
+.cf-play:disabled {
+  opacity: 0.5;
+}
+.cf-play-hint {
+  min-height: 26px;
+  margin: 12px 0 8px;
+  font-size: 10px;
+  color: #aabb9f;
+  text-align: center;
+  line-height: 1.5;
+}
+.cf-host-note {
+  font-size: 9px;
+  color: #7f9581;
+  text-align: center;
+  margin-top: auto;
+  padding-top: 8px;
+  line-height: 1.6;
+}
+.cf-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #ba7d5d55;
+  border-radius: 7px;
+  background: #ab654c16;
+  color: #efbea7;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.cf-error button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  text-decoration: underline;
+  margin-top: 6px;
+}
+.cf-footer {
+  max-width: 1440px;
+  margin: 20px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 9px;
+  color: #809082;
+  letter-spacing: 0.5px;
+}
+.cf-footer > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cf-footer i {
+  height: 3px;
+  width: 3px;
+  border-radius: 50%;
+  background: #7d8d79;
+}
+.cf-footer > div {
+  display: flex;
+  gap: 20px;
+}
+.cf-footer button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  letter-spacing: 0;
+  color: #afbbab;
+  font-size: 10px;
+}
+@keyframes cf-float {
+  from {
+    transform: translateY(0) rotate(-12deg);
+  }
+  to {
+    transform: translateY(-24px) rotate(5deg);
+  }
+}
+@media (min-width: 1550px) {
+  .cf-studio-heading {
+    left: 55px;
+    top: 46px;
+  }
+  .cf-coin-scene {
+    width: 270px;
+    height: 270px;
+    top: 35%;
+  }
+}
+@media (max-width: 1150px) {
+  .cf-page {
+    padding: 0 20px 18px;
+  }
+  .cf-layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 12px;
+  }
+  .cf-bet-panel {
+    padding: 19px;
+  }
+  .cf-studio-heading {
+    left: 24px;
+    top: 30px;
+  }
+  .cf-studio-heading h2 {
+    font-size: 46px;
+  }
+  .cf-coin-scene {
+    width: 190px;
+    height: 190px;
+    left: 9%;
+    top: 42%;
+  }
+  .cf-host {
+    width: 51%;
+    right: 0;
+    height: 82%;
+    top: 12%;
+  }
+  .cf-recent {
+    gap: 10px;
+  }
+  .cf-recent > div:first-child span {
+    max-width: 65px;
+    white-space: normal;
+    line-height: 1.5;
+  }
+  .cf-result strong {
+    font-size: 22px;
+  }
+}
+@media (max-width: 800px) {
+  .cf-page {
+    padding: 0 12px 16px;
+  }
+  .cf-header {
+    height: 78px;
+  }
+  .cf-brand {
+    gap: 9px;
+  }
+  .cf-brand h1 {
+    font-size: 21px;
+  }
+  .cf-edition {
+    display: none;
+  }
+  .cf-brand > div > span {
+    font-size: 7px;
+    letter-spacing: 1.2px;
+  }
+  .cf-header-tools {
+    gap: 5px;
+  }
+  .cf-header-tools > .cf-icon {
+    width: 31px;
+    height: 34px;
+    border: none;
+    background: none;
+  }
+  .cf-brand > .cf-icon {
+    width: 33px;
+    height: 33px;
+  }
+  .cf-wallet {
+    padding-right: 6px;
+    gap: 6px;
+    border: 0;
+  }
+  .cf-wallet > svg {
+    display: none;
+  }
+  .cf-wallet small {
+    font-size: 7px;
+    letter-spacing: 0.7px;
+  }
+  .cf-wallet strong {
+    font-size: 13px;
+  }
+  .cf-layout {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    max-width: 650px;
+  }
+  .cf-studio {
+    min-height: 450px;
+  }
+  .cf-studio-heading {
+    left: 26px;
+    top: 27px;
+  }
+  .cf-studio-heading h2 {
+    font-size: 48px;
+  }
+  .cf-coin-scene {
+    width: 170px;
+    height: 170px;
+    top: 38%;
+    left: 12%;
+  }
+  .cf-host {
+    height: 90%;
+    top: 4%;
+    width: 48%;
+  }
+  .cf-host-caption {
+    bottom: 29%;
+  }
+  .cf-table {
+    height: 43%;
+  }
+  .cf-result {
+    bottom: 18px;
+  }
+  .cf-recent {
+    min-height: 59px;
+  }
+  .cf-recent > div:first-child span {
+    max-width: none;
+  }
+  .cf-bet-panel {
+    padding: 20px;
+  }
+  .cf-panel-title {
+    margin-bottom: 18px;
+  }
+  .cf-choice {
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 68px 1fr;
+    text-align: left;
+    column-gap: 16px;
+  }
+  .cf-choice img {
+    grid-row: 1/3;
+    width: 65px;
+    height: 65px;
+    margin: 0;
+  }
+  .cf-choice strong {
+    align-self: end;
+  }
+  .cf-choice small {
+    align-self: start;
+  }
+  .cf-bet-panel .coin-rack-fit .coin-rack-options {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+  .cf-bet-panel .coin-rack-fit .coin-rack-option {
+    width: 43px;
+    height: 43px;
+  }
+  .cf-bet-panel .coin-rack-fit .coin-rack-custom {
+    height: 43px;
+    width: 100%;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 9px;
+  }
+  .cf-host-note {
+    padding: 0;
+  }
+  .cf-return {
+    margin-top: 17px;
+  }
+  .cf-footer {
+    max-width: 650px;
+    font-size: 8px;
+    gap: 8px;
+  }
+  .cf-footer > div {
+    gap: 12px;
+  }
+}
+@media (max-width: 430px) {
+  .cf-page {
+    padding: 0 10px 12px;
+  }
+  .cf-studio {
+    min-height: 402px;
+    border-radius: 13px;
+  }
+  .cf-studio-heading {
+    left: 19px;
+    top: 23px;
+  }
+  .cf-eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.6px;
+  }
+  .cf-studio-heading h2 {
+    font-size: 38px;
+    margin: 14px 0 9px;
+    letter-spacing: -1.4px;
+  }
+  .cf-studio-heading p {
+    font-size: 9px;
+    max-width: 150px;
+  }
+  .cf-coin-scene {
+    width: 140px;
+    height: 140px;
+    left: 8%;
+    top: 40%;
+  }
+  .cf-host {
+    height: 88%;
+    width: 51%;
+    right: 0;
+    top: 5%;
+  }
+  .cf-host-caption {
+    bottom: 29%;
+  }
+  .cf-host-caption span {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .cf-host-caption small {
+    font-size: 8px;
+  }
+  .cf-result {
+    left: 12px;
+    right: 12px;
+    bottom: 15px;
+    min-height: 62px;
+  }
+  .cf-result strong {
+    font-size: 21px;
+  }
+  .cf-result small {
+    font-size: 10px;
+  }
+  .cf-recent {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .cf-recent > div:first-child {
+    font-size: 9px;
+  }
+  .cf-recent > div:first-child svg {
+    display: none;
+  }
+  .cf-recent-coins {
+    gap: 4px;
+  }
+  .cf-recent-coins > span {
+    width: 25px;
+    height: 25px;
+    flex-basis: 25px;
+  }
+  .cf-bet-panel {
+    padding: 17px;
+    border-radius: 13px;
+  }
+  .cf-choice {
+    grid-template-columns: 53px 1fr;
+    gap: 0 10px;
+    padding: 12px 9px;
+  }
+  .cf-choice img {
+    width: 53px;
+    height: 53px;
+  }
+  .cf-choice strong {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .cf-choice small {
+    font-size: 9px;
+  }
+  .cf-choice-check {
+    height: 12px;
+    width: 12px;
+    top: 5px;
+    right: 5px;
+  }
+  .cf-bet-panel .coin-rack-fit .coin-rack-option {
+    width: 36px;
+    height: 36px;
+  }
+  .cf-bet-panel .coin-rack-fit .coin-rack-options {
+    gap: 5px;
+  }
+  .cf-bet-panel .coin-rack-fit .coin-rack-custom {
+    height: 36px;
+    font-size: 8px;
+  }
+  .cf-footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+  }
+  .cf-header {
+    gap: 4px;
+  }
+  .cf-brand h1 {
+    font-size: 19px;
+  }
+  .cf-wallet strong {
+    font-size: 12px;
+  }
+  .cf-header-tools > .cf-icon {
+    width: 27px;
+  }
+  .cf-stake-step {
+    margin-top: 20px;
+  }
+}
+@media (max-width: 350px) {
+  .cf-header-tools > .cf-icon:first-of-type {
+    display: none;
+  }
+  .cf-studio-heading h2 {
+    font-size: 33px;
+  }
+  .cf-studio-heading p {
+    max-width: 130px;
+    line-height: 1.6;
+  }
+  .cf-coin-scene {
+    width: 122px;
+    height: 122px;
+    left: 6%;
+    top: 40%;
+  }
+  .cf-studio {
+    min-height: 380px;
+  }
+  .cf-bet-panel {
+    padding: 13px;
+  }
+  .cf-bet-panel .coin-rack-fit .coin-rack-options {
+    gap: 4px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .cf-bet-panel .coin-rack-fit .coin-rack-option {
+    width: 42px;
+    height: 42px;
+  }
+  .cf-bet-panel .coin-rack-fit .coin-rack-custom {
+    border-radius: 9px;
+    height: 42px;
+    font-size: 10px;
+  }
+  .cf-choice {
+    grid-template-columns: 45px 1fr;
+    column-gap: 7px;
+  }
+  .cf-choice img {
+    width: 45px;
+    height: 45px;
+  }
+  .cf-recent-coins small {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cf-page * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

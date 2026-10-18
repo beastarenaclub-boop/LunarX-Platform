@@ -15,6 +15,7 @@ import { errorMessage, request } from "@/components/instant/InstantGame";
 import { Bird, Fish, Treasure } from "@/components/instant/CollectionArt";
 import "@/components/instant/collection.css";
 import PirateRoad from "@/components/instant/PirateRoad";
+import CoinFlip from "@/components/instant/CoinFlip";
 
 type PendingBet = { requestId: string; stakeAmount: string; clientSeed: string; options: CollectionOptions };
 const amount = (paise: string) => `₹${formatRupees(paise)}`;
@@ -36,6 +37,8 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
   // The shared bus still respects saved mute/music settings and browser unlock.
   useEffect(() => { if (pirateAudio) notifyPlayStarted(); }, [pirateAudio]);
   const [pending, setPending] = useState<PendingBet | null>(() => { try { const p = JSON.parse(localStorage.getItem(pendingKey) ?? "null"); return p?.requestId && p?.options ? p : null; } catch { return null; } });
+  // A recovered coin bet must show the original side and amount, including after reload.
+  useEffect(() => { if (gameCode === "coin-flip" && pending) { setStake((Number(pending.stakeAmount) / 100).toFixed(2)); setOptions(pending.options); } }, [gameCode, pending]);
   const lock = useRef(false), mounted = useRef(true);
   const [motion, setMotion] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   useEffect(() => { mounted.current = true; document.title = `${game.name} · Instant Games`; return () => { mounted.current = false; }; }, [game.name]);
@@ -74,7 +77,9 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
         if (!pending && (!ready || !validStake || !enough || !within)) throw new Error("Enter a bet within your balance and game limits.");
         const input = pending ?? { requestId: crypto.randomUUID(), stakeAmount: String(paise), clientSeed: crypto.randomUUID().replaceAll("-", ""), options };
         remember(input);
-        result = await request<CollectionRound>(`${endpoint}/place`, input);
+        result = gameCode === "coin-flip"
+          ? await customFetch<CollectionRound>(`${endpoint}/place`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input), signal: AbortSignal.timeout(15000) })
+          : await request<CollectionRound>(`${endpoint}/place`, input);
         remember(null);
       } else {
         if (!round || !active) return;
@@ -87,14 +92,18 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
         if (pirateAudio) notifyPlayStarted();
         cue(result.status === "lost" ? "crash" : result.status === "active" ? action === "place" ? "bet" : "reveal" : BigInt(result.payoutAmount) > BigInt(result.stakeAmount) ? "win" : "clear");
       }
-      await refresh();
+      // A confirmed coin receipt can land even if a background wallet/history refresh is slow.
+      if (gameCode === "coin-flip") void refresh(); else await refresh();
     } catch (e) {
       // Only definitive 4xx rejections allow a new request ID. A lost response must retry the original ID.
       const status = (e as { status?: number }).status;
       if (status && status >= 400 && status < 500 && status !== 408 && status !== 429) remember(null);
-      if (mounted.current) setError(errorMessage(e));
-      const recovered = await state.refetch();
-      if (mounted.current && recovered.data) setRound(recovered.data.round ?? recovered.data.history[0] ?? null);
+      if (mounted.current) setError(gameCode === "coin-flip" && (e as Error).name === "TimeoutError" ? "Confirmation timed out. Retry your pending bet to recover the result." : errorMessage(e));
+      if (gameCode === "coin-flip") { void state.refetch(); void balance.refetch(); }
+      else {
+        const recovered = await state.refetch();
+        if (mounted.current && recovered.data) setRound(recovered.data.round ?? recovered.data.history[0] ?? null);
+      }
     } finally { lock.current = false; if (mounted.current) setBusy(false); }
   }
   const selection = (value: string) => { cue("select"); setOptions(o => ({ ...o, choice: value })); };
@@ -118,6 +127,17 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
     selectSound={() => cue("select")}
     openPanel={panel => { cue("select"); setPanel(panel); }}
   >{dialog}</PirateRoad>;
+  if (gameCode === "coin-flip") return <CoinFlip
+    round={round} history={state.data?.history ?? []} stake={stake} setStake={setStake}
+    choice={pending?.options.choice ?? opts.choice} select={selection}
+    config={config.data} balance={balance.data?.balance} busy={busy} locked={locked}
+    pending={!!pending} canPlay={!busy && (!!pending || !!(ready && validStake && enough && within))}
+    playHint={pending ? "Your original bet will be recovered" : !config.data?.enabled && config.data ? "Game temporarily unavailable" : !ready ? "Connecting to your game…" : !validStake || !within ? `Limits ${amount(config.data!.minStakePaise)} – ${amount(config.data!.maxStakePaise)}` : !enough ? "Insufficient wallet balance" : ""}
+    error={error || (config.isError || state.isError || balance.isError ? "Could not connect to the game. Please retry." : "")}
+    refresh={() => { void config.refetch(); void balance.refetch(); void state.refetch(); setError(""); }}
+    play={() => void act("place")} sound={sound} motion={motion} toggleSound={toggleSound}
+    openPanel={setPanel}
+  >{dialog}</CoinFlip>;
   return <div className={`ic-page ic-theme-${game.theme}`} style={{ "--ic-accent": game.accent } as CSSProperties} data-testid="collection-page">
     <header className="ic-header"><div className="ic-brand"><Link href="/" aria-label="Back to lobby" className="ic-icon"><ArrowLeft size={19} /></Link><span className="ic-logomark"><Sparkles size={22} /></span><div><small>LUNAR ORIGINALS <span>INSTANT</span></small><h1>{game.name}</h1></div></div><div className="ic-header-right"><div className="ic-wallet"><Wallet size={18} /><div><small>WALLET BALANCE</small><strong data-testid="collection-balance">{balance.data ? amount(balance.data.balance) : "Loading…"}</strong></div></div><button className="ic-icon" onClick={() => setPanel("rules")} aria-label="Game rules"><CircleHelp size={20} /></button><button className="ic-icon" aria-label={sound ? "Mute sound" : "Enable sound"} onClick={toggleSound}>{sound ? <Volume2 size={19} /> : <VolumeX size={19} />}</button></div></header>
     <main className="ic-layout"><section className="ic-arena">
