@@ -10,6 +10,7 @@
 !artifacts/admin-panel/**
 !artifacts/agent-panel/**
 !deploy/render/prepare-nginx.mjs
+!deploy/render/19-api-resolvers.envsh
 **/node_modules
 **/dist
 **/data
