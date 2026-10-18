@@ -183,3 +183,33 @@ The API replacement briefly caused public gateway 502 responses. Restarting
 the existing web gateway restored access before the frontend release. For
 future API-only updates, check the public /api/healthz path as well as Render's
 private-service status and refresh the gateway if its upstream stops responding.
+
+### Coin Flip studio and AI host
+
+Published on 18 October 2026 from application commit
+`f53a027dfcb2cb7e548088c6a713863be3ec5eb9`, web deployment
+`dep-dbafma6q1p3s73bgghcg` (`live`). The existing API remains on
+`597e98eea5f58575d3b97da9794173964d4bd368`; no server or database changes
+were needed. See [Coin Flip studio](coin-flip-studio.md) for implementation,
+asset provenance and recovery behavior.
+
+The `/coin-flip` studio now has distinct gold Heads and silver Tails SVG coins,
+a two-sided flip animation, the existing AI-generated female host video,
+responsive shared chip controls and explicit server-confirmed results. The
+host is labeled as AI and looped video. An interrupted bet restores its original
+side and amount; retry preserves the request ID. A 15-second response timeout
+allows recovery, and a slow background refresh does not hold a confirmed result.
+
+Validation passed: frontend TypeScript and production build, six instant-game
+math tests, the 33-case browser suite plus an additional timeout/media-failure
+case and a repeat of the animation/mobile check after final styling. This covers
+34 distinct browser cases, including neighboring instant games.
+
+Live checks used only volatile demo funds. Both Heads and Tails selections
+settled correctly; a lost round returned zero and a winning INR 100 round
+returned INR 194. The rendered coin matched each receipt, both rounds appeared
+in history and Casino Results, and reload restored the last result. Host video,
+reduced motion and layouts at 320, 390 and 1440 pixels passed with no browser
+JavaScript errors. All five public API health endpoints returned 200. Public
+health checks use a signed-out request because the demo sandbox intentionally
+blocks API paths outside its gameplay/report allowlist.
