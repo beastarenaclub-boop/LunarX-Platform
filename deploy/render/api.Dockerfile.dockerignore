@@ -8,6 +8,7 @@
 !artifacts/api-server/**
 !artifacts/3d-game/wingo-server/**
 !deploy/render/api-start.sh
+!deploy/render/download-geo.mjs
 **/node_modules
 **/dist
 **/data
