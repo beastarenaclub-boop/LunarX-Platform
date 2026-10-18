@@ -140,7 +140,7 @@ try {
     .returning();
   const player = await user("Customer", "player", agentNode.id);
   await postEntry({
-    userId: master.id,
+    userId: agent.id,
     type: "adjustment",
     amount: 100000n,
     refType: "manual_qr_browser_test",
@@ -256,7 +256,8 @@ try {
     "Deposit approved and customer wallet credited.",
   );
   assert.equal((await getBalanceByUser(player.id)).balance, 20000n);
-  assert.equal((await getBalanceByUser(master.id)).balance, 80000n);
+  assert.equal((await getBalanceByUser(agent.id)).balance, 80000n);
+  assert.equal((await getBalanceByUser(master.id)).balance, 0n);
   await customerPage.reload();
   await expect(customerPage.getByTestId("list-deposits")).toContainText(
     "approved",

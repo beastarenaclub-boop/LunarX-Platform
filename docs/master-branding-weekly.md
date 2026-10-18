@@ -30,9 +30,9 @@ Masters review requests under **Manual payments**, verify the received bank fund
 then approve or reject with a reason. Agents cannot edit QR details or review
 deposits. Admin can manage each master's account from Network > Manual payments.
 
-Approval atomically debits the master's available wallet float and credits the
-customer's shared wallet, with an audit entry and balance updates. The master
-must have enough float. Both the master and existing admin approval endpoints
+Approval atomically debits the customer's agent's available wallet float and credits the
+customer's shared wallet, with an audit entry and balance updates. The agent
+must have enough float; the master wallet is unchanged. Both the master and existing admin approval endpoints
 use this same operation; simultaneous reviews cannot credit twice. Rejection
 does not move money. These transfers do not issue platform deposit bonuses or
 count as game revenue/company weekly commission. Existing requests retain their

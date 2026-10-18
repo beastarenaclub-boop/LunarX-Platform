@@ -221,17 +221,17 @@ export async function decideMasterDeposit(
             "Customer branch has changed. Contact the administrator.",
           );
         await assertNetworkActive(customer);
-        for (const uid of [master.userId, customer.id].sort()) {
+        for (const uid of [agent.userId, customer.id].sort()) {
           await tx.execute(
             sql`SELECT pg_advisory_xact_lock(hashtextextended(${`network-funds:${uid}`},0))`,
           );
         }
         const debit = await postEntry(
           {
-            userId: master.userId,
+            userId: agent.userId,
             type: "adjustment",
             amount: -deposit.amount,
-            refType: "master_deposit_funding",
+            refType: "agent_deposit_funding",
             refId: id,
             memo: `Manual deposit ${id}`,
             createdBy: user.id,
@@ -253,7 +253,7 @@ export async function decideMasterDeposit(
         ledgerEntryId = credit.entry.id;
         updates.push(
           {
-            userId: master.userId,
+            userId: agent.userId,
             entryType: "adjustment",
             amount: -deposit.amount,
             balance: debit.entry.balanceAfter,
@@ -301,7 +301,7 @@ export async function decideMasterDeposit(
   } catch (e) {
     if ((e as Error).message === "INSUFFICIENT_FUNDS")
       throw badRequest(
-        "Insufficient master wallet balance. Add funds before approving.",
+        "Insufficient customer agent wallet balance. Add funds to the agent before approving.",
       );
     throw e;
   }

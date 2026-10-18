@@ -269,6 +269,7 @@ test(
         "POST",
         403,
       );
+      await postEntry({ userId: a.master.user.id, type: "adjustment", amount: 100000n, refType: "manual_qr_test" });
       await call(
         a.master.client,
         reviewedPath,
@@ -287,7 +288,7 @@ test(
         "pending",
       );
       await postEntry({
-        userId: a.master.user.id,
+        userId: a.agent.user.id,
         type: "adjustment",
         amount: 100000n,
         refType: "manual_qr_test",
@@ -321,7 +322,7 @@ test(
         (r) => r.status === "rejected",
       ) as PromiseRejectedResult;
       assert.match(failed.reason.message, /already been reviewed/);
-      assert.equal((await getBalanceByUser(a.master.user.id)).balance, 80000n);
+      assert.equal((await getBalanceByUser(a.agent.user.id)).balance, 80000n);
       assert.equal((await getBalanceByUser(a.player.user.id)).balance, 20000n);
       assert.equal(
         (
@@ -368,7 +369,7 @@ test(
         `${path(a.id)}/deposits/${reject.id}/decision`,
         { decision: "reject", reason: "Payment not received" },
       );
-      assert.equal((await getBalanceByUser(a.master.user.id)).balance, 80000n);
+      assert.equal((await getBalanceByUser(a.agent.user.id)).balance, 80000n);
       const adminDeposit = await call(a.player.client, "/payments/deposits", {
         ...depositBody,
         accountVersion: updated.version,
@@ -384,14 +385,15 @@ test(
       await call(a.master.client, `${path(a.id)}/deposits/${adminDeposit.id}/decision`, { decision: "reject", reason: "Not received" }, "POST", 403);
       assert.deepEqual(await call(a.player.client, "/payments/upi-accounts"), []);
       await call(a.player.client, "/payments/deposits", { ...depositBody, accountVersion: updated.version, upiRef: "123456789099" }, "POST", 403);
-      assert.equal((await getBalanceByUser(a.master.user.id)).balance, 80000n);
+      assert.equal((await getBalanceByUser(a.agent.user.id)).balance, 80000n);
       assert.equal((await getBalanceByUser(a.player.user.id)).balance, 20000n);
       // Admin can still resolve requests received before permission was revoked.
       await call(admin.client, `/admin/deposits/${adminDeposit.id}/decision`, {
         decision: "approve",
       });
-      assert.equal((await getBalanceByUser(a.master.user.id)).balance, 60000n);
+      assert.equal((await getBalanceByUser(a.agent.user.id)).balance, 60000n);
       assert.equal((await getBalanceByUser(a.player.user.id)).balance, 40000n);
+      assert.equal((await getBalanceByUser(a.master.user.id)).balance, 100000n);
       const foreignList = await call(b.master.client, `${path(b.id)}/deposits`);
       assert.deepEqual(foreignList.items, []);
       await call(admin.client, `/network/nodes/${a.id}`, { manualPaymentsEnabled: true }, "PATCH");

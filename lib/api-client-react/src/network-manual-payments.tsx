@@ -227,7 +227,7 @@ export function NetworkManualPayments({ masterId }: { masterId: string }) {
       <section className="net-card" aria-label="Manual deposit requests">
         <h2>Customer deposit requests</h2>
         <p>
-          Approval transfers the deposit amount from the master's available
+          Approval transfers the deposit amount from the customer's agent's available
           wallet balance to the customer's wallet. Rejection does not move
           funds.
         </p>
