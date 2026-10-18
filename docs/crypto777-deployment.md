@@ -116,3 +116,14 @@ the LunarX favicon when leaving that page. The supplied full header logo is
 retained.
 
 This is a web gateway release; it requires no API deployment or database change.
+
+Published on 18 October 2026 from commit
+`a1607ea4b6dff7e8cec9cd0c9290e2991ae94e70` in web deployment
+`dep-dbaeivu7bikc73eavig0` (`live`). Frontend TypeScript, the production build
+and all 11 B2C browser tests passed. Production-bundle checks passed at 320,
+390, 768 and 1440 pixels, including restoration of the LunarX favicon after
+leaving its B2C preview. Live checks confirmed the headline, SVG favicon,
+desktop/mobile layout, login, and the favicon on demo game and wallet routes.
+The existing demo gameplay/isolation checks also passed; all five website/API
+health endpoints returned 200, with no browser JavaScript errors or failed
+storefront assets during verification.
