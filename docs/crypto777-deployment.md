@@ -127,3 +127,38 @@ desktop/mobile layout, login, and the favicon on demo game and wallet routes.
 The existing demo gameplay/isolation checks also passed; all five website/API
 health endpoints returned 200, with no browser JavaScript errors or failed
 storefront assets during verification.
+
+### Profile reports and security settings
+
+The profile cards, account sidebar and storefront account menu provide Account
+Statement, Current Bets, Activity Log, Casino Results, Live Casino Bets,
+SportBook Bets, Set Button Value, Change Password and Security Auth Verification.
+Reports use /report/{accountstatement,currentbets,activity,casinoresult,
+livecasinoresult,sportbookresult}; settings use /settings/{buttonvalue,
+changepassword,secureauth}. All routes require sign-in.
+
+Reports read the authenticated user's existing ledger, audit events and bet
+records, including separate WinGo, Forex, Dragon Tiger, One Day, virtual sports
+and Rummy stores. They support IST date filters, refresh and cursor pagination;
+no future outcomes, seeds, audit payloads or session tokens are returned.
+SportBook explicitly describes the existing virtual sports and racing games.
+Demo reports run only in the volatile worker; account settings stay blocked.
+
+Button Value saves six account-specific cash-game presets on this browser.
+Compatible shared chip controls use them; practice/fixed-denomination controls
+retain their game rules. Settings do not submit bets. Game selection behaviour
+is unchanged. Restoring defaults clears the saved override.
+
+Password changes verify the current password, invalidate existing sessions and
+password-reset links, close the account's WebSockets, clear the cookie and
+return to login. Login checks the password version inside the session-creation
+lock. Security Auth Verification supports current-password verification, an
+active-session list and password-confirmed sign-out of other devices. It does
+not claim authenticator/OTP two-step verification is available.
+
+No schema migration is required. Deploy the API before the web gateway.
+Validation commands:
+
+- node artifacts/api-server/test-account.mjs (volatile PGlite integration tests; no production database)
+- node artifacts/3d-game/node_modules/@playwright/test/cli.js test --config artifacts/3d-game/playwright.account.config.ts
+- TypeScript checks for both applications and production builds for API/web

@@ -1,6 +1,7 @@
 import { db, usersTable, sessionsTable } from "@workspace/db";
 import type { User } from "@workspace/db";
 import { and, eq, gt, isNull } from "drizzle-orm";
+import { unauthorized } from "../lib/errors";
 
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
 
@@ -37,20 +38,25 @@ export async function createSession(
   userAgent: string | null,
   partnerCtx?: PartnerSessionContext | null,
   ttlMsOverride?: number,
+  expectedPasswordHash?: string,
 ): Promise<{ id: string; expiresAt: Date }> {
   const expiresAt = new Date(Date.now() + (ttlMsOverride ?? SESSION_TTL_MS));
-  const [session] = await db
-    .insert(sessionsTable)
-    .values({
-      userId,
-      expiresAt,
-      ip,
-      userAgent,
-      partnerId: partnerCtx?.partnerId ?? null,
-      partnerPlayerRef: partnerCtx?.partnerPlayerRef ?? null,
-    })
-    .returning();
-  return { id: session!.id, expiresAt: session!.expiresAt };
+  return db.transaction(async tx => {
+    const [user] = await tx.select({ passwordHash: usersTable.passwordHash }).from(usersTable).where(eq(usersTable.id, userId)).for("update");
+    if (!user || (expectedPasswordHash !== undefined && user.passwordHash !== expectedPasswordHash)) throw unauthorized("Credentials changed. Please sign in again.");
+    const [session] = await tx
+      .insert(sessionsTable)
+      .values({
+        userId,
+        expiresAt,
+        ip,
+        userAgent,
+        partnerId: partnerCtx?.partnerId ?? null,
+        partnerPlayerRef: partnerCtx?.partnerPlayerRef ?? null,
+      })
+      .returning();
+    return { id: session!.id, expiresAt: session!.expiresAt };
+  });
 }
 
 export async function getActiveSession(id: string) {

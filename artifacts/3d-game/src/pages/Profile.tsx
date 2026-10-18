@@ -1,4 +1,5 @@
 import { SiteLayout } from "@/components/site/SiteLayout";
+import { AccountOptions } from "@/components/site/AccountOptions";
 import { useState, type FormEvent } from "react";
 import {
   useGetProfile,
@@ -122,6 +123,7 @@ export default function Profile() {
       title="Profile & KYC"
       description="Your account details and identity verification, all in one place."
     >
+      <AccountOptions />
       <div className="site-profile-grid">
         <Card>
           <CardHeader>

@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./chips.css";
+import { useButtonValues } from "@/lib/buttonValues";
 
 /**
  * Shared coin/chip control used by EVERY game.
@@ -160,6 +161,7 @@ interface ChipRackProps {
   minValue?: number;
   maxValue?: number;
   step?: number;
+  allowAccountValues?: boolean;
 }
 
 /**
@@ -174,12 +176,16 @@ export default function ChipRack({
   layout = "row",
   disabled = false,
   showCustom = true,
-  values = LIVE_TABLE_COIN_VALUES,
+  values: suppliedValues = LIVE_TABLE_COIN_VALUES,
   unit = "rupees",
   minValue = 1,
   maxValue = Infinity,
   step = 1,
+  allowAccountValues = true,
 }: ChipRackProps) {
+  const customValues = useButtonValues();
+  const values = (allowAccountValues && showCustom && unit === "rupees" && customValues ? customValues : suppliedValues)
+    .filter(value => value >= minValue && value <= maxValue && value % step === 0);
   const isPreset = values.includes(chip);
   const [customOpen, setCustomOpen] = useState(false);
   const [customText, setCustomText] = useState("");

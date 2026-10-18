@@ -5,6 +5,8 @@ import ChipRack, { CoinFace, LIVE_TABLE_COIN_VALUES } from "./chips";
 import { cn } from "@/lib/utils";
 import { TableSoundSettings } from "./TableSoundSettings";
 import { ROULETTE_COIN_VALUES } from "@workspace/api-zod/roulette-game";
+import { useButtonValues } from "@/lib/buttonValues";
+import { useLocation } from "wouter";
 
 type Preferences = { values: number[]; showCustom: boolean };
 const ALL_COIN_VALUES = [...new Set([...LIVE_TABLE_COIN_VALUES, ...ROULETTE_COIN_VALUES])];
@@ -35,6 +37,7 @@ function initial(key: string, maxValue: number, legacyKey?: string, allowed: rea
 }
 
 export function useCoinPreferences(game: string, userId?: string, maxValue = Infinity, allowed: readonly number[] = LIVE_TABLE_COIN_VALUES) {
+  const accountValues = useButtonValues();
   const key = `table-coins:v3:${userId ?? "guest"}`;
   const legacyKey = `table-coins:v1:${game}:${userId ?? "guest"}`;
   const [stored, setStored] = useState(() => initial(key, maxValue, legacyKey, allowed));
@@ -58,7 +61,7 @@ export function useCoinPreferences(game: string, userId?: string, maxValue = Inf
     if (!Number.isSafeInteger(chip) || chip < 1 || chip > maxValue) return;
     setStored(previous => {
       const value = previous.key === key ? previous : initial(key, maxValue, legacyKey, allowed);
-      return value.showCustom || value.values.includes(chip) ? { ...value, chip } : value;
+      return value.showCustom || value.values.includes(chip) || accountValues?.includes(chip) ? { ...value, chip } : value;
     });
   };
   const save = (input: Preferences) => {
@@ -93,9 +96,12 @@ export function TableCoinRack({ preferences, availableValues, selectableValues, 
   selectableValues?: readonly number[];
 }) {
   const [open, setOpen] = useState(false);
+  const [, navigate] = useLocation();
+  const accountValues = useButtonValues();
+  const useAccount = !!accountValues && props.unit !== "chips" && props.showCustom !== false && !selectableValues;
   return <div className="table-coin-controls flex min-w-0 flex-1 items-center gap-2">
-    <ChipRack {...props} values={selectableValues ?? preferences.values} showCustom={props.showCustom !== false && preferences.showCustom} className={cn("min-w-0 flex-1", props.className)} />
-    <CoinSettingsButton onClick={() => setOpen(true)} />
+    <ChipRack {...props} values={selectableValues ?? preferences.values} allowAccountValues={useAccount} showCustom={props.showCustom !== false && (useAccount || preferences.showCustom)} className={cn("min-w-0 flex-1", props.className)} />
+    <CoinSettingsButton onClick={() => useAccount ? navigate("/settings/buttonvalue") : setOpen(true)} />
     <CoinSettingsDialog open={open} onOpenChange={setOpen} preferences={preferences} onSave={preferences.save} maxValue={props.maxValue} unit={props.unit} allowCustom={props.showCustom !== false} values={availableValues} />
   </div>;
 }

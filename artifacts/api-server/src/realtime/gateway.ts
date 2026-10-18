@@ -8,6 +8,13 @@ import { bus, type RealtimeEvent } from "./eventBus";
 import { ALLOWED_ROLES_PER_TOPIC, type ClientToServer, type ServerToClient } from "./protocol";
 import { logger } from "../lib/logger";
 
+const accountSockets = new Map<WebSocket, { userId: string; sessionId: string }>();
+export function disconnectAccountSessions(userId: string, keepSessionId?: string) {
+  for (const [socket, session] of accountSockets) {
+    if (session.userId === userId && session.sessionId !== keepSessionId) socket.close(4001, "Session ended");
+  }
+}
+
 // Tiny header-only cookie parser; avoids a runtime dep on `cookie`.
 function readCookie(header: string | undefined, name: string): string | null {
   if (!header) return null;
@@ -71,7 +78,7 @@ function topicAllowed(topic: string, ctx: ClientCtx): boolean {
   return list.includes(ctx.role as never);
 }
 
-async function authenticate(req: IncomingMessage): Promise<{ userId: string; role: string } | null> {
+async function authenticate(req: IncomingMessage): Promise<{ userId: string; role: string; sessionId: string } | null> {
   const sid = readCookie(req.headers.cookie, sessionCookie(req));
   if (!sid) return null;
   try {
@@ -83,7 +90,7 @@ async function authenticate(req: IncomingMessage): Promise<{ userId: string; rol
     await assertNetworkActive(user);
     const panel = requestOperatorPanel(req);
     if (panel && (await networkIdentity(user)).role !== panel) return null;
-    return { userId: user.id, role: user.role };
+    return { userId: user.id, role: user.role, sessionId: session.id };
   } catch (err) {
     logger.warn({ err }, "ws auth failed");
     return null;
@@ -116,7 +123,8 @@ export function attachRealtime(httpServer: HttpServer, alternativeUpgrade?: (req
     });
   });
 
-  wss.on("connection", (ws: WebSocket, _req: IncomingMessage, auth: { userId: string; role: string }) => {
+  wss.on("connection", (ws: WebSocket, _req: IncomingMessage, auth: { userId: string; role: string; sessionId: string }) => {
+    accountSockets.set(ws, { userId: auth.userId, sessionId: auth.sessionId });
     const ctx: ClientCtx = {
       userId: auth.userId,
       role: auth.role,
@@ -184,6 +192,7 @@ export function attachRealtime(httpServer: HttpServer, alternativeUpgrade?: (req
     });
 
     ws.on("close", () => {
+      accountSockets.delete(ws);
       for (const off of ctx.topics.values()) off();
       ctx.topics.clear();
     });

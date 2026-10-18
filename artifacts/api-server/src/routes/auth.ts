@@ -266,6 +266,7 @@ router.post("/login", authRateLimiter, async (req, res, next) => {
       user.id,
       clientIp(req),
       req.headers["user-agent"] ?? null,
+      undefined, undefined, user.passwordHash,
     );
     res.cookie(sessionCookie(req), session.id, COOKIE_OPTS(session.expiresAt));
 
@@ -325,6 +326,7 @@ router.post("/agent-login", authRateLimiter, async (req, res, next) => {
       user.id,
       clientIp(req),
       req.headers["user-agent"] ?? null,
+      undefined, undefined, user.passwordHash,
     );
     res.cookie(sessionCookie(req), session.id, COOKIE_OPTS(session.expiresAt));
 

@@ -27,17 +27,22 @@ import vaultArtwork from "@/assets/lobby/event-vault.png";
 import { MobileNavigation } from "./MobileNavigation";
 import "./site.css";
 import { useSiteChannel } from "@/lib/siteChannel";
+import { ACCOUNT_OPTIONS } from "./AccountOptions";
+import { B2C_STANDALONE, B2C_BRAND, B2C_ICON } from "@/components/b2c/config";
+const accountBrand = B2C_STANDALONE ? B2C_BRAND : "Lunar Play";
 
 const links = [
   { href: "/wallet", label: "My wallet", icon: Wallet },
   { href: "/history", label: "Activity & history", icon: History },
   { href: "/profile", label: "Profile & KYC", icon: CircleUserRound },
+  ...ACCOUNT_OPTIONS,
   { href: "/promotions", label: "Promotions", icon: Gift },
   { href: "/help", label: "Help & support", icon: CircleHelp },
   { href: "/verify", label: "Round verifier", icon: ShieldCheck },
 ];
 
 export function SiteBrand() {
+  if (B2C_STANDALONE) return <Link href="/" className="site-brand" aria-label={`${B2C_BRAND} home`}><img className="account-brand-icon" src={B2C_ICON} alt="" />{B2C_BRAND}</Link>;
   return (
     <Link href="/" className="site-brand" aria-label="Lunar Play home">
       LUNAR<span>PLAY</span>
@@ -129,7 +134,7 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <span>
-        LUNAR PLAY <span className="site-footer-dot">·</span> All your games.
+        {accountBrand.toUpperCase()} <span className="site-footer-dot">·</span> All your games.
         One wallet.
       </span>
       <div>
@@ -168,7 +173,7 @@ export function SiteLayout({
     },
   });
   useEffect(() => {
-    document.title = `${title} — Lunar Play`;
+    document.title = `${title} — ${accountBrand}`;
   }, [title]);
   return (
     <div className={`site-shell ${className}`}>
@@ -227,7 +232,7 @@ export function SiteLayout({
         </aside>
         <main id="site-main" className="site-content" tabIndex={-1}>
           <div className="site-page-heading">
-            <p className="site-eyebrow">LUNAR PLAY / MY ACCOUNT</p>
+            <p className="site-eyebrow">{accountBrand.toUpperCase()} / MY ACCOUNT</p>
             <h1>{title}</h1>
             <p>{description}</p>
           </div>
@@ -249,7 +254,7 @@ export function AuthLayout({
   title?: string;
 }) {
   useEffect(() => {
-    document.title = `${title} — Lunar Play`;
+    document.title = `${title} — ${accountBrand}`;
   }, [title]);
   return (
     <div className="site-shell auth-shell">

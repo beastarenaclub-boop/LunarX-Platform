@@ -34,6 +34,8 @@ import { B2C_STANDALONE } from "@/components/b2c/config";
 import { DemoSessionBanner, DemoWallet } from "@/components/b2c/DemoSession";
 
 const B2C = lazy(() => import("@/pages/B2C"));
+const AccountReport = lazy(() => import("@/pages/AccountReport"));
+const AccountSettings = lazy(() => import("@/pages/AccountSettings"));
 const Launcher = lazy(() => import("@/pages/Launcher"));
 const Lunar = lazy(() => import("@/pages/Lunar"));
 const Mines = lazy(() => import("@/pages/Mines"));
@@ -113,7 +115,7 @@ function Protected({ children }: { children: ReactNode }) {
   const [location] = useLocation();
   if (isLoading) return <AuthSplash />;
   if (!user) return <Redirect to={`/login?next=${encodeURIComponent(location + window.location.search + window.location.hash)}`} />;
-  if (user.isDemo && ["/wallet", "/profile", "/promotions", "/help"].includes(location)) return <DemoWallet />;
+  if (user.isDemo && (["/wallet", "/profile", "/promotions", "/help"].includes(location) || location.startsWith("/settings/"))) return <DemoWallet />;
   return <>{children}</>;
 }
 
@@ -195,6 +197,8 @@ function App() {
         <GameViewport game={game}>
         <Suspense fallback={<AuthSplash />}>
         <Switch>
+          {["accountstatement", "currentbets", "activity", "casinoresult", "livecasinoresult", "sportbookresult"].map(kind => <Route key={kind} path={`/report/${kind}`}><Protected><AccountReport key={kind} kind={kind} /></Protected></Route>)}
+          {["buttonvalue", "changepassword", "secureauth"].map(kind => <Route key={kind} path={`/settings/${kind}`}><Protected><AccountSettings key={kind} kind={kind} /></Protected></Route>)}
           {/* Auth screens — logged-out only. */}
           <Route path="/login">
             <GuestOnly>

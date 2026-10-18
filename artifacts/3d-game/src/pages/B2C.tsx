@@ -61,6 +61,7 @@ import {
 import { B2CAuthDialog } from "@/components/b2c/B2CAuthDialog";
 import { B2C_BRAND, B2C_HEADLINE, B2C_HOME, B2C_ICON, B2C_LOGO } from "@/components/b2c/config";
 import { applyB2CBranding } from "@/components/b2c/branding";
+import { ACCOUNT_OPTIONS } from "@/components/site/AccountOptions";
 import { B2CSlider } from "@/components/b2c/B2CSlider";
 import {
   B2C_AVATAR,
@@ -479,9 +480,8 @@ export default function B2C({
                   <DropdownMenuItem onSelect={() => navigate("/wallet")}>
                     Wallet
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => navigate("/history")}>
-                    Bet history
-                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {ACCOUNT_OPTIONS.map(({ href, label, icon: Icon }) => <DropdownMenuItem key={href} disabled={user.isDemo && href.startsWith("/settings/")} onSelect={() => navigate(href)}><Icon size={16} />{label}</DropdownMenuItem>)}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     disabled={logout.isPending}

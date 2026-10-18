@@ -31,9 +31,11 @@ import winGoRouter from "./wingo";
 import forexRouter from "./forex";
 import lotteryRouter from "./lottery";
 import prizeLottoRouter from "./prizeLotto";
+import reportsRouter from "./reports";
 
 // The same routers run against either the real store or the isolated demo worker.
 const router = Router();
+router.use("/reports", reportsRouter);
 router.use("/instant", instantCollectionRouter);
 router.use("/virtual-sports", virtualSportsRouter);
 router.use("/crash", crashRouter);
