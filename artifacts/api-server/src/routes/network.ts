@@ -18,6 +18,7 @@ import { weeklyStatus, assertBranchOperations } from "../services/networkWeekly"
 import weeklyRouter from "./networkWeekly";
 import brandingRouter from "./networkBranding";
 import reportsRouter from "./networkReports";
+import { parseTransactionQuery, transactionConditions, transactionPage } from "../services/transactionFilters";
 import { customMaster } from "../middlewares/siteChannel";
 import { requestSite } from "../middlewares/siteChannel";
 import { postEntry, publishWalletBalance } from "../services/wallet";
@@ -344,30 +345,16 @@ router.patch("/players/:id", async (req, res, next) => {
 
 async function ledgerFilter(req: Parameters<typeof requireAuth>[0]) {
   const actor = await networkIdentity(req.user!);
-  const filter = z
-    .object({
-      channel: z.enum(["b2b", "b2c"]).default("b2b"),
-      nodeId: z.string().max(100).optional(),
-      from: z.string().date().optional(),
-      to: z.string().date().optional(),
-    })
-    .parse(req.query);
+  const filter = parseTransactionQuery(req.query);
   if (actor.role !== "admin" && filter.channel !== "b2b") throw forbidden();
-  if (filter.from && filter.to && filter.from > filter.to)
-    throw badRequest("Start date must precede end date");
   const parts = [sql`l.channel=${filter.channel}`];
+  parts.push(...transactionConditions(filter,{time:sql`l.created_at`,amount:sql`l.amount`,text:[sql`l.id`,sql`l.source_id`,sql`l.game_code`,sql`(SELECT email FROM users WHERE id=l.user_id)`,sql`(SELECT name FROM network_nodes WHERE id=l.account_id)`]}));
+  if(filter.game)parts.push(sql`l.game_code=${filter.game}`);
+  if(filter.accountKind)parts.push(sql`l.account_kind=${filter.accountKind}`);
   if (actor.role !== "admin") parts.push(sql`l.account_id=${actor.node.id}`);
   if (filter.nodeId)
     parts.push(
       sql`(l.master_id=${filter.nodeId} OR l.agent_id=${filter.nodeId})`,
-    );
-  if (filter.from)
-    parts.push(
-      sql`l.created_at >= (${filter.from}::date::timestamp AT TIME ZONE 'Asia/Kolkata')`,
-    );
-  if (filter.to)
-    parts.push(
-      sql`l.created_at < ((${filter.to}::date + 1)::timestamp AT TIME ZONE 'Asia/Kolkata')`,
     );
   return { actor, where: sql.join(parts, sql` AND `) };
 }
@@ -399,12 +386,13 @@ router.get("/ledger", async (req, res, next) => {
 router.get("/settlements", async (req, res, next) => {
   try {
     const actor = await networkIdentity(req.user!);
+    const filter=parseTransactionQuery(req.query);
     const condition =
       actor.role === "admin" ? sql`true` : sql`s.node_id=${actor.node.id}`;
-    const rows = await db.execute(
-      sql`SELECT s.*,n.name FROM network_settlements s JOIN network_nodes n ON n.id=s.node_id WHERE ${condition} ORDER BY s.created_at DESC LIMIT 200`,
-    );
-    res.json({ settlements: rows.rows });
+    const parts=[condition,...transactionConditions(filter,{time:sql`s.created_at`,amount:sql`s.amount`,text:[sql`s.id`,sql`s.reference`,sql`n.name`,sql`u.email`]})];
+    if(filter.nodeId)parts.push(sql`(s.node_id=${filter.nodeId} OR n.parent_id=${filter.nodeId})`);
+    const page=await transactionPage(sql`SELECT s.id,s.node_id,s.amount::text,s.reference,s.created_at,n.name,u.email FROM network_settlements s JOIN network_nodes n ON n.id=s.node_id JOIN users u ON u.id=n.user_id WHERE ${sql.join(parts,sql` AND `)}`,filter);
+    res.json({...page,settlements:page.items});
   } catch (e) {
     next(e);
   }
@@ -413,12 +401,7 @@ router.get("/settlements", async (req, res, next) => {
 router.get("/wallet-ledger", async (req, res, next) => {
   try {
     const actor = await networkIdentity(req.user!);
-    const filter = z
-      .object({
-        channel: z.enum(["b2b", "b2c"]).default("b2b"),
-        nodeId: z.string().max(100).optional(),
-      })
-      .parse(req.query);
+    const filter = parseTransactionQuery(req.query);
     if (actor.role !== "admin" && filter.channel !== "b2b") throw forbidden();
     let scope =
       actor.role === "admin"
@@ -430,10 +413,10 @@ router.get("/wallet-ledger", async (req, res, next) => {
           : sql`(u.id=${req.user!.id} OR u.b2b_agent_id=${actor.node.id})`;
     if (filter.nodeId)
       scope = sql`${scope} AND (u.b2b_agent_id=${filter.nodeId} OR u.b2b_agent_id IN(SELECT id FROM network_nodes WHERE parent_id=${filter.nodeId}) OR u.id IN(SELECT user_id FROM network_nodes WHERE id=${filter.nodeId} OR parent_id=${filter.nodeId}))`;
-    const rows = await db.execute(
-      sql`SELECT w.id,w.created_at,u.email,w.type,w.amount::text,w.balance_after::text,w.memo,w.ref_id FROM wallet_ledger w JOIN users u ON u.id=w.user_id WHERE ${scope} ORDER BY w.created_at DESC,w.id DESC LIMIT 200`,
-    );
-    res.json({ entries: rows.rows });
+    const parts=[scope,...transactionConditions(filter,{time:sql`w.created_at`,amount:sql`w.amount`,type:sql`w.type::text`,text:[sql`w.id`,sql`w.ref_id`,sql`w.ref_type`,sql`w.memo`,sql`u.email`,sql`u.display_name`]})];
+    if(filter.userId)parts.push(sql`u.id=${filter.userId}`);
+    const page=await transactionPage(sql`SELECT w.id,w.created_at,u.email,w.type,w.amount::text,w.balance_after::text,w.memo,w.ref_id,w.ref_type FROM wallet_ledger w JOIN users u ON u.id=w.user_id WHERE ${sql.join(parts,sql` AND `)}`,filter);
+    res.json({...page,entries:page.items});
   } catch (e) {
     next(e);
   }

@@ -142,9 +142,9 @@ async function masterPanel(
     if (path === "/api/network/reports")
       return route.fulfill({json:{role:'master',channel:'b2b',range:{period:'today',from:'2026-10-19',to:'2026-10-19',today:'2026-10-19',timezone:'Asia/Kolkata'},totals:{stake:'0',payout:'0',net:'0',company:null,master:'0',agent:'0',wagers:0,players:0},options:{masters:[],agents:agents.map(a=>({id:a.id,name:a.name,parentId:masterId}))},masters:[],agents:[],days:[]}});
     if (path === "/api/network/settlements")
-      return route.fulfill({ json: { settlements: [] } });
+      return route.fulfill({ json: { settlements: [],items:[],total:0 } });
     if (path === "/api/network/wallet-ledger")
-      return route.fulfill({ json: { entries: [] } });
+      return route.fulfill({ json: { entries: [],items:[],total:0 } });
     return route.fulfill({ json: [] });
   });
   return { website, writes, errors };

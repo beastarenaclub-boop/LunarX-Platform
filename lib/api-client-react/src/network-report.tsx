@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
+import {TransactionFilters,useTransactionFilters} from './transaction-filters';
 
 type Role = "admin" | "master" | "agent";
 type Period = "today" | "yesterday" | "weekly" | "monthly" | "custom";
@@ -100,7 +101,8 @@ export function NetworkReport({
     masters: [],
     agents: [],
   });
-  const [offset, setOffset] = useState(0);
+  const entryFilters=useTransactionFilters();
+  const {offset,setOffset}=entryFilters;
   const branchChannel = selectedChannel === "b2b";
   const params = new URLSearchParams({
     period,
@@ -127,6 +129,7 @@ export function NetworkReport({
   const data = report.data;
   // Always use the API's resolved IST dates so summary and entries match.
   const entryParams = new URLSearchParams({
+    ...entryFilters.query,
     channel: selectedChannel,
     offset: String(offset),
     ...(data ? { from: data.range.from, to: data.range.to } : {}),
@@ -528,6 +531,8 @@ export function NetworkReport({
       {ledger && data && !report.isError && (
         <section className="nr-section" aria-label="Commission entries">
           <h3>Commission & profit/loss ledger</h3>
+          <p>These filters apply to detailed entries. The commission summary above follows the selected period and account.</p>
+          <TransactionFilters state={entryFilters} dates={false} commission />
           <p>
             {visibleRole === "master"
               ? "Your master allocation for the selected agents. Agent allocations appear in the summary above."

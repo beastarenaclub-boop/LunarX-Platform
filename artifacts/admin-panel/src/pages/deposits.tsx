@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  useAdminListDeposits,
   useAdminDecideDeposit,
   getAdminListDepositsQueryKey,
   useAdminListUpiAccounts,
@@ -11,6 +10,7 @@ import {
   useAdminGetDepositSettings,
   useAdminUpdateDepositSettings,
   getAdminGetDepositSettingsQueryKey,
+  TransactionFilters,TransactionPagination,useTransactionFilters,customFetch,type TransactionPageInfo,type PaymentRequest,
 } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -18,7 +18,7 @@ import type {
   AdminListDepositsStatus,
   AdminListDepositsMethod,
 } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery,useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -49,12 +49,13 @@ export default function DepositsPage() {
   const qc = useQueryClient();
   const { user } = useAuth();
   const canDecide = hasRole(user, "admin", "super_admin");
+  const filters=useTransactionFilters();
 
-  const params: AdminListDepositsParams = {};
+  const params: AdminListDepositsParams & Record<string,unknown> = {...filters.query,limit:50,offset:filters.offset};
   if (status !== "all") params.status = status as AdminListDepositsStatus;
   if (method !== "all") params.method = method as AdminListDepositsMethod;
 
-  const { data, isLoading } = useAdminListDeposits(params);
+  const { data, isLoading,error } = useQuery({queryKey:getAdminListDepositsQueryKey(params),queryFn:({signal})=>customFetch<TransactionPageInfo&{deposits:PaymentRequest[]}>(`/api/admin/deposits?${new URLSearchParams(Object.entries(params).map(([key,value])=>[key,String(value)]))}`,{signal})});
   const decide = useAdminDecideDeposit({
     mutation: {
       onSuccess: () => {
@@ -80,8 +81,9 @@ export default function DepositsPage() {
       {canDecide && <DepositLimitsSection />}
       {canDecide && <UpiAccountsSection />}
 
-      <div className="flex items-center gap-3">
-        <Select value={status} onValueChange={setStatus}>
+      <TransactionFilters state={filters} direction={false}/>
+      <div className="flex flex-wrap items-center gap-3">
+        <Select value={status} onValueChange={value=>{setStatus(value);filters.setOffset(0);}}>
           <SelectTrigger className="w-48" data-testid="select-dep-status">
             <SelectValue />
           </SelectTrigger>
@@ -94,7 +96,7 @@ export default function DepositsPage() {
             <SelectItem value="all">All</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={method} onValueChange={setMethod}>
+        <Select value={method} onValueChange={value=>{setMethod(value);filters.setOffset(0);}}>
           <SelectTrigger className="w-48" data-testid="select-dep-method">
             <SelectValue />
           </SelectTrigger>
@@ -106,6 +108,7 @@ export default function DepositsPage() {
         </Select>
       </div>
 
+      {error&&<p role="alert" className="text-red-600">Could not load deposits. Please retry.</p>}
       <div className="border rounded bg-white">
         <Table>
           <TableHeader>
@@ -236,7 +239,7 @@ export default function DepositsPage() {
                 )}
               </TableRow>
             ))}
-            {!isLoading && deposits.length === 0 && (
+            {!isLoading && !error && deposits.length === 0 && (
               <TableRow>
                 <TableCell
                   colSpan={8}
@@ -249,6 +252,7 @@ export default function DepositsPage() {
           </TableBody>
         </Table>
       </div>
+      <TransactionPagination state={filters} data={data} signed={false} loading={isLoading}/>
     </div>
   );
 }

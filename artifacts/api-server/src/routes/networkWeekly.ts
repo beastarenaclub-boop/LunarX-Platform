@@ -6,6 +6,7 @@ import { nanoid } from "nanoid";
 import { networkIdentity } from "../services/network";
 import { weeklyStatus } from "../services/networkWeekly";
 import { badRequest, conflict, forbidden, notFound } from "../lib/errors";
+import {parseTransactionQuery,transactionConditions,transactionPage} from '../services/transactionFilters';
 
 const router: IRouter = Router();
 router.get("/", async (req, res, next) => {
@@ -20,6 +21,8 @@ router.get("/", async (req, res, next) => {
           : actor.node.parentId!;
     const status = await weeklyStatus(masterId);
     if (!status) throw notFound();
+    const filter=parseTransactionQuery(req.query);
+    const paymentParts=[sql`p.master_id=${masterId}`,...transactionConditions(filter,{time:sql`p.created_at`,amount:sql`p.amount`,status:sql`p.status`,text:[sql`p.id`,sql`p.reference`,sql`p.review_note`]})];
     const [weeks, payments] = await Promise.all([
       db.execute(sql`SELECT (date_trunc('week',l.created_at AT TIME ZONE 'Asia/Kolkata') AT TIME ZONE 'Asia/Kolkata') AS start,
         (date_trunc('week',l.created_at AT TIME ZONE 'Asia/Kolkata') AT TIME ZONE 'Asia/Kolkata')+interval '7 days' AS "end",
@@ -27,8 +30,7 @@ router.get("/", async (req, res, next) => {
         FROM network_ledger l JOIN network_nodes n ON n.id=l.master_id
         WHERE l.master_id=${masterId} AND l.account_kind='company' AND l.created_at>=n.weekly_started_at
         GROUP BY 1 ORDER BY 1 DESC LIMIT 104`),
-      db.execute(sql`SELECT p.id,p.amount::text,p.reference,p.status,p.review_note,p.created_at,p.reviewed_at
-        FROM network_weekly_payments p WHERE master_id=${masterId} ORDER BY created_at DESC LIMIT 200`),
+      transactionPage(sql`SELECT p.id,p.amount::text,p.reference,p.status,p.review_note,p.created_at,p.reviewed_at FROM network_weekly_payments p WHERE ${sql.join(paymentParts,sql` AND `)}`,filter),
     ]);
     res
       .set("Cache-Control", "no-store")
@@ -36,7 +38,9 @@ router.get("/", async (req, res, next) => {
         masterId,
         ...status,
         weeks: weeks.rows,
-        payments: payments.rows,
+        payments: payments.items,
+        paymentTotal:payments.total,
+        paymentSummary:payments.summary,
       });
   } catch (e) {
     next(e);

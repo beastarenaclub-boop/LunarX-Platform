@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  useAdminListWithdrawals,
   useAdminDecideWithdrawal,
   useAdminMarkWithdrawalPaid,
   getAdminListWithdrawalsQueryKey,
@@ -9,8 +8,9 @@ import {
   getAdminGetWithdrawSettingsQueryKey,
   useRealtimeTopic,
   useRealtimeResync,
+  TransactionFilters,TransactionPagination,useTransactionFilters,customFetch,type TransactionPageInfo,type Withdrawal,
 } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery,useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,9 +41,9 @@ export default function WithdrawalsPage() {
   const qc = useQueryClient();
   const { user } = useAuth();
   const canDecide = hasRole(user, "admin", "super_admin");
-  const params =
-    status === "all" ? undefined : { status: status as never };
-  const { data, isLoading } = useAdminListWithdrawals(params);
+  const filters=useTransactionFilters();
+  const params={...filters.query,limit:50,offset:filters.offset,paged:'1',...(status==='all'?{}:{status:status as never})};
+  const { data, isLoading,error } = useQuery({queryKey:getAdminListWithdrawalsQueryKey(params),queryFn:({signal})=>customFetch<TransactionPageInfo&{withdrawals:Withdrawal[]}>(`/api/admin/withdrawals?${new URLSearchParams(Object.entries(params).map(([key,value])=>[key,String(value)]))}`,{signal})});
   const { toast } = useToast();
   const [highlighted, setHighlighted] = useState<Set<string>>(new Set());
   const highlightTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
@@ -122,7 +122,8 @@ export default function WithdrawalsPage() {
         <p className="text-sm text-slate-500">Approve, reject, or settle payouts</p>
       </div>
       {canDecide && <WithdrawLimitsSection />}
-      <Select value={status} onValueChange={setStatus}>
+      <TransactionFilters state={filters} direction={false}/>
+      <Select value={status} onValueChange={value=>{setStatus(value);filters.setOffset(0);}}>
         <SelectTrigger className="w-48" data-testid="select-wd-status">
           <SelectValue />
         </SelectTrigger>
@@ -135,6 +136,7 @@ export default function WithdrawalsPage() {
           <SelectItem value="all">All</SelectItem>
         </SelectContent>
       </Select>
+      {error&&<p role="alert" className="text-red-600">Could not load withdrawals. Please retry.</p>}
       <div className="border rounded bg-white">
         <Table>
           <TableHeader>
@@ -158,7 +160,7 @@ export default function WithdrawalsPage() {
                 </TableCell>
               </TableRow>
             )}
-            {data?.map((w) => (
+            {data?.withdrawals.map((w) => (
               <TableRow
                 key={w.id}
                 data-testid={`row-wd-${w.id}`}
@@ -269,7 +271,7 @@ export default function WithdrawalsPage() {
                 )}
               </TableRow>
             ))}
-            {!isLoading && (data?.length ?? 0) === 0 && (
+            {!isLoading && !error && (data?.withdrawals.length ?? 0) === 0 && (
               <TableRow>
                 <TableCell colSpan={8} className="text-center text-slate-500">
                   No withdrawals
@@ -279,6 +281,7 @@ export default function WithdrawalsPage() {
           </TableBody>
         </Table>
       </div>
+      <TransactionPagination state={filters} data={data} signed={false} loading={isLoading}/>
     </div>
   );
 }

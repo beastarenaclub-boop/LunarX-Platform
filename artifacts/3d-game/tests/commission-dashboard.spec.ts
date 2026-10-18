@@ -327,6 +327,14 @@ test("master ledger uses the same selected dates and agent as summary", async ({
   await expect(
     report.getByText("Company fee 10%", { exact: true }),
   ).toBeVisible();
+  const filters=report.getByRole('region',{name:'Transaction filters',exact:true});
+  await filters.getByLabel('Search transactions',{exact:true}).fill('commission-reference');
+  await filters.getByLabel('Game code',{exact:true}).fill('dice');
+  await filters.getByRole('combobox',{name:'Credit / debit',exact:true}).selectOption('debit');
+  await filters.getByLabel('Maximum amount (₹)',{exact:true}).fill('45');
+  await filters.getByRole('button',{name:'Apply filters',exact:true}).click();
+  await expect.poll(()=>state.requests.at(-1)?.get('q')).toBe('commission-reference');
+  expect(Object.fromEntries(state.requests.at(-1)!)).toMatchObject({game:'dice',direction:'debit',maxAmount:'4500',nodeId:'alpha',from:'2026-10-18',to:'2026-10-18'});
   await expect
     .poll(() =>
       state.requests.some(

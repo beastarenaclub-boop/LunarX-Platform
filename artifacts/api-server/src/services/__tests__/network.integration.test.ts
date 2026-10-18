@@ -760,6 +760,34 @@ test(
       assert.equal(empty.totals.stake,'0');assert.deepEqual(empty.days,[]);
       for(const period of ['today','yesterday','weekly','monthly']) await reportCall(reportClient,`/network/reports?period=${period}`);
       const directReport=await reportCall(company,`${custom}&channel=b2c`);assert.deepEqual(directReport.agents,[]);assert.deepEqual(directReport.masters,[]);assert.equal(directReport.totals.master,null);assert.equal(directReport.totals.agent,null);
+
+      // Transaction filters operate before pagination and stay inside the actor's scope.
+      type PageResult={items:{id:string;amount:string;email?:string;type?:string}[];total:number;summary:{credit:string;debit:string;net:string};deposits:{id:string}[];withdrawals:{id:string}[];paymentTotal:number;payments:{reference:string}[]};
+      const txCall=async(client:Client,url:string)=>await call(client,url) as unknown as PageResult;
+      for(let i=0;i<55;i++)await db.execute(sql`INSERT INTO network_settlements(id,node_id,amount,reference,request_id,created_by,created_at) VALUES(${`${prefix}-filter-${i.toString().padStart(2,'0')}`},${reportMaster.id},${i===0?-500:100},${`${prefix}-FILTER_%_${i}`},${randomUUID()},${admin!.id},'2024-02-28T18:30:00Z')`);
+      const settledFilter=`/network/settlements?period=custom&from=2024-02-29&to=2024-02-29&q=${encodeURIComponent(prefix+'-FILTER_%_')}`;
+      const firstPage=await txCall(reportClient,settledFilter);assert.equal(firstPage.total,55);assert.equal(firstPage.items.length,50);assert.deepEqual(firstPage.summary,{credit:'5400',debit:'500',net:'4900'});
+      const nextPage=await txCall(reportClient,settledFilter+'&offset=50');assert.equal(nextPage.items.length,5);assert.equal(new Set([...firstPage.items,...nextPage.items].map(row=>row.id)).size,55);
+      assert.equal((await txCall(otherClient,settledFilter)).total,0);assert.equal((await txCall(reportAgentClient,settledFilter)).total,0);
+      assert.equal((await txCall(reportClient,settledFilter+'&direction=debit&minAmount=500&maxAmount=500')).total,1);
+      assert.equal((await txCall(reportClient,settledFilter+'&direction=credit&maxAmount=99')).total,0);
+      assert.equal((await txCall(reportClient,`/network/settlements?period=custom&from=2024-02-28&to=2024-02-28&q=${prefix}`)).total,0);
+      const ownWallet=await txCall(agentClient,`/network/wallet-ledger?direction=credit&type=adjustment&q=${encodeURIComponent(player.email)}&minAmount=2000&maxAmount=2000`);
+      assert.equal(ownWallet.total,1);assert.equal(ownWallet.items[0]!.amount,'2000');
+      assert.equal((await txCall(otherClient,`/network/wallet-ledger?q=${encodeURIComponent(player.email)}`)).total,0);
+      assert.equal((await txCall(agentClient,`/network/wallet-ledger?userId=${master.userId}`)).total,0);
+      const commissionRows=await call(reportClient,`/network/ledger?from=2024-02-29&to=2024-02-29&direction=debit&minAmount=9000&maxAmount=9000&game=test&q=${prefix}-first`);assert.equal(commissionRows.total,1);assert.equal(commissionRows.entries[0]!.amount,'-9000');
+      const paid=await txCall(masterClient,'/network/weekly?status=confirmed&q=TEST-BANK-001');assert.equal(paid.paymentTotal,1);assert.equal(paid.payments[0]!.reference,'TEST-BANK-001');
+      const unmatched=await txCall(masterClient,'/network/weekly?status=pending&q=TEST-BANK-001');assert.equal(unmatched.paymentTotal,0);
+      for(const [suffix,value,status] of [['one',1000,'pending'],['two',2000,'approved'],['three',3000,'pending']] as const){
+        await db.execute(sql`INSERT INTO payment_requests(id,user_id,kind,method,amount,status,upi_ref,created_at) VALUES(${`${prefix}-deposit-${suffix}`},${player.id},'deposit','manual',${value},${status},${`${prefix}-UTR_%_${suffix}`},'2024-02-28T18:30:00Z')`);
+        await db.execute(sql`INSERT INTO withdrawals(id,user_id,amount,destination,status,utr,requested_at) VALUES(${`${prefix}-withdraw-${suffix}`},${player.id},${value},'test@example',${status},${`${prefix}-UTR_%_${suffix}`},'2024-02-28T18:30:00Z')`);
+      }
+      const paymentQuery=`period=custom&from=2024-02-29&to=2024-02-29&q=${encodeURIComponent(prefix+'-UTR_%_')}&status=pending&minAmount=2000&maxAmount=4000&limit=1`;
+      const depositsFiltered=await txCall(company,'/admin/deposits?'+paymentQuery);assert.equal(depositsFiltered.total,1);assert.equal(depositsFiltered.deposits[0]!.id,`${prefix}-deposit-three`);assert.equal(depositsFiltered.summary.net,'3000');
+      const withdrawalsFiltered=await txCall(company,'/admin/withdrawals?paged=1&'+paymentQuery);assert.equal(withdrawalsFiltered.total,1);assert.equal(withdrawalsFiltered.withdrawals[0]!.id,`${prefix}-withdraw-three`);assert.equal(withdrawalsFiltered.summary.net,'3000');
+      for(const url of ['/admin/deposits','/admin/withdrawals?paged=1'])await call(agentClient,url,undefined,'GET',403);
+      for(const url of ['/network/wallet-ledger?minAmount=500&maxAmount=100','/network/settlements?period=custom&from=2024-03-01&to=2024-02-01','/admin/deposits?minAmount=-1','/admin/withdrawals?status=invalid'])await call(company,url,undefined,'GET',400);
     } finally {
       await new Promise<void>((resolve, reject) =>
         server.close((e) => (e ? reject(e) : resolve())),

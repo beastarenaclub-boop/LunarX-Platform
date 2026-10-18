@@ -1,4 +1,5 @@
 import { demoPresence } from "../demo/bridge";
+import {parseTransactionQuery,transactionConditions} from '../services/transactionFilters';
 import { isRetiredGame } from "../lib/retiredGames";
 import express, { Router, type IRouter } from "express";
 import {
@@ -817,21 +818,26 @@ router.get("/bets/round/:roundId", adminOnly, async (req, res, next) => {
 
 router.get("/withdrawals", adminOnly, async (req, res, next) => {
   try {
-    const limit = clampInt(req.query.limit, 50, 1, 200);
-    const offset = clampInt(req.query.offset, 0, 0, 1_000_000);
+    const filter=parseTransactionQuery(req.query);
+    const {limit,offset}=filter;
     const status =
       typeof req.query.status === "string" ? req.query.status : "";
-    const where = status
-      ? eq(withdrawalsTable.status, status as never)
-      : undefined;
+    if(status&&!['pending','approved','rejected','paid','failed'].includes(status))throw badRequest('Invalid status filter');
+    const conditions=transactionConditions(filter,{time:sql`${withdrawalsTable.requestedAt}`,amount:sql`${withdrawalsTable.amount}`,text:[sql`${withdrawalsTable.id}`,sql`${withdrawalsTable.userId}`,sql`${withdrawalsTable.utr}`,sql`${withdrawalsTable.destination}`,sql`(SELECT email FROM users WHERE id=${withdrawalsTable.userId})`]});
+    if(status)conditions.push(eq(withdrawalsTable.status,status as never));
+    if(filter.userId)conditions.push(eq(withdrawalsTable.userId,filter.userId));
+    const where=and(...conditions);
     const rows = await db
       .select()
       .from(withdrawalsTable)
       .where(where)
-      .orderBy(desc(withdrawalsTable.requestedAt))
+      .orderBy(desc(withdrawalsTable.requestedAt),desc(withdrawalsTable.id))
       .limit(limit)
       .offset(offset);
-    res.json(rows.map(serializeWithdrawal));
+    if(req.query.paged==='1'){
+      const [summary]=await db.select({total:count(),amount:sql<string>`COALESCE(sum(${withdrawalsTable.amount}),0)::text`}).from(withdrawalsTable).where(where);
+      res.json({withdrawals:rows.map(serializeWithdrawal),total:Number(summary?.total??0),summary:{credit:summary?.amount??'0',debit:'0',net:summary?.amount??'0'}});
+    }else res.json(rows.map(serializeWithdrawal));
   } catch (err) {
     next(err);
   }
@@ -1139,11 +1145,13 @@ router.post(
 
 router.get("/deposits", adminOnly, async (req, res, next) => {
   try {
-    const limit = clampInt(req.query.limit, 50, 1, 200);
-    const offset = clampInt(req.query.offset, 0, 0, 1_000_000);
+    const filter=parseTransactionQuery(req.query);
+    const {limit,offset}=filter;
     const DEPOSIT_STATUSES = ["pending", "approved", "rejected", "cancelled", "gateway_pending"] as const;
     const DEPOSIT_METHODS = ["manual", "auto"] as const;
     const conds = [eq(paymentRequestsTable.kind, "deposit")] as ReturnType<typeof eq>[];
+    conds.push(...transactionConditions(filter,{time:sql`${paymentRequestsTable.createdAt}`,amount:sql`${paymentRequestsTable.amount}`,text:[sql`${paymentRequestsTable.id}`,sql`${paymentRequestsTable.userId}`,sql`${paymentRequestsTable.upiRef}`,sql`${paymentRequestsTable.notes}`,sql`(SELECT email FROM users WHERE id=${paymentRequestsTable.userId})`]}));
+    if(filter.userId)conds.push(eq(paymentRequestsTable.userId,filter.userId));
     if (typeof req.query.status === "string" && req.query.status) {
       if (!(DEPOSIT_STATUSES as readonly string[]).includes(req.query.status))
         throw badRequest("Invalid status filter");
@@ -1160,14 +1168,15 @@ router.get("/deposits", adminOnly, async (req, res, next) => {
         .select()
         .from(paymentRequestsTable)
         .where(where)
-        .orderBy(desc(paymentRequestsTable.createdAt))
+        .orderBy(desc(paymentRequestsTable.createdAt),desc(paymentRequestsTable.id))
         .limit(limit)
         .offset(offset),
-      db.select({ c: count() }).from(paymentRequestsTable).where(where),
+      db.select({ c: count(),amount:sql<string>`COALESCE(sum(${paymentRequestsTable.amount}),0)::text` }).from(paymentRequestsTable).where(where),
     ]);
     res.json({
       deposits: rows.map(serializePaymentRequest),
       total: Number(totalRow[0]?.c ?? 0),
+      summary:{credit:totalRow[0]?.amount??'0',debit:'0',net:totalRow[0]?.amount??'0'},
     });
   } catch (err) {
     next(err);

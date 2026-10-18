@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
 import { NetworkTree } from "./network-tree";
 import { NetworkReport } from "./network-report";
+import { NetworkTransactions } from "./network-transactions";
 import { WebsiteLinks, type NetworkWebsite } from "./network-website";
 import { NetworkBranding } from "./network-branding";
 import { NetworkWeekly, type WeeklyStatus } from "./network-weekly";
@@ -82,13 +83,6 @@ export type NetworkPlayer = {
   agent_id: string | null;
 };
 type Player = NetworkPlayer;
-type Settlement = {
-  id: string;
-  name: string;
-  amount: string;
-  reference: string;
-  created_at: string;
-};
 const api = <T,>(path: string, body?: unknown, method = "POST") =>
   customFetch<T>(
     `/api/network${path}`,
@@ -184,7 +178,6 @@ export function NetworkPanel({
   const [agentFilter, setAgentFilter] = useState(initialAgentId);
   const [search, setSearch] = useState(""),
     [playerOffset, setPlayerOffset] = useState(0);
-  const [branch, setBranch] = useState("");
   const [modal, setModal] = useState<null | {
     kind: "create" | "edit" | "fund" | "settle";
     requestId?: string;
@@ -236,32 +229,6 @@ export function NetworkPanel({
         `/players?${new URLSearchParams({ channel, q: search, offset: String(playerOffset), ...(channel === "b2b" && agentFilter ? { agentId: agentFilter } : {}) })}`,
       ),
     enabled: !!role && showPlayers,
-    refetchInterval: 15000,
-  });
-  const settlements = useQuery({
-    queryKey: ["network", "settlements"],
-    queryFn: () => api<{ settlements: Settlement[] }>("/settlements"),
-    enabled: !!role && tab === "Settlements",
-    refetchInterval: 15000,
-  });
-  const wallet = useQuery({
-    queryKey: ["network", "wallet", channel, branch],
-    queryFn: () =>
-      api<{
-        entries: {
-          id: string;
-          created_at: string;
-          email: string;
-          type: string;
-          amount: string;
-          balance_after: string;
-          memo: string;
-          ref_id: string;
-        }[];
-      }>(
-        `/wallet-ledger?${new URLSearchParams({ channel, ...(branch ? { nodeId: branch } : {}) })}`,
-      ),
-    enabled: !!role && tab === "Wallet ledger",
     refetchInterval: 15000,
   });
   const mutate = useMutation({
@@ -399,7 +366,7 @@ export function NetworkPanel({
       : role === "master"
         ? "Master panel"
         : "Agent panel";
-  const queryError = [nodes, players, settlements, wallet].find(
+  const queryError = [nodes, players].find(
     (q) => q.isError,
   )?.error;
   const nodeActions = (n: Node, includeBrowse = true) => (
@@ -486,7 +453,6 @@ export function NetworkPanel({
                     setChannel(c);
                     changeTab("Overview");
                     setPlayerOffset(0);
-                    setBranch("");
                     setAgentFilter("");
                     setMasterFilter("");
                     setSearch("");
@@ -640,11 +606,6 @@ export function NetworkPanel({
         {role==='admin'&&<section className="net-card"><h2>Master weekly accounts</h2><p>Review received payments here. Confirming a payment updates branch access automatically.</p><label className="net-field"><span>Master</span><select value={weeklyMaster} onChange={e=>setWeeklyMaster(e.target.value)}><option value="">Choose master</option>{nodes.data?.nodes.filter(n=>n.kind==='master').map(n=><option key={n.id} value={n.id}>{n.name}{n.weekly?.locked?' — LOCKED':''}{n.weekly?` · Due ${money(n.weekly.duePaise)}`:''}</option>)}</select></label></section>}
         {role==='agent'?<section className="net-card"><p>Weekly settlement is managed by your master. Contact your master about branch access.</p></section>:(role==='admin'?weeklyMaster:context.data.website?.masterId)&&<NetworkWeekly key={role==='admin'?weeklyMaster:context.data.website!.masterId} masterId={role==='admin'?weeklyMaster:context.data.website!.masterId} admin={role==='admin'}/>}
       </>}
-      {tab === "Wallet ledger" && role === "admin" && channel === "b2b" && (
-        <div className="net-filters"><Field label="Branch / agent"><select value={branch} onChange={e=>setBranch(e.target.value)}>
-          <option value="">All branches</option>{nodes.data?.nodes.map(n=><option key={n.id} value={n.id}>{n.kind} · {n.name}</option>)}
-        </select></Field></div>
-      )}
       {(tab === "Overview" || tab === "Ledger") && <NetworkReport channel={channel} ledger={tab === "Ledger"} />}
       {tab === "Overview" && (
         <>
@@ -999,82 +960,7 @@ export function NetworkPanel({
           />
         </section>
       )}
-      {tab === "Settlements" && (
-        <section className="net-card">
-          <h2>Recorded company settlements</h2>
-          <p>
-            Positive amounts record profit paid out; negative amounts record
-            losses collected. These records do not move player wallet funds.
-            Latest 200 entries.
-          </p>
-          <div className="net-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Time (IST)</th>
-                  <th>Account</th>
-                  <th>Amount</th>
-                  <th>Payment reference</th>
-                </tr>
-              </thead>
-              <tbody>
-                {settlements.data?.settlements.map((s) => (
-                  <tr key={s.id}>
-                    <td>{date(s.created_at)}</td>
-                    <td>{s.name}</td>
-                    <td>{money(s.amount)}</td>
-                    <td>{s.reference}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {!settlements.data?.settlements.length && (
-            <p className="net-empty">No settlements recorded.</p>
-          )}
-        </section>
-      )}
-      {tab === "Wallet ledger" && (
-        <section className="net-card">
-          <h2>Wallet transactions</h2>
-          <p>
-            Deposits, game debits, returns and downline fund transfers. Latest
-            200 entries in your scope.
-          </p>
-          <div className="net-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Time (IST)</th>
-                  <th>Account</th>
-                  <th>Type</th>
-                  <th>Amount</th>
-                  <th>Balance after</th>
-                  <th>Reference / memo</th>
-                </tr>
-              </thead>
-              <tbody>
-                {wallet.data?.entries.map((w) => (
-                  <tr key={w.id}>
-                    <td>{date(w.created_at)}</td>
-                    <td>{w.email}</td>
-                    <td>{w.type}</td>
-                    <td>{money(w.amount)}</td>
-                    <td>{money(w.balance_after)}</td>
-                    <td>
-                      {w.memo}
-                      <small>{w.ref_id}</small>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {!wallet.data?.entries.length && (
-            <p className="net-empty">No wallet entries.</p>
-          )}
-        </section>
-      )}
+      {(tab === "Settlements" || tab === "Wallet ledger") && <NetworkTransactions key={tab+channel} kind={tab === "Settlements" ? "settlements" : "wallet"} role={role!} nodes={nodes.data?.nodes??[]} channel={channel} />}
       {modal && (
         <div className="net-modal-backdrop">
           <section

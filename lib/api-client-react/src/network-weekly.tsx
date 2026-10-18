@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
+import {TransactionFilters,TransactionPagination,useTransactionFilters,type TransactionPageInfo} from './transaction-filters';
 export type WeeklyStatus = {
   locked: boolean;
   overduePaise: string;
@@ -27,6 +28,8 @@ type Weekly = WeeklyStatus & {
     payout: string;
   }[];
   payments: Payment[];
+  paymentTotal:number;
+  paymentSummary:TransactionPageInfo['summary'];
 };
 const money = (v: string) => {
   const n = BigInt(v);
@@ -65,9 +68,11 @@ export function NetworkWeekly({
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState("");
   const [requestId, setRequestId] = useState(() => crypto.randomUUID());
+  const filters=useTransactionFilters();
+  const params=new URLSearchParams({...filters.query,masterId});
   const data = useQuery({
-    queryKey: ["network", "weekly", masterId],
-    queryFn: () => api<Weekly>(`?masterId=${encodeURIComponent(masterId)}`),
+    queryKey: ["network", "weekly", masterId,params.toString()],
+    queryFn: () => api<Weekly>(`?${params}`),
     refetchInterval: 30_000,
   });
   const run = async (fn: () => Promise<unknown>, message: string) => {
@@ -213,6 +218,7 @@ export function NetworkWeekly({
         </form>
       )}
       <h3 style={{ marginTop: 24 }}>Payment history</h3>
+      <TransactionFilters state={filters} direction={false} statuses={['pending','confirmed','rejected']}/>
       {w.payments.map((p) => (
         <article className="net-website-row" key={p.id}>
           <div>
@@ -266,7 +272,8 @@ export function NetworkWeekly({
           )}
         </article>
       ))}
-      {!w.payments.length && <p>No payment submissions yet.</p>}
+      {!w.payments.length && <p>No payment submissions match these filters.</p>}
+      <TransactionPagination state={filters} data={{total:w.paymentTotal??w.payments.length,summary:w.paymentSummary}} signed={false} loading={data.isFetching}/>
       {error && (
         <p className="net-error" role="alert">
           {error}
