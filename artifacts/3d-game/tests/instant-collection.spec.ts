@@ -50,194 +50,7 @@ async function setup(page: Page, code: string, options: { drop?: boolean; lose?:
   return { posts, errors, get balance() { return balance; } };
 }
 
-for (const side of ["Heads", "Tails"]) for (const lose of [false, true]) test(`coin studio: ${side} ${lose ? "loss" : "win"} matches receipt and wallet`, async ({ page }) => {
-  const f = await setup(page, "coin-flip", { lose });
-  await page.getByRole("button", { name: `Bet on ${side}`, exact: true }).click();
-  await page.getByTestId("chip-coin-flip-500").click();
-  await expect(page.getByLabel("Bet amount", { exact: true })).toHaveValue("500");
-  await expect(page.getByTestId("coin-potential-return")).toHaveText("₹970.00");
-  expect(f.posts).toHaveLength(0);
-  await page.getByTestId("collection-play").click();
-  const landed = lose ? side === "Heads" ? "tails" : "heads" : side.toLowerCase();
-  await expect(page.getByTestId("collection-result")).toContainText(`${landed.toUpperCase()} LANDED · YOU PICKED ${side.toUpperCase()}`);
-  await expect(page.getByTestId("collection-result")).toContainText(lose ? "Round over" : "Returned to your wallet");
-  await expect(page.getByTestId("coin-face")).toHaveAttribute("data-side", landed);
-  expect(f.posts).toHaveLength(1);
-  expect(f.posts[0].input.options.choice).toBe(side.toLowerCase());
-  expect(f.posts[0].input.stakeAmount).toBe("50000");
-  expect(f.balance).toBe(lose ? 950000n : 1047000n);
-  await expect(page.getByTestId("collection-balance")).toContainText(lose ? "9,500.00" : "10,470.00");
-  await page.reload();
-  await expect(page.getByTestId("coin-face")).toHaveAttribute("data-side", landed);
-  await expect(page.getByTestId("collection-result")).toContainText(`YOU PICKED ${side.toUpperCase()}`);
-  expect(f.posts).toHaveLength(1);
-  expect(f.errors).toEqual([]);
-});
-
-test("coin stadium: one physical toss per bet, result waits for catch, mobile fits", async ({ page }) => {
-  const f = await setup(page, "coin-flip", { delay: 1200 });
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  const host = page.getByTestId("coin-host-video");
-  await expect.poll(() => host.evaluate((v: HTMLVideoElement) => v.readyState)).toBeGreaterThanOrEqual(2);
-  await expect.poll(() => host.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
-  expect(await host.evaluate((v: HTMLVideoElement) => ({time:v.currentTime,loop:v.loop}))).toEqual({time:0,loop:false});
-  expect(f.posts).toHaveLength(0);
-  await page.getByRole("button", { name: "Bet on Tails", exact: true }).click();
-  await page.getByTestId("collection-play").dblclick();
-  await expect(page.getByTestId("coin-face")).toHaveAttribute("data-side", "flipping");
-  await expect(page.getByRole("button", { name: "Bet on Heads", exact: true })).toBeDisabled();
-  await expect(page.getByLabel("Bet amount", { exact: true })).toBeDisabled();
-  await expect(page.getByTestId("chip-coin-flip-500")).toBeDisabled();
-  await expect(page.getByTestId("collection-play")).toBeDisabled();
-  await expect.poll(() => host.evaluate((v: HTMLVideoElement) => v.currentTime)).toBeGreaterThan(3);
-  await expect(page.getByTestId("collection-result")).not.toContainText("Returned to your wallet");
-  await expect(page.getByTestId("collection-balance")).toContainText("10,000.00");
-  await expect(page.getByTestId("coin-stadium")).toHaveClass(/is-tossing/);
-  await page.screenshot({path:"tmp/coin-stadium/toss-in-flight.png",fullPage:true});
-  const angle = await page.getByTestId("coin-face").evaluate(e => getComputedStyle(e).transform);
-  await expect.poll(() => page.getByTestId("coin-face").evaluate(e => getComputedStyle(e).transform)).not.toBe(angle);
-  await expect(page.getByTestId("coin-face")).toHaveAttribute("data-side", "tails");
-  await expect(page.getByTestId("collection-play")).toBeEnabled();
-  await expect(page.getByTestId("collection-balance")).toContainText("10,094.00");
-  expect(await page.getByTestId("coin-face").evaluate(e => new DOMMatrixReadOnly(getComputedStyle(e).transform).m11)).toBeCloseTo(-1);
-  expect(f.posts).toHaveLength(1);
-  await expect.poll(() => host.evaluate((v: HTMLVideoElement) => v.ended)).toBe(true);
-  await expect.poll(() => host.evaluate((v: HTMLVideoElement) => v.paused)).toBe(true);
-  await page.screenshot({ path: "tmp/coin-stadium/desktop.png", fullPage: true });
-  for (const width of [390, 320, 844]) {
-    await page.setViewportSize({ width, height: width === 844 ? 390 : 844 });
-    await expect(page.getByTestId("collection-play")).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
-    await page.getByTestId("coin-stadium").scrollIntoViewIfNeeded();
-    await page.screenshot({ path: `tmp/coin-stadium/mobile-${width}.png`, fullPage: true });
-    const coinBox = await page.getByTestId("coin-face").boundingBox();
-    const resultBox = await page.getByTestId("collection-result").boundingBox();
-    expect(coinBox!.x + coinBox!.width).toBeLessThan(resultBox!.x + 2);
-    await page.getByTestId("collection-play").scrollIntoViewIfNeeded();
-    await expect(page.getByTestId("collection-play")).toBeInViewport();
-    await page.screenshot({ path: `tmp/coin-stadium/controls-${width}.png`, fullPage: true });
-  }
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(host).toHaveCount(0);
-  await expect(page.getByTestId("coin-face")).toHaveAttribute("data-side", "tails");
-  expect(f.errors).toEqual([]);
-});
-
-test("coin stadium: skipping or hiding a toss releases the result without replaying or betting again", async ({ page }) => {
-  const f=await setup(page,"coin-flip");
-  await page.emulateMedia({reducedMotion:"no-preference"});
-  const host=page.getByTestId("coin-host-video");
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.readyState)).toBeGreaterThanOrEqual(2);
-  await page.getByTestId("collection-play").click();
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.currentTime)).toBeGreaterThan(.5);
-  await page.getByRole("button",{name:"Disable toss animation",exact:true}).click();
-  await expect(page.getByTestId("collection-result")).toContainText("Returned to your wallet");
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(true);
-  await page.getByRole("button",{name:"Enable toss animation",exact:true}).click();
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(true);
-  expect(f.posts).toHaveLength(1);
-  await page.getByTestId("collection-play").click();
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(false);
-  await page.evaluate(()=>{Object.defineProperty(document,"hidden",{configurable:true,get:()=>true});document.dispatchEvent(new Event("visibilitychange"));});
-  await expect(page.getByTestId("collection-result")).toContainText("Returned to your wallet");
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(true);
-  await page.evaluate(()=>{delete (document as any).hidden;document.dispatchEvent(new Event("visibilitychange"));});
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(true);
-  await page.reload();
-  await expect(page.getByTestId("collection-result")).toContainText("Returned to your wallet");
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(true);
-  expect(f.posts).toHaveLength(2);
-  expect(f.errors).toEqual([]);
-});
-
-test("coin stadium: a stalled video cannot leave a settled bet locked", async ({ page }) => {
-  const f=await setup(page,"coin-flip");
-  await page.emulateMedia({reducedMotion:"no-preference"});
-  const host=page.getByTestId("coin-host-video");
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.readyState)).toBeGreaterThanOrEqual(2);
-  await page.getByTestId("collection-play").click();
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.currentTime)).toBeGreaterThan(.2);
-  await host.evaluate((v:HTMLVideoElement)=>v.pause());
-  await expect(page.getByTestId("collection-play")).toBeEnabled({timeout:17000});
-  await expect(page.getByTestId("collection-result")).toContainText("Returned to your wallet");
-  expect(f.posts).toHaveLength(1);
-  expect(f.errors).toEqual([]);
-});
-
-test("coin stadium: a rejected bet stops the toss and never replays the previous win", async ({ page }) => {
-  const f=await setup(page,"coin-flip");
-  await page.getByTestId("collection-play").click();
-  await expect(page.getByTestId("collection-result")).toContainText("Returned to your wallet");
-  await page.emulateMedia({reducedMotion:"no-preference"});
-  const host=page.getByTestId("coin-host-video");
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.readyState)).toBeGreaterThanOrEqual(2);
-  await page.route("**/api/instant/coin-flip/place",route=>route.fulfill({status:400,json:{detail:"Insufficient wallet balance."}}));
-  await page.getByTestId("collection-play").click();
-  await expect(page.getByRole("alert")).toContainText("Insufficient wallet balance");
-  await expect(page.getByTestId("collection-result")).toContainText("BET NOT CONFIRMED");
-  await expect(page.getByTestId("collection-result")).not.toContainText("Returned to your wallet");
-  await expect.poll(()=>host.evaluate((v:HTMLVideoElement)=>v.paused)).toBe(true);
-  await expect(page.getByTestId("collection-play")).toBeEnabled();
-  expect(f.posts).toHaveLength(1);
-  expect(f.balance).toBe(1009400n);
-});
-
-test("coin studio: pending tails restores original amount and reuses the request", async ({ page }) => {
-  const f = await setup(page, "coin-flip", { drop: true });
-  await page.getByRole("button", { name: "Bet on Tails", exact: true }).click();
-  await page.getByLabel("Bet amount", { exact: true }).fill("123.45");
-  await page.getByTestId("collection-play").click();
-  await expect(page.getByTestId("collection-play")).toContainText("Retry pending bet");
-  await page.reload();
-  await expect(page.getByLabel("Bet amount", { exact: true })).toHaveValue("123.45");
-  await expect(page.getByRole("button", { name: "Bet on Tails", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("button", { name: "Bet on Heads", exact: true })).toBeDisabled();
-  await expect(page.getByTestId("collection-result")).toContainText("Recover your flip");
-  await page.getByTestId("collection-play").click();
-  await expect(page.getByTestId("collection-result")).toContainText("TAILS LANDED");
-  expect(f.posts).toHaveLength(2);
-  expect(f.posts[0].input).toEqual(f.posts[1].input);
-  expect(f.balance).toBe(1011604n);
-});
-
-test("coin studio: timed-out confirmation recovers and missing host video does not block play", async ({ page }) => {
-  await page.route("**/stadium-toss.mp4", route => route.abort());
-  const f = await setup(page, "coin-flip");
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  await expect(page.getByTestId("coin-host-video")).toHaveCount(0);
-  await expect.poll(() => page.locator(".cf-host-poster").evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
-  let original: unknown;
-  await page.route("**/api/instant/coin-flip/place", async route => {
-    if (!original) { original = route.request().postDataJSON(); return; }
-    await route.fallback();
-  });
-  await page.getByTestId("collection-play").click();
-  await expect(page.getByTestId("collection-play")).toContainText("Retry pending bet", { timeout: 20000 });
-  await expect(page.getByRole("alert")).toContainText("timed out");
-  await expect(page.getByTestId("collection-play")).toBeEnabled();
-  await page.getByTestId("collection-play").click();
-  await expect(page.getByTestId("collection-result")).toContainText("Returned to your wallet");
-  expect(f.posts).toHaveLength(1);
-  expect(f.posts[0].input).toEqual(original);
-  expect(f.balance).toBe(1009400n);
-  expect(f.errors).toEqual([]);
-});
-
-test("coin studio: account chips, decimal return rounding and server payout cap", async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem("account:instant-test:button-values:v1", JSON.stringify([25, 50, 75, 250, 750, 25000])));
-  const f = await setup(page, "coin-flip", { cap: 1.5 });
-  await expect(page.getByTestId("chip-coin-flip-25")).toBeVisible();
-  await expect(page.getByTestId("chip-coin-flip-25000")).toHaveCount(0);
-  await page.getByTestId("chip-coin-flip-75").click();
-  await expect(page.getByLabel("Bet amount", { exact: true })).toHaveValue("75");
-  await page.getByLabel("Bet amount", { exact: true }).fill("1.01");
-  await expect(page.getByTestId("coin-potential-return")).toHaveText("₹1.51");
-  await page.getByTestId("collection-play").click();
-  await expect(page.getByTestId("collection-result")).toContainText("₹1.51 returned");
-  expect(f.balance).toBe(1000050n);
-});
-// The continuous 7 Up 7 Down table has its own server-clock suite in seven-up-down.spec.ts.
-for (const game of INSTANT_COLLECTION.filter(game => game.kind !== "dice")) test(`${game.name}: play, settle, recover, responsive`, async ({ page }) => {
+for (const game of INSTANT_COLLECTION.filter(game => game.kind !== "dice" && game.kind !== "coin")) test(`${game.name}: play, settle, recover, responsive`, async ({ page }) => {
   const f = await setup(page, game.code);
   if (game.kind === "dice") await page.getByRole("button", { name: "Bet on 7 Up", exact: true }).click();
   await expect(page.getByTestId("collection-play")).toBeEnabled();
@@ -397,13 +210,13 @@ test("all 11 games appear under Instant Games with correct routes", async ({ pag
   expect(f.errors).toEqual([]);
 });
 test("lost response retries the same request without a second debit", async ({ page }) => {
-  const f = await setup(page, "coin-flip", { drop: true });
+  const f = await setup(page, "duck-duel", { drop: true });
   await page.getByTestId("collection-play").click();
   await expect(page.getByTestId("collection-play")).toHaveText(/Retry pending bet/);
   await page.reload();
   await expect(page.getByTestId("collection-play")).toHaveText(/Retry pending bet/);
   await page.getByTestId("collection-play").click();
-  await expect(page.getByTestId("collection-play")).toHaveText(/Flip the coin/);
+  await expect(page.getByTestId("collection-play")).toHaveText(/Let.s play/);
   expect(f.posts).toHaveLength(2); expect(f.posts[0].input).toEqual(f.posts[1].input);
   expect(f.balance).toBe(1009400n);
 });
@@ -415,7 +228,7 @@ test("zero-step refund returns the original stake", async ({ page }) => {
   expect(f.balance).toBe(1000000n);
 });
 test("invalid stakes and insufficient balance cannot place a bet", async ({ page }) => {
-  const f = await setup(page, "coin-flip", { low: true });
+  const f = await setup(page, "duck-duel", { low: true });
   await expect(page.getByTestId("collection-play")).toBeDisabled();
   await page.getByLabel("Bet amount", { exact: true }).fill("-10");
   await expect(page.getByTestId("collection-play")).toBeDisabled();
@@ -431,7 +244,7 @@ test("hitting a mine loses only the stake and reveals the board", async ({ page 
   await expect(page.getByTestId("collection-cashout")).toHaveCount(0);
 });
 test("unavailable API prevents play and mobile rules remain accessible", async ({ page }) => {
-  const f = await setup(page, "coin-flip", { offline: true });
+  const f = await setup(page, "duck-duel", { offline: true });
   await page.setViewportSize({ width: 320, height: 700 });
   await expect(page.getByTestId("collection-play")).toBeDisabled();
   await expect(page.getByRole("alert")).toContainText("Could not connect");
@@ -505,7 +318,7 @@ test("pirate entry offers an audio tap and starts music without placing a bet", 
 
 test("pirate navigation starts already-unlocked music on entry", async ({ page }) => {
   await recordPirateAudio(page);
-  const f = await setup(page, "coin-flip", { audio: true, music: true });
+  const f = await setup(page, "duck-duel", { audio: true, music: true });
   await page.getByRole("button", { name: "Game rules", exact: true }).click();
   await page.keyboard.press("Escape");
   await page.evaluate(() => {

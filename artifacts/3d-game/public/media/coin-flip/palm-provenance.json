@@ -1,0 +1,23 @@
+{
+  "provider": "Runway",
+  "model": "seedance-2",
+  "taskId": "9d8ddb2a-35e6-4139-85a9-d5cf4bc3ef42",
+  "generatedAt": "2026-10-18",
+  "prompt": "Animate this exact adult female cricket presenter and stadium from the supplied starting image in one new 10-second photorealistic shot. Keep her identity, navy blazer, white polo and realistic cricket stadium. Start standing full length then smoothly push the camera closer. Seconds 0-2: she readies one small silver toss coin. Seconds 2-4: she thumb-flicks the same coin upward above her head, spinning end over end; her eyes follow it. Seconds 4-6: she catches it in her left palm at chest height. Seconds 6-8: she brings her LEFT OPEN PALM toward the camera, fingers extended naturally, palm angled toward the lens, so the single coin rests clearly visible in the CENTER of her open palm. Her RIGHT hand moves away and stays away: DO NOT COVER THE COIN. Seconds 8-10: hold still in a waist-up portrait with the open palm and its one silver coin centered directly BELOW her face, at the horizontal center of the frame and around 65 percent of frame height. Her face and entire open hand are clearly visible and do not overlap. The flat coin surface faces the camera, blank plain silver, no readable symbol or letters: we will composite the true Heads/Tails design onto that coin surface. Keep hand steady in the last two seconds. Real human anatomy, five fingers per hand, one coin only, natural gravity. Subject, hands and the coin's entire flight remain in the central 30 percent for a portrait crop. Keep generous headroom so rising coin stays in frame. Smooth sports broadcast camera zoom, no cuts, no transition, no text, no graphics, no extra people.",
+  "startFrame": "stadium-ready.jpg",
+  "video": "stadium-palm-toss.mp4",
+  "poster": "palm-reveal.jpg",
+  "width": 1920,
+  "height": 1080,
+  "fps": 24,
+  "durationSeconds": 10,
+  "processing": "Source first 4.25 seconds retimed to 10 seconds for the shared toss window. Result close-up extracted at source 9.8s. H.264 CRF 22, yuv420p, faststart, no audio.",
+  "usage": "Toss shot keeps the coin face hidden before the result. At the server reveal, cut to the open-palm close-up and composite the matching Heads/Tails face over the physical coin. No prerecorded face determines the result.",
+  "palmCoin": {
+    "x": 970,
+    "y": 644,
+    "width": 150,
+    "height": 148
+  },
+  "sha256": "5e6b0080c53a3389b93c17ceba2751399a6df1360736aa364ba237b3f5fc72f0"
+}

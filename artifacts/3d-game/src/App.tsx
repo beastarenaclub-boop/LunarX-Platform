@@ -59,6 +59,7 @@ const Lottery = lazy(() => import("@/pages/Lottery"));
 const PrizeLotto = lazy(() => import("@/pages/PrizeLotto"));
 const CrazyTime = lazy(() => import("@/pages/CrazyTime"));
 const DragonTigerOneDay = lazy(() => import("@/pages/DragonTigerOneDay"));
+const CoinFlipLive = lazy(() => import("@/pages/CoinFlipLive"));
 const InstantCollection = lazy(() => import("@/pages/InstantCollection"));
 const SevenUpDown = lazy(() => import("@/pages/SevenUpDown"));
 const Wheel20Live = lazy(() => import("@/pages/Wheel20Live"));
@@ -231,7 +232,7 @@ function App() {
           <Route path="/b2c"><B2C /></Route>
           <Route path="/">{B2C_STANDALONE ? <B2C /> : <Home />}</Route>
           {/* Playing and account access still require authentication. */}
-          {INSTANT_COLLECTION.map(game => <Route key={game.code} path={'/' + game.code}><Protected><Suspense fallback={<AuthSplash />}>{game.code === "7up7down" ? <SevenUpDown /> : <InstantCollection key={game.code} gameCode={game.code} />}</Suspense></Protected></Route>)}
+          {INSTANT_COLLECTION.map(game => <Route key={game.code} path={'/' + game.code}><Protected><Suspense fallback={<AuthSplash />}>{game.code === "7up7down" ? <SevenUpDown /> : game.code === "coin-flip" ? <CoinFlipLive /> : <InstantCollection key={game.code} gameCode={game.code} />}</Suspense></Protected></Route>)}
           <Route path="/fury-flight"><Redirect to="/fury" /></Route>
           <Route path="/chicken-road-2.0"><Redirect to="/chicken-road-2" /></Route>
           <Route path="/chicken-road-pirate-edition"><Redirect to="/chicken-road-pirate" /></Route>

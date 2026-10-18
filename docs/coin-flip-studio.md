@@ -1,54 +1,32 @@
-# Coin Flip stadium toss
+# Coin Flip stadium rounds
 
-`/coin-flip` uses a responsive cricket stadium presentation within
-`InstantCollection`. An AI-generated adult female presenter stands on the
-pitch, flicks a physical-looking coin upwards, follows it with her eyes and
-catches it. The camera moves closer during the shot. The presenter and toss
-trajectory stay centered for narrow mobile screens.
+The storefront /coin-flip page uses CoinFlipLive and the existing shared table-round engine. All players in the same runtime watch a new round every 30 seconds, whether or not they bet. Demo rounds and wallets remain inside the isolated demo worker.
 
-## Media and result presentation
+## Clock and settlement
 
-`public/media/coin-flip/stadium-toss.mp4` is a 1920 x 1080, 24 fps, ten-second
-Runway-generated video. The first frame is the idle/reduced-motion poster.
-`provenance.json` records the prompt, generation task, encoding and asset hash.
-The visible AI HOST badge identifies the generated presentation.
+Each persisted round snapshots 15 seconds of betting, 10 seconds of toss footage and 5 seconds of result display. Betting checks the persisted deadline under the round row lock, including a final deadline check before commit. The seed commitment is public before betting opens; the actual seed and common Heads/Tails outcome stay private until the toss deadline.
 
-Video plays once after an explicit bet. Entering the page, selecting a side,
-changing the stake or reloading does not play a toss. `useStadiumToss` resets
-playback for the next bet. The physical coin stays covered at the end, so the
-video never specifies a Heads/Tails outcome.
+One slip is accepted per user per round. Duplicate requests return that slip; changed side or amount conflicts. Stake debit, bet row and slip row commit together. Settlement uses the round's snapshotted RTP/cap and credits exact integer paise once. The payout includes the stake and rounds down to paise. Results appear in the existing account reports.
 
-A small verified-result coin lands on the server receipt's `outcome[0]`
-(0 = heads, 1 = tails). Its two original SVG faces live in `media/instant`.
-Animation never calculates a random result or payout. Result audio, the visible
-wallet and the latest history chip wait until the catch and reveal finish;
-ledger settlement remains immediate and server-owned.
+Restart recovery locks admission to an unrevealed round, refunds every accepted slip and marks the round void atomically. A revealed round keeps its persisted result and settles idempotently. A paused table still finishes a revealed round resumed after restart. No schema migration is needed.
 
-## Controls and recovery
+The new endpoints are under /api/instant/coin-flip/live: GET round, GET state and POST bet. The legacy instant endpoints remain compatible for old clients.
 
-Only the explicit Flip button submits a bet. Controls remain locked during
-submission, video playback and reveal. Shared chips honor profile Button Value
-presets and wallet/game limits. Editable stakes permit paise; potential returns
-use the server RTP and multiplier cap, include the stake and round down to paise.
+## Presenter and hand reveal
 
-Unconfirmed requests retain their idempotency key, side, stake and client seed
-across reloads. Retry submits that same request. A 15-second confirmation timeout
-unlocks recovery without assuming a missing response means failure. Wallet and
-history refresh run in the background after confirmation.
+The new generated source reuses the existing adult female presenter and cricket stadium. The first 4.25 seconds are retimed to the ten-second toss window, keeping the physical coin face hidden. On the server result, the view cuts to a close-up of her open palm. Heads/Tails artwork is composited directly over the physical coin using final-frame coordinates. The overlay and the image share the same cover scaling, including mobile crops. The AI HOST label identifies the presentation.
 
-Disabling animation, reduced motion, a media error or hiding the tab releases
-presentation without another bet. Returning to the tab does not replay the toss.
-A 13-second media watchdog prevents a stalled video from locking a settled bet.
-Rejected bets stop playback and suppress the previous receipt. Existing ledger,
-settlement and demo isolation remain unchanged.
+Assets: stadium-palm-toss.mp4, palm-reveal.jpg and palm-provenance.json under public/media/coin-flip. Provenance records the generation task, prompt, timing edit and hashes. The still remains usable with missing video or reduced motion. Joining during the toss seeks to the shared clock instead of restarting the shot. Media never gates settlement or betting availability.
 
-## Verification
+## Auto-bet and recovery
 
-- Frontend TypeScript and production Vite build.
-- `playwright.instant-collection.config.ts`: both Heads/Tails wins and losses,
-  wallet reconciliation, replay/reload identity, decimal rounding, payout caps,
-  profile chips, one toss per bet, reveal timing, duplicate-click locking,
-  skipping, tab visibility, stalled/missing media, rejected bets, reduced motion
-  and responsive scene/controls at 320, 390, 844 and 1440 px.
-- Production checks use a volatile demo session, never a cash-account bet.
-  Public health checks run without the restricted demo cookie.
+Auto-bet starts only from its explicit Start button. It repeats the chosen side and fixed stake, once per shared round, for 1?1000 rounds (default 10). Optional net loss and profit limits stop future bets. A previous wager must reconcile before the next is placed. Stop remains usable during a round; an accepted wager still settles.
+
+The plan lives only in memory. Hiding the tab, going offline, a stale/failed snapshot, a rejected or uncertain request, insufficient funds, reload or navigation stops future auto bets. It never automatically resumes. Pending requests persist the original round, side and amount for manual recovery; no new round ID is substituted during retry.
+
+## Checks
+
+- node artifacts/api-server/test-coin-live.mjs: volatile PGlite only; opposite-side settlement, exact paise, duplicate admission, rejected/late wagers, disclosure timing, no-bet rounds, payout snapshots and restart/refund races.
+- playwright.coin-live.config.ts: passive viewing, both palm results and wins/losses, countdown, video sync, auto-bet count/limits/stop/hidden/offline/reload/errors, pending recovery, account chips and responsive layouts.
+- playwright.instant-collection.config.ts covers the neighboring instant games. The obsolete instant Coin Flip browser cases moved to the shared-round suite.
+- Frontend/backend TypeScript and production builds. Live verification uses volatile demo funds only.

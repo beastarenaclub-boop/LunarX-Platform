@@ -1,3 +1,5 @@
+import { COIN_LIVE_TIMING, coinLiveMultiplier, collectionPayout, normalizeCoinLiveBet, type CoinLiveOutcome } from "@workspace/api-zod/instant-collection";
+import { settleCoinLive, refundCoinLive, voidCoinLiveRound } from "./coinFlipLive";
 import { W20_VERSION, normalizeW20Bets, w20Stake, w20Payout, type W20Bet, type W20Outcome } from "@workspace/api-zod/wheel20-live";
 import { deriveW20Outcome } from "./wheel20LiveMath";
 import { settleW20Live } from "./wheel20Live";
@@ -107,6 +109,7 @@ import { CRAZY_TIME_VERSION, CRAZY_TIME_MAX_RETURN, type CrazyTimeOutcome } from
 import { deriveCrazyTimeOutcome, validateCrazyTimeBets, settleCrazyTimeBets, type CrazyTimeBetInput } from "./crazyTimeMath";
 
 export const TABLE_GAME_CODES = [
+  "coin-flip",
   "wheel-2-live",
   "lucky-7-live",
   "roulette",
@@ -551,6 +554,12 @@ const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdapter> = 
     settle: (bets, card, _cap, _edge, cfg) => ({ settled: bets, totalPayout: l7Payout(bets as L7Bet[], card as L7Card, cfg.lucky7CardVersion) }),
     async insertAudit({ round }) { return round.id; },
   },
+  "coin-flip": {
+    validate: raw => ({ totalStake: BigInt(normalizeCoinLiveBet(raw).amount) }),
+    derive: (seed, client, nonce, cfg) => { const value = instantDraw("coin", seed, client, `coin-live:${nonce}`, "heads", 1 - cfg.houseEdge).outcome[0] as 0 | 1; return { value, side: value === 0 ? "heads" : "tails" }; },
+    settle: (raw, outcome, cap, edge) => { const bet = normalizeCoinLiveBet(raw); return { settled: raw, totalPayout: bet.side === (outcome as CoinLiveOutcome).side ? collectionPayout(BigInt(bet.amount), coinLiveMultiplier(1 - edge, cap)) : 0n }; },
+    async insertAudit({ round }) { return round.id; },
+  },
   "7up7down": {
     validate: raw => {
       const bets = raw as SevenBet[];
@@ -672,6 +681,7 @@ interface DisclosableRound {
 
 /** Server-epoch ms at which this round's outcome may first be handed out. */
 export function outcomeDiscloseAt(round: DisclosableRound): number {
+  if (round.gameCode === "coin-flip") return round.revealEndsAt.getTime();
   const lead = OUTCOME_DISCLOSE_LEAD_MS[round.gameCode as TableGameCode] ?? 0;
   const revealStartsAt = round.bettingEndsAt.getTime();
   if (lead <= 0) return revealStartsAt;
@@ -787,6 +797,7 @@ async function advancePhase(
 export async function createTableRound(gameCode: TableGameCode): Promise<TableRound> {
   const cfg = await requireGameConfig(gameCode);
   const snap = snapshotConfig(cfg);
+  if (gameCode === "coin-flip") Object.assign(snap, COIN_LIVE_TIMING);
   // Allow six physical card deliveries at their recorded speed. Existing
   // rounds retain their snapshotted timing; this applies to new coups only.
   if (gameCode === "baccarat") snap.revealDurationMs = Math.max(12_000, snap.revealDurationMs);
@@ -960,6 +971,7 @@ export async function settleTableRound(round: TableRound): Promise<TableRound> {
  * slips and swallow BET_ALREADY_SETTLED from the bets service.
  */
 export async function settlePendingSlips(round: TableRound): Promise<void> {
+  if (round.gameCode === "coin-flip") { await settleCoinLive(round); return; }
   if (round.gameCode === "lucky-7-live") { await settleL7Live(round); return; }
   if (round.gameCode === "wheel-2-live") { await settleW20Live(round); return; }
   if (round.gameCode === "7up7down") { await settleSevenLive(round); return; }
@@ -1259,6 +1271,7 @@ async function placeTableBetsUnlocked(input: {
 }
 
 async function refundSlip(slip: TableRoundBet): Promise<void> {
+  if (slip.gameCode === "coin-flip") { await refundCoinLive(slip.id); return; }
   try {
     await refundStake(slip.betId, slip.userId, slip.totalStake);
     await db
@@ -1385,7 +1398,7 @@ export async function getTableRoundSnapshot(
 
   // A player's receipt must not disappear behind the 100-row public feed.
   // Crazy Time accepts a single combined slip per user, so this stays small.
-  const personalSlips = (gameCode === "wheel-2-live" || gameCode === "crazy-time" || gameCode === "7up7down" || gameCode === "lucky-7-live") && userId
+  const personalSlips = (gameCode === "coin-flip" || gameCode === "wheel-2-live" || gameCode === "crazy-time" || gameCode === "7up7down" || gameCode === "lucky-7-live") && userId
     ? await db.select({ id: tableRoundBetsTable.id, userId: tableRoundBetsTable.userId,
       totalStake: tableRoundBetsTable.totalStake, bets: tableRoundBetsTable.bets,
       status: tableRoundBetsTable.status, payoutAmount: tableRoundBetsTable.payoutAmount,
@@ -1489,6 +1502,7 @@ export async function recoverTableRound(
     );
     return null;
   }
+  if (round.gameCode === "coin-flip") return voidCoinLiveRound(round.id);
   const slips = await db
     .select()
     .from(tableRoundBetsTable)
@@ -1564,7 +1578,7 @@ async function runGameLoop(gameCode: TableGameCode): Promise<void> {
   while (!engineStopped) {
     try {
       const cfg = await requireGameConfig(gameCode);
-      if (!cfg.enabled) {
+      if (!cfg.enabled && !(gameCode === "coin-flip" && resumed)) {
         await sleepUntil(Date.now() + 5000);
         continue;
       }

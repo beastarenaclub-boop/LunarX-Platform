@@ -52,6 +52,21 @@ export interface CollectionRound {
 }
 export interface CollectionState { round: CollectionRound | null; history: CollectionRound[] }
 export interface CollectionConfig { enabled: boolean; minStakePaise: string; maxStakePaise: string; rtp: number; maxMultiplier: number }
+export type CoinSide = "heads" | "tails";
+export type CoinLiveBet = { side: CoinSide; amount: string };
+export type CoinLiveInput = { roundId: string; side: CoinSide; stakeAmount: string };
+export type CoinLiveOutcome = { side: CoinSide; value: 0 | 1 };
+export interface CoinLiveReceipt extends CollectionRound { tableRoundId: string; slipStatus: string }
+export const COIN_LIVE_TIMING = { bettingWindowMs: 15000, revealDurationMs: 10000, settleDurationMs: 5000 };
+export function coinLiveMultiplier(rtp: number, cap: number) {
+  return Math.min(cap, Math.floor((rtp * 2 + 1e-10) * 100) / 100);
+}
+export function normalizeCoinLiveBet(raw: unknown): CoinLiveBet {
+  if (!Array.isArray(raw) || raw.length !== 1) throw new Error("Choose one side for this round.");
+  const bet = raw[0] as CoinLiveBet;
+  if (!bet || !["heads", "tails"].includes(bet.side) || typeof bet.amount !== "string" || !/^[1-9]\d{0,14}$/.test(bet.amount)) throw new Error("Invalid coin bet.");
+  return { side: bet.side, amount: bet.amount };
+}
 export const roadSurvival = (difficulty: CollectionOptions["difficulty"]) => ({ easy: .85, medium: .7, hard: .55 })[difficulty];
 export function collectionMultiplier(kind: InstantKind, step: number, options: CollectionOptions, rtp = .97, cap = 1000): number {
   if (!step) return 1;
