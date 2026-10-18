@@ -3,6 +3,7 @@ import securityRouter from "./adminSecurity";
 import {parseTransactionQuery,transactionConditions} from '../services/transactionFilters';
 import { isRetiredGame } from "../lib/retiredGames";
 import express, { Router, type IRouter } from "express";
+import { decideMasterDeposit } from "../services/masterManualPayments";
 import {
   db,
   kycSubmissionsTable,
@@ -1199,6 +1200,11 @@ router.post(
       const input = DepositDecisionInput.parse(req.body);
       const decision = input.decision;
       const reason = input.reason;
+      const [collection] = await db.select({ masterId: paymentRequestsTable.collectionMasterId }).from(paymentRequestsTable).where(eq(paymentRequestsTable.id, id));
+      if (collection?.masterId) {
+        res.json(serializePaymentRequest(await decideMasterDeposit(req.user!, collection.masterId, id, decision, reason)));
+        return;
+      }
       if (decision === "reject" && (!reason || reason.trim().length === 0)) {
         throw badRequest("reason is required when rejecting a deposit");
       }

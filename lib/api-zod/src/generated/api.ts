@@ -677,6 +677,8 @@ export const createDepositRequestBodyUpiRefMax = 64;
 export const createDepositRequestBodyNotesMax = 200;
 
 export const CreateDepositRequestBody = zod.object({
+  accountId: zod.string().optional(),
+  accountVersion: zod.number().int().min(1).optional(),
   amount: zod
     .string()
     .describe("Positive integer amount in smallest currency unit (paise)."),
@@ -996,6 +998,7 @@ export const CreateAutoDepositRequestResponse = zod
  * @summary List active admin-managed UPI accounts for deposits
  */
 export const ListActiveUpiAccountsResponseItem = zod.object({
+  accountVersion: zod.number().int().min(1).optional(),
   id: zod.string(),
   label: zod.string(),
   upiId: zod.string(),

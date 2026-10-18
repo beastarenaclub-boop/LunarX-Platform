@@ -372,6 +372,13 @@
       "when": 1792356000000,
       "tag": "0052_account_access",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1792363200000,
+      "tag": "0053_master_manual_payments",
+      "breakpoints": true
     }
   ]
 }

@@ -7,6 +7,7 @@
  */
 
 export interface PublicUpiAccount {
+  accountVersion?: number;
   id: string;
   label: string;
   upiId: string;

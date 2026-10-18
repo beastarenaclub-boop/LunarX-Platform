@@ -19,6 +19,7 @@ import weeklyRouter from "./networkWeekly";
 import brandingRouter from "./networkBranding";
 import reportsRouter from "./networkReports";
 import paymentHistoryRouter from "./networkPaymentHistory";
+import manualPaymentsRouter from "./networkManualPayments";
 import { parseTransactionQuery, transactionConditions, transactionPage } from "../services/transactionFilters";
 import { customMaster } from "../middlewares/siteChannel";
 import { requestSite } from "../middlewares/siteChannel";
@@ -44,6 +45,7 @@ router.use(requireAuth);
 router.use('/reports',reportsRouter);
 router.use('/payment-history',paymentHistoryRouter);
 router.use('/weekly',weeklyRouter);
+router.use('/manual-payments',manualPaymentsRouter);
 router.use(async(req,_res,next)=>{
   try { if(!['GET','HEAD'].includes(req.method) && req.user?.role==='agent')await assertBranchOperations(req.user.id); next(); }
   catch(e){next(e);}

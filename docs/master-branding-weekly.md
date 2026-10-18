@@ -1,5 +1,53 @@
 # Master websites and weekly collection
 
+## Customer manual QR payments
+
+Master panel: `/master/manual-payments`. Each master can save a receiver name,
+UPI ID, optional PNG/JPEG/WebP QR image and an on/off switch. Images are stored
+in PostgreSQL, so they survive service restarts without a disk. The customer
+wallet uses the uploaded QR or generates one from the UPI ID. Check that the
+uploaded QR and UPI ID identify the same receiver.
+
+Authenticated B2B customers see only their assigned master's active account;
+visiting another branch URL cannot select a different receiver. A missing or
+disabled account shows no payment QR. B2B automatic gateway payments are disabled
+for this manual collection flow. B2C keeps its existing platform payment accounts.
+The platform's manual-deposit switch and amount limits still apply.
+
+The customer submits the amount and bank UTR. The request snapshots the receiving
+master, UPI ID and account version. Stale/foreign account details and duplicate
+UTRs within a master are rejected. Submitting a UTR does not credit the wallet.
+Masters review requests under **Manual payments**, verify the received bank funds,
+then approve or reject with a reason. Agents cannot edit QR details or review
+deposits. Admin can manage each master's account from Network > Manual payments.
+
+Approval atomically debits the master's available wallet float and credits the
+customer's shared wallet, with an audit entry and balance updates. The master
+must have enough float. Both the master and existing admin approval endpoints
+use this same operation; simultaneous reviews cannot credit twice. Rejection
+does not move money. These transfers do not issue platform deposit bonuses or
+count as game revenue/company weekly commission. Existing requests retain their
+original receiver when the master later edits or disables the QR.
+
+Migration `0053_master_manual_payments.sql` must run before the updated API.
+Deploy the player, operator and admin bundles along with the API. No new secret,
+payment gateway or DNS record is needed. Historical deposits keep their existing
+review workflow; collector ownership is recorded only for new branch requests.
+
+Verification:
+
+- `node tools/test-network.mjs`: fresh migration chain and isolated PostgreSQL
+  tests for role/branch isolation, recipient changes, duplicate UTRs, insufficient
+  float, concurrent master/admin approval and rejection.
+- From `artifacts/api-server`, run
+  `node --import tsx ../../tools/test-master-payments-browser.mjs` after the network
+  suite. It builds isolated preview bundles and checks QR upload, reload,
+  customer submission, approval, wallet balances and mobile layout. Screenshots
+  are saved under `tmp/master-manual-browser`.
+  Set `PLAYWRIGHT_CHANNEL=chrome` to use an installed Chrome browser.
+
+## Website and domain setup
+
 Every master automatically receives `https://play.lunarx.live/branch/<master-id>/`.
 The dashboard shows the complete playing URL with Open, Copy and WhatsApp controls.
 The same URL is inherited by the master's agents. Browsing is public; gameplay still

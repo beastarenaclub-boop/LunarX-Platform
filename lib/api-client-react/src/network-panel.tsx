@@ -7,6 +7,7 @@ import { NetworkTransactions } from "./network-transactions";
 import { PaymentHistory } from "./payment-history";
 import { WebsiteLinks, type NetworkWebsite } from "./network-website";
 import { NetworkBranding } from "./network-branding";
+import { NetworkManualPayments } from "./network-manual-payments";
 import { NetworkWeekly, type WeeklyStatus } from "./network-weekly";
 import { useRealtimeTopic, useRealtimeResync } from "./realtime";
 
@@ -155,7 +156,7 @@ function Pager({
   );
 }
 
-export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account" | "Payment history";
+export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account" | "Payment history" | "Manual payments";
 
 export function NetworkPanel({
   initialTab = "Overview",
@@ -550,6 +551,7 @@ export function NetworkPanel({
           ...(channel === 'b2b' && role!=='agent' ? ['Weekly account'] : []),
           "Wallet ledger",
           "Payment history",
+          ...(channel === "b2b" && role !== "agent" ? ["Manual payments"] : []),
           ...(channel === "b2b" ? ["Website"] : []),
         ].map((t) => (
           <button
@@ -964,6 +966,10 @@ export function NetworkPanel({
       )}
       {(tab === "Settlements" || tab === "Wallet ledger") && <NetworkTransactions key={tab+channel} kind={tab === "Settlements" ? "settlements" : "wallet"} role={role!} nodes={nodes.data?.nodes??[]} channel={channel} />}
       {tab === "Payment history" && <PaymentHistory key={channel} role={role!} nodes={nodes.data?.nodes??[]} channel={channel}/>}
+      {tab === "Manual payments" && role !== "agent" && <>
+        {role === "admin" && <section className="net-card"><label className="net-field"><span>Master payment account</span><select value={weeklyMaster} onChange={e => setWeeklyMaster(e.target.value)}><option value="">Choose master</option>{nodes.data?.nodes.filter(n => n.kind === "master").map(n => <option key={n.id} value={n.id}>{n.name}</option>)}</select></label></section>}
+        {(role === "admin" ? weeklyMaster : context.data.node?.id) && <NetworkManualPayments key={role === "admin" ? weeklyMaster : context.data.node!.id} masterId={role === "admin" ? weeklyMaster : context.data.node!.id} />}
+      </>}
       {modal && (
         <div className="net-modal-backdrop">
           <section

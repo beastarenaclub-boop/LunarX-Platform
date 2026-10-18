@@ -30,6 +30,7 @@ import { getPaymentProvider } from "../services/payment-gateway";
 import { applyDepositBonus } from "../services/promotions";
 import { logger } from "../lib/logger";
 import { z } from "zod";
+import { createMasterDeposit, playerCollectionAccounts } from "../services/masterManualPayments";
 
 const router: IRouter = Router();
 
@@ -72,11 +73,13 @@ const CoinQuantity = z.number().int().positive().max(10_000_000).optional();
 
 const ManualDepositInput = z.object({
   amount: AmountStr,
-  upiRef: z.string().min(4).max(64),
+  upiRef: z.string().trim().min(4).max(64),
   notes: z.string().max(200).optional(),
   game: GameScope,
   packageSku: PackageSku,
   coinQuantity: CoinQuantity,
+  accountId: z.string().min(1).max(100).optional(),
+  accountVersion: z.number().int().positive().optional(),
 });
 
 const AutoDepositInput = z.object({
@@ -115,12 +118,12 @@ router.get("/deposit-limits", requireAuth, async (_req, res, next) => {
   }
 });
 
-router.get("/deposit-settings", requireAuth, async (_req, res, next) => {
+router.get("/deposit-settings", requireAuth, async (req, res, next) => {
   try {
     const settings = await getDepositSettings();
     res.json({
       manualEnabled: settings.manualEnabled,
-      autoEnabled: settings.autoEnabled,
+      autoEnabled: req.user!.channel === "b2b" ? false : settings.autoEnabled,
       minAmountPaise: settings.minAmountPaise.toString(),
       maxAmountPaise: settings.maxAmountPaise.toString(),
     });
@@ -176,17 +179,20 @@ router.post("/deposits", requireAuth, async (req, res, next) => {
       amount,
       coinQuantity: input.coinQuantity,
     });
-    const created = await createPaymentRequest({
+    const requestInput = {
       userId: req.user!.id,
-      kind: "deposit",
-      method: "manual",
+      kind: "deposit" as const,
+      method: "manual" as const,
       amount,
       game: input.game,
       upiRef: input.upiRef,
       notes: input.notes ?? null,
       packageSku: pack?.sku ?? null,
       coinQuantity: pack?.coins ?? null,
-    });
+    };
+    const created = req.user!.channel === "b2b"
+      ? await createMasterDeposit(req.user!, requestInput, input.accountId, input.accountVersion)
+      : await createPaymentRequest(requestInput);
     await recordAuditFromReq(req, {
       action: "payment.deposit_request",
       targetType: "payment_request",
@@ -208,6 +214,7 @@ router.post("/deposits", requireAuth, async (req, res, next) => {
 
 router.post("/deposits/auto", requireAuth, async (req, res, next) => {
   try {
+    if (req.user!.channel === "b2b") throw forbidden("Use your website's manual payment option");
     const settings = await getDepositSettings();
     if (!settings.autoEnabled) {
       throw forbidden("Automatic deposits are currently disabled");
@@ -305,8 +312,11 @@ router.post("/deposits/auto", requireAuth, async (req, res, next) => {
   }
 });
 
-router.get("/upi-accounts", requireAuth, async (_req, res, next) => {
+router.get("/upi-accounts", requireAuth, async (req, res, next) => {
   try {
+    res.set("Cache-Control", "no-store");
+    const branchAccounts = await playerCollectionAccounts(req.user!);
+    if (branchAccounts !== null) { res.json(branchAccounts); return; }
     const rows = await db
       .select()
       .from(upiAccountsTable)

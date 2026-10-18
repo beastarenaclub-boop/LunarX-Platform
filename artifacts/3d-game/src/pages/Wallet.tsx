@@ -254,6 +254,10 @@ export default function WalletPage() {
     e.preventDefault();
     const rupees = Number(depAmount);
     if (!validateDepositAmount(rupees)) return;
+    if (!selectedAccount || upiAccounts.isError) {
+      toast.error("Load the payment details before submitting a deposit");
+      return;
+    }
     if (!depUpiRef || depUpiRef.length < 4) {
       toast.error("Enter the 12-digit UTR / UPI reference from your payment");
       return;
@@ -263,6 +267,8 @@ export default function WalletPage() {
         amount: rupeesToPaise(rupees),
         game: depGame,
         upiRef: depUpiRef,
+        accountId: selectedAccount.id,
+        accountVersion: selectedAccount.accountVersion,
         ...(selectedPack
           ? { packageSku: selectedPack.sku, coinQuantity: selectedPack.coins }
           : {}),
@@ -575,13 +581,13 @@ export default function WalletPage() {
                             data-testid={`upi-card-${selectedAccount.id}`}
                           >
                             <div className="wallet-qr">
-                              <QRCodeSVG
+                              {selectedAccount.qrUrl ? <img src={selectedAccount.qrUrl} alt="Payment QR" width={200} height={200} style={{ objectFit: "contain", maxWidth: "100%" }} data-testid="img-upi-qr" /> : <QRCodeSVG
                                 value={upiLink}
                                 size={200}
                                 level="M"
                                 marginSize={1}
                                 data-testid="img-upi-qr"
-                              />
+                              />}
                             </div>
                             <div className="flex-1 space-y-2 text-sm">
                               <div className="font-semibold">
@@ -610,10 +616,10 @@ export default function WalletPage() {
                                 </div>
                               </div>
                               <p className="text-xs text-muted-foreground">
-                                Choose a pack or enter an amount before scanning
-                                the QR. You can also copy the UPI ID. After
-                                paying, enter your 12-digit UTR to confirm the
-                                payment.
+                                Pay the selected amount and check the receiver
+                                name in your UPI app. You can also copy the UPI ID.
+                                After paying, submit your UTR for review. Your
+                                wallet is credited only after approval.
                               </p>
                             </div>
                           </div>
@@ -676,7 +682,7 @@ export default function WalletPage() {
                     <Button
                       type="submit"
                       disabled={
-                        createManualDeposit.isPending || accounts.length === 0
+                        createManualDeposit.isPending || upiAccounts.isError || accounts.length === 0
                       }
                       data-testid="btn-deposit-submit"
                     >

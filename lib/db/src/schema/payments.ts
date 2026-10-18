@@ -7,10 +7,22 @@ import {
   boolean,
   index,
   integer,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { usersTable } from "./users";
+import { networkNodesTable } from "./network";
+
+export const masterPaymentAccountsTable = pgTable("master_payment_accounts", {
+  masterId: text("master_id").primaryKey().references(() => networkNodesTable.id),
+  label: text("label").notNull(),
+  upiId: text("upi_id").notNull(),
+  qrData: text("qr_data"),
+  active: boolean("active").notNull().default(true),
+  version: integer("version").notNull().default(1),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 export const paymentRequestKindEnum = pgEnum("payment_request_kind", [
   "deposit",
@@ -57,6 +69,8 @@ export const paymentRequestsTable = pgTable(
     status: paymentRequestStatusEnum("status").notNull().default("pending"),
     upiRef: text("upi_ref"),
     upiId: text("upi_id"),
+    collectionMasterId: text("collection_master_id").references(() => networkNodesTable.id),
+    collectionAccountVersion: integer("collection_account_version"),
     notes: text("notes"),
     rejectionReason: text("rejection_reason"),
     gatewayOrderId: text("gateway_order_id"),
@@ -76,6 +90,9 @@ export const paymentRequestsTable = pgTable(
     index("payment_requests_status_idx").on(t.status),
     index("payment_requests_kind_idx").on(t.kind),
     index("payment_requests_created_at_idx").on(t.createdAt),
+    uniqueIndex("payment_requests_master_utr_idx")
+      .on(t.collectionMasterId, sql`lower(${t.upiRef})`)
+      .where(sql`${t.collectionMasterId} IS NOT NULL AND ${t.kind} = 'deposit' AND ${t.method} = 'manual'`),
   ],
 );
 

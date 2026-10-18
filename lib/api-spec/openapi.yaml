@@ -2112,6 +2112,8 @@ components:
       type: object
       required: [amount]
       properties:
+        accountId: { type: string, description: Selected payment account ID; required for branch deposits. }
+        accountVersion: { type: integer, minimum: 1, description: Selected branch payment account version. }
         amount:
           type: string
           description: Positive integer amount in smallest currency unit (paise).
@@ -2438,6 +2440,7 @@ components:
         label: { type: string }
         upiId: { type: string }
         qrUrl: { type: string, nullable: true }
+        accountVersion: { type: integer, minimum: 1 }
     UpiAccountInput:
       type: object
       required: [label, upiId]

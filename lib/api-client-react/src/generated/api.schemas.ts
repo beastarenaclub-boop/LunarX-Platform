@@ -396,6 +396,8 @@ and legacy rows created before the catalog existed.
 }
 
 export interface DepositRequestInput {
+  accountId?: string;
+  accountVersion?: number;
   /** Positive integer amount in smallest currency unit (paise). */
   amount: string;
   /** Which game's separate wallet this deposit credits. Defaults to lunar. */
@@ -802,6 +804,7 @@ export interface UpiAccount {
 }
 
 export interface PublicUpiAccount {
+  accountVersion?: number;
   id: string;
   label: string;
   upiId: string;
