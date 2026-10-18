@@ -41,3 +41,42 @@ Before declaring the domain live, confirm authoritative DNS, Render domain
 verification and a valid HTTPS response from `https://crypto777.in`.
 
 The fallback B2C preview is <https://lunarx.live/b2c> after the web release is live.
+
+## Verified release: 18 October 2026
+
+Application commit: `00a79a56393238566e8b2c5ccee33b99ab5ce8cb`.
+
+- API deployment `dep-dbadfh67bikc73e6s10g`: live.
+- Web deployment `dep-dbadh5rncjis73d59qi0`: live.
+- Health checks returned 200 for the website, B2B, admin and operator domains.
+- Production admin login passed. Existing user and bet counts were retained.
+- The live admin dashboard displayed the demo counter increasing on demo start
+  and decreasing on logout. Its B2C Website link points to `https://crypto777.in/`.
+- Browser checks on `https://lunarx.live/b2c` passed: automatic one-hour demo,
+  unchanged expiry after reuse, a settled Dice practice bet, admin live presence,
+  no production user/bet rows for the demo ID, blocked financial operations,
+  mobile wallet explanation and logout. No browser JavaScript errors occurred.
+- Production assets, supplied logo and game posters are available. Desktop and
+  mobile host-routing checks passed against the built gateway locally.
+
+The API restart briefly caused gateway 502 responses; health recovered before
+the web rollout completed. Check the gateway after future API-only releases,
+including its resolution of the API's current private address.
+
+### Remaining domain activation
+
+At verification time both Crypto777 domains were still `unverified` on Render.
+The apex A record still resolved to `2.57.91.91`; HTTPS on the new domain has
+therefore not been declared live. Hostinger DNS tools require a one-time Codex
+host/extension restart after their registration, then account sign-in if needed.
+
+Read the full Hostinger zone before updating it. The intended web records are:
+
+| Type | Name | Target |
+| --- | --- | --- |
+| A | `@` | `216.24.57.1` |
+| CNAME | `www` | `lunarx-web.onrender.com` |
+
+Preserve unrelated records. Verify the domains in Render and wait for valid TLS
+before rerunning the browser check on `https://crypto777.in` itself.
+Reference: <https://render.com/docs/configure-other-dns>.
