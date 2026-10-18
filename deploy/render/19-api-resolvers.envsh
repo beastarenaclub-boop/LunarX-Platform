@@ -1,0 +1,13 @@
+#!/bin/sh
+# Use the container's own DNS, including its private-network search domain.
+set -eu
+export NGINX_RESOLVERS="$(awk '$1 == "nameserver" && $2 !~ /:/ {printf "%s ", $2}' /etc/resolv.conf)"
+test -n "$NGINX_RESOLVERS"
+api_host="${API_UPSTREAM%:*}"
+api_port="${API_UPSTREAM##*:}"
+case "$api_host" in
+  *.*) ;;
+  *) api_search="$(awk '$1 == "search" {print $2; exit}' /etc/resolv.conf)"
+     if [ -n "$api_search" ]; then api_host="$api_host.$api_search"; fi ;;
+esac
+export API_DNS_UPSTREAM="$api_host:$api_port"

@@ -24,7 +24,7 @@ for (const panel of panels) {
     .replace(/^\s*server_name _;\r?\n/gm, "")
     .replace("listen 80;", `listen \${PORT}${panel.primary ? " default_server" : ""};\n    server_name ${panel.hosts};`)
     .replaceAll("/usr/share/nginx/html", `/srv/lunarx/${panel.directory}`)
-    .replaceAll("http://api:4000", "http://${API_UPSTREAM}")
+    .replaceAll("http://api:4000", "http://lunarx_api")
     .replace(/^\s*proxy_set_header X-Forwarded-(?:For|Proto).*;\r?\n/gm, "")
     .replaceAll("proxy_set_header Host $http_host;", [
       "proxy_set_header Host $http_host;",
@@ -45,6 +45,7 @@ for (const panel of panels) {
 
 // Launch URLs may carry access tokens. Log paths without query strings.
 const logFormat = `log_format lunarx '$remote_addr - $request_method $uri $server_protocol $status $body_bytes_sent';\n`;
+const upstream = `upstream lunarx_api {\n zone lunarx_api 64k;\n resolver \${NGINX_RESOLVERS} valid=10s ipv6=off;\n server \${API_DNS_UPSTREAM} resolve;\n}\n`;
 await mkdir(path.dirname(path.resolve(output)), { recursive: true });
-await writeFile(output, logFormat + configurations.join("\n"));
+await writeFile(output, logFormat + upstream + configurations.join("\n"));
 console.log(`Prepared Render gateway: ${output}`);

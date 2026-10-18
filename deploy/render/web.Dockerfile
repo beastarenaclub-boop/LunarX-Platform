@@ -23,7 +23,8 @@ COPY --from=build /app/artifacts/horse-riding/dist/public /srv/lunarx/web/horse-
 COPY --from=build /app/artifacts/admin-panel/dist/public /srv/lunarx/admin
 COPY --from=build /app/artifacts/agent-panel/dist/public /srv/lunarx/operator
 COPY --from=build /tmp/lunarx.conf.template /etc/nginx/templates/default.conf.template
+COPY --chmod=755 deploy/render/19-api-resolvers.envsh /docker-entrypoint.d/19-api-resolvers.envsh
 
-ENV PORT=10000 NGINX_ENVSUBST_FILTER="^(PORT|API_UPSTREAM)$"
+ENV PORT=10000 NGINX_ENVSUBST_FILTER="^(PORT|API_UPSTREAM|API_DNS_UPSTREAM|NGINX_RESOLVERS)$"
 EXPOSE 10000
 CMD ["nginx", "-g", "daemon off;"]
