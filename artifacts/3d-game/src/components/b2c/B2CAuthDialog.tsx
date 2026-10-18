@@ -195,6 +195,7 @@ export function B2CAuthDialog({
             </p>
           )}
         </form>
+        <p className="b2c-auth-intro text-xs">For account security, we record your IP address, approximate IP location and browser/device details. Exact GPS location is not collected.</p>
         <div className="b2c-or">
           <span />
           or
