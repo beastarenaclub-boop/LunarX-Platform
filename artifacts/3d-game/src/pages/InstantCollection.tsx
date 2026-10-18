@@ -90,7 +90,7 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
       if (mounted.current) {
         setRound(result);
         if (pirateAudio) notifyPlayStarted();
-        cue(result.status === "lost" ? "crash" : result.status === "active" ? action === "place" ? "bet" : "reveal" : BigInt(result.payoutAmount) > BigInt(result.stakeAmount) ? "win" : "clear");
+        if (gameCode !== "coin-flip") cue(result.status === "lost" ? "crash" : result.status === "active" ? action === "place" ? "bet" : "reveal" : BigInt(result.payoutAmount) > BigInt(result.stakeAmount) ? "win" : "clear");
       }
       // A confirmed coin receipt can land even if a background wallet/history refresh is slow.
       if (gameCode === "coin-flip") void refresh(); else await refresh();
@@ -137,6 +137,7 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
     refresh={() => { void config.refetch(); void balance.refetch(); void state.refetch(); setError(""); }}
     play={() => void act("place")} sound={sound} motion={motion} toggleSound={toggleSound}
     openPanel={setPanel}
+    onResult={settled => cue(settled.status === "lost" ? "crash" : BigInt(settled.payoutAmount) > BigInt(settled.stakeAmount) ? "win" : "clear")}
   >{dialog}</CoinFlip>;
   return <div className={`ic-page ic-theme-${game.theme}`} style={{ "--ic-accent": game.accent } as CSSProperties} data-testid="collection-page">
     <header className="ic-header"><div className="ic-brand"><Link href="/" aria-label="Back to lobby" className="ic-icon"><ArrowLeft size={19} /></Link><span className="ic-logomark"><Sparkles size={22} /></span><div><small>LUNAR ORIGINALS <span>INSTANT</span></small><h1>{game.name}</h1></div></div><div className="ic-header-right"><div className="ic-wallet"><Wallet size={18} /><div><small>WALLET BALANCE</small><strong data-testid="collection-balance">{balance.data ? amount(balance.data.balance) : "Loading…"}</strong></div></div><button className="ic-icon" onClick={() => setPanel("rules")} aria-label="Game rules"><CircleHelp size={20} /></button><button className="ic-icon" aria-label={sound ? "Mute sound" : "Enable sound"} onClick={toggleSound}>{sound ? <Volume2 size={19} /> : <VolumeX size={19} />}</button></div></header>

@@ -29,6 +29,8 @@ import ChipRack from "@/components/table/chips";
 import { B2C_BRAND, B2C_STANDALONE } from "@/components/b2c/config";
 import { formatRupees } from "@/lib/format";
 import "./coin-flip.css";
+import "./coin-stadium.css";
+import { useStadiumToss } from "./useStadiumToss";
 
 type Side = "heads" | "tails";
 interface Props {
@@ -52,6 +54,7 @@ interface Props {
   motion: boolean;
   toggleSound: () => void;
   openPanel: (panel: "rules" | "history" | "fairness") => void;
+  onResult: (round: CollectionRound) => void;
   children: ReactNode;
 }
 const media = `${import.meta.env.BASE_URL}media/`;
@@ -132,19 +135,37 @@ function useCoinAnimation(
 }
 
 export default function CoinFlip(p: Props) {
+  const film = useStadiumToss(p.busy, p.motion);
+  useEffect(() => {
+    if (p.error) film.finish();
+  }, [p.error, film.finish]);
   const { coin, landing, side } = useCoinAnimation(
-    p.busy,
-    p.pending,
-    p.motion,
+    p.busy || film.playing,
+    p.pending || !!p.error,
+    p.motion && !film.disabled,
     p.round,
   );
-  const [hostPaused, setHostPaused] = useState(false);
-  const [hostFailed, setHostFailed] = useState(false);
-  const [pageVisible, setPageVisible] = useState(!document.hidden);
-  const video = useRef<HTMLVideoElement>(null);
-  const moving = p.busy || landing;
-  const disabled = p.locked || landing;
-  const result = !moving && !p.pending ? p.round : null;
+  const moving = p.busy || film.playing || landing;
+  const visibleBalance = useRef(p.balance);
+  if (!moving) visibleBalance.current = p.balance;
+  const disabled = p.locked || film.playing || landing;
+  const result = !moving && !p.pending && !p.error ? p.round : null;
+  const awaitingResult = useRef(false);
+  const heardResult = useRef<string | null>(null);
+  useEffect(() => {
+    if (p.busy) awaitingResult.current = true;
+    if (!moving) {
+      if (
+        awaitingResult.current &&
+        result &&
+        heardResult.current !== result.requestId
+      ) {
+        heardResult.current = result.requestId;
+        p.onResult(result);
+      }
+      awaitingResult.current = false;
+    }
+  }, [p.busy, moving, result, p.onResult]);
   const won = result?.status === "won";
   const multiplier = p.config
     ? Math.min(
@@ -165,18 +186,13 @@ export default function CoinFlip(p: Props) {
     100;
   const clampStake = (value: number) =>
     p.setStake(Math.max(0, Math.min(max, Math.max(min, value))).toFixed(2));
-  const hostPlaying = p.motion && !hostPaused && pageVisible && !hostFailed;
-  useEffect(() => {
-    const change = () => setPageVisible(!document.hidden);
-    document.addEventListener("visibilitychange", change);
-    return () => document.removeEventListener("visibilitychange", change);
-  }, []);
-  useEffect(() => {
-    if (!video.current) return;
-    if (hostPlaying) void video.current.play().catch(() => setHostPaused(true));
-    else video.current.pause();
-  }, [hostPlaying]);
-  const recent = p.history.filter((r) => r.status !== "active").slice(0, 10);
+  const recent = p.history
+    .filter(
+      (r) =>
+        r.status !== "active" &&
+        !(moving && r.requestId === p.round?.requestId),
+    )
+    .slice(0, 10);
   return (
     <div className="cf-page" data-testid="collection-page">
       <header className="cf-header">
@@ -187,7 +203,7 @@ export default function CoinFlip(p: Props) {
           <div>
             <span>{B2C_STANDALONE ? B2C_BRAND : "LUNAR"} ORIGINALS</span>
             <h1>
-              Coin Flip<span className="cf-edition">STUDIO</span>
+              Coin Flip<span className="cf-edition">STADIUM</span>
             </h1>
           </div>
         </div>
@@ -197,7 +213,9 @@ export default function CoinFlip(p: Props) {
             <div>
               <small>YOUR BALANCE</small>
               <strong data-testid="collection-balance">
-                {p.balance === undefined ? "Connecting…" : money(p.balance)}
+                {visibleBalance.current === undefined
+                  ? "Connecting…"
+                  : money(visibleBalance.current)}
               </strong>
             </div>
           </div>
@@ -218,56 +236,67 @@ export default function CoinFlip(p: Props) {
         </div>
       </header>
       <main className="cf-layout">
-        <section className="cf-experience" aria-label="Coin Flip studio">
-          <div className={`cf-studio ${moving ? "is-flipping" : ""}`}>
-            <div className="cf-studio-arch" />
-            <div className="cf-studio-heading">
-              <span className="cf-eyebrow">THE COIN FLIP STUDIO</span>
+        <section
+          className="cf-experience"
+          aria-label="Cricket stadium coin toss"
+        >
+          <div
+            className={`cf-stadium ${film.playing ? "is-tossing" : ""} ${result || landing ? "has-result" : ""}`}
+            data-testid="coin-stadium"
+          >
+            <div className="cf-stadium-heading">
+              <span className="cf-eyebrow">THE MATCH-DAY TOSS</span>
               <h2>
-                One coin.
+                Make
                 <br />
-                <em>Your call.</em>
+                <em>the call.</em>
               </h2>
-              <p>Heads or tails. Make your pick.</p>
+              <p>Heads or tails. Own the moment.</p>
             </div>
-            <div className="cf-host">
+            <div className="cf-stadium-media">
               <img
                 className="cf-host-poster"
-                src={`${media}dragon-tiger-one-day/dealer-studio.jpg`}
-                alt="AI animated female studio host"
+                src={`${media}coin-flip/stadium-ready.jpg`}
+                alt="AI female presenter standing on a cricket pitch, ready to toss a coin"
               />
-              {!hostFailed && p.motion && (
+              {!film.failed && p.motion && (
                 <video
-                  ref={video}
+                  ref={film.video}
                   className="cf-host-video"
-                  src={`${media}dragon-tiger-one-day/dealer-idle.mp4`}
-                  poster={`${media}dragon-tiger-one-day/dealer-studio.jpg`}
+                  src={`${media}coin-flip/stadium-toss.mp4`}
+                  poster={`${media}coin-flip/stadium-ready.jpg`}
                   muted
-                  loop
                   playsInline
-                  preload="metadata"
-                  onError={() => setHostFailed(true)}
+                  preload="auto"
+                  onEnded={film.finish}
+                  onError={film.onError}
+                  onTimeUpdate={film.onTimeUpdate}
                   aria-hidden="true"
                   data-testid="coin-host-video"
                 />
               )}
-              <div className="cf-host-caption">
-                <span>YOUR AI HOST</span>
-                <small>Looped studio video</small>
-              </div>
             </div>
-            {p.motion && !hostFailed && (
+            <div className="cf-stadium-caption">
+              <span>AI HOST</span>
+              <small>Cricket toss experience</small>
+            </div>
+            {p.motion && !film.failed && (
               <button
-                className="cf-host-toggle"
-                aria-label={hostPaused ? "Play host video" : "Pause host video"}
-                onClick={() => setHostPaused((v) => !v)}
+                className="cf-stadium-toggle"
+                aria-label={
+                  film.disabled
+                    ? "Enable toss animation"
+                    : "Disable toss animation"
+                }
+                onClick={film.toggle}
               >
-                {hostPaused ? <Play size={13} /> : <Pause size={13} />}
+                {film.disabled ? <Play size={14} /> : <Pause size={14} />}
               </button>
             )}
-            <div className="cf-table" />
-            <div className="cf-coin-scene">
-              <div className="cf-coin-halo" />
+            <div
+              className={`cf-verified-coin ${result || landing ? "is-visible" : ""}`}
+              aria-hidden={!result && !landing}
+            >
               <div className="cf-coin-lift">
                 <div
                   ref={coin}
@@ -285,10 +314,10 @@ export default function CoinFlip(p: Props) {
                   </div>
                 </div>
               </div>
-              <div className="cf-coin-shadow" />
+              <span>VERIFIED RESULT</span>
             </div>
             <div
-              className={`cf-result ${won ? "is-win" : result ? "is-loss" : ""}`}
+              className={`cf-result cf-stadium-result ${won ? "is-win" : result ? "is-loss" : ""}`}
               role="status"
               aria-live="polite"
               data-testid="collection-result"
@@ -296,9 +325,21 @@ export default function CoinFlip(p: Props) {
               {moving ? (
                 <>
                   <span className="cf-eyebrow">
-                    {landing ? "THE COIN IS LANDING" : "YOUR FLIP IS IN PLAY"}
+                    {landing
+                      ? "THE CALL IS IN"
+                      : film.playing
+                        ? "WATCH THE TOSS"
+                        : "CONFIRMING YOUR RESULT"}
                   </span>
-                  <strong>Flipping the coin…</strong>
+                  <strong>
+                    {film.playing
+                      ? film.progress < 0.45
+                        ? "Up in the air…"
+                        : "Watch the catch…"
+                      : landing
+                        ? "Revealing your result…"
+                        : "Waiting for confirmation…"}
+                  </strong>
                   <small>Your call: {p.choice.toUpperCase()}</small>
                 </>
               ) : p.pending ? (
@@ -306,6 +347,12 @@ export default function CoinFlip(p: Props) {
                   <span className="cf-eyebrow">BET AWAITING CONFIRMATION</span>
                   <strong>Recover your flip</strong>
                   <small>Retry your original bet to confirm its result.</small>
+                </>
+              ) : p.error ? (
+                <>
+                  <span className="cf-eyebrow">BET NOT CONFIRMED</span>
+                  <strong>Please check your bet</strong>
+                  <small>Reconnect or review the message below.</small>
                 </>
               ) : result ? (
                 <>
@@ -328,7 +375,7 @@ export default function CoinFlip(p: Props) {
                 <>
                   <span className="cf-eyebrow">READY WHEN YOU ARE</span>
                   <strong>Heads or tails?</strong>
-                  <small>Select a side, set your stake, then flip.</small>
+                  <small>Pick a side. Set your stake. Watch the toss.</small>
                 </>
               )}
             </div>
@@ -495,7 +542,7 @@ export default function CoinFlip(p: Props) {
                 `${p.choice === "tails" ? "Tails" : "Heads"} selected · Tap to place your bet`}
           </p>
           <p className="cf-host-note">
-            AI animated host presentation. Each flip is an independent game result.
+            AI stadium presentation. Each toss has an independent game result.
           </p>
         </section>
       </main>

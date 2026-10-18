@@ -1,0 +1,308 @@
+.cf-stadium {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  flex: 1;
+  min-height: 630px;
+  border: 1px solid #e4d7a531;
+  border-radius: 18px;
+  background: #1d3026;
+}
+.cf-stadium-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+.cf-stadium-media .cf-host-poster,
+.cf-stadium-media .cf-host-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+.cf-stadium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      #06110c61,
+      transparent 25%,
+      transparent 64%,
+      #06110cf2
+    ),
+    linear-gradient(90deg, #06110c45, transparent 40%);
+}
+.cf-stadium-heading {
+  position: absolute;
+  left: 32px;
+  top: 34px;
+  z-index: 2;
+  text-shadow: 0 2px 24px #0009;
+  transition: opacity 0.3s;
+}
+.cf-stadium-heading .cf-eyebrow {
+  color: #ffe0a0;
+}
+.cf-stadium-heading h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(42px, 4.2vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin: 17px 0 13px;
+  font-weight: 400;
+}
+.cf-stadium-heading h2 em {
+  color: #ffe3a8;
+}
+.cf-stadium-heading p {
+  font-size: 11px;
+  color: #f1f3e6;
+}
+.cf-stadium.is-tossing .cf-stadium-heading {
+  opacity: 0;
+  pointer-events: none;
+}
+.cf-stadium-caption {
+  position: absolute;
+  top: 20px;
+  right: 59px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+  text-shadow: 0 1px 8px #000;
+  z-index: 2;
+}
+.cf-stadium-caption span {
+  border: 1px solid #ffffff50;
+  background: #07180f80;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 8px;
+  letter-spacing: 1.3px;
+  color: #f4e8ca;
+}
+.cf-stadium-caption small {
+  font-size: 8px;
+  color: #f0f1df;
+}
+.cf-stadium-toggle {
+  position: absolute;
+  top: 20px;
+  right: 17px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #07180fa6;
+  border: 1px solid #d9d5ac4a;
+  color: #e6e6cd;
+}
+.cf-stadium .cf-stadium-result {
+  left: 28px;
+  right: 28px;
+  bottom: 24px;
+  min-height: 85px;
+  text-align: center;
+}
+.cf-stadium.has-result .cf-stadium-result {
+  left: 158px;
+  text-align: left;
+}
+.cf-stadium-result .cf-eyebrow {
+  line-height: 1.5;
+  color: #f3d49a;
+}
+.cf-stadium-result strong {
+  font-size: 25px;
+}
+.cf-stadium-result small {
+  color: #e0e6d5;
+}
+.cf-verified-coin {
+  position: absolute;
+  bottom: 27px;
+  left: 34px;
+  width: 94px;
+  height: 94px;
+  perspective: 650px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+  z-index: 5;
+}
+.cf-verified-coin.is-visible {
+  opacity: 1;
+}
+.cf-verified-coin .cf-coin-lift {
+  transform: rotate(-8deg);
+}
+.cf-verified-coin > span {
+  display: block;
+  width: 120px;
+  margin: 11px 0 0 -13px;
+  font-size: 7px;
+  letter-spacing: 1px;
+  text-align: center;
+  color: #d9e3c7;
+}
+.cf-verified-coin .cf-coin-front,
+.cf-verified-coin .cf-coin-back {
+  box-shadow:
+    0 0 0 1px #d7c99f,
+    0 0 0 2px #84714d,
+    0 5px 16px #0004;
+}
+@media (max-width: 1150px) {
+  .cf-stadium-heading {
+    left: 24px;
+    top: 28px;
+  }
+  .cf-stadium-heading h2 {
+    font-size: 46px;
+  }
+  .cf-stadium-heading p {
+    max-width: 150px;
+    line-height: 1.6;
+  }
+  .cf-stadium .cf-stadium-result {
+    left: 20px;
+    right: 18px;
+  }
+  .cf-stadium.has-result .cf-stadium-result {
+    left: 125px;
+  }
+  .cf-verified-coin {
+    left: 25px;
+    width: 73px;
+    height: 73px;
+    bottom: 34px;
+  }
+  .cf-verified-coin > span {
+    width: 105px;
+    margin-left: -16px;
+    font-size: 6px;
+  }
+  .cf-stadium-result strong {
+    font-size: 22px;
+  }
+}
+@media (max-width: 800px) {
+  .cf-stadium {
+    min-height: 540px;
+  }
+  .cf-stadium.has-result .cf-stadium-heading {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cf-stadium-heading h2 {
+    font-size: 43px;
+  }
+  .cf-stadium-media .cf-host-video,
+  .cf-stadium-media .cf-host-poster {
+    object-position: 50% 50%;
+  }
+  .cf-stadium-caption {
+    top: 17px;
+  }
+  .cf-stadium-toggle {
+    top: 17px;
+  }
+}
+@media (max-width: 430px) {
+  .cf-stadium {
+    min-height: 510px;
+    border-radius: 13px;
+  }
+  .cf-stadium-heading {
+    top: 24px;
+    left: 19px;
+  }
+  .cf-stadium-heading .cf-eyebrow {
+    font-size: 6px;
+    letter-spacing: 1.3px;
+  }
+  .cf-stadium-heading h2 {
+    font-size: 34px;
+    letter-spacing: -1px;
+    margin: 12px 0;
+  }
+  .cf-stadium-heading p {
+    max-width: 107px;
+    font-size: 9px;
+  }
+  .cf-stadium-caption {
+    top: 14px;
+    right: 48px;
+  }
+  .cf-stadium-caption small {
+    display: none;
+  }
+  .cf-stadium-toggle {
+    top: 13px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+  }
+  .cf-stadium.has-result .cf-stadium-result {
+    left: 109px;
+    right: 13px;
+  }
+  .cf-stadium .cf-stadium-result {
+    bottom: 20px;
+    min-height: 81px;
+  }
+  .cf-stadium-result strong {
+    font-size: 20px;
+  }
+  .cf-stadium-result .cf-eyebrow {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .cf-verified-coin {
+    left: 23px;
+    bottom: 34px;
+    width: 64px;
+    height: 64px;
+  }
+  .cf-verified-coin > span {
+    width: 90px;
+    margin-left: -13px;
+  }
+}
+@media (max-width: 350px) {
+  .cf-stadium {
+    min-height: 480px;
+  }
+  .cf-stadium-heading h2 {
+    font-size: 30px;
+  }
+  .cf-stadium.has-result .cf-stadium-result {
+    left: 96px;
+  }
+  .cf-stadium-result strong {
+    font-size: 18px;
+  }
+  .cf-verified-coin {
+    width: 58px;
+    height: 58px;
+    left: 21px;
+  }
+  .cf-verified-coin > span {
+    width: 82px;
+    margin-left: -12px;
+    font-size: 5.5px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cf-stadium * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

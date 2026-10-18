@@ -1,0 +1,17 @@
+{
+  "provider": "Runway",
+  "model": "seedance-2",
+  "taskId": "f12a383c-a242-46ca-8b0d-a27404b34a58",
+  "generatedAt": "2026-10-18",
+  "prompt": "Create an 10-second photorealistic sports broadcast shot for a cricket coin-toss game. One clearly adult Indian female match presenter, age about 28, stands upright on a real-looking cricket pitch in a large outdoor cricket stadium at golden hour with grandstands, green outfield and stadium floodlights in soft background focus. She wears an elegant navy sports blazer over a plain white polo, tailored navy trousers and trainers, realistic natural skin, human hands, friendly professional expression. No casino, no desk, no sitting. The woman and her hands and the entire tossed coin trajectory stay inside the central 35 percent of the frame so it also works in a portrait crop. One continuous shot, no cuts. Start from a knees-up standing view with generous headroom. Seconds 0-1.5: she holds ONE small metallic silver toss coin between her right thumb and forefinger near her waist, camera smoothly dollies/zooms closer to a medium waist-up view. Seconds 1.5-4.5: she visibly flicks this same coin upwards with her thumb like a cricket captain at the pre-match toss. The single physical coin spins end over end and rises naturally approximately 30 cm above her head, then falls in a smooth gravity arc. Her eyes follow it up; camera gently follows upward and back down, keeping her face and the coin in frame. Mild cinematic slow motion makes the physical coin clearly visible, not an oversized floating game token. Seconds 4.5-6.2: she catches the falling coin cleanly in her left palm at chest height and covers it with her right hand. Seconds 6.2-10: camera pushes slightly closer to her covered hands; she looks at the viewer, smiling subtly, holds the hands steady. The coin is covered at the ending: do not reveal heads or tails, do not imprint readable letters or numbers; the game UI will show the verified result separately. Only one toss and one catch. The coin remains small, metallic and physically believable throughout. Natural broadcast photography, realistic stadium scale, realistic lighting and detailed grass. No text, logos, watermark, scoreboard overlays, other foreground people, duplicate coins, changing clothing, extra hands, magical particles, cartoon or CGI look.",
+  "width": 1920,
+  "height": 1080,
+  "durationSeconds": 10.041667,
+  "fps": 24,
+  "audio": false,
+  "video": "stadium-toss.mp4",
+  "poster": "stadium-ready.jpg",
+  "videoSha256": "9c1f7258433622d0b5901f9975acb18476197e5798a1904c5029711d89914118",
+  "processing": "H.264, CRF 22, yuv420p, faststart. Poster extracted at 0.05s.",
+  "usage": "AI-generated cricket stadium presenter performs one toss and catch. The coin remains covered at the end. Game UI reveals only the server-confirmed Heads/Tails result."
+}
