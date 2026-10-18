@@ -35,10 +35,9 @@ persistent disk, so its deployment briefly interrupts connections. Its shared
 game engines retain their existing restart/recovery behavior.
 
 Both custom domains were attached to the existing Render web service on
-18 October 2026. DNS verification and HTTPS must be checked after the Hostinger
-zone points to Render. Keep unrelated DNS records, including mail records.
-Before declaring the domain live, confirm authoritative DNS, Render domain
-verification and a valid HTTPS response from `https://crypto777.in`.
+18 October 2026. Hostinger DNS, Render verification and HTTPS were completed
+later that day. For future DNS changes, keep unrelated records, including mail
+records, and recheck authoritative DNS, Render verification and valid HTTPS.
 
 The fallback B2C preview is <https://lunarx.live/b2c> after the web release is live.
 
@@ -63,20 +62,57 @@ The API restart briefly caused gateway 502 responses; health recovered before
 the web rollout completed. Check the gateway after future API-only releases,
 including its resolution of the API's current private address.
 
-### Remaining domain activation
+### Domain activation: 18 October 2026
 
-At verification time both Crypto777 domains were still `unverified` on Render.
-The apex A record still resolved to `2.57.91.91`; HTTPS on the new domain has
-therefore not been declared live. Hostinger DNS tools require a one-time Codex
-host/extension restart after their registration, then account sign-in if needed.
+The Hostinger connection is working. The complete zone was read and saved to
+the local ignored file `.cache/crypto777-dns-before-2026-10-18.json` before the
+change. There were two web records and no mail, TXT, CAA or AAAA records. The
+previous values were `A @ = 2.57.91.91` (TTL 50) and
+`CNAME www = crypto777.in.` (TTL 300). No historical Hostinger snapshots existed
+before this change; the saved values provide a rollback reference. Hostinger
+created snapshot `189339060` during the update.
 
-Read the full Hostinger zone before updating it. The intended web records are:
+Hostinger validated and applied these records, both with a 300-second TTL:
 
 | Type | Name | Target |
 | --- | --- | --- |
 | A | `@` | `216.24.57.1` |
 | CNAME | `www` | `lunarx-web.onrender.com` |
 
-Preserve unrelated records. Verify the domains in Render and wait for valid TLS
-before rerunning the browser check on `https://crypto777.in` itself.
+The nameservers remain `lunar.dns-parking.com` and `solar.dns-parking.com`.
+Both authoritative servers (queried over TCP), Google and Cloudflare returned
+the new records. Render reports both domains as `verified`.
+
+The domain is live over HTTPS. Google Trust Services issued valid certificates
+for both hostnames. The apex returns 200, and `https://www.crypto777.in/`
+redirects to `https://crypto777.in/` with HTTP 301.
+
+Checks on the actual domain passed:
+
+- Desktop (1440 x 1000) and mobile (390 x 844) storefront rendering, logo,
+  banner images, login dialog and no horizontal overflow on mobile.
+- No browser JavaScript errors or failed asset responses during the storefront
+  checks. The existing LunarX homepage still renders its original lobby.
+- One-hour demo expiry, session reuse without extending expiry, a settled Dice
+  practice bet, live admin presence, no production user/bet rows for the demo
+  ID, blocked deposits/withdrawals/transfers, mobile wallet explanation and logout.
+- API health returned 200 on Crypto777, LunarX, B2B, Admin and operator domains.
+- The admin dashboard's demo counter increased/decreased for a Crypto777 demo
+  session. Its B2C Website page rendered the live domain in both desktop and
+  mobile previews, and its Open website link points to the apex.
+
+Activation used the already deployed application commit listed above. No new
+application deployment or database migration was needed for this DNS cutover.
 Reference: <https://render.com/docs/configure-other-dns>.
+
+### Storefront headline and icon
+
+The B2C headline is **Every Game. A New Thrill.**, displayed above the featured
+games for guests and in the lobby header for signed-in/demo visitors. Its
+original gold `777` SVG mark lives at `/media/b2c/brand-icon.svg` and is also the
+browser favicon. The landing page title uses the brand and headline. Crypto777
+hosts retain the icon on direct game/account routes; the `/b2c` preview restores
+the LunarX favicon when leaving that page. The supplied full header logo is
+retained.
+
+This is a web gateway release; it requires no API deployment or database change.

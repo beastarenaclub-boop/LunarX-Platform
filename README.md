@@ -17,9 +17,11 @@ player to the selected page. Public signup remains available only on B2C.
 
 ## Additional B2C storefront
 
-The reference-style dark casino frontend is available at `/b2c`. The existing
-default lobby and all game engines remain shared. Admin has a **B2C Website**
-sidebar entry at `/admin/b2c-website` with desktop/mobile previews.
+The **CRYPTO777** dark casino frontend uses **https://crypto777.in/**, with
+`www.crypto777.in` redirecting to the apex. It is also available at
+**https://lunarx.live/b2c**. The existing default lobby and all game engines
+remain shared. Admin has a **B2C Website** sidebar entry at `/admin/b2c-website`
+with desktop/mobile previews. See [domain and release status](docs/crypto777-deployment.md).
 
 Run `npm run b2c:dev` from the repository root, then open
 **http://127.0.0.1:5180/**. Its `/api` and `/ws` requests proxy to the existing
@@ -31,15 +33,24 @@ The local admin preview expects this B2C dev server to be running.
 publish to a domain. For hosting, reuse the existing game gateway's SPA, media,
 embedded-game, `/api` and WebSocket routing with this build as its website root.
 Point API traffic to the existing backend and preserve the website Host header.
-Domain, HTTPS and backend origin configuration still need to be completed when
-the new domain is selected.
+The production web Docker build sets
+`VITE_B2C_HOSTS=crypto777.in,www.crypto777.in`, so the shared gateway serves this
+storefront at `/` on those hosts while retaining the existing lobby elsewhere.
+Both origins are included in the existing backend's CORS configuration.
 
 Set `VITE_B2C_BRAND` in `artifacts/3d-game/.env.local` before starting/building
 to override the **CRYPTO777** name. The header uses the supplied logo at
 `public/media/b2c/brand-logo.png`; `VITE_B2C_LOGO` can override its URL.
-Set `VITE_B2C_SITE_URL` in the admin
-frontend environment to the chosen storefront URL when deploying the admin.
-The default production admin preview is the existing website's `/b2c` route.
+The production admin Docker build sets
+`VITE_B2C_SITE_URL=https://crypto777.in` for its storefront preview and link.
+Other deployments can override that value; without an override, the admin
+preview falls back to the existing website's `/b2c` route.
+
+The storefront headline is **Every Game. A New Thrill.** Its gold `777` SVG mark
+appears beside the headline and as the browser favicon. Crypto777 hosts keep
+the favicon on game and account routes; the `/b2c` preview restores the original
+favicon when returning to the LunarX lobby. The supplied header logo remains
+available at `public/media/b2c/brand-logo.png`.
 
 Demo creates an anonymous ID for **one hour of playable practice**, with unlimited
 demo coins and no signup. Refreshing or opening another tab reuses the same ID

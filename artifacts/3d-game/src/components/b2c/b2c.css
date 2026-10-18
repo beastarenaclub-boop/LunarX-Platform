@@ -107,35 +107,36 @@
   background: none;
   color: #fff;
 }
-.b2c-fixture {
+.b2c-intro {
   display: flex;
   align-items: center;
-  height: 46px;
+  gap: 14px;
+  min-height: 86px;
   min-width: 0;
-  background: #444;
+  padding: 14px 20px;
+  border-block: 1px solid #f6c74d26;
+  background: linear-gradient(110deg, #19241f, #22292f 75%);
 }
-.b2c-fixture-label {
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 98px;
-  padding: 0 24px 0 7px;
-  text-align: center;
-  font-size: 13px;
-  line-height: 15px;
-  font-weight: 700;
-  color: #fff;
-  background: #126e58;
-  clip-path: polygon(0 0, 80% 0, 100% 60%, 82% 100%, 0 100%);
+.b2c-intro > img {
   flex-shrink: 0;
 }
-.b2c-fixture-copy {
-  font-size: 14px;
-  padding: 0 9px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.b2c-intro > div {
+  min-width: 0;
+}
+.b2c-intro-kicker {
+  margin: 0 0 5px;
+  color: #c0b995;
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+.b2c-intro h1 {
+  margin: 0;
+  color: #ffe2a0;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -.6px;
 }
 .b2c-main {
   min-width: 0;
@@ -451,8 +452,22 @@
   flex: 1;
   min-width: 0;
 }
-.b2c-header-ticker .b2c-fixture {
+.b2c-header-ticker .b2c-intro {
   flex: 1;
+  min-height: 46px;
+  padding: 6px 10px;
+  gap: 8px;
+}
+.b2c-header-ticker .b2c-intro > img {
+  width: 32px;
+  height: 32px;
+}
+.b2c-header-ticker .b2c-intro h1 {
+  font-size: 18px;
+  letter-spacing: -.3px;
+}
+.b2c-header-ticker .b2c-intro-kicker {
+  display: none;
 }
 .b2c-notice {
   display: flex;
@@ -1029,13 +1044,21 @@
   .b2c-settings svg {
     width: 22px;
   }
-  .b2c-fixture {
-    height: 36px;
+  .b2c-intro {
+    min-height: 72px;
+    padding: 12px;
+    gap: 10px;
   }
-  .b2c-fixture-label {
-    font-size: 11px;
-    line-height: 12px;
-    width: 84px;
+  .b2c-intro > img {
+    width: 42px;
+    height: 42px;
+  }
+  .b2c-intro h1 {
+    font-size: clamp(18px, 4.9vw, 25px);
+  }
+  .b2c-intro-kicker {
+    font-size: 8px;
+    letter-spacing: 1.2px;
   }
   .b2c-section-title {
     font-size: 20px;
@@ -1143,8 +1166,13 @@
   }
 }
 @media (max-width: 500px) {
+  .b2c-brand-wrap {
+    min-width: 0;
+    flex-shrink: 1;
+  }
   .b2c-brand {
     width: 160px;
+    min-width: 0;
   }
 
   .b2c-hero {

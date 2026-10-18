@@ -1,6 +1,8 @@
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
+import { B2C_STANDALONE } from "./components/b2c/config";
+import { applyB2CBranding } from "./components/b2c/branding";
 import "./game/styles";
 import "./index.css";
 import "../../../lib/game-ui/controls.css";
@@ -28,6 +30,8 @@ const queryClient = new QueryClient({
 });
 
 export { queryClient };
+
+if (B2C_STANDALONE) applyB2CBranding();
 
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>

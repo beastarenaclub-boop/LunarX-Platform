@@ -59,7 +59,8 @@ import {
   type RegistryEntry,
 } from "@/components/lobby/catalog";
 import { B2CAuthDialog } from "@/components/b2c/B2CAuthDialog";
-import { B2C_BRAND, B2C_HOME, B2C_LOGO } from "@/components/b2c/config";
+import { B2C_BRAND, B2C_HEADLINE, B2C_HOME, B2C_ICON, B2C_LOGO } from "@/components/b2c/config";
+import { applyB2CBranding } from "@/components/b2c/branding";
 import { B2CSlider } from "@/components/b2c/B2CSlider";
 import {
   B2C_AVATAR,
@@ -274,9 +275,7 @@ export default function B2C({
     }, 6000);
     return () => window.clearInterval(timer);
   }, [browse, authOpen, settings, menu]);
-  useEffect(() => {
-    document.title = `${B2C_BRAND} | Live Casino & Games`;
-  }, []);
+  useEffect(() => applyB2CBranding(), []);
   useEffect(() => {
     if (user) setAuthOpen(false);
   }, [user]);
@@ -331,18 +330,13 @@ export default function B2C({
       <Settings size={25} fill="currentColor" strokeWidth={1.5} />
     </button>
   );
-  const fixture = (
-    <div className="b2c-fixture">
-      <span className="b2c-fixture-label">
-        Upcoming
-        <br />
-        Fixture
-      </span>
-      {browse && (
-        <span className="b2c-fixture-copy">
-          Explore live casino, instant games and virtual sports.
-        </span>
-      )}
+  const brandIntro = (
+    <div className="b2c-intro">
+      <img src={B2C_ICON} width={48} height={48} alt="" />
+      <div>
+        <p className="b2c-intro-kicker">Live Casino · Crash · Instant</p>
+        <h1>{B2C_HEADLINE}</h1>
+      </div>
     </div>
   );
   const sidebar = (
@@ -446,7 +440,7 @@ export default function B2C({
         </div>
         {browse && (
           <div className="b2c-header-ticker">
-            {fixture}
+            {brandIntro}
             <span className="b2c-notice">
               {user?.isDemo
                 ? "Demo play · Unlimited coins · No withdrawals"
@@ -519,7 +513,7 @@ export default function B2C({
           )}
         </div>
       </header>
-      {!browse && fixture}
+      {!browse && brandIntro}
       <div className="b2c-layout">
         {browse && (
           <aside className="b2c-sidebar" aria-label="Game providers">

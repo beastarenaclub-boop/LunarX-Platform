@@ -8,6 +8,8 @@ export const B2C_STANDALONE =
   import.meta.env.VITE_LOBBY_VARIANT === "b2c" ||
   (typeof window !== "undefined" && storefrontHosts.includes(window.location.hostname.toLowerCase()));
 export const B2C_BRAND = import.meta.env.VITE_B2C_BRAND?.trim() || "CRYPTO777";
+export const B2C_HEADLINE = "Every Game. A New Thrill.";
+export const B2C_ICON = `${import.meta.env.BASE_URL}media/b2c/brand-icon.svg`;
 export const B2C_LOGO =
   import.meta.env.VITE_B2C_LOGO?.trim() ||
   `${import.meta.env.BASE_URL}media/b2c/brand-logo.png`;

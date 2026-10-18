@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>CRYPTO777</title>
+  <defs>
+    <linearGradient id="gold" x1="12" y1="12" x2="52" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF2B0"/>
+      <stop offset=".42" stop-color="#F6C74D"/>
+      <stop offset="1" stop-color="#B97B19"/>
+    </linearGradient>
+    <linearGradient id="surface" x1="8" y1="4" x2="56" y2="62" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#27342E"/>
+      <stop offset="1" stop-color="#101814"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="62" height="62" rx="16" fill="url(#surface)" stroke="url(#gold)" stroke-width="2"/>
+  <rect x="5.5" y="5.5" width="53" height="53" rx="12" stroke="#E8BD58" stroke-opacity=".22"/>
+  <path d="m32 8 1.5 4.5L38 14l-4.5 1.5L32 20l-1.5-4.5L26 14l4.5-1.5L32 8Z" fill="url(#gold)"/>
+  <g fill="url(#gold)">
+    <path d="M9 23h14v6l-7 16H9l8-16H9v-6Z"/>
+    <path d="M25 23h14v6l-7 16h-7l8-16h-8v-6Z"/>
+    <path d="M41 23h14v6l-7 16h-7l8-16h-8v-6Z"/>
+    <path d="M20 51h8v2h-8zm16 0h8v2h-8z" opacity=".65"/>
+    <circle cx="32" cy="52" r="2"/>
+  </g>
+</svg>
