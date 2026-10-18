@@ -132,7 +132,6 @@ test("demo session can reload the storefront's public branding", async ({ page, 
   await expect(page.getByRole("region", { name: "Demo session", exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("region", { name: "Demo session", exact: true })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Play options" })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -328,28 +327,6 @@ test("selected game is preserved through authentication and B2B signup stays hid
   await dialog.getByRole("button", { name: "Login", exact: true }).click();
   await expect(page).toHaveURL(/\/roulette$/);
 });
-
-for (const signup of [true, false]) {
-  test(`${signup ? "normal" : "agent"} play selects the correct channel without submitting account actions`, async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 844 });
-    const { errors, mutations } = await setup(page, { signup });
-    const options = page.getByRole("navigation", { name: "Play options" });
-    const normal = options.getByRole("link", { name: "Normal Play" });
-    const agent = options.getByRole("link", { name: "Agent Play" });
-    await expect(normal).toHaveAttribute("href", "https://crypto777.in/");
-    await expect(agent).toHaveAttribute("href", "https://play.crypto777.in/");
-    await expect(signup ? normal : agent).toHaveAttribute("aria-current", "page");
-    await expect(signup ? agent : normal).not.toHaveAttribute("aria-current", "page");
-    await expect(options.getByRole("link", { name: "Agent panel" })).toHaveAttribute("href", "https://panel.lunarx.live/agent/");
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    // Follow the actual link while keeping this check entirely off production.
-    await page.route(signup ? "https://play.crypto777.in/" : "https://crypto777.in/", route => route.fulfill({ contentType: "text/html", body: "<h1>Selected player website</h1>" }));
-    await (signup ? agent : normal).click();
-    await expect(page).toHaveURL(signup ? "https://play.crypto777.in/" : "https://crypto777.in/");
-    expect(mutations).toEqual([]);
-    expect(errors).toEqual([]);
-  });
-}
 
 test("offline registry remains browsable and the separate route works", async ({
   page,

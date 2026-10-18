@@ -14,8 +14,3 @@ export const B2C_LOGO =
   import.meta.env.VITE_B2C_LOGO?.trim() ||
   `${import.meta.env.BASE_URL}media/b2c/brand-logo.png`;
 export const B2C_HOME = B2C_STANDALONE ? "/" : "/b2c";
-export const CRYPTO777_PLAY_URLS = {
-  normal: "https://crypto777.in/",
-  agent: "https://play.crypto777.in/",
-  panel: "https://panel.lunarx.live/agent/",
-} as const;

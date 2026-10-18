@@ -19,7 +19,7 @@ player to the selected page. Public signup remains available only on B2C.
 
 The **CRYPTO777** dark casino frontend uses **https://crypto777.in/** for normal
 players and **https://play.crypto777.in/** for agent-created
-players. The lobby has Normal Play and Agent Play links; the admin's
+players. The public lobby has no play-mode selector; the admin's
 **Crypto777 Websites** page previews both. Agent Play keeps public signup disabled
 and uses the existing agent accounts and channel isolation. Both websites are
 deployed on the existing Render gateway with verified custom domains and HTTPS.

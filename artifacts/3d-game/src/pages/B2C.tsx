@@ -63,7 +63,6 @@ import { B2C_BRAND, B2C_HEADLINE, B2C_HOME, B2C_ICON, B2C_LOGO } from "@/compone
 import { applyB2CBranding } from "@/components/b2c/branding";
 import { ACCOUNT_OPTIONS } from "@/components/site/AccountOptions";
 import { B2CSlider } from "@/components/b2c/B2CSlider";
-import { PlayOptions } from "@/components/b2c/PlayOptions";
 import {
   B2C_AVATAR,
   B2C_BANNERS,
@@ -518,7 +517,6 @@ export default function B2C({
           )}
         </div>
       </header>
-      <PlayOptions />
       {!browse && brandIntro}
       <div className="b2c-layout">
         {browse && (

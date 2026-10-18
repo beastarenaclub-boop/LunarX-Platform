@@ -9,9 +9,10 @@ The shared storefront is live on two account channels:
 | `https://crypto777.in/` | Normal Play / B2C | Public signup |
 | `https://play.crypto777.in/` | Agent Play / B2B | Existing agent-created accounts |
 
-Both use the Crypto777 design, shared games and existing API. The lobby links
-to both player websites and the existing `https://panel.lunarx.live/agent/`
-operator panel. The admin's **Crypto777 Websites** page previews both channels.
+Both use the Crypto777 design, shared games and existing API. The public
+storefront has no Normal Play / Agent Play navigation strip. The admin's
+**Crypto777 Websites** page retains its two previews; the operator panel is at
+`https://panel.lunarx.live/agent/`.
 Master-specific branch pages retain their own navigation. Account sessions
 remain host-only, and the API enforces the player's channel on login and requests.
 Demo remains available on Normal Play only, matching the existing API policy.
