@@ -110,6 +110,7 @@ export default function Signup() {
                 Sign in
               </Link>
             </p>
+            <p className="text-xs text-muted-foreground">For account security, we record your IP address, approximate IP location and browser/device details. Exact GPS location is not collected.</p>
           </form>
         </CardContent>
       </Card>

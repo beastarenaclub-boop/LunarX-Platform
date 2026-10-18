@@ -365,6 +365,13 @@
       "when": 1792346400000,
       "tag": "0051_master_websites_weekly",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1792356000000,
+      "tag": "0052_account_access",
+      "breakpoints": true
     }
   ]
 }

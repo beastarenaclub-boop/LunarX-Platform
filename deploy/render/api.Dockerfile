@@ -7,6 +7,8 @@ COPY lib ./lib
 COPY artifacts/api-server ./artifacts/api-server
 COPY artifacts/3d-game/wingo-server ./artifacts/3d-game/wingo-server
 COPY deploy/render/api-start.sh /usr/local/bin/lunarx-api-start
+COPY deploy/render/download-geo.mjs /app/download-geo.mjs
+RUN node /app/download-geo.mjs
 
 RUN pnpm install --frozen-lockfile --ignore-scripts
 RUN pnpm --filter @workspace/api-server build

@@ -423,6 +423,10 @@ router.post("/password-reset/confirm", async (req, res, next) => {
 
     const passwordHash = await hashPassword(input.password);
     await db.transaction(async (tx) => {
+      // Serialize with administrator resets, then recheck the one-use token.
+      await tx.select({id: usersTable.id}).from(usersTable).where(eq(usersTable.id, reset.userId)).for("update");
+      const [currentReset] = await tx.select().from(passwordResetsTable).where(and(eq(passwordResetsTable.id, reset.id), isNull(passwordResetsTable.usedAt), gt(passwordResetsTable.expiresAt, new Date())));
+      if (!currentReset) throw badRequest("Invalid or expired token");
       await tx
         .update(usersTable)
         .set({ passwordHash, updatedAt: new Date() })
@@ -430,8 +434,11 @@ router.post("/password-reset/confirm", async (req, res, next) => {
       await tx
         .update(passwordResetsTable)
         .set({ usedAt: new Date() })
-        .where(eq(passwordResetsTable.id, reset.id));
+        .where(and(eq(passwordResetsTable.userId, reset.userId), isNull(passwordResetsTable.usedAt)));
+      await tx.update(sessionsTable).set({revokedAt: new Date()}).where(and(eq(sessionsTable.userId, reset.userId), isNull(sessionsTable.revokedAt)));
     });
+    const { disconnectAccountSessions } = await import("../realtime/gateway");
+    disconnectAccountSessions(reset.userId);
 
     await recordAudit({
       actorId: reset.userId,

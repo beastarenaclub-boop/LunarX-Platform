@@ -6,6 +6,7 @@ import { requestSite, requestOperatorPanel, sessionCookie, customMaster } from "
 import { assertNetworkActive, networkIdentity, userBelongsToMaster } from "../services/network";
 import { isDemoToken } from "../demo/sessions";
 import { DEMO_RUNTIME } from "../demo/runtime";
+import { recordSessionActivity } from "../services/sessionActivity";
 
 export const SESSION_COOKIE = "sid";
 
@@ -33,6 +34,7 @@ export async function loadSession(
     } catch { return next(); }
     req.session = session;
     req.user = user;
+    void recordSessionActivity(req);
     next();
   } catch (err) {
     next(err);

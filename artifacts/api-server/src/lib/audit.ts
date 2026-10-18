@@ -47,9 +47,7 @@ export async function recordAuditFromReq(
 }
 
 export function clientIp(req: Request): string | null {
-  const xff = req.headers["x-forwarded-for"];
-  if (typeof xff === "string" && xff.length > 0) {
-    return xff.split(",")[0]!.trim();
-  }
+  // Express resolves the chain using the deployment's TRUST_PROXY policy.
+  // An arbitrary leftmost X-Forwarded-For value is client-controlled.
   return req.ip ?? null;
 }

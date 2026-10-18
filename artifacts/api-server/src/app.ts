@@ -13,6 +13,10 @@ import { demoGateway } from "./demo/bridge";
 import { resolveCustomSite } from "./middlewares/siteChannel";
 
 const app: Express = express();
+app.use((_req, res, next) => {
+  res.set("Accept-CH", "Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Sec-CH-UA-Model, Sec-CH-UA-Mobile");
+  next();
+});
 
 // Proxy trust must match the deployment topology — trusting hop counts when
 // the server is *not* behind a known reverse proxy lets clients spoof

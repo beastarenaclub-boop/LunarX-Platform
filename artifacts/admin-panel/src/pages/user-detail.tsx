@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/table";
 import { paiseToINR, fmtDate } from "@/lib/format";
 import { useAuth, hasRole } from "@/lib/auth";
+import { AccountSecurity } from "@/components/AccountSecurity";
+import { AccountAccessHistory } from "@/components/AccountAccessHistory";
 
 const GAME_SCOPES = ["lunar"] as const;
 type GameScope = (typeof GAME_SCOPES)[number];
@@ -162,6 +164,8 @@ export default function UserDetail() {
         </Card>
       </div>
 
+      <AccountSecurity key={userId} target={user} />
+      {canWrite && <AccountAccessHistory key={`activity:${userId}`} userId={userId}/>}
       {canWrite && (
         <Card>
           <CardHeader>

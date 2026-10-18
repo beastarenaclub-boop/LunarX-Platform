@@ -38,6 +38,7 @@ const NAV = [
   { href: "/network", label: "B2B / B2C Network", icon: Building2 },
   { href: "/b2c-website", label: "B2C Website", icon: Globe },
   { href: "/users", label: "Users", icon: Users },
+  { href: "/access", label: "Login activity", icon: Shield },
   { href: "/kyc", label: "KYC", icon: ClipboardCheck },
   { href: "/bets", label: "Bets", icon: Dice5 },
   { href: "/round-profit", label: "Round Profit Split", icon: Coins },

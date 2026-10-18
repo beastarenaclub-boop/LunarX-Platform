@@ -9,6 +9,7 @@ import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import UsersPage from "@/pages/users";
 import UserDetail from "@/pages/user-detail";
+import AccessHistoryPage from "@/pages/access-history";
 import KycPage from "@/pages/kyc";
 import BetsPage from "@/pages/bets";
 import RoundProfitPage from "@/pages/round-profit";
@@ -53,6 +54,7 @@ function ProtectedRoutes() {
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/users" component={UsersPage} />
+        <Route path="/access" component={AccessHistoryPage} />
         <Route path="/users/:id" component={UserDetail} />
         <Route path="/kyc" component={KycPage} />
         <Route path="/bets" component={BetsPage} />

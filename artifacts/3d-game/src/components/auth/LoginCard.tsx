@@ -249,6 +249,7 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
           </form>
         </TabsContent>
       </Tabs>
+      <p className="mt-4 text-xs text-muted-foreground">For account security, we record your IP address, approximate IP location and browser/device details. Exact GPS location is not collected.</p>
     </div>
   );
 

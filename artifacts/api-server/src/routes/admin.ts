@@ -1,4 +1,5 @@
 import { demoPresence } from "../demo/bridge";
+import securityRouter from "./adminSecurity";
 import {parseTransactionQuery,transactionConditions} from '../services/transactionFilters';
 import { isRetiredGame } from "../lib/retiredGames";
 import express, { Router, type IRouter } from "express";
@@ -95,6 +96,7 @@ import { runReconciliation, listReconciliationEntries } from "../services/reconc
 import { z } from "zod";
 
 const router: IRouter = Router();
+router.use(securityRouter);
 router.get("/demo-presence", requireRole("admin", "super_admin"), demoPresence);
 
 /**
