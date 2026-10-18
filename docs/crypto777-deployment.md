@@ -213,3 +213,31 @@ reduced motion and layouts at 320, 390 and 1440 pixels passed with no browser
 JavaScript errors. All five public API health endpoints returned 200. Public
 health checks use a signed-out request because the demo sandbox intentionally
 blocks API paths outside its gameplay/report allowlist.
+
+### Cricket stadium Coin Flip
+
+Published on 18 October 2026 from application commit
+`c4ec3e2cf5ffad0a55bd2fb87811813f9517cfb8`, web deployment
+`dep-dbafvlajnfac73fipijg` (live). The API remains on
+`597e98eea5f58575d3b97da9794173964d4bd368`; this release changes only
+frontend presentation and media. See [Coin Flip stadium toss](coin-flip-studio.md).
+
+A newly generated ten-second stadium shot shows a standing adult female AI
+presenter flicking one physical-looking coin upwards and catching it while the
+camera moves closer. The centered shot supports mobile cropping. Playback runs
+once per explicit bet. The coin remains covered in the video; the UI reveals the
+server-confirmed Heads/Tails receipt after the catch, together with result audio
+and the updated wallet. The visible AI HOST label identifies the presentation.
+
+Checks passed: frontend TypeScript, production Vite build, all 37 instant-game
+browser cases and a final repeat of the toss/mobile check after styling. Tests
+cover both result sides, wins/losses, single playback, duplicate-click locking,
+recovery, missing/stalled video, animation skipping, hidden tabs, rejected bets
+and reduced motion.
+
+Live verification used only volatile demo funds: Heads lost to Tails with zero
+return; Tails won with INR 194 returned on an INR 100 stake. Both receipts and
+Casino Results matched, reload restored the receipt without replaying the toss,
+and the second toss was exercised at mobile width. Layouts at 320, 390 and 1440
+pixels passed with no JavaScript errors. The served MP4 hash matches the reviewed
+asset (3153647 bytes). All five public API health endpoints returned 200.
