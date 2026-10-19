@@ -585,14 +585,45 @@
   height: 60px;
   gap: 8px;
 }
+.b2c-category-scroll {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.b2c-category-arrow {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid #58656d;
+  border-radius: 6px;
+  background: #303c43;
+  color: #fff;
+}
+.b2c-category-scroll[data-overflow="false"] > .b2c-category-arrow {
+  display: none;
+}
+.b2c-category-scroll > .b2c-category-arrow:disabled {
+  opacity: .25;
+}
 .b2c-category-bar nav {
   flex: 1;
   display: flex;
   align-items: center;
   gap: 9px;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   min-width: 0;
   scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y pinch-zoom;
+  -webkit-overflow-scrolling: touch;
+}
+.b2c-category-bar nav::-webkit-scrollbar {
+  display: none;
 }
 .b2c-category-bar nav button {
   display: flex;

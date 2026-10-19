@@ -63,6 +63,7 @@ import { B2C_BRAND, B2C_HEADLINE, B2C_HOME, B2C_ICON, B2C_LOGO } from "@/compone
 import { applyB2CBranding } from "@/components/b2c/branding";
 import { ACCOUNT_OPTIONS } from "@/components/site/AccountOptions";
 import { B2CSlider } from "@/components/b2c/B2CSlider";
+import { B2CScrollNav } from "@/components/b2c/B2CScrollNav";
 import {
   B2C_AVATAR,
   B2C_BANNERS,
@@ -585,7 +586,7 @@ export default function B2C({
             {browse ? (
               <>
                 <div className="b2c-category-bar">
-                  <nav aria-label="Casino game types">
+                  <B2CScrollNav>
                     {TABLE_FILTERS.map((item) => (
                       <button
                         key={item.name}
@@ -605,7 +606,7 @@ export default function B2C({
                         <span>{item.name}</span>
                       </button>
                     ))}
-                  </nav>
+                  </B2CScrollNav>
                   <button
                     className="b2c-search-toggle"
                     aria-label="Search games"
