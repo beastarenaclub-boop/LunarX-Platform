@@ -142,7 +142,7 @@ test("standalone landing, banner controls and real catalog artwork", async ({
   const { errors } = await setup(page);
   await expect(page.locator(".b2c-brand img")).toHaveAttribute(
     "src",
-    /brand-logo\.png$/,
+    /brand-logo\.[a-f0-9]+\.webp$/,
   );
   await expect(
     page.getByRole("heading", { name: "OUR LIVE CASINO" }),
@@ -158,27 +158,27 @@ test("standalone landing, banner controls and real catalog artwork", async ({
   ).toBeGreaterThan(30);
   await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
     "src",
-    /crash-games-banner\.png$/,
+    /crash-games-banner\.[a-f0-9]+\.webp$/,
   );
   await page.getByRole("button", { name: "Next banner" }).click();
   await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
     "src",
-    /casino-banner\.png$/,
+    /casino-banner\.[a-f0-9]+\.webp$/,
   );
   await page.getByRole("button", { name: "Next banner" }).click();
   await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
     "src",
-    /instant-games-banner\.png$/,
+    /instant-games-banner\.[a-f0-9]+\.webp$/,
   );
   await page.getByRole("button", { name: "Next banner" }).click();
   await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
     "src",
-    /crash-games-banner\.png$/,
+    /crash-games-banner\.[a-f0-9]+\.webp$/,
   );
   await page.getByRole("button", { name: "Previous banner" }).click();
   await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
     "src",
-    /instant-games-banner\.png$/,
+    /instant-games-banner\.[a-f0-9]+\.webp$/,
   );
   await page.getByRole("button", { name: "Next banner" }).click();
   await page.evaluate(async () => {

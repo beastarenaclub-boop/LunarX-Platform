@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { TeenPattiTableViewProps } from "./FlatTeenPattiTable";
 import { TEEN_PATTI_SPOTS, categoryLabel } from "./types";
 import dealerFilm from "@/assets/teenpatti/riya-hd-studio.mp4";
+import { mobileGameMedia, preferLightMedia } from "@/lib/mediaProfile";
 import dealerPoster from "@/assets/teenpatti/riya-hd-opening.jpg";
 import resultPoster from "@/assets/teenpatti/riya-hd-result.jpg";
 import bettingPoster from "@/assets/teenpatti/riya-hd-betting.jpg";
@@ -57,6 +58,7 @@ export default function FilmedTeenPattiTable(props: TeenPattiTableViewProps) {
   } | null>(null);
   const cameraLabel = useRef<HTMLSpanElement>(null);
   const [camera, setCamera] = useState<TableCamera>("auto");
+  const [filmSource] = useState(() => preferLightMedia() ? mobileGameMedia("teenPatti") : dealerFilm);
   const cameraChoice = useRef(camera);
   cameraChoice.current = camera;
   const [failed, setFailed] = useState(false);
@@ -120,6 +122,14 @@ export default function FilmedTeenPattiTable(props: TeenPattiTableViewProps) {
     let frame = 0;
     let disposed = false;
     let last = Date.now();
+    let lastPaint = 0;
+    const frameInterval = 1000 / (filmSource === dealerFilm ? 60 : 30);
+    let fitMeasuredAt = 0;
+    let fitWasPreparing = false;
+    let fittedMaxHeight: number | undefined;
+    const loadingTimeout = !ready && !failed && animate
+      ? window.setTimeout(() => setFailed(true), 8000)
+      : undefined;
     const playback = createDealerPlayback(player, bridge.current, () =>
       setFailed(true),
     );
@@ -152,10 +162,17 @@ export default function FilmedTeenPattiTable(props: TeenPattiTableViewProps) {
     const resize = new ResizeObserver(([entry]) => {
       size.width = entry.contentRect.width;
       size.height = entry.contentRect.height;
+      fitMeasuredAt = 0;
     });
     if (root.current) resize.observe(root.current);
     const paint = () => {
       if (disposed) return;
+      const timestamp = performance.now();
+      if (!document.hidden && timestamp - lastPaint < frameInterval) {
+        frame = requestAnimationFrame(paint);
+        return;
+      }
+      lastPaint = timestamp - ((timestamp - lastPaint) % frameInterval);
       const now = Date.now();
       const stale = document.hidden || now - last > 250;
       last = now;
@@ -165,6 +182,17 @@ export default function FilmedTeenPattiTable(props: TeenPattiTableViewProps) {
         : 1;
       const available = ready && !failed && animate && !document.hidden;
       const preparing = latest.current.bettingEndsAt != null;
+      const table = root.current?.parentElement;
+      // Read layout before changing SVG/style attributes. Re-reading the dock
+      // after every animated card used to force layout on every display tick.
+      if (now - fitMeasuredAt >= 200 || preparing !== fitWasPreparing) {
+        fitMeasuredAt = now;
+        fitWasPreparing = preparing;
+        const dock = table?.parentElement?.querySelector<HTMLElement>('[data-testid="tpl-betting-dock"]');
+        fittedMaxHeight = preparing && !landscapeLayout.matches && window.innerWidth < 1024 && table && dock
+          ? Math.max(140, window.innerHeight - (table.getBoundingClientRect().top + window.scrollY) - dock.offsetHeight - 16)
+          : undefined;
+      }
       root.current?.setAttribute(
         "data-idle-active",
         String(preparing && available),
@@ -211,11 +239,7 @@ export default function FilmedTeenPattiTable(props: TeenPattiTableViewProps) {
         size.width = root.current.clientWidth;
         size.height = root.current.clientHeight;
       }
-      const table = root.current?.parentElement;
-      const dock = table?.parentElement?.querySelector<HTMLElement>('[data-testid="tpl-betting-dock"]');
-      const maxHeight = preparing && !landscapeLayout.matches && window.innerWidth < 1024 && table && dock
-        ? Math.max(140, window.innerHeight - (table.getBoundingClientRect().top + window.scrollY) - dock.offsetHeight - 16)
-        : undefined;
+      const maxHeight = fittedMaxHeight;
       let framing = filmCameraFrame(
         size.width,
         size.height,
@@ -470,11 +494,12 @@ export default function FilmedTeenPattiTable(props: TeenPattiTableViewProps) {
     return () => {
       disposed = true;
       resize.disconnect();
+      window.clearTimeout(loadingTimeout);
       cancelAnimationFrame(frame);
       playback.dispose();
       document.removeEventListener("visibilitychange", resume);
     };
-  }, [ready, failed, animate]);
+  }, [ready, failed, animate, filmSource]);
 
   return (
     <div
@@ -595,7 +620,7 @@ export default function FilmedTeenPattiTable(props: TeenPattiTableViewProps) {
           </svg>
           <video
             ref={video}
-            src={dealerFilm}
+            src={filmSource}
             poster={dealerPoster}
             muted
             playsInline
@@ -604,7 +629,7 @@ export default function FilmedTeenPattiTable(props: TeenPattiTableViewProps) {
               "tpl-dealer-video",
               ready && !failed && animate && "tpl-dealer-video-ready",
             )}
-            onLoadedData={() => setReady(true)}
+            onLoadedData={() => { setReady(true); setFailed(false); }}
             onError={() => setFailed(true)}
             data-testid="tpl-dealer-film"
             aria-hidden="true"

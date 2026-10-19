@@ -1,18 +1,18 @@
-const media = `${import.meta.env.BASE_URL}media/b2c/`;
+import { b2cMedia, b2cBanner } from "./media";
 
 export const B2C_BANNERS = [
   {
-    src: `${media}crash-games-banner.png`,
+    ...b2cBanner("crash-games-banner.png"),
     alt: "Crash Games — JetX and Fury Flight",
     position: "center 40%",
   },
   {
-    src: `${media}casino-banner.png`,
+    ...b2cBanner("casino-banner.png"),
     alt: "Live Casino — Teenpatti, Roulette and Baccarat",
     position: "center 40%",
   },
   {
-    src: `${media}instant-games-banner.png`,
+    ...b2cBanner("instant-games-banner.png"),
     alt: "Instant Games — Mines, Plinko and Dice",
     position: "center 20%",
   },
@@ -20,19 +20,19 @@ export const B2C_BANNERS = [
 
 const atlases = {
   casino: {
-    src: `${media}casino-atlas.png`,
+    src: b2cMedia("casino-atlas.png"),
     width: 1672,
     height: 941,
     rows: [0, 236, 470, 700, 941],
   },
   instant: {
-    src: `${media}instant-atlas.png`,
+    src: b2cMedia("instant-atlas.png"),
     width: 1672,
     height: 941,
     rows: [0, 235, 470, 697, 941],
   },
   sports: {
-    src: `${media}sports-atlas.png`,
+    src: b2cMedia("sports-atlas.png"),
     width: 2048,
     height: 768,
     rows: [0, 350, 768],
@@ -95,8 +95,8 @@ export function b2cArtwork(id: string) {
   };
 }
 
-export const B2C_AVATAR = `${media}player-avatar.png`;
-export const B2C_LOTTERY = `${media}lottery.png`;
+export const B2C_AVATAR = b2cMedia("player-avatar.png");
+export const B2C_LOTTERY = b2cMedia("lottery.png");
 
 export const B2C_GAME_ORDER = [
   "teen-patti-live",

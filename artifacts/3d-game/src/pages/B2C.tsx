@@ -535,6 +535,10 @@ export default function B2C({
               >
                 <img
                   src={activeBanner.src}
+                  srcSet={activeBanner.srcSet}
+                  sizes="(max-width: 760px) 100vw, 1600px"
+                  width={activeBanner.width}
+                  height={activeBanner.height}
                   alt={activeBanner.alt}
                   style={{ objectPosition: activeBanner.position }}
                   fetchPriority="high"

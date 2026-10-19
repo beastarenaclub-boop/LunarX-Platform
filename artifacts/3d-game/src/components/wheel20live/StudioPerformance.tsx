@@ -1,6 +1,7 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { W20_CUES, type W20Playback } from "./studioTiming";
 import { createHostForeground } from "./hostForeground";
+import { mobileGameMedia, preferLightMedia } from "@/lib/mediaProfile";
 
 const base = `${import.meta.env.BASE_URL}media/wheel20-live/`;
 const FILMS = {
@@ -11,6 +12,13 @@ const FILMS = {
   idle: "studio-loop-v1.mp4",
 } as const;
 type Clip = keyof typeof FILMS;
+const MOBILE_FILMS = {
+  welcome: "wheelWelcome", lastCall: "wheelLastCall", spin: "wheelSpin",
+  result: "wheelResult", idle: "wheelIdle",
+} as const;
+const NEXT_CLIP: Record<Clip, Clip> = {
+  welcome: "lastCall", lastCall: "spin", spin: "result", result: "idle", idle: "welcome",
+};
 export type CommentaryState = "blocked" | "muted" | "loading" | "playing";
 export interface StudioAudioControl {
   setEnabled(enabled: boolean): void;
@@ -43,7 +51,8 @@ export function StudioPerformance(props: Props) {
 
   useEffect(() => {
     const root = host.current!;
-    const foreground = createHostForeground(root.parentElement!);
+    const light = preferLightMedia();
+    const foreground = createHostForeground(root.parentElement!, light);
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
     const films = {} as Record<Clip, HTMLVideoElement>;
     const failed = new Set<Clip>();
@@ -143,8 +152,8 @@ export function StudioPerformance(props: Props) {
       v.dataset.active = "false";
       v.playsInline = true;
       v.muted = true;
-      v.preload = "auto";
-      v.src = base + FILMS[clip];
+      v.preload = "none";
+      v.src = light ? mobileGameMedia(MOBILE_FILMS[clip]) : base + FILMS[clip];
       v.addEventListener("error", () => failed.add(clip));
       films[clip] = v;
       root.append(v);
@@ -282,6 +291,17 @@ export function StudioPerformance(props: Props) {
         publish("fallback");
         reportAudio(p.sound ? "loading" : "muted");
         return;
+      }
+      // Fetch the active take first. Warm only the next take's metadata instead
+      // of downloading all five performances on entry to the game.
+      if (v.preload !== "auto") {
+        v.preload = "auto";
+        v.load();
+      }
+      const upcoming = films[NEXT_CLIP[next.clip]];
+      if (v.readyState >= 2 && upcoming.preload === "none") {
+        upcoming.preload = "metadata";
+        upcoming.load();
       }
       if (v.readyState < 1) return;
       if (needSeek) {

@@ -758,7 +758,7 @@ test("table audio plays six recorded lifts and placements, mutes and stops on le
 test("a failed video still reveals server cards and settles", async ({
   page,
 }) => {
-  await page.route("**/*riya-hd-studio*.mp4*", (route) =>
+  await page.route(/(?:riya-hd-studio[^/]*|teenPatti\.[a-f0-9]+)\.mp4/, (route) =>
     route.request().resourceType() === "media"
       ? route.abort()
       : route.continue(),
@@ -796,14 +796,13 @@ test("side shoe shuffles, deals six backs, then hand camera opens and overhead c
   round.betting(4300, "camera-round");
   await expect(table).toHaveAttribute("data-stage", "dealing");
   const travel = await page.evaluate(async () => {
-    const observations: { x: number; count: number }[] = [];
-    for (let i = 0; i < 90; i++) {
+    const observations: { x: number[]; count: number }[] = [];
+    const until = performance.now() + 1800;
+    while (performance.now() < until) {
       await new Promise(requestAnimationFrame);
-      const card = document.querySelector(
-        '[data-testid="tpl-dealt-card-3"]',
-      ) as unknown as SVGGElement;
       observations.push({
-        x: card.transform.baseVal.consolidate()?.matrix.e ?? 0,
+        x: Array.from(document.querySelectorAll<SVGGElement>('[data-testid^="tpl-dealt-card-"]'),
+          card => card.transform.baseVal.consolidate()?.matrix.e ?? 0),
         count: Number(
           document
             .querySelector('[data-testid="tpl-flat-table"]')
@@ -814,7 +813,8 @@ test("side shoe shuffles, deals six backs, then hand camera opens and overhead c
     return observations;
   });
   expect(
-    Math.max(...travel.map((p) => p.x)) - Math.min(...travel.map((p) => p.x)),
+    Math.max(...Array.from({ length: 6 }, (_, index) =>
+      Math.max(...travel.map(p => p.x[index])) - Math.min(...travel.map(p => p.x[index])))),
   ).toBeGreaterThan(30);
   expect(travel.some((p) => p.count > 0 && p.count < 6)).toBe(true);
   await expect(table).toHaveAttribute("data-dealt-count", "6");

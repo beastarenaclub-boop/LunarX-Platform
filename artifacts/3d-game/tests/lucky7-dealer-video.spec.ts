@@ -19,7 +19,7 @@ test("coins keep the frame stable and each round plays one physical shake", asyn
   await expect.poll(() => action(page).evaluate(el => (el as HTMLVideoElement).readyState)).toBeGreaterThanOrEqual(2);
   await page.evaluate(() => { (window as any).dealerPlayer = document.querySelector("video"); });
   const geometry = await page.getByTestId("dice-table").evaluate(el => ({ width: el.clientWidth, height: el.clientHeight }));
-  for (const value of [200, 500, 100]) await page.getByTestId("chip-mobile-" + value).click();
+  for (const value of [500, 1000, 100]) await page.getByTestId("chip-mobile-" + value).click();
   expect(round.submissions).toHaveLength(0);
   expect(await page.evaluate(() => (window as any).dealerSeeks)).toEqual([]);
   await page.getByTestId("spot-under").click();
@@ -68,7 +68,7 @@ test("phone uses the light clip and rotating the screen does not reload it", asy
   await page.setViewportSize({ width: 360, height: 740 });
   await table(page);
   await expect(stage(page)).toHaveAttribute("data-mode", "idle");
-  await expect(stage(page)).toHaveAttribute("data-quality", "1080p");
+  await expect(stage(page)).toHaveAttribute("data-quality", "720p");
   const source = await video(page).evaluate(el => (el as HTMLVideoElement).currentSrc);
   await page.setViewportSize({ width: 740, height: 360 });
   expect(await video(page).evaluate(el => (el as HTMLVideoElement).currentSrc)).toBe(source);
@@ -86,7 +86,16 @@ test("long native loop and action handoff match the face and hands without a pos
     source.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;opacity:.01;pointer-events:none";
     document.body.append(source);
     await new Promise<void>((resolve, reject) => { source.onloadeddata = () => resolve(); source.onerror = () => reject(new Error("Decode failed")); });
-    const seekDecoded = (time: number) => new Promise<void>((resolve, reject) => {
+    const seekDecoded = async (time: number) => {
+      // A cached first frame is already presented by loadeddata. Seeking to
+      // the same frame does not necessarily produce another native callback.
+      if (Math.abs(source.currentTime - time) < .01) {
+        await new Promise<void>(resolve => {
+          source.onseeked = () => { source.onseeked = null; resolve(); };
+          source.currentTime = .2;
+        });
+      }
+      return new Promise<void>((resolve, reject) => {
       let frame = 0;
       const done = () => { clearTimeout(timeout); source.onseeked = null; resolve(); };
       const timeout = setTimeout(() => {
@@ -103,7 +112,8 @@ test("long native loop and action handoff match the face and hands without a pos
         frame = source.requestVideoFrameCallback(decoded);
       } else source.onseeked = done;
       source.currentTime = time;
-    });
+      });
+    };
     const canvas = document.createElement("canvas");
     canvas.width = 320; canvas.height = 180;
     const context = canvas.getContext("2d", { willReadFrequently: true })!;
@@ -182,7 +192,7 @@ test("an unavailable HD movie falls back to the small movie", async ({ page }) =
     route.request().resourceType() === "script" ? route.continue() : route.abort());
   await table(page);
   await expect(stage(page)).toHaveAttribute("data-mode", "idle");
-  await expect(stage(page)).toHaveAttribute("data-quality", "1080p");
+  await expect(stage(page)).toHaveAttribute("data-quality", "720p");
 });
 
 test("a late join shows the result without a long shake", async ({ page }) => {

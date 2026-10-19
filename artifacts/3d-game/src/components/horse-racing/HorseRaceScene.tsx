@@ -4,14 +4,18 @@ import { RACING_HORSES } from "@workspace/api-zod/horse-racing-game";
 import type { Race3dState } from "./horse3dRenderer";
 import HorseRaceFallback from "./HorseRaceFallback";
 import UnityHorseRaceScene from "./UnityHorseRaceScene";
+import { preferLightMedia } from "@/lib/mediaProfile";
 
 export default function HorseRaceScene(
   props: Race3dState & { onReady: (ready: boolean) => void },
 ) {
   const [renderer, setRenderer] = useState<"checking" | "unity" | "three">(
-    "checking",
+    () => preferLightMedia() ? "three" : "checking",
   );
   useEffect(() => {
+    // The existing Three renderer avoids downloading the 63 MB Unity runtime
+    // on phones, low-memory devices and connections with data saving enabled.
+    if (preferLightMedia()) return;
     let disposed = false;
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), 4000);

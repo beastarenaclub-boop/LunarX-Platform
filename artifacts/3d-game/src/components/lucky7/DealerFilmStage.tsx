@@ -189,6 +189,7 @@ function DealerFilmStage({ film, reducedMotion, roll, onRelease, onLand, onFrame
     {!reducedMotion && !idle.failed && <video ref={idlePlayer} src={idle.source}
       poster={film.poster} width={film.width} height={film.height}
       muted autoPlay loop playsInline preload="auto" disablePictureInPicture
+      onLoadedMetadata={idle.onReady}
       onPlaying={() => {
         if ((idlePlayer.current?.currentTime ?? 0) < 1) nearLoopEnd.current = false;
         setIdleReady(true); setNeedsGesture(false);
@@ -204,7 +205,8 @@ function DealerFilmStage({ film, reducedMotion, roll, onRelease, onLand, onFrame
       data-testid="lucky7-dealer-idle-video" />}
     {!reducedMotion && !action.failed && <video ref={actionPlayer} src={action.source}
       poster={film.poster} width={film.width} height={film.height}
-      muted playsInline preload="auto" disablePictureInPicture onError={action.onError}
+      muted playsInline preload={idleReady ? "auto" : "metadata"} disablePictureInPicture onError={action.onError}
+      onLoadedMetadata={action.onReady}
       style={{ opacity: showAction ? 1 : 0 }} aria-hidden="true"
       data-testid="lucky7-dealer-action-video" />}
     {needsGesture && !reducedMotion && !idle.failed && <button type="button"

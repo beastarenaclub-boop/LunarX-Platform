@@ -1,0 +1,42 @@
+{
+  "teenPatti": {
+    "src": "teenPatti.d2dc69fa88c1.mp4",
+    "bytes": 416964,
+    "sourceBytes": 5274411
+  },
+  "luckyIdle": {
+    "src": "luckyIdle.fdacb7239781.mp4",
+    "bytes": 482042,
+    "sourceBytes": 5771976
+  },
+  "luckyAction": {
+    "src": "luckyAction.9f09784c40c5.mp4",
+    "bytes": 1119647,
+    "sourceBytes": 9233551
+  },
+  "wheelWelcome": {
+    "src": "wheelWelcome.8be4a971bd56.mp4",
+    "bytes": 834853,
+    "sourceBytes": 5210646
+  },
+  "wheelLastCall": {
+    "src": "wheelLastCall.913283a94d86.mp4",
+    "bytes": 630853,
+    "sourceBytes": 4876596
+  },
+  "wheelSpin": {
+    "src": "wheelSpin.544e6f54a050.mp4",
+    "bytes": 1672328,
+    "sourceBytes": 6970580
+  },
+  "wheelResult": {
+    "src": "wheelResult.6c7029cf268b.mp4",
+    "bytes": 521441,
+    "sourceBytes": 4744892
+  },
+  "wheelIdle": {
+    "src": "wheelIdle.a4524e2fd843.mp4",
+    "bytes": 272338,
+    "sourceBytes": 1774206
+  }
+}

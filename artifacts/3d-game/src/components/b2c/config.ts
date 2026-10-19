@@ -1,3 +1,5 @@
+import { b2cMedia } from "./media";
+
 // Storefront presentation is independent of the server's B2C/B2B account channel.
 // Both Crypto777 player domains share this design and the existing game routes.
 const storefrontHosts = (import.meta.env.VITE_B2C_HOSTS ?? "")
@@ -12,5 +14,5 @@ export const B2C_HEADLINE = "Every Game. A New Thrill.";
 export const B2C_ICON = `${import.meta.env.BASE_URL}media/b2c/brand-icon.svg`;
 export const B2C_LOGO =
   import.meta.env.VITE_B2C_LOGO?.trim() ||
-  `${import.meta.env.BASE_URL}media/b2c/brand-logo.png`;
+  b2cMedia("brand-logo.png");
 export const B2C_HOME = B2C_STANDALONE ? "/" : "/b2c";

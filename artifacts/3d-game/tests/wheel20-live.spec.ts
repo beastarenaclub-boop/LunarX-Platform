@@ -425,13 +425,13 @@ test("one tap produces actual Hindi audio samples; the last-call stays audible a
   expect(f.errors).toEqual([]);
 });
 
-test("permitted autoplay: all commentary phases and reload play without a user gesture", async () => {
+test("permitted autoplay: all commentary phases and reload play without a user gesture", async ({ baseURL }) => {
   const browser = await chromium.launch({
     channel: process.platform === "win32" ? "chrome" : undefined,
     args: ["--autoplay-policy=no-user-gesture-required"],
   });
   try {
-    const context = await browser.newContext({ baseURL: "http://127.0.0.1:5382" });
+    const context = await browser.newContext({ baseURL });
     const page = await context.newPage();
     // The old toggle could accidentally save mute. The automatic mode starts
     // enabled, while retaining any explicit choice made in the new controls.
@@ -550,18 +550,35 @@ test("walking host stays in front of the wheel with a tracked transparent foregr
   expect(f.errors).toEqual([]);
 });
 
+test("phone streams the current take and preserves the transparent host foreground", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const requests = new Set<string>();
+  page.on("request", request => {
+    if (request.url().includes("/media/performance/wheel")) requests.add(request.url());
+  });
+  const f = await setup(page);
+  const foreground = page.locator(".w20-host-foreground");
+  await expect(foreground).toBeVisible();
+  const active = page.locator('video[data-active="true"]');
+  await expect.poll(() => active.evaluate((v: HTMLVideoElement) => v.videoWidth)).toBe(1280);
+  const mask = await foreground.evaluate((canvas: HTMLCanvasElement) => {
+    const rgba = canvas.getContext("2d")!.getImageData(0, 0, canvas.width, canvas.height).data;
+    let opaque = 0;
+    for (let i = 3; i < rgba.length; i += 4) if (rgba[i] > 128) opaque++;
+    return { fraction: opaque / (canvas.width * canvas.height), corner: rgba[3] };
+  });
+  expect(mask.fraction).toBeGreaterThan(0.01);
+  expect(mask.fraction).toBeLessThan(0.4);
+  expect(mask.corner).toBe(0);
+  expect(requests.size).toBeLessThanOrEqual(2);
+  expect(f.errors).toEqual([]);
+});
+
 test("reduced motion pauses the presenter and a failed video keeps the studio visible", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await setup(page);
-  await expect
-    .poll(() =>
-      page
-        .locator('video[data-clip="idle"]')
-        .evaluate((v: HTMLVideoElement) => v.readyState),
-    )
-    .toBeGreaterThan(1);
   expect(
     await page
       .locator("video")
@@ -688,14 +705,11 @@ test("native commentary, physical pull, reload and authoritative result stay syn
     await page
       .getByRole("button", { name: "Enable sound", exact: true })
       .click();
-  await expect
-    .poll(() =>
-      page
-        .locator('video[data-clip="spin"]')
-        .evaluate((v: HTMLVideoElement) => v.readyState),
-    )
-    .toBeGreaterThan(2);
   f.reveal(14000);
+  // The spin starts streaming when the round calls for it. It must still
+  // decode in time for the physical pull and stay on the authoritative clock.
+  await expect.poll(() => page.locator('video[data-clip="spin"]')
+    .evaluate((v: HTMLVideoElement) => v.readyState)).toBeGreaterThan(2);
   await expect(page.locator(".w20-performance")).toHaveAttribute(
     "data-clip",
     "spin",

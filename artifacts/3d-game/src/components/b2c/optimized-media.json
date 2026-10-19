@@ -1,0 +1,83 @@
+{
+  "casino-atlas.png": {
+    "src": "optimized/casino-atlas.c6246f4f9f03.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 547020,
+    "sourceBytes": 3077745
+  },
+  "instant-atlas.png": {
+    "src": "optimized/instant-atlas.a6288d10c45a.webp",
+    "width": 1672,
+    "height": 941,
+    "bytes": 609260,
+    "sourceBytes": 3280794
+  },
+  "sports-atlas.png": {
+    "src": "optimized/sports-atlas.417493f60eff.webp",
+    "width": 2048,
+    "height": 768,
+    "bytes": 538404,
+    "sourceBytes": 3114426
+  },
+  "crash-games-banner.png": {
+    "src": "optimized/crash-games-banner.b63b9409ab1f.webp",
+    "width": 1979,
+    "height": 795,
+    "bytes": 365674,
+    "sourceBytes": 2555935,
+    "mobile": {
+      "src": "optimized/crash-games-banner-mobile.793f95a50d02.webp",
+      "width": 768,
+      "height": 309,
+      "bytes": 77728
+    }
+  },
+  "casino-banner.png": {
+    "src": "optimized/casino-banner.4ff45b1d7206.webp",
+    "width": 2095,
+    "height": 751,
+    "bytes": 322058,
+    "sourceBytes": 2294862,
+    "mobile": {
+      "src": "optimized/casino-banner-mobile.c799b0b2a943.webp",
+      "width": 768,
+      "height": 275,
+      "bytes": 77738
+    }
+  },
+  "instant-games-banner.png": {
+    "src": "optimized/instant-games-banner.d01c4954afcf.webp",
+    "width": 1979,
+    "height": 795,
+    "bytes": 423542,
+    "sourceBytes": 2853000,
+    "mobile": {
+      "src": "optimized/instant-games-banner-mobile.c9b523721a12.webp",
+      "width": 768,
+      "height": 309,
+      "bytes": 95092
+    }
+  },
+  "lottery.png": {
+    "src": "optimized/lottery.459ca7ad19a3.webp",
+    "width": 560,
+    "height": 315,
+    "bytes": 79604,
+    "sourceBytes": 2843144
+  },
+  "player-avatar.png": {
+    "src": "optimized/player-avatar.0e68ae951849.webp",
+    "width": 160,
+    "height": 160,
+    "bytes": 6420,
+    "sourceBytes": 983079
+  },
+  "brand-logo.png": {
+    "src": "optimized/brand-logo.39d6ccdca4f3.webp",
+    "width": 684,
+    "height": 148,
+    "bytes": 42906,
+    "sourceBytes": 220427
+  }
+}
