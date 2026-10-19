@@ -171,8 +171,8 @@ async function setup(page: Page, low = false, waitForBoard = true) {
     offline: () => {
       offline = true;
     },
-    closing: () => {
-      deadline = Date.now() + 8000;
+    closing: (remaining = 8000) => {
+      deadline = Date.now() + remaining;
     },
     drop: () => {
       drop = true;
@@ -222,6 +222,184 @@ test("wheel stops on every authoritative pocket without backwards motion", () =>
     }
   }
 });
+
+for (const width of [1440, 390]) {
+  test(`presenters visibly leave and enter through an empty stage at ${width}px`, async ({
+    page,
+  }) => {
+    test.setTimeout(60000);
+    await page.setViewportSize({ width, height: 900 });
+    const f = await setup(page);
+    const background = await page.locator(".w20-poster").getAttribute("src");
+    const record = async (clip: "lastCall" | "result") => {
+      await expect(page.locator(".w20-performance")).toHaveAttribute(
+        "data-clip",
+        clip,
+      );
+      return page.evaluate(
+        (clip) =>
+          new Promise<
+            Array<{
+              time: number;
+              fraction: number;
+              x: number;
+              camera: string;
+              landed: string;
+            }>
+          >((resolve, reject) => {
+            const video = document.querySelector<HTMLVideoElement>(
+              `video[data-clip="${clip}"]`,
+            )!;
+            const samples: Array<{
+              time: number;
+              fraction: number;
+              x: number;
+              camera: string;
+              landed: string;
+            }> = [];
+            const copy = document.createElement("canvas");
+            copy.width = 320;
+            copy.height = 180;
+            const context = copy.getContext("2d", {
+              willReadFrequently: true,
+            })!;
+            let last = -1,
+              callback = 0,
+              finished = false;
+            const finish = () => {
+              if (finished) return;
+              finished = true;
+              clearInterval(watch);
+              clearTimeout(timeout);
+              video.cancelVideoFrameCallback(callback);
+              resolve(samples);
+            };
+            // A live cut can occur just before the final decoded frame. Finish
+            // at that cut as well, then assert the walk actually completed.
+            const watch = window.setInterval(() => {
+              if (
+                samples.length &&
+                document.querySelector<HTMLElement>(".w20-performance")!.dataset
+                  .clip !== clip
+              )
+                finish();
+            }, 50);
+            const timeout = window.setTimeout(() => {
+              clearInterval(watch);
+              video.cancelVideoFrameCallback(callback);
+              reject(
+                new Error(
+                  `Handoff capture stalled: ${clip}, last frame ${last}`,
+                ),
+              );
+            }, 15000);
+            const capture: VideoFrameRequestCallback = (_now, frame) => {
+              if (finished) return;
+              if (frame.mediaTime - last > 0.15) {
+                last = frame.mediaTime;
+                context.clearRect(0, 0, 320, 180);
+                context.drawImage(
+                  document.querySelector<HTMLCanvasElement>(
+                    ".w20-host-foreground",
+                  )!,
+                  0,
+                  0,
+                  320,
+                  180,
+                );
+                const pixels = context.getImageData(0, 0, 320, 180).data;
+                let count = 0,
+                  sum = 0;
+                for (let i = 0; i < pixels.length; i += 4)
+                  if (pixels[i + 3] > 128) {
+                    count++;
+                    sum += (i / 4) % 320;
+                  }
+                samples.push({
+                  time: last,
+                  fraction: count / (320 * 180),
+                  x: count ? sum / count / 320 : 0,
+                  camera:
+                    document.querySelector<HTMLElement>(".w20-camera")!.dataset
+                      .view!,
+                  landed:
+                    document.querySelector<SVGSVGElement>(".w20-wheel")!.dataset
+                      .landed!,
+                });
+              }
+              if (frame.mediaTime >= 9.8) finish();
+              else callback = video.requestVideoFrameCallback(capture);
+            };
+            callback = video.requestVideoFrameCallback(capture);
+          }),
+        clip,
+      );
+    };
+    const checkWalk = (samples: Awaited<ReturnType<typeof record>>) => {
+      expect(samples.some((s) => s.time < 2 && s.fraction > 0.01)).toBe(true);
+      expect(
+        samples.some((s) => s.time > 3 && s.time < 7 && s.fraction < 0.0001),
+      ).toBe(true);
+      const visibleExit = samples.filter(
+        (s) => s.time >= 2 && s.time < 6 && s.fraction > 0.002,
+      );
+      const visibleEntry = samples.filter(
+        (s) => s.time >= 6 && s.fraction > 0.002,
+      );
+      expect(
+        Math.max(...visibleExit.map((s) => s.x)) - visibleExit[0].x,
+      ).toBeGreaterThan(0.06);
+      expect(visibleEntry[0].x - visibleEntry.at(-1)!.x).toBeGreaterThan(0.06);
+      expect(samples.at(-1)!.fraction).toBeGreaterThan(0.01);
+      expect(samples.at(-1)!.time).toBeGreaterThan(9);
+      expect(
+        samples.filter((s) => s.time > 2.8).every((s) => s.camera === "wide"),
+      ).toBe(true);
+    };
+    f.closing(10000);
+    const beforeSpin = await record("lastCall");
+    checkWalk(beforeSpin);
+    await page.screenshot({
+      path: path.resolve(
+        import.meta.dirname,
+        `../../../tmp/wheel20-live/v5/arrived-spinner-${width}.png`,
+      ),
+    });
+    f.reveal(14000);
+    await expect(page.locator(".w20-performance")).toHaveAttribute(
+      "data-clip",
+      "spin",
+    );
+    await expect(page.getByTestId("w20-result")).toBeVisible({
+      timeout: 16000,
+    });
+    await expect(page.locator(".w20-camera")).toHaveAttribute(
+      "data-view",
+      "closeup",
+    );
+    const afterSpin = await record("result");
+    checkWalk(afterSpin);
+    expect(afterSpin.every((s) => s.landed === "true")).toBe(true);
+    await expect(page.getByTestId("w20-rotor")).toHaveAttribute(
+      "data-segment",
+      String(outcome.segment),
+    );
+    await expect(page.locator(".w20-performance")).toHaveAttribute(
+      "data-presenter",
+      "host",
+    );
+    await page.screenshot({
+      path: path.resolve(
+        import.meta.dirname,
+        `../../../tmp/wheel20-live/v5/returned-host-${width}.png`,
+      ),
+    });
+    expect(await page.locator(".w20-poster").getAttribute("src")).toBe(
+      background,
+    );
+    expect(f.errors).toEqual([]);
+  });
+}
 
 for (const width of [1440, 390, 320]) {
   test(`readable numbers and a correctly framed winning close-up at ${width}px`, async ({

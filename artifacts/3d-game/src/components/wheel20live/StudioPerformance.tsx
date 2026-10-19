@@ -1,14 +1,19 @@
 import { useEffect, useRef, type RefObject } from "react";
-import { W20_CUES, type W20Playback } from "./studioTiming";
+import {
+  W20_CUES,
+  W20_HANDOFF,
+  handoffAt,
+  type W20Playback,
+} from "./studioTiming";
 import { createHostForeground } from "./hostForeground";
 import { preferLightMedia } from "@/lib/mediaProfile";
 
 const base = `${import.meta.env.BASE_URL}media/wheel20-live/`;
 const FILMS = {
   welcome: "host-welcome-v4.mp4",
-  lastCall: "host-last-call-v4.mp4",
+  lastCall: "studio-last-call-v5.mp4",
   spin: "studio-spin-v4.mp4",
-  result: "host-result-v4.mp4",
+  result: "studio-result-v5.mp4",
   idle: "host-idle-v4.mp4",
 } as const;
 type Clip = keyof typeof FILMS;
@@ -68,6 +73,7 @@ export function StudioPerformance(props: Props) {
     let unlocked = true;
     let presented = false;
     let correctedAt = 0;
+    let resultWide = false;
     const pending = new Set<HTMLVideoElement>();
     let syncedAt = 0,
       syncedClock = 0,
@@ -88,6 +94,7 @@ export function StudioPerformance(props: Props) {
         mediaTime: time,
         ready,
         sampledAt: performance.now(),
+        cameraWide: resultWide,
       };
     };
     const silence = () =>
@@ -127,10 +134,21 @@ export function StudioPerformance(props: Props) {
         for (const v of Object.values(films))
           v.dataset.active = String(v === video);
       }
-      foreground.draw(video, time, clip === "spin" ? "packed" : "green");
+      foreground.draw(
+        video,
+        time,
+        clip === "spin" || clip === "lastCall" || clip === "result"
+          ? "packed"
+          : "green",
+      );
+      const handoff = handoffAt(clip, time);
+      if (take.stage === "result") {
+        if (clip === "idle" || time >= W20_HANDOFF.walkStart) resultWide = true;
+      } else resultWide = false;
       root.dataset.media = "video";
       root.dataset.clip = clip;
-      root.dataset.presenter = clip === "spin" ? "spinner" : "host";
+      root.dataset.presenter = handoff.presenter;
+      root.dataset.handoff = handoff.action;
       root.dataset.frameTime = time.toFixed(3);
       publish(take.stage, time, true);
     };

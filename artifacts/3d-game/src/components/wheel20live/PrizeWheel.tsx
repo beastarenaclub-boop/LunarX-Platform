@@ -97,7 +97,7 @@ export function PrizeWheel({
       const shortRound = end - start < W20_CUES.duration * 1000;
       const fallback = reduced || mediaFrame.stage === "fallback" || shortRound;
       const p =
-        wallProgress >= 1
+        done || wallProgress >= 1
           ? 1
           : fallback
             ? wallProgress
@@ -113,7 +113,9 @@ export function PrizeWheel({
       // Frame-driven camera push during the final coast. Never expose the
       // winning pocket until the authoritative rotor has actually landed.
       const focus =
-        outcome && !reduced ? Math.max(0, Math.min(1, (p - 0.56) / 0.32)) : 0;
+        outcome && !reduced && !mediaFrame.cameraWide
+          ? Math.max(0, Math.min(1, (p - 0.56) / 0.32))
+          : 0;
       const smoothFocus = focus * focus * (3 - 2 * focus);
       camera?.style.setProperty("--w20-focus", smoothFocus.toFixed(4));
       if (camera)
@@ -140,7 +142,10 @@ export function PrizeWheel({
         done = true;
         latest.current.onLand();
       }
-      if (outcome && p < 1) frame = requestAnimationFrame(render);
+      // Keep the result readable, then pull back to show the physical exit and
+      // entry. A landed rotor stays latched while the handoff camera changes.
+      if (outcome && (!done || (!reduced && !mediaFrame.cameraWide)))
+        frame = requestAnimationFrame(render);
     };
     render();
     return () => cancelAnimationFrame(frame);

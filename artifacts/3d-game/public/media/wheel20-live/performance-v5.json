@@ -1,0 +1,51 @@
+{
+  "version": 5,
+  "created": "2026-10-19",
+  "generatedPresenter": true,
+  "description": "Visible stage handoffs. The burgundy host walks out through stage right before the blue spinner walks in. After the winning close-up the spinner walks out and the host walks back in. Both transitions are continuous decoded video streams over the same fixed studio background.",
+  "sourcePerformances": {
+    "spinner": {
+      "taskId": "5b22e360-1869-48e8-8179-e4e6716bc189",
+      "prompt": "A single continuous locked-off full-stage broadcast shot, ten seconds. Preserve the exact adult woman, blue off-shoulder dress, face, dark ponytail, gold belt, shoes and microphone from the first image. The camera NEVER moves or zooms. Preserve the exact wheel, sign, lighting, stage, scale, framing and floor; the wheel NEVER moves. The presenter is silent, mouth relaxed closed, not talking. From second 0 she naturally lowers her free hand, turns toward the RIGHT edge, and walks to the right with three real heel-to-toe steps and visible weight transfer. She exits COMPLETELY through the right edge by second 4, including her entire dress and shoes. At seconds 4-6 the stage is empty, no person anywhere in frame. At second 6 the SAME woman walks back IN from beyond the RIGHT edge, with natural forward walking steps toward the left to her original mark. By second 9.5 she stands in the EXACT original position and pose beside the wheel, facing the camera, matching the final reference. Whole-body movement, real lifted feet, knees and hips, natural cloth movement. No fading, no morphing, no teleporting, no sliding, no duplicates, no cuts. She must leave the frame fully and then visibly return through the edge. Keep her path entirely in the open space to the right of the wheel.",
+      "reference": "studio-poster-v1.jpg",
+      "cutoutTask": "05f7191b-e503-4923-95b8-921b49301323"
+    },
+    "host": {
+      "taskId": "6520c535-97cb-47d4-a7d9-47247fd32d40",
+      "prompt": "Ten-second single continuous locked-off full-body shot. Same exact adult woman, face, dark softly waved hair, burgundy dress, gold belt, gold shoes and handheld microphone as the reference. Preserve original body size, head height and floor contact. Fixed camera, no zoom, no cuts. Keep the green cyclorama and green floor covering the ENTIRE frame. The woman is silent, mouth relaxed closed. From second 0 she lowers the microphone, turns RIGHT and walks naturally to the RIGHT with visible lifted feet, bent knees and heel-to-toe weight transfer. She continues walking all the way beyond the image's RIGHT EDGE. By second 3.8 absolutely her entire body, shoes and dress are outside the image. Seconds 4-6 show only the empty green cyclorama. Starting at second 6 the SAME woman walks back INTO the image from beyond the RIGHT EDGE toward the LEFT, with real forward steps, never walking backwards. By second 9.5 she reaches her precise original standing mark, height, scale and original pose facing camera, matching the end frame. Do not walk toward or away from camera, only horizontally. Realistic cloth and hair motion. No fading, teleporting, morphing, duplicates, frame-in-frame, cropping box or graphics. The only frame boundary is the actual edge of the entire video.",
+      "reference": "First frame of the original un-cropped 30-second v4 host performance"
+    }
+  },
+  "format": {
+    "codec": "H.264/AAC",
+    "fps": 30,
+    "width": 1280,
+    "height": 900,
+    "visibleHeight": 720,
+    "matteTop": 720,
+    "matteHeight": 180
+  },
+  "clips": {
+    "studio-last-call-v5.mp4": {
+      "seconds0to2": "Existing burgundy last-call performance",
+      "seconds2to6": "Burgundy host physically walks completely out to the right",
+      "seconds6to10": "Blue spinner physically walks in from the right and reaches her wheel mark",
+      "audio": "Existing burgundy last-call dialogue continues as stage narration"
+    },
+    "studio-result-v5.mp4": {
+      "seconds0to2": "Existing blue presenter announces the result; winning number remains zoomed",
+      "seconds2to6": "Blue spinner physically walks completely out to the right",
+      "seconds6to10": "Burgundy host physically walks in from the right and reaches her hosting mark",
+      "audio": "Existing blue result dialogue continues while she leaves"
+    }
+  },
+  "continuity": {
+    "background": "studio-clean-v4.jpg",
+    "physicalPullSeconds": 2.75,
+    "wheelStopSeconds": 9.25,
+    "camera": "Close-up through landing and the first two result seconds; smooth wide shot during the visible exit and entry.",
+    "matte": "Same-frame packed alpha; no CSS translation or identity crossfade.",
+    "validation": "The preparation script requires a completely empty stage interval between each generated exit and entry before assembling delivery assets."
+  },
+  "preparation": "node tools/prepare-wheel20-handoff.mjs tmp/wheel20-live/v5"
+}
