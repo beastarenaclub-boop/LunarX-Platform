@@ -131,6 +131,50 @@ verification scope and domain status.
 
 ## Local Docker setup
 
+### Live players, accounts and betting review
+
+Admin, master and agent panels display unique online players, players betting in
+the last two minutes and total players. Expand **View online players** for the
+names and activity timestamps. Counts refresh every 15 seconds; expired/revoked
+sessions, inactive branches and demo accounts do not count as online. Authenticated
+WebSocket heartbeats keep connected players active across API instances.
+
+**Accounts & Tally** is available at `/admin/accounts`, `/master/accounts` and
+`/agent/accounts`. It automatically checks opening + credits - debits = closing,
+compares stored balances and identifies earlier balance breaks, including when
+the final balance later matches. Equal-timestamp ledger entries are checked as a
+group. Dates use IST, money stays in integer paise until display, and wallets keep
+their separate scopes. Admin can filter B2C/B2B and branches; operators can only
+read their own downline. Reporting does not adjust wallets or settle payments.
+
+Admin **Bets** at `/admin/bets` ranks players by total stake, bet count, largest
+bet, returns, player profit or recent activity. Filter by dates, branch, player,
+game, round, status and minimum/maximum stake, then inspect a player's individual
+bets and current unresolved security flags. Summaries follow bet placement dates;
+pending and voided stakes are excluded from settled profit. Review signals
+(60+ bets/minute, unusually high returns over at least 50 settled bets, or existing
+security flags) require human investigation and never automatically restrict an
+account. Master/agent/player/support roles cannot access this API or its exports.
+
+Excel (`.xlsx`) and PDF downloads include the full filtered selection, independent
+of screen pagination. Account exports contain wallet balances, wallet entries and
+a separate commission ledger; commission entries cover cash branch settlements
+recorded since migration 0050. Each file records filters, IST date boundaries and
+generation time. A consistent database snapshot is used per report. Excel allows
+50,000 rows per sheet and PDF 5,000 records per file; larger selections require
+narrower filters and are never silently truncated. Downloads are audit logged.
+Noto fonts bundled under the SIL Open Font License support Latin and Hindi PDF text.
+
+API: `GET /api/network/insights/live`, `GET /api/network/insights/accounts`,
+and admin-only `GET /api/admin/betting-insights`. Pass `format=xlsx` or `format=pdf`
+to a report endpoint to export. Report filters are defined in
+`artifacts/api-server/src/services/operatorInsightFilters.ts`.
+
+Run `npm run reports:test` for SQL, permissions, tally and export checks in an
+isolated, in-memory PostgreSQL-compatible database. After building admin and agent
+panels, `npm run reports:test:browser` also checks Chrome, downloads and mobile
+layouts, writing screenshots and sample reports to `tmp/operator-insights/`.
+
 The **B2B / B2C Network** section in the admin panel manages master branches,
 agents, agent-created players, funds, commissions and settlements.
 

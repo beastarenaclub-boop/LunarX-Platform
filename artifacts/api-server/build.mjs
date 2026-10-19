@@ -32,6 +32,8 @@ async function buildAll() {
     external: [
       "*.node",
       "@electric-sql/pglite",
+      "pdfkit",
+      "exceljs",
       "sharp",
       "better-sqlite3",
       "sqlite3",

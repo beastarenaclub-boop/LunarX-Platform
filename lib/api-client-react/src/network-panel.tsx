@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
 import { NetworkTree } from "./network-tree";
 import { NetworkReport } from "./network-report";
+import { OperatorInsights } from "./operator-insights";
 import { NetworkTransactions } from "./network-transactions";
 import { PaymentHistory } from "./payment-history";
 import { WebsiteLinks, type NetworkWebsite } from "./network-website";
@@ -161,7 +162,7 @@ function Pager({
   );
 }
 
-export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account" | "Payment history" | "Manual payments" | "Collection report";
+export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account" | "Payment history" | "Manual payments" | "Collection report" | "Accounts & Tally";
 
 export function NetworkPanel({
   initialTab = "Overview",
@@ -556,6 +557,7 @@ export function NetworkPanel({
           ...(channel === "b2b" && role !== "agent" ? ["Agents"] : []),
           "Players",
           "Ledger",
+          "Accounts & Tally",
           "Settlements",
           ...(channel === 'b2b' && role!=='agent' ? ['Weekly account'] : []),
           "Wallet ledger",
@@ -621,6 +623,7 @@ export function NetworkPanel({
         {role==='agent'?<section className="net-card"><p>Weekly settlement is managed by your master. Contact your master about branch access.</p></section>:(role==='admin'?weeklyMaster:context.data.website?.masterId)&&<NetworkWeekly key={role==='admin'?weeklyMaster:context.data.website!.masterId} masterId={role==='admin'?weeklyMaster:context.data.website!.masterId} admin={role==='admin'}/>}
       </>}
       {(tab === "Overview" || tab === "Ledger") && <NetworkReport channel={channel} ledger={tab === "Ledger"} />}
+      {tab === "Accounts & Tally" && <OperatorInsights key={channel} channel={channel} admin={role === "admin"} />}
       {tab === "Overview" && (
         <>
           {role !== "admin" && <div className="net-stats">

@@ -39,6 +39,7 @@ import DeveloperDocsPage from "@/pages/developer-docs";
 import IntegrationDemoPage from "@/pages/integration-demo";
 import NotFound from "@/pages/not-found";
 import B2CWebsite from "@/pages/b2c-website";
+import { OperatorInsights } from "@workspace/api-client-react";
 
 function ProtectedRoutes() {
   const { user, loading } = useAuth();
@@ -60,6 +61,7 @@ function ProtectedRoutes() {
         <Route path="/users/:id" component={UserDetail} />
         <Route path="/kyc" component={KycPage} />
         <Route path="/bets" component={BetsPage} />
+        <Route path="/accounts"><OperatorInsights admin /></Route>
         <Route path="/round-profit" component={RoundProfitPage} />
         <Route path="/deposits" component={DepositsPage} />
         <Route path="/withdrawals" component={WithdrawalsPage} />

@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "reports:test": "node tools/test-operator-insights.mjs",
+    "reports:test:browser": "node tools/test-operator-insights.mjs --browser",
     "b2c:dev": "node artifacts/3d-game/node_modules/vite/bin/vite.js --config artifacts/3d-game/vite.b2c.config.ts",
     "b2c:build": "node artifacts/3d-game/node_modules/vite/bin/vite.js build --config artifacts/3d-game/vite.b2c.config.ts",
     "network:test": "node tools/test-network.mjs",

@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { useState, useEffect, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { LivePlayerBar } from "@workspace/api-client-react";
 import {
   LayoutDashboard,
   Users,
@@ -42,6 +43,7 @@ const NAV = [
   { href: "/collection-demo", label: "Collection sandbox", icon: PlayCircle },
   { href: "/kyc", label: "KYC", icon: ClipboardCheck },
   { href: "/bets", label: "Bets", icon: Dice5 },
+  { href: "/accounts", label: "Accounts & Tally", icon: Scale },
   { href: "/round-profit", label: "Round Profit Split", icon: Coins },
   { href: "/deposits", label: "Deposits", icon: ArrowUpToLine },
   { href: "/withdrawals", label: "Withdrawals", icon: ArrowDownToLine },
@@ -107,7 +109,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <p className="text-xs text-slate-400 mt-1">Lunar platform</p>
       </div>
       <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
-        {NAV.map((item) => {
+        {NAV.filter(item => !["/bets", "/accounts"].includes(item.href) || user?.role === "admin" || user?.role === "super_admin").map((item) => {
           const Active =
             location === item.href ||
             (item.href !== "/" && location.startsWith(item.href));
@@ -186,7 +188,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <span className="font-semibold text-sm truncate">Operator Console</span>
         </header>
         <main className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto p-4 sm:p-6">{children}</div>
+          <div className="max-w-7xl mx-auto p-4 sm:p-6">{user?.role !== "support" && <LivePlayerBar />}{children}</div>
         </main>
       </div>
     </div>

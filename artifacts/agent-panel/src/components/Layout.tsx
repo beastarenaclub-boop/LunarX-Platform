@@ -3,7 +3,7 @@ import { useState, useEffect, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { customFetch, getOperatorPanel } from "@workspace/api-client-react";
+import { customFetch, getOperatorPanel, LivePlayerBar } from "@workspace/api-client-react";
 import {
   LayoutDashboard,
   GitBranch,
@@ -24,6 +24,7 @@ const NAV = [
   { href: "/agents", label: "Total Agents", icon: Users, masterOnly: true },
   { href: "/users", label: "Total Users", icon: Users },
   { href: "/ledger", label: "Commission & P&L", icon: ReceiptText },
+  { href: "/accounts", label: "Accounts & Tally", icon: ReceiptText },
   { href: "/transactions", label: "Wallet transactions", icon: Wallet },
   { href: "/payments", label: "Payment history", icon: Wallet },
   { href: "/manual-payments", label: "Manual payments", icon: Wallet },
@@ -166,7 +167,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </span>
         </header>
         <main className="flex-1 overflow-auto">
-          <div className="max-w-7xl mx-auto p-4 sm:p-6">{children}</div>
+          <div className="max-w-7xl mx-auto p-4 sm:p-6"><LivePlayerBar />{children}</div>
         </main>
       </div>
     </div>

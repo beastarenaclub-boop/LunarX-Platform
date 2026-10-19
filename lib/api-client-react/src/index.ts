@@ -1,6 +1,7 @@
 export * from "./generated/api";
 export { NetworkPanel } from "./network-panel";
 export { NetworkReport } from "./network-report";
+export { OperatorInsights, LivePlayerBar } from "./operator-insights";
 export { PaymentHistory } from "./payment-history";
 export {TransactionFilters,TransactionPagination,useTransactionFilters,transactionMoney,walletTypes} from './transaction-filters';
 export type {TransactionPageInfo} from './transaction-filters';

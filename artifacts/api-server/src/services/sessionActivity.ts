@@ -7,6 +7,13 @@ import { createHash } from "node:crypto";
 import { logger } from "../lib/logger";
 
 const recent = new Map<string, { signature: string; at: number }>();
+// WebSocket-only players remain visible while their authenticated session is valid.
+export async function recordRealtimeActivity(sessionId: string) {
+  const rows = await db.update(sessionsTable).set({ lastSeenAt: new Date() })
+    .where(and(eq(sessionsTable.id, sessionId), isNull(sessionsTable.revokedAt), gt(sessionsTable.expiresAt, new Date())))
+    .returning({ id: sessionsTable.id });
+  return rows.length > 0;
+}
 export async function recordSessionActivity(req: Request) {
   if (!req.session || !req.user) return;
   const now = Date.now(),

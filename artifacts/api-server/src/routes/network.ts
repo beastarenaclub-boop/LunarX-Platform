@@ -25,6 +25,7 @@ import { parseTransactionQuery, transactionConditions, transactionPage } from ".
 import { customMaster } from "../middlewares/siteChannel";
 import { requestSite } from "../middlewares/siteChannel";
 import { postEntry, publishWalletBalance } from "../services/wallet";
+import { operatorInsightsRouter } from "./operatorInsights";
 
 const router: IRouter = Router();
 router.get('/website',async(req,res,next)=>{
@@ -43,6 +44,7 @@ router.get("/website/:masterId", async (req, res, next) => {
   } catch (e) { next(e); }
 });
 router.use(requireAuth);
+router.use('/insights',operatorInsightsRouter);
 router.use('/reports',reportsRouter);
 router.use('/payment-history',paymentHistoryRouter);
 router.use('/weekly',weeklyRouter);

@@ -12,7 +12,7 @@ import { queryClient } from "@/lib/queryClient";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { Layout } from "@/components/Layout";
 import Login from "@/pages/login";
-import { NetworkPanel, getOperatorPanel, type NetworkSection } from "@workspace/api-client-react";
+import { NetworkPanel, OperatorInsights, getOperatorPanel, type NetworkSection } from "@workspace/api-client-react";
 
 const sectionRoutes: Record<NetworkSection, string> = {
   Overview: "/", Downline: "/downline", Agents: "/agents", Players: "/users",
@@ -21,6 +21,7 @@ const sectionRoutes: Record<NetworkSection, string> = {
   "Payment history":"/payments",
   "Manual payments":"/manual-payments",
   "Collection report":"/collections",
+  "Accounts & Tally":"/accounts",
 };
 
 function PanelPage({
@@ -82,6 +83,7 @@ function ProtectedRoutes() {
         <Route path="/agents" component={AgentsPage} />
         <Route path="/users" component={UsersPage} />
         <Route path="/ledger"><PanelPage tab="Ledger" /></Route>
+        <Route path="/accounts"><OperatorInsights /></Route>
         <Route path="/settlements"><PanelPage tab="Settlements" /></Route>
         <Route path="/transactions"><PanelPage tab="Wallet ledger" /></Route>
         <Route path="/payments"><PanelPage tab="Payment history" /></Route>

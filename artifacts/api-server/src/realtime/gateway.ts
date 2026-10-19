@@ -8,6 +8,7 @@ import { assertNetworkActive, networkIdentity } from "../services/network";
 import { bus, type RealtimeEvent } from "./eventBus";
 import { ALLOWED_ROLES_PER_TOPIC, type ClientToServer, type ServerToClient } from "./protocol";
 import { logger } from "../lib/logger";
+import { recordRealtimeActivity } from "../services/sessionActivity";
 
 const accountSockets = new Map<WebSocket, { userId: string; sessionId: string }>();
 export function disconnectAccountSessions(userId: string, keepSessionId?: string) {
@@ -139,6 +140,9 @@ export function attachRealtime(httpServer: HttpServer, alternativeUpgrade?: (req
 
     ws.on("pong", () => {
       ctx.alive = true;
+      void recordRealtimeActivity(auth.sessionId).then(active => {
+        if (!active) ws.close(4001, "Session ended");
+      }).catch(() => logger.warn("Realtime session activity could not be recorded"));
     });
 
     ws.on("message", (raw) => {

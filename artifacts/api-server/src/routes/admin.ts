@@ -1,4 +1,5 @@
 import { demoPresence } from "../demo/bridge";
+import { adminBettingInsightsRouter } from "./operatorInsights";
 import securityRouter from "./adminSecurity";
 import {parseTransactionQuery,transactionConditions} from '../services/transactionFilters';
 import { isRetiredGame } from "../lib/retiredGames";
@@ -97,6 +98,7 @@ import { runReconciliation, listReconciliationEntries } from "../services/reconc
 import { z } from "zod";
 
 const router: IRouter = Router();
+router.use('/betting-insights',adminBettingInsightsRouter);
 router.use(securityRouter);
 router.get("/demo-presence", requireRole("admin", "super_admin"), demoPresence);
 
