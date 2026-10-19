@@ -1,23 +1,23 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { W20_CUES, type W20Playback } from "./studioTiming";
 import { createHostForeground } from "./hostForeground";
-import { mobileGameMedia, preferLightMedia } from "@/lib/mediaProfile";
+import { preferLightMedia } from "@/lib/mediaProfile";
 
 const base = `${import.meta.env.BASE_URL}media/wheel20-live/`;
 const FILMS = {
-  welcome: "studio-welcome-v3.mp4",
-  lastCall: "studio-last-call-v3.mp4",
-  spin: "studio-spin-v3.mp4",
-  result: "studio-result-v3.mp4",
-  idle: "studio-loop-v1.mp4",
+  welcome: "host-welcome-v4.mp4",
+  lastCall: "host-last-call-v4.mp4",
+  spin: "studio-spin-v4.mp4",
+  result: "host-result-v4.mp4",
+  idle: "host-idle-v4.mp4",
 } as const;
 type Clip = keyof typeof FILMS;
-const MOBILE_FILMS = {
-  welcome: "wheelWelcome", lastCall: "wheelLastCall", spin: "wheelSpin",
-  result: "wheelResult", idle: "wheelIdle",
-} as const;
 const NEXT_CLIP: Record<Clip, Clip> = {
-  welcome: "lastCall", lastCall: "spin", spin: "result", result: "idle", idle: "welcome",
+  welcome: "lastCall",
+  lastCall: "spin",
+  spin: "result",
+  result: "idle",
+  idle: "welcome",
 };
 export type CommentaryState = "blocked" | "muted" | "loading" | "playing";
 export interface StudioAudioControl {
@@ -67,14 +67,15 @@ export function StudioPerformance(props: Props) {
     // document. Try native playback and let play() report an actual block.
     let unlocked = true;
     let presented = false;
+    let correctedAt = 0;
     const pending = new Set<HTMLVideoElement>();
     let syncedAt = 0,
       syncedClock = 0,
       observedClock = 0;
     let commentaryState: CommentaryState | null = null;
     const reportAudio = (state: CommentaryState) => {
-      root.dataset.commentary = state;
       if (state !== commentaryState) {
+        root.dataset.commentary = state;
         commentaryState = state;
         latest.current.onCommentaryState(state);
       }
@@ -86,6 +87,7 @@ export function StudioPerformance(props: Props) {
         stage,
         mediaTime: time,
         ready,
+        sampledAt: performance.now(),
       };
     };
     const silence = () =>
@@ -121,11 +123,14 @@ export function StudioPerformance(props: Props) {
         publish("fallback", time, true);
         return;
       }
-      for (const v of Object.values(films))
-        v.dataset.active = String(v === video);
-      foreground.draw(video, time);
+      if (video.dataset.active !== "true") {
+        for (const v of Object.values(films))
+          v.dataset.active = String(v === video);
+      }
+      foreground.draw(video, time, clip === "spin" ? "packed" : "green");
       root.dataset.media = "video";
       root.dataset.clip = clip;
+      root.dataset.presenter = clip === "spin" ? "spinner" : "host";
       root.dataset.frameTime = time.toFixed(3);
       publish(take.stage, time, true);
     };
@@ -153,7 +158,7 @@ export function StudioPerformance(props: Props) {
       v.playsInline = true;
       v.muted = true;
       v.preload = "none";
-      v.src = light ? mobileGameMedia(MOBILE_FILMS[clip]) : base + FILMS[clip];
+      v.src = base + FILMS[clip];
       v.addEventListener("error", () => failed.add(clip));
       films[clip] = v;
       root.append(v);
@@ -280,6 +285,7 @@ export function StudioPerformance(props: Props) {
         needSeek = true;
         seekTarget = next.time;
         presented = false;
+        correctedAt = now;
         resync = false;
         publish("waiting");
       }
@@ -292,15 +298,15 @@ export function StudioPerformance(props: Props) {
         reportAudio(p.sound ? "loading" : "muted");
         return;
       }
-      // Fetch the active take first. Warm only the next take's metadata instead
-      // of downloading all five performances on entry to the game.
+      // Fetch the active take first, then buffer just its successor. Metadata
+      // alone left the next presenter stalled at every camera cut.
       if (v.preload !== "auto") {
         v.preload = "auto";
-        v.load();
+        if (v.readyState === 0) v.load();
       }
       const upcoming = films[NEXT_CLIP[next.clip]];
-      if (v.readyState >= 2 && upcoming.preload === "none") {
-        upcoming.preload = "metadata";
+      if (v.readyState >= 3 && upcoming.preload === "none") {
+        upcoming.preload = "auto";
         upcoming.load();
       }
       if (v.readyState < 1) return;
@@ -314,8 +320,10 @@ export function StudioPerformance(props: Props) {
       if (
         presented &&
         !v.seeking &&
-        Math.abs(v.currentTime - next.time) > 0.8
+        now - correctedAt > 3000 &&
+        Math.abs(v.currentTime - next.time) > 1.5
       ) {
+        correctedAt = now;
         presented = false;
         seekTarget = Math.min(next.time, Math.max(0, v.duration - 0.08));
         v.currentTime = seekTarget;

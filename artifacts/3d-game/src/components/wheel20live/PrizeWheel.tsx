@@ -52,6 +52,7 @@ export function PrizeWheel({
   onTick: () => void;
 }) {
   const rotor = useRef<SVGGElement>(null);
+  const wheel = useRef<SVGSVGElement>(null);
   const latest = useRef({ clock, onLand, onTick });
   latest.current = { clock, onLand, onTick };
   useEffect(() => {
@@ -60,6 +61,7 @@ export function PrizeWheel({
       lastSound = 0,
       done = false;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const camera = wheel.current?.closest<HTMLElement>(".w20-camera");
     const offset = latest.current.clock - Date.now();
     const render = () => {
       const wallProgress = outcome
@@ -72,6 +74,26 @@ export function PrizeWheel({
           )
         : 0;
       const mediaFrame = playback.current;
+      // Interpolate at display refresh rate only after the decoded pull frame.
+      // Cap at one film frame so a buffering video cannot run the disc ahead.
+      const smoothFrame =
+        mediaFrame.stage === "spin" &&
+        mediaFrame.ready &&
+        mediaFrame.mediaTime >= W20_CUES.pull &&
+        mediaFrame.sampledAt !== undefined
+          ? {
+              ...mediaFrame,
+              mediaTime:
+                mediaFrame.mediaTime +
+                Math.max(
+                  0,
+                  Math.min(
+                    1 / 24,
+                    (performance.now() - mediaFrame.sampledAt) / 1000,
+                  ),
+                ),
+            }
+          : mediaFrame;
       const shortRound = end - start < W20_CUES.duration * 1000;
       const fallback = reduced || mediaFrame.stage === "fallback" || shortRound;
       const p =
@@ -79,7 +101,7 @@ export function PrizeWheel({
           ? 1
           : fallback
             ? wallProgress
-            : performanceProgress(mediaFrame, roundId);
+            : performanceProgress(smoothFrame, roundId);
       const angle = outcome
         ? spinAngle(previous, outcome.segment, reduced && p < 1 ? 0 : p)
         : wheelAngle(previous);
@@ -88,6 +110,17 @@ export function PrizeWheel({
         rotor.current.dataset.segment =
           outcome && p >= 1 ? String(outcome.segment) : "spinning";
       if (rotor.current) rotor.current.dataset.progress = p.toFixed(4);
+      // Frame-driven camera push during the final coast. Never expose the
+      // winning pocket until the authoritative rotor has actually landed.
+      const focus =
+        outcome && !reduced ? Math.max(0, Math.min(1, (p - 0.56) / 0.32)) : 0;
+      const smoothFocus = focus * focus * (3 - 2 * focus);
+      camera?.style.setProperty("--w20-focus", smoothFocus.toFixed(4));
+      if (camera)
+        camera.style.willChange = focus > 0 && focus < 1 ? "transform" : "auto";
+      if (camera) camera.dataset.view = focus > 0 ? "closeup" : "wide";
+      if (wheel.current)
+        wheel.current.dataset.landed = String(!!outcome && p >= 1);
       const now = performance.now(),
         next = Math.floor(angle / (360 / W20_WHEEL.length));
       if (
@@ -114,6 +147,7 @@ export function PrizeWheel({
   }, [outcome?.segment, previous, start, end, roundId, playback]);
   return (
     <svg
+      ref={wheel}
       className="w20-wheel"
       viewBox="0 0 600 600"
       role="img"
@@ -168,38 +202,56 @@ export function PrizeWheel({
                 strokeWidth="1.4"
                 opacity=".42"
               />
-              <g transform={`rotate(${angle} 300 300)`}>
-                <circle
-                  cx="300"
-                  cy="25"
-                  r="11.7"
-                  fill="url(#w20-gold)"
-                  stroke="#796045"
-                  strokeWidth="1.3"
-                />
-                <text
-                  x="300"
-                  y="29.7"
-                  textAnchor="middle"
-                  fontSize={spot.length > 1 ? 11 : 14}
-                  fontWeight="800"
-                  fill="#342238"
-                >
-                  {spot}
-                </text>
-              </g>
             </g>
           );
         })}
         <circle cx="300" cy="300" r="295" fill="url(#w20-shade)" />
+        <circle cx="300" cy="300" r="295" fill="url(#w20-glass)" />
+        {outcome && (
+          <path
+            className="w20-winning-ray"
+            transform={`rotate(${(outcome.segment * 360) / W20_WHEEL.length} 300 300)`}
+            d={`M300,300 L${point(-180 / 54, 294)} A294,294 0 0 1 ${point(180 / 54, 294)} Z`}
+            fill="#fff4b5"
+            fillOpacity=".45"
+            stroke="#fff9de"
+            strokeWidth="2"
+          />
+        )}
+        {W20_WHEEL.map((spot, i) => (
+          <g
+            key={i}
+            transform={`rotate(${(i * 360) / W20_WHEEL.length} 300 300)`}
+            className={`w20-pocket ${outcome?.segment === i ? "is-winner" : ""}`}
+            data-pocket={i}
+          >
+            <rect
+              className="w20-number-plate"
+              x="286"
+              y="13"
+              width="28"
+              height="48"
+              rx="8"
+              fill="#fff1c7"
+              stroke="#3b2414"
+              strokeWidth="1.8"
+            />
+            <text
+              className="w20-pocket-number"
+              x="300"
+              y="44"
+              textAnchor="middle"
+              fontSize={spot.length > 1 ? 22 : 29}
+              fontWeight="900"
+              fill="#100d12"
+              fontFamily="Arial, Helvetica, sans-serif"
+              letterSpacing="-1"
+            >
+              {spot}
+            </text>
+          </g>
+        ))}
       </g>
-      <circle
-        cx="300"
-        cy="300"
-        r="295"
-        fill="url(#w20-glass)"
-        pointerEvents="none"
-      />
       <circle cx="302" cy="306" r="105" fill="#100613" opacity=".75" />
       <circle
         cx="300"

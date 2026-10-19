@@ -7,6 +7,7 @@ export interface W20Playback {
   stage: "waiting" | "betting" | "spin" | "result" | "fallback";
   mediaTime: number;
   ready: boolean;
+  sampledAt?: number;
 }
 
 export function performanceProgress(frame: W20Playback, roundId: string) {

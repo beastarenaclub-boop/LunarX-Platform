@@ -110,7 +110,9 @@ export default function Wheel20Live() {
     return () => window.clearTimeout(timer);
   }, [commentaryState]);
   const [chip, setChip] = useState(10),
-    [sound, setSound] = useState(() => read(commentaryPreference, "on") === "on");
+    [sound, setSound] = useState(
+      () => read(commentaryPreference, "on") === "on",
+    );
   const changeSound = (enabled: boolean) => {
     studioAudio.current?.setEnabled(enabled);
     save(commentaryPreference, enabled ? "on" : "off");
@@ -251,69 +253,78 @@ export default function Wheel20Live() {
       />
       <div className="w20-stage">
         <div className="w20-studio">
-          <img
-            className="w20-poster"
-            src={`${media}studio-poster-v1.jpg`}
-            alt=""
-          />
-          <StudioPerformance
-            roundId={id}
-            clock={game.clock}
-            bettingEndsAt={round?.bettingEndsAt ?? 0}
-            revealEndsAt={round?.revealEndsAt ?? 0}
-            bettingMs={round?.config.bettingWindowMs ?? 20000}
-            hasOutcome={!!outcome}
-            sound={sound}
-            playback={playback}
-            audioControl={studioAudio}
-            onCommentaryState={setCommentaryState}
-          />
-          <PrizeWheel
-            outcome={outcome}
-            previous={previous}
-            start={round?.bettingEndsAt ?? 0}
-            end={(round?.revealEndsAt ?? 0) - 350}
-            clock={game.clock}
-            roundId={id}
-            playback={playback}
-            onLand={() => setLanded(id)}
-            onTick={() => {
-              if (playback.current.stage !== "spin" || !playback.current.ready)
-                tone("tick");
-            }}
-          />
-          <div className={`w20-studio-sign ${outcome ? "has-boost" : ""}`}>
-            {outcome ? (
-              <>
-                <small>POWER BOOST</small>
-                <strong>{outcome.boost}×</strong>
-                <b style={{ color: W20_COLORS[outcome.boostSpot] }}>
-                  {outcome.boostSpot}
-                </b>
-                <span>{Number(outcome.boostSpot) * outcome.boost}:1</span>
-              </>
-            ) : (
-              <>
-                <small>THE LIVE SHOW</small>
-                <strong>WHEEL</strong>
-                <b>2.0</b>
-                <span>EVERY SPIN. A NEW CHANCE.</span>
-              </>
+          <div className="w20-camera" data-view="wide">
+            <img
+              className="w20-poster"
+              src={`${media}studio-clean-v4.jpg`}
+              alt=""
+            />
+            <StudioPerformance
+              roundId={id}
+              clock={game.clock}
+              bettingEndsAt={round?.bettingEndsAt ?? 0}
+              revealEndsAt={round?.revealEndsAt ?? 0}
+              bettingMs={round?.config.bettingWindowMs ?? 20000}
+              hasOutcome={!!outcome}
+              sound={sound}
+              playback={playback}
+              audioControl={studioAudio}
+              onCommentaryState={setCommentaryState}
+            />
+            <PrizeWheel
+              outcome={outcome}
+              previous={previous}
+              start={round?.bettingEndsAt ?? 0}
+              end={(round?.revealEndsAt ?? 0) - 350}
+              clock={game.clock}
+              roundId={id}
+              playback={playback}
+              onLand={() => setLanded(id)}
+              onTick={() => {
+                if (
+                  playback.current.stage !== "spin" ||
+                  !playback.current.ready
+                )
+                  tone("tick");
+              }}
+            />
+            <div className={`w20-studio-sign ${outcome ? "has-boost" : ""}`}>
+              {outcome ? (
+                <>
+                  <small>POWER BOOST</small>
+                  <strong>{outcome.boost}×</strong>
+                  <b style={{ color: W20_COLORS[outcome.boostSpot] }}>
+                    {outcome.boostSpot}
+                  </b>
+                  <span>{Number(outcome.boostSpot) * outcome.boost}:1</span>
+                </>
+              ) : (
+                <>
+                  <small>THE LIVE SHOW</small>
+                  <strong>WHEEL</strong>
+                  <b>2.0</b>
+                  <span>EVERY SPIN. A NEW CHANCE.</span>
+                </>
+              )}
+            </div>
+            {landedNow && (
+              <div
+                className="w20-result"
+                role="status"
+                data-testid="w20-result"
+              >
+                <span style={{ background: W20_COLORS[outcome!.winner] }}>
+                  {outcome!.winner}
+                </span>
+                <strong>{w20Profit(outcome!)}:1</strong>
+                <small>
+                  {outcome!.winner === outcome!.boostSpot
+                    ? "POWER BOOST WIN"
+                    : "WINNING NUMBER"}
+                </small>
+              </div>
             )}
           </div>
-          {landedNow && (
-            <div className="w20-result" role="status" data-testid="w20-result">
-              <span style={{ background: W20_COLORS[outcome!.winner] }}>
-                {outcome!.winner}
-              </span>
-              <strong>{w20Profit(outcome!)}:1</strong>
-              <small>
-                {outcome!.winner === outcome!.boostSpot
-                  ? "POWER BOOST WIN"
-                  : "WINNING NUMBER"}
-              </small>
-            </div>
-          )}
         </div>
         {(!sound || commentaryState === "blocked" || commentaryDelayed) && (
           <button

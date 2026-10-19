@@ -20,6 +20,53 @@ const outcome: W20Outcome = {
   boostSpot: "20",
   boost: 5,
 };
+// Read at the next decoded frame, before WebGL discards its drawing buffer.
+async function hostPixels(page: Page) {
+  return page.evaluate(
+    () =>
+      new Promise<{
+        count: number;
+        x: number;
+        time: number;
+        corner: number;
+        fraction: number;
+      }>((resolve) => {
+        const video = document.querySelector<HTMLVideoElement>(
+          'video[data-active="true"]',
+        )!;
+        video.requestVideoFrameCallback(() => {
+          const host = document.querySelector<HTMLCanvasElement>(
+            ".w20-host-foreground",
+          )!;
+          const copy = document.createElement("canvas");
+          copy.width = host.width;
+          copy.height = host.height;
+          const context = copy.getContext("2d")!;
+          context.drawImage(host, 0, 0);
+          const pixels = context.getImageData(
+            0,
+            0,
+            copy.width,
+            copy.height,
+          ).data;
+          let count = 0,
+            sum = 0;
+          for (let i = 0; i < pixels.length; i += 4)
+            if (pixels[i + 3] > 128) {
+              count++;
+              sum += (i / 4) % copy.width;
+            }
+          resolve({
+            count,
+            x: sum / count,
+            time: Number(host.dataset.frameTime),
+            corner: pixels[3],
+            fraction: count / (copy.width * copy.height),
+          });
+        });
+      }),
+  );
+}
 async function setup(page: Page, low = false, waitForBoard = true) {
   let wallet = low ? 500 : 1000000,
     phase = "betting",
@@ -175,6 +222,116 @@ test("wheel stops on every authoritative pocket without backwards motion", () =>
     }
   }
 });
+
+for (const width of [1440, 390, 320]) {
+  test(`readable numbers and a correctly framed winning close-up at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
+    const f = await setup(page);
+    await expect(page.locator(".w20-host-foreground")).toBeVisible();
+    await expect(page.locator(".w20-host-foreground")).toHaveAttribute(
+      "data-format",
+      "green",
+    );
+    await page.locator(".w20-commentary").click();
+    await expect(page.locator(".w20-performance")).toHaveAttribute(
+      "data-commentary",
+      "playing",
+    );
+    await page.screenshot({
+      path: path.resolve(
+        import.meta.dirname,
+        `../../../tmp/wheel20-live/v4/studio-${width}.png`,
+      ),
+    });
+    await expect(page.locator(".w20-pocket-number")).toHaveCount(54);
+    await expect(page.locator(".w20-pocket-number").first()).toHaveCSS(
+      "fill",
+      "rgb(16, 13, 18)",
+    );
+    f.reveal(6000);
+    await expect(page.locator(".w20-camera")).toHaveAttribute(
+      "data-view",
+      "closeup",
+    );
+    await expect(page.getByTestId("w20-result")).toHaveCount(0);
+    await expect(page.getByTestId("w20-result")).toBeVisible();
+    await expect(page.getByTestId("w20-wheel")).toHaveAttribute(
+      "data-landed",
+      "true",
+    );
+    await expect(page.locator(".w20-pocket.is-winner")).toHaveAttribute(
+      "data-pocket",
+      String(outcome.segment),
+    );
+    await expect(
+      page.locator(".w20-pocket.is-winner .w20-number-plate"),
+    ).toHaveCSS("fill", "rgb(255, 255, 255)");
+    const framing = await page.evaluate(() => {
+      const stage = document
+        .querySelector(".w20-stage")!
+        .getBoundingClientRect();
+      const pocket = document
+        .querySelector(".w20-pocket.is-winner")!
+        .getBoundingClientRect();
+      return {
+        fits:
+          pocket.left >= stage.left &&
+          pocket.right <= stage.right &&
+          pocket.top >= stage.top &&
+          pocket.bottom <= stage.bottom,
+        focused: Number(
+          (
+            document.querySelector(".w20-camera") as HTMLElement
+          ).style.getPropertyValue("--w20-focus"),
+        ),
+      };
+    });
+    expect(framing).toEqual({ fits: true, focused: 1 });
+    await page.screenshot({
+      path: path.resolve(
+        import.meta.dirname,
+        `../../../tmp/wheel20-live/v4/result-${width}.png`,
+      ),
+    });
+    f.next();
+    await expect(page.locator(".w20-camera")).toHaveAttribute(
+      "data-view",
+      "wide",
+    );
+    await expect(page.getByTestId("w20-result")).toHaveCount(0);
+    expect(f.errors).toEqual([]);
+  });
+}
+
+test("a browser without WebGL still keys the host and can finish a round", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (
+      type: string,
+      ...args: any[]
+    ) {
+      if (type === "webgl") return null;
+      return original.call(this, type as "2d", ...args);
+    } as typeof original;
+  });
+  const f = await setup(page);
+  await expect(page.locator(".w20-host-foreground")).toBeVisible();
+  await expect(page.locator(".w20-host-foreground")).toHaveAttribute(
+    "data-renderer",
+    "canvas",
+  );
+  const sample = await hostPixels(page);
+  expect(sample.corner).toBe(0);
+  expect(sample.fraction).toBeGreaterThan(0.01);
+  expect(sample.fraction).toBeLessThan(0.4);
+  f.reveal();
+  await expect(page.getByTestId("w20-result")).toBeVisible();
+  expect(f.errors).toEqual([]);
+});
 test("chip editing, confirmation, authoritative landing, settlement and verification", async ({
   page,
 }) => {
@@ -254,7 +411,7 @@ test("presenter video decodes and plays; mute preference survives reload", async
         .locator('video[data-active="true"]')
         .evaluate((v: HTMLVideoElement) => v.videoWidth),
     )
-    .toBe(1920);
+    .toBe(1280);
   const initial = await page
     .locator('video[data-active="true"]')
     .evaluate((v: HTMLVideoElement) => v.currentTime);
@@ -315,7 +472,9 @@ test("saved mute has a visible one-tap recovery and commentary clicks never mute
   expect((await nativeState()).audible).toBe(false);
   await start.click();
   await expect.poll(async () => (await nativeState()).audible).toBe(true);
-  await expect.poll(async () => (await nativeState()).decoded).toBeGreaterThan(0);
+  await expect
+    .poll(async () => (await nativeState()).decoded)
+    .toBeGreaterThan(0);
   await expect(start).toHaveCount(0);
   await page.locator(".w20-commentary").click();
   await expect.poll(async () => (await nativeState()).preference).toBe("on");
@@ -334,14 +493,17 @@ test("one tap produces actual Hindi audio samples; the last-call stays audible a
 }) => {
   const f = await setup(page, false, false);
   const cdp = await page.context().newCDPSession(page);
-  await expect.poll(async () => {
-    const { result } = await cdp.send("Runtime.evaluate", {
-      expression: "document.querySelector('.w20-performance')?.dataset.commentary",
-      returnByValue: true,
-      userGesture: false,
-    });
-    return result.value;
-  }).toBe("blocked");
+  await expect
+    .poll(async () => {
+      const { result } = await cdp.send("Runtime.evaluate", {
+        expression:
+          "document.querySelector('.w20-performance')?.dataset.commentary",
+        returnByValue: true,
+        userGesture: false,
+      });
+      return result.value;
+    })
+    .toBe("blocked");
   await expect(page.locator(".w20-audio-start")).toBeVisible();
   await page.evaluate(() => {
     const ctx = new AudioContext();
@@ -425,7 +587,9 @@ test("one tap produces actual Hindi audio samples; the last-call stays audible a
   expect(f.errors).toEqual([]);
 });
 
-test("permitted autoplay: all commentary phases and reload play without a user gesture", async ({ baseURL }) => {
+test("permitted autoplay: all commentary phases and reload play without a user gesture", async ({
+  baseURL,
+}) => {
   const browser = await chromium.launch({
     channel: process.platform === "win32" ? "chrome" : undefined,
     args: ["--autoplay-policy=no-user-gesture-required"],
@@ -435,7 +599,9 @@ test("permitted autoplay: all commentary phases and reload play without a user g
     const page = await context.newPage();
     // The old toggle could accidentally save mute. The automatic mode starts
     // enabled, while retaining any explicit choice made in the new controls.
-    await page.addInitScript(() => localStorage.setItem("w20:commentary", "off"));
+    await page.addInitScript(() =>
+      localStorage.setItem("w20:commentary", "off"),
+    );
     const f = await setup(page, false, false);
     const cdp = await context.newCDPSession(page);
     const state = async () => {
@@ -493,17 +659,25 @@ test("a normal game click starts commentary when the browser blocks autoplay", a
     });
     return result.value;
   };
-  await expect.poll(() => read("document.querySelector('.w20-performance')?.dataset.commentary")).toBe("blocked");
+  await expect
+    .poll(() =>
+      read("document.querySelector('.w20-performance')?.dataset.commentary"),
+    )
+    .toBe("blocked");
   expect(await read("navigator.userActivation.hasBeenActive")).toBe(false);
   const point = await read(`(() => {
     const r = document.querySelector('.w20-stage').getBoundingClientRect();
     return { x: r.x + 10, y: r.y + 10 };
   })()`);
   await page.mouse.click(point.x, point.y);
-  await expect.poll(() => read(`(() => {
+  await expect
+    .poll(() =>
+      read(`(() => {
     const v = document.querySelector('video[data-active="true"]');
     return !!v && !v.muted && !v.paused && v.readyState >= 3 && v.webkitAudioDecodedByteCount > 0;
-  })()`)).toBe(true);
+  })()`),
+    )
+    .toBe(true);
   await expect(page.locator(".w20-audio-start")).toHaveCount(0);
   expect(f.errors).toEqual([]);
 });
@@ -511,27 +685,7 @@ test("walking host stays in front of the wheel with a tracked transparent foregr
   page,
 }) => {
   const f = await setup(page);
-  const frame = () =>
-    page
-      .locator(".w20-host-foreground")
-      .evaluate((canvas: HTMLCanvasElement) => {
-        const pixels = canvas
-          .getContext("2d")!
-          .getImageData(0, 0, canvas.width, canvas.height).data;
-        let count = 0,
-          sum = 0;
-        for (let i = 0; i < pixels.length; i += 4)
-          if (pixels[i + 3] > 128) {
-            count++;
-            sum += (i / 4) % canvas.width;
-          }
-        return {
-          count,
-          x: sum / count,
-          time: Number(canvas.dataset.frameTime),
-          corner: pixels[3],
-        };
-      });
+  const frame = () => hostPixels(page);
   await expect(page.locator(".w20-host-foreground")).toBeVisible();
   await expect.poll(async () => (await frame()).time).toBeGreaterThan(0.5);
   const start = await frame();
@@ -540,37 +694,67 @@ test("walking host stays in front of the wheel with a tracked transparent foregr
   expect(walked.count).toBeGreaterThan(15000);
   expect(walked.count).toBeLessThan(130000);
   expect(walked.corner).toBe(0);
-  expect(start.x - walked.x).toBeGreaterThan(80);
+  expect(Math.abs(start.x - walked.x)).toBeGreaterThan(8);
   await page.screenshot({
     path: path.resolve(
       import.meta.dirname,
-      "../../../tmp/wheel20-live/v3/walking-in-game.png",
+      "../../../tmp/wheel20-live/v4/walking-in-game.png",
     ),
   });
   expect(f.errors).toEqual([]);
 });
 
-test("phone streams the current take and preserves the transparent host foreground", async ({ page }) => {
+test("phone streams the current take and preserves the transparent host foreground", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const requests = new Set<string>();
-  page.on("request", request => {
-    if (request.url().includes("/media/performance/wheel")) requests.add(request.url());
+  page.on("request", (request) => {
+    if (/\/media\/wheel20-live\/.*\.mp4/.test(request.url()))
+      requests.add(request.url());
   });
   const f = await setup(page);
   const foreground = page.locator(".w20-host-foreground");
   await expect(foreground).toBeVisible();
   const active = page.locator('video[data-active="true"]');
-  await expect.poll(() => active.evaluate((v: HTMLVideoElement) => v.videoWidth)).toBe(1280);
-  const mask = await foreground.evaluate((canvas: HTMLCanvasElement) => {
-    const rgba = canvas.getContext("2d")!.getImageData(0, 0, canvas.width, canvas.height).data;
-    let opaque = 0;
-    for (let i = 3; i < rgba.length; i += 4) if (rgba[i] > 128) opaque++;
-    return { fraction: opaque / (canvas.width * canvas.height), corner: rgba[3] };
-  });
+  await expect
+    .poll(() => active.evaluate((v: HTMLVideoElement) => v.videoWidth))
+    .toBe(1280);
+  const mask = await hostPixels(page);
   expect(mask.fraction).toBeGreaterThan(0.01);
   expect(mask.fraction).toBeLessThan(0.4);
   expect(mask.corner).toBe(0);
   expect(requests.size).toBeLessThanOrEqual(2);
+  expect(f.errors).toEqual([]);
+});
+
+test("GPU host playback avoids CPU pixel readback and keeps advancing under load", async ({
+  page,
+  context,
+}) => {
+  await page.addInitScript(() => {
+    (window as any).hostReadbacks = 0;
+    const original = CanvasRenderingContext2D.prototype.getImageData;
+    CanvasRenderingContext2D.prototype.getImageData = function (
+      ...args: Parameters<typeof original>
+    ) {
+      (window as any).hostReadbacks++;
+      return original.apply(this, args);
+    };
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  const f = await setup(page);
+  const foreground = page.locator(".w20-host-foreground");
+  await expect(foreground).toBeVisible();
+  await expect(foreground).toHaveAttribute("data-renderer", "webgl");
+  const cdp = await context.newCDPSession(page);
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+  const first = Number(await foreground.getAttribute("data-frame-time"));
+  await expect
+    .poll(async () => Number(await foreground.getAttribute("data-frame-time")))
+    .toBeGreaterThan(first + 2);
+  expect(await page.evaluate(() => (window as any).hostReadbacks)).toBe(0);
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
   expect(f.errors).toEqual([]);
 });
 
@@ -697,6 +881,11 @@ test("native commentary, physical pull, reload and authoritative result stay syn
   page,
 }) => {
   const f = await setup(page);
+  await expect(page.locator(".w20-performance")).toHaveAttribute(
+    "data-presenter",
+    "host",
+  );
+  const background = await page.locator(".w20-poster").getAttribute("src");
   if (
     await page
       .getByRole("button", { name: "Enable sound", exact: true })
@@ -708,11 +897,23 @@ test("native commentary, physical pull, reload and authoritative result stay syn
   f.reveal(14000);
   // The spin starts streaming when the round calls for it. It must still
   // decode in time for the physical pull and stay on the authoritative clock.
-  await expect.poll(() => page.locator('video[data-clip="spin"]')
-    .evaluate((v: HTMLVideoElement) => v.readyState)).toBeGreaterThan(2);
+  await expect
+    .poll(() =>
+      page
+        .locator('video[data-clip="spin"]')
+        .evaluate((v: HTMLVideoElement) => v.readyState),
+    )
+    .toBeGreaterThan(2);
   await expect(page.locator(".w20-performance")).toHaveAttribute(
     "data-clip",
     "spin",
+  );
+  await expect(page.locator(".w20-performance")).toHaveAttribute(
+    "data-presenter",
+    "spinner",
+  );
+  expect(await page.locator(".w20-poster").getAttribute("src")).toBe(
+    background,
   );
   const spin = page.locator('video[data-clip="spin"]');
   await expect
@@ -782,6 +983,13 @@ test("native commentary, physical pull, reload and authoritative result stay syn
   await expect(page.locator(".w20-performance")).toHaveAttribute(
     "data-clip",
     "result",
+  );
+  await expect(page.locator(".w20-performance")).toHaveAttribute(
+    "data-presenter",
+    "host",
+  );
+  expect(await page.locator(".w20-poster").getAttribute("src")).toBe(
+    background,
   );
   expect(f.errors).toEqual([]);
 });

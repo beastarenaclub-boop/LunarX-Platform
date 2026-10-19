@@ -1,0 +1,56 @@
+{
+  "version": 4,
+  "created": "2026-10-19",
+  "generatedPresenter": true,
+  "description": "Two generated adult presenters: burgundy-dress host for welcome, last call and result; existing blue-dress presenter for the physical wheel pull. One fixed empty studio plate is used for every take. Generated presentation, not live camera footage.",
+  "background": {
+    "file": "studio-clean-v4.jpg",
+    "tool": "Built-in imagegen",
+    "source": "studio-poster-v1.jpg",
+    "prompt": "Remove only the female presenter, microphone and floor reflection. Reconstruct the red wall, amber lights, steps and floor. Preserve exact camera framing, wheel geometry/location, pointer, arch, left sign and studio lighting."
+  },
+  "host": {
+    "tool": "Runway",
+    "taskId": "05b326d6-0e02-4d6b-bca6-f06657c8c904",
+    "prompt": "Photorealistic professional Indian adult female game-show anchor, approximately 30 years old, medium warm brown skin, shoulder-length softly waved dark brown hair worn loose, elegant fitted burgundy knee-length dress with modest short sleeves and a narrow gold belt, gold closed-toe heels, black handheld microphone in right hand. Entire person including feet continuously visible. 16:9 locked-off full-body broadcast camera, woman at x=75% of frame, top of head y=23%, soles at y=78%. Seamless perfectly even bright chroma green #00ff00 background and floor, no scenery, no wheel, no text, no logos, no shadows on background. Warm studio key light from front-left and warm amber rim light. Real skin texture, natural hands, accurate lip sync. Make a 30 second continuous performance in three 10-second portions, each starting and ending in the SAME relaxed standing pose at the SAME mark. She walks with actual lifted feet, heel-to-toe steps and weight transfer, no sliding, no animation jitter. Stay between x=68% and x=86%. Camera never moves. 0-10 seconds: welcoming smile, two natural steps forward/right and back, friendly open-palm gestures. Speak clearly in Hindi during seconds 0.5-8.8: 'Namaskar! Wheel two point zero mein aapka swagat hai. Apna pasandida number chuniye aur bet confirm kijiye!' Return to original standing mark by second 9.5. 10-20 seconds: make a small inviting step to right and back, glance to the LEFT toward an offscreen wheel, counting gesture. Speak during seconds 10.5-18.8: 'Bas kuch second baaki hain! Apna number select karke bet confirm kijiye. Taiyaar rahiye, ab wheel ghoomega!' Return to original standing mark by second 19.5. 20-30 seconds: look left briefly, then face camera and smile, small celebratory open palm to left, one natural step forward then back. Speak during seconds 20.5-28.8: 'Wheel ruk gaya hai! Winning number aapke saamne hai. Jeetne waalon ko badhai! Agle round ke liye taiyaar rahiye.' Return to original standing pose at second 29.5. Clear warm Indian Hindi female voice, no music, no sound effects. No pauses in natural breathing or facial movement, professional real human delivery.",
+    "sourceDurationSeconds": 30,
+    "clips": {
+      "welcome": {
+        "file": "host-welcome-v4.mp4",
+        "start": 0
+      },
+      "lastCall": {
+        "file": "host-last-call-v4.mp4",
+        "start": 10
+      },
+      "result": {
+        "file": "host-result-v4.mp4",
+        "start": 20
+      },
+      "idle": {
+        "file": "host-idle-v4.mp4",
+        "start": 20,
+        "audio": false
+      }
+    },
+    "format": "1280x720 H.264, native 30fps, AAC, green-screen key with despill",
+    "placement": "Crop the central half of the source frame, scale to 410x460 and pad on green at x=720, y=120. Keeps walking area on the right and feet aligned with the studio floor."
+  },
+  "spin": {
+    "file": "studio-spin-v4.mp4",
+    "source": "studio-spin-v3.mp4",
+    "format": "1280x900 H.264, colour at y=0..720, same-frame matte at y=720..900",
+    "cues": {
+      "pull": 2.75,
+      "stop": 9.25,
+      "duration": 10
+    }
+  },
+  "playback": {
+    "background": "Fixed clean studio plate; video scenery is never displayed.",
+    "compositor": "WebGL chroma key / packed alpha, decoded frame callback. Reduced-size 15fps Canvas fallback when WebGL is unavailable.",
+    "preload": "Active clip and its immediate successor only.",
+    "camera": "Final coast zoom; exact winning pocket highlighted only on landing. Reduced-motion mode keeps the wide camera."
+  },
+  "preparation": "node tools/prepare-wheel20-host.mjs <downloaded-green-screen-source.mp4>"
+}
