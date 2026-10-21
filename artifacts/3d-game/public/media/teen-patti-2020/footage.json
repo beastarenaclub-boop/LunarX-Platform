@@ -1,0 +1,77 @@
+{
+  "source": "Screen Recording 2026-10-19 103224.mp4",
+  "approved": "2026-10-20",
+  "crop": {
+    "x": 174,
+    "y": 0,
+    "width": 1036,
+    "height": 586
+  },
+  "cuts": [
+    [
+      38,
+      56.3
+    ],
+    [
+      0,
+      1.1
+    ],
+    [
+      4.3,
+      6.2
+    ],
+    [
+      11,
+      13
+    ],
+    [
+      15.7,
+      17.7
+    ],
+    [
+      21,
+      23
+    ],
+    [
+      26.7,
+      28.7
+    ],
+    [
+      28.7,
+      30.7
+    ]
+  ],
+  "fps": 30,
+  "frames": 939,
+  "betting": [
+    0,
+    18.3
+  ],
+  "reveal": [
+    18.3,
+    29.3
+  ],
+  "rest": [
+    29.3,
+    31.3
+  ],
+  "recordedCardReplacement": {
+    "x": 312,
+    "y": 316,
+    "width": 414,
+    "height": 112
+  },
+  "handTracking": {
+    "model": "MediaPipe HandLandmarker float16",
+    "modelUrl": "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task",
+    "packageVersion": "1.1.1",
+    "processing": "Offline only; native video plus frame-synchronised SVG card occlusion. No browser inference or pixel readback."
+  },
+  "variants": [
+    "reference-dealer-v2.mp4",
+    "reference-dealer-mobile-v2.mp4"
+  ],
+  "presentation": "User-approved recorded dealer performance. Current server cards, round ID, countdown and IST clock are rendered separately. Original recording audio is removed.",
+  "activePresentation": "sequential-footage.json",
+  "status": "Archived source take and hand silhouettes. Active UI uses reference-sequential-v4.mp4: six real hand gestures, compact felt cards and larger sequential rail cards."
+}

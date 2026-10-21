@@ -98,6 +98,8 @@ export interface TableRoundState<TOutcome = unknown> {
 }
 
 interface Options {
+  /** A video table only needs React updates when its displayed second or cutoff changes. */
+  wholeSecondCountdown?: boolean;
   /** A filmed dealer can provide its own synchronized betting greeting. */
   roundOpenVoice?: boolean;
   roundClosedVoice?: boolean;
@@ -430,8 +432,18 @@ export function useTableRound<TOutcome = unknown>(
       setRemainingMs(0);
       return;
     }
-    const tick = () =>
-      setRemainingMs(Math.max(0, live.endsAt - serverNow()));
+    const tick = () => {
+      const next = Math.max(0, live.endsAt - serverNow());
+      setRemainingMs(previous => {
+        if (!optsRef.current.wholeSecondCountdown) return next;
+        const buffer = live.phase === "betting" ? BET_SEND_BUFFER_MS : 0;
+        const second = (ms: number) => Math.ceil(Math.max(0, ms - buffer) / 1000);
+        // Still poll at 250ms and preserve both safety cutoffs. The timed bet
+        // sender uses the absolute deadline independently of this display clock.
+        return second(previous) === second(next) && (previous > 300) === (next > 300) && (previous > 0) === (next > 0)
+          ? previous : next;
+      });
+    };
     tick();
     const id = window.setInterval(tick, 250);
     return () => window.clearInterval(id);

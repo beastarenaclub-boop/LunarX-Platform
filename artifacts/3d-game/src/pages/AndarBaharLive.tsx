@@ -15,7 +15,6 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { CardInk } from "@/components/lucky7live/CardInk";
 import { useTableMusic } from "@/components/lucky7live/useTableMusic";
 import {
   Dialog,
@@ -52,16 +51,37 @@ const colors = [
   "#8967a8",
 ];
 function Card({ id }: { id: number }) {
+  const rank = (id % 13) + 1;
+  const rankText =
+    ({ 1: "A", 11: "J", 12: "Q", 13: "K" } as Record<number, string>)[rank] ??
+    String(rank);
+  const suit = [
+    { name: "spades", symbol: "♠", color: "#171c24" },
+    { name: "hearts", symbol: "♥", color: "#b71930" },
+    { name: "diamonds", symbol: "♦", color: "#b71930" },
+    { name: "clubs", symbol: "♣", color: "#171c24" },
+  ][Math.floor(id / 13)];
   return (
     <span className="ab-card">
-      <CardInk
-        card={{
-          rank: (id % 13) + 1,
-          suit: (["spades", "hearts", "diamonds", "clubs"] as const)[
-            Math.floor(id / 13)
-          ],
-        }}
-      />
+      <svg
+        viewBox="0 0 100 140"
+        role="img"
+        aria-label={`${rankText} of ${suit.name}`}
+      >
+        <g
+          fill={suit.color}
+          textAnchor="middle"
+          fontFamily="Arial, sans-serif"
+          fontWeight="700"
+        >
+          <text x="50" y="66" fontSize={rank === 10 ? "54" : "64"}>
+            {rankText}
+          </text>
+          <text x="50" y="121" fontSize="56">
+            {suit.symbol}
+          </text>
+        </g>
+      </svg>
     </span>
   );
 }

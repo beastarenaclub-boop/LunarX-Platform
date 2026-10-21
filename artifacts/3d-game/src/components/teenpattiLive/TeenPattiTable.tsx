@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import FilmedTeenPattiTable from "./FilmedTeenPattiTable";
+import ReferenceTeenPattiTable from "./ReferenceTeenPattiTable";
 import TeenPattiResult from "./TeenPattiResult";
 import type { Win } from "@/components/table/RoundWinDialog";
 import type { DealAudio } from "./tableDealAudio";
@@ -30,8 +30,8 @@ interface Props {
   onDismissWin?: () => void;
 }
 
-/** The filmed studio also works without WebGL: every player gets the dealer.
- * Result announcements remain gated on all six cards finishing their turn. */
+/** Reference hand gestures with six sequential, server-authoritative cards.
+ * The larger rail mirrors the small cards on the felt before announcements. */
 function TeenPattiTable({
   deal,
   roundId,
@@ -82,14 +82,14 @@ function TeenPattiTable({
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden rounded-2xl border border-amber-200/20 bg-[#081b14] aspect-[30/19] shadow-[0_15px_55px_rgba(0,0,0,.35)]",
+        "tp20-table relative w-full overflow-hidden bg-[#17141b]",
         className,
       )}
       data-testid="teen-patti-table"
       data-mode="flat"
-      data-presentation="filmed-dealer"
+      data-presentation="reference-dealer-footage"
     >
-      <FilmedTeenPattiTable
+      <ReferenceTeenPattiTable
         deal={deal}
         roundKey={roundId ?? ""}
         revealEndsAt={revealEndsAt}
@@ -107,7 +107,7 @@ function TeenPattiTable({
         {landed && deal
           ? `${winnerLabel(deal.winner)} with ${category}`
           : deal
-            ? "Dealing"
+            ? "Result arriving"
             : "Waiting for the deal"}
       </span>
       {landed &&

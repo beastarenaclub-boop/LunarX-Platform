@@ -53,7 +53,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  compareTopGames,
   resolveCatalog,
+  TOP_GAME_IDS,
   type Category,
   type LobbyGame,
   type RegistryEntry,
@@ -77,6 +79,7 @@ import { formatRupees } from "@/lib/format";
 import { getLoginDestination } from "@/lib/loginDestination";
 import { toast } from "sonner";
 import "@/components/b2c/b2c.css";
+import "@/components/lobby/new-game.css";
 
 const CATEGORIES: { id: Category; name: string; icon: typeof Rocket }[] = [
   { id: "crash", name: "Crash", icon: Rocket },
@@ -101,16 +104,6 @@ const TABLE_FILTERS = [
   { name: "Lottery", term: "", category: "lottery" as Category, icon: Ticket },
   { name: "Others", term: "", category: "instant" as Category, icon: Grid2X2 },
 ];
-const TRENDING = [
-  "roulette",
-  "teen-patti-live",
-  "lucky-7-live",
-  "crazy-time",
-  "baccarat",
-  "andar-bahar-live",
-  "dragon-tiger-one-day",
-];
-
 function RegistryListener({ code }: { code: string }) {
   const qc = useQueryClient();
   useRealtimeTopic<{ type: string }>(`game-config:${code}`, (event) => {
@@ -129,12 +122,14 @@ function GameTile({
   duplicate?: boolean;
 }) {
   const art = b2cArtwork(game.id);
+  const isNew = game.enabled && game.label === "NEW";
   return (
     <button
-      className={`b2c-game${!game.enabled ? " is-unavailable" : ""}`}
+      className={`b2c-game${isNew ? " new-game-card" : ""}${!game.enabled ? " is-unavailable" : ""}`}
       disabled={!game.enabled}
       onClick={() => onPlay(game)}
       aria-label={`${game.enabled ? "Play" : "Unavailable:"} ${game.name}`}
+      aria-description={isNew ? "New game" : undefined}
       data-game-id={game.id}
       title={game.name}
       tabIndex={duplicate ? -1 : undefined}
@@ -160,6 +155,7 @@ function GameTile({
         <Play fill="currentColor" size={28} />
         <span>{game.name}</span>
       </span>
+      {isNew && <span className="game-new-badge">NEW</span>}
       {!game.enabled && (
         <span className="b2c-game-unavailable">Unavailable</span>
       )}
@@ -248,12 +244,12 @@ export default function B2C({
     return i < 0 ? 100 : i;
   };
   const games = resolveCatalog(registry.data).sort(
-    (a, b) => order(a.id) - order(b.id),
+    (a, b) => compareTopGames(a, b) || order(a.id) - order(b.id),
   );
   const providers = [...new Set(games.map((game) => game.provider))];
-  const trending = TRENDING.flatMap((id) => {
+  const trending = TOP_GAME_IDS.flatMap((id) => {
     const game = games.find((g) => g.id === id);
-    return game ? [game] : [];
+    return game?.enabled ? [game] : [];
   });
   const filtered = games.filter(
     (game) =>

@@ -73,6 +73,7 @@ import {
   type BaccaratDeal,
 } from "./baccaratMath";
 import { deriveBaccaratDeal } from "./baccarat";
+import { BACCARAT_ROUND_TIMING } from "@workspace/api-zod/baccarat-game";
 import {
   dealTeenPatti,
   settleTeenPattiBets,
@@ -798,9 +799,9 @@ export async function createTableRound(gameCode: TableGameCode): Promise<TableRo
   const cfg = await requireGameConfig(gameCode);
   const snap = snapshotConfig(cfg);
   if (gameCode === "coin-flip") Object.assign(snap, COIN_LIVE_TIMING);
-  // Allow six physical card deliveries at their recorded speed. Existing
-  // rounds retain their snapshotted timing; this applies to new coups only.
-  if (gameCode === "baccarat") snap.revealDurationMs = Math.max(12_000, snap.revealDurationMs);
+  // New coups allow 20 seconds for betting. In-flight rounds retain
+  // their original deadlines; the studio adjusts playback to the snapshot.
+  if (gameCode === "baccarat") Object.assign(snap, BACCARAT_ROUND_TIMING);
   if (gameCode === "wheel-2-live") { snap.wheel20Version = W20_VERSION; snap.maxMultiplier = 321; }
   if (gameCode === "andar-bahar") snap.andarBaharMotionVersion = AB_MOTION_VERSION;
   if (gameCode === "lucky-7-live") {

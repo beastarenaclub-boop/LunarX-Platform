@@ -1,0 +1,31 @@
+{
+  "source": "Screen Recording 2026-10-19 103224.mp4",
+  "created": "2026-10-21",
+  "crop": {
+    "x": 174,
+    "y": 0,
+    "width": 1036,
+    "height": 586
+  },
+  "take": [
+    38,
+    56.3
+  ],
+  "fps": 30,
+  "frames": 549,
+  "background": {
+    "cleanFrame": 6.8,
+    "patch": {
+      "x": 0,
+      "y": 0,
+      "width": 435,
+      "height": 255
+    },
+    "foreground": "Connected dealer upper arm preserved; all pixels below y=255 untouched before encoding."
+  },
+  "presentation": "User requested removal of the background passer-by and allowed no physical card opening. Native continuous preparation footage, no floating cards, hand masks, generated hands or animated replacements. Authoritative round cards appear only in the result rail; date and time remain live.",
+  "variants": [
+    "reference-natural-v3.mp4",
+    "reference-natural-mobile-v3.mp4"
+  ]
+}

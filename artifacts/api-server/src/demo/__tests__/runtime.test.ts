@@ -112,6 +112,26 @@ test("all shared table engines accept actual demo wagers", { timeout: 90_000 }, 
   }
 });
 
+test("Baccarat round deadlines allow 20 seconds betting in a 30-second cycle", { timeout: 30_000 }, async () => {
+  const session = await visitor();
+  let round = await ok(session, "baccarat/round");
+  const until = Date.now() + 20_000;
+  while (!round && Date.now() < until) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    round = await ok(session, "baccarat/round");
+  }
+  assert.ok(round, "The Baccarat round must start");
+  assert.equal(round.config.bettingWindowMs, 20_000);
+  assert.equal(round.config.revealDurationMs, 8_000);
+  assert.equal(round.config.settleDurationMs, 2_000);
+  const bettingEnd = new Date(round.bettingEndsAt).getTime();
+  const revealEnd = new Date(round.revealEndsAt).getTime();
+  const settleEnd = new Date(round.settleEndsAt).getTime();
+  assert.equal(revealEnd - bettingEnd, 8_000);
+  assert.equal(settleEnd - revealEnd, 2_000);
+  assert.equal(settleEnd - bettingEnd + round.config.bettingWindowMs, 30_000);
+});
+
 test("expired and untrusted sessions cannot play or use financial endpoints", async () => {
   const session = await visitor();
   for (const path of ["payments/withdrawals", "payments/deposits", "network/transfers", "admin/users", "profile", "kyc", "launcher"]) {

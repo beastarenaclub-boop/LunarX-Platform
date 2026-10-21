@@ -1,0 +1,993 @@
+/* Layout and palette from the user's WhatsApp reference; the dealer stays live. */
+.game-viewport[data-game-viewport="baccarat"] {
+  background: #303648;
+}
+.bc-page {
+  --bc-tie-width: 92px;
+  --bc-tie-height: 92px;
+  --bc-bet-height: 138px;
+  --game-coin-size: 40px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 100%;
+  height: auto;
+  margin-inline: auto;
+  overflow: visible;
+  background: #4b5268;
+  color: #fff;
+}
+.bc-header {
+  position: relative;
+  order: -3;
+  height: 64px;
+  flex: none;
+  padding: 8px 16px;
+  gap: 12px;
+  background: #50566b;
+}
+.bc-brand {
+  gap: 7px;
+}
+.bc-brand-image {
+  display: block;
+  width: 196px;
+}
+.bc-brand-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.bc-account {
+  display: grid;
+  gap: 3px;
+  margin-left: auto;
+  text-align: right;
+  min-width: 0;
+}
+.bc-account strong {
+  color: #fff;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.bc-account > span {
+  font-size: 10px;
+  color: #e0e3ec;
+}
+.bc-header nav {
+  gap: 4px;
+}
+.bc-header .bc-icon,
+.bc-header [data-testid="btn-game-rules"] {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  background: transparent;
+  border-color: #ffffff30;
+  color: #fff;
+}
+.bc-lobby {
+  background: #3b4156;
+  border-radius: 4px;
+}
+.bc-announcement {
+  order: -2;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  padding: 5px 14px;
+  background: #3fbc90;
+  color: #07291d;
+  font-size: 11px;
+  font-weight: 700;
+}
+.bc-announcement > i {
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  border-radius: 50%;
+}
+.bc-announcement > span:last-child {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 400;
+}
+.bc-announcement-player {
+  background: #72adf9;
+  color: #102844;
+}
+.bc-announcement-banker {
+  background: #f18b9d;
+  color: #4a1320;
+}
+.bc-stage {
+  order: -1;
+  width: 100%;
+  height: clamp(220px, 36dvh, 360px);
+  min-height: 0;
+  flex: none;
+  background: radial-gradient(ellipse at 50% 90%, #411d76, #100b23 80%);
+}
+.bc-studio {
+  top: 0;
+  width: 250cqh;
+}
+.bc-stage-shade {
+  background: linear-gradient(
+    #120c38a6,
+    transparent 25%,
+    transparent 85%,
+    #25104b55
+  );
+}
+.bc-stage-heading {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  left: 12px;
+  display: grid;
+  gap: 3px;
+  text-shadow: 0 1px 3px #000;
+}
+.bc-stage-heading h1 {
+  margin: 0;
+  color: #ffdb54;
+  font-size: 12px;
+  font-weight: 800;
+}
+.bc-stage-heading > span {
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+.bc-round-indicator {
+  bottom: 8px;
+}
+.bc-round-indicator:is(.bc-result-player, .bc-result-banker, .bc-result-tie) {
+  bottom: 8px;
+}
+.bc-round-indicator small {
+  background: #271739bb;
+  padding: 4px 10px;
+  border-radius: 3px;
+}
+.bc-timer {
+  width: 42px;
+  height: 42px;
+}
+.bc-timer span {
+  font-size: 22px;
+}
+.bc-enable-audio {
+  top: 10px;
+  right: 10px;
+  padding: 7px 10px;
+  font-size: 10px;
+}
+.bc-media-note {
+  top: 40px;
+  left: 12px;
+  max-width: calc(100% - 24px);
+}
+.bc-console {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  padding: 10px 16px 0;
+  gap: 8px;
+  border: 0;
+  background: #4b5268;
+}
+.bc-dock {
+  gap: 10px;
+  width: 100%;
+}
+.bc-coins {
+  position: relative;
+  margin-bottom: 4px;
+  padding: 0;
+  background: #666c7e;
+  border: 1px solid #b7bac42e;
+  border-radius: 2px;
+}
+.bc-coins .table-coin-controls {
+  width: 100%;
+  gap: 0;
+}
+.bc-coins [data-testid="chip-rack"] {
+  flex: 1;
+  opacity: 1;
+}
+.bc-coins [data-testid="chip-rack"] > div:first-child {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0;
+  padding: 0;
+  width: 100%;
+}
+.bc-page .bc-coins [data-game-coin] {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  flex: 1 1 0;
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  padding: 0;
+  border: 0;
+  border-right: 1px solid #ffffff1c;
+  border-radius: 0;
+  box-shadow: none !important;
+  transform: none;
+  background: transparent;
+}
+.bc-coins [data-game-coin] > span[aria-hidden="true"] {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.bc-coins [data-game-coin] > span[aria-hidden="true"] > span:first-child {
+  display: none;
+}
+.bc-coins [data-game-coin] > span[aria-hidden="true"] > span:last-child {
+  color: #fff !important;
+  font-size: 12px;
+}
+.bc-page .bc-coins [data-game-coin][aria-pressed="true"] {
+  background: #9299b2;
+  box-shadow: inset 0 -3px #fff2a7 !important;
+}
+.bc-coins .table-coin-controls > button {
+  width: 36px;
+  height: 40px;
+  min-height: 40px;
+  min-width: 36px;
+  border: 0;
+  border-radius: 0;
+  background: #535b74;
+  color: #fff;
+}
+.bc-coins-locks {
+  position: absolute;
+  z-index: 12;
+  inset: 0 36px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  pointer-events: none;
+  background: #8d8b9de8;
+  color: #fff;
+}
+.bc-table-surface {
+  position: relative;
+  width: 100%;
+}
+.bc-betting-board {
+  grid-template-columns: 58px 1fr 1fr 58px;
+  grid-template-rows: var(--bc-bet-height);
+  padding: 0;
+  gap: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.bc-page .bc-spot[data-game-bet] {
+  border: 0;
+  border-radius: 0;
+  padding: 10px 4px;
+  justify-content: flex-start;
+  gap: 4px;
+}
+.bc-page .bc-spot-player[data-game-bet] {
+  background: #168bff;
+  padding-right: 42px;
+}
+.bc-page .bc-spot-banker[data-game-bet] {
+  background: #ed2448;
+  padding-left: 42px;
+}
+.bc-page .bc-spot-playerPair[data-game-bet],
+.bc-page .bc-spot-bankerPair[data-game-bet] {
+  height: 75%;
+  align-self: center;
+  justify-content: center;
+}
+.bc-page .bc-spot-playerPair[data-game-bet] {
+  background: #168bff;
+  border-right: 1px solid #ffffff20;
+}
+.bc-page .bc-spot-bankerPair[data-game-bet] {
+  background: #ed2448;
+  border-left: 1px solid #ffffff20;
+}
+.bc-page .bc-spot-tie[data-game-bet] {
+  width: var(--bc-tie-width);
+  height: var(--bc-tie-height);
+  background: #6ba471;
+  border: 2px solid #242e2e;
+  border-radius: 50%;
+  justify-content: center;
+  padding: 8px 0;
+  box-shadow: none;
+}
+.bc-spot-title {
+  font-size: 14px;
+}
+.bc-spot-playerPair .bc-spot-title,
+.bc-spot-bankerPair .bc-spot-title {
+  font-size: 10px;
+}
+.bc-odds,
+.bc-spot-player .bc-odds,
+.bc-spot-banker .bc-odds {
+  color: #ffffffe0;
+  font-size: 9px;
+}
+.bc-spot-lock {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  color: #fff;
+}
+.bc-spot-playerPair .bc-spot-lock,
+.bc-spot-bankerPair .bc-spot-lock {
+  top: 9px;
+  right: calc(50% - 8px);
+}
+.bc-spot-tie .bc-spot-lock {
+  position: static;
+  width: 20px;
+  height: 20px;
+}
+.bc-page[data-betting-open="false"] .bc-spot-tie .bc-spot-title,
+.bc-page[data-betting-open="false"] .bc-spot-tie .bc-odds {
+  display: none;
+}
+.bc-card-panel {
+  position: absolute;
+  z-index: 3;
+  inset: 38px 65px 6px;
+  pointer-events: none;
+}
+.bc-card-panel-heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.bc-card-panel .bc-hands {
+  gap: calc(var(--bc-tie-width) + 4px);
+  height: 100%;
+}
+.bc-card-panel .bc-result-hand {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+}
+.bc-card-panel .bc-hand-won {
+  box-shadow: none;
+}
+.bc-card-panel .bc-hand-heading {
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 10px;
+  margin-bottom: 5px;
+}
+.bc-card-panel .bc-hand-heading > strong {
+  display: none;
+}
+.bc-card-panel .bc-hand-total {
+  margin-left: 0;
+  font-size: 9px;
+  color: #fff;
+}
+.bc-card-panel .bc-hand-total b {
+  font-size: 13px;
+  color: #fff;
+}
+.bc-card-panel .bc-hand-outcome {
+  margin-right: auto;
+  font-size: 8px;
+  color: #fff5ad;
+}
+.bc-card-panel .bc-result-cards {
+  gap: 5px;
+  min-height: 58px;
+}
+.bc-card-panel .bc-playing-card {
+  flex-basis: 40px;
+  min-width: 24px;
+  height: 58px;
+}
+.bc-card-panel .bc-playing-card.bc-third-card {
+  flex-basis: 58px;
+  min-width: 35px;
+  height: 40px;
+}
+.bc-card-back {
+  background:
+    repeating-linear-gradient(45deg, #ffffff28 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(-45deg, #ffffff28 0 1px, transparent 1px 4px),
+    #c33158;
+  border-color: #ffe4eb;
+  box-shadow:
+    inset 0 0 0 2px #c33158,
+    inset 0 0 0 3px #ffdae3cc,
+    0 1px 3px #0003;
+  color: #fff;
+}
+.bc-card-back > .bc-card-lock {
+  width: 23px;
+  height: 24px;
+  border-color: #fff9;
+  background: #a42145;
+  border-radius: 5px;
+}
+.bc-face-card,
+.bc-card-back {
+  border-radius: 2px;
+}
+.bc-bet-chip {
+  top: -20px;
+  right: 4px;
+}
+.bc-win-mark {
+  top: auto;
+  bottom: 4px;
+  right: 5px;
+}
+.bc-actions {
+  padding: 0;
+  gap: 5px;
+}
+.bc-actions .bc-icon {
+  width: 31px;
+  height: 31px;
+  background: #363d54;
+  border: 1px solid #ffffff26;
+  border-radius: 4px;
+}
+.bc-page .bc-actions .bc-auto-status {
+  border-radius: 4px;
+  color: #fff;
+  background: #41485e;
+  border-color: #ffffff30;
+}
+.bc-locked-status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid;
+}
+.bc-stake-line {
+  gap: 14px;
+  color: #e5e7ef;
+  font-size: 10px;
+}
+.bc-stake-line b {
+  color: #fff;
+}
+.bc-table-details {
+  order: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 8px;
+  gap: 10px;
+  color: #dce0ec;
+  font-size: 9px;
+}
+.bc-table-details .bc-round-id {
+  display: none;
+}
+.bc-wallet {
+  flex-direction: row;
+  padding: 0;
+  border: 0;
+}
+.bc-wallet b {
+  font-size: 9px;
+  color: #edf0f7;
+}
+.bc-history {
+  order: 2;
+  display: flex;
+  gap: 12px;
+  padding: 8px 0 10px;
+  border-top: 1px solid #ffffff17;
+}
+.bc-history-heading {
+  font-size: 11px;
+}
+.bc-history-heading > strong {
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.bc-history-heading strong > span {
+  color: #dce0ec;
+  font-size: 9px;
+}
+.bc-history-switch button {
+  padding: 4px 8px;
+  min-height: 30px;
+  background: #3c4359;
+  color: #e4e7f0;
+  border-radius: 3px;
+}
+.bc-history-switch button[aria-pressed="true"] {
+  background: #71798e;
+  color: #fff;
+}
+.bc-statistics {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 42px;
+  padding: 4px 0 12px;
+}
+.bc-statistics-pie {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: 0 5px 0 #161d3926;
+}
+.bc-pie-percentage {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px #0004;
+}
+.bc-statistics-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: #e3e7f2;
+}
+.bc-statistics-legend {
+  display: grid;
+  gap: 12px;
+  min-width: 105px;
+  font-size: 12px;
+}
+.bc-statistics-legend > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bc-statistics-legend i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 1px;
+}
+.bc-statistics-legend b {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.bc-statistics-legend small {
+  font-size: 9px;
+  color: #d3d8e6;
+}
+.bc-player-dot {
+  background: #168bff;
+}
+.bc-banker-dot {
+  background: #ed2448;
+}
+.bc-tie-dot {
+  background: #69d631;
+}
+.bc-result-strip {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  gap: 2px;
+  padding: 2px;
+  background: #9399aa;
+}
+.bc-result-cell {
+  display: grid;
+  place-items: center;
+  min-width: 31px;
+  height: 34px;
+  flex: 1 0 31px;
+  background: #171c29;
+  font-size: 12px;
+  font-weight: 800;
+}
+.bc-result-cell:hover {
+  background: #2b3348;
+}
+.bc-history-list {
+  max-height: 280px;
+}
+.bc-history-row {
+  background: #41485e;
+  border-color: #ffffff16;
+}
+.bc-history-winner small {
+  color: #d4d9e6;
+}
+.bc-history-empty {
+  color: #e0e4ef;
+}
+.bc-reference-footer {
+  margin-top: auto;
+  background: #444b60;
+}
+.bc-support-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: #92909f;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+.bc-footer-links {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px;
+  font-size: 11px;
+}
+.bc-footer-links a,
+.bc-footer-links button {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.bc-footer-fairness {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 24px 16px;
+}
+.bc-footer-fairness > button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #a9e980;
+  text-align: left;
+}
+.bc-footer-fairness button > span {
+  display: grid;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.bc-footer-fairness small {
+  color: #e0e4ef;
+  font-size: 9px;
+  font-weight: 400;
+}
+.bc-age-mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #f29b9f;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+@media (max-width: 650px) {
+  .bc-page {
+    --bc-tie-width: 66px;
+    --bc-tie-height: 74px;
+    --bc-bet-height: 112px;
+    min-height: 100%;
+  }
+  .bc-header {
+    height: 56px;
+    padding: 7px 8px;
+    gap: 5px;
+  }
+  .bc-brand {
+    gap: 4px;
+  }
+  .bc-brand-image {
+    width: clamp(94px, 28vw, 150px);
+  }
+  .bc-header nav {
+    gap: 1px;
+  }
+  .bc-header .bc-icon,
+  .bc-header [data-testid="btn-game-rules"] {
+    width: 25px;
+    height: 27px;
+    min-height: 27px;
+    border: 0;
+  }
+  .bc-header .bc-icon svg,
+  .bc-header [data-testid="btn-game-rules"] svg {
+    width: 16px;
+    height: 16px;
+  }
+  .bc-account strong {
+    font-size: 10px;
+  }
+  .bc-account > span {
+    font-size: 9px;
+  }
+  .bc-lobby,
+  .bc-fullscreen {
+    display: none;
+  }
+  .bc-announcement {
+    padding: 5px 9px;
+    min-height: 25px;
+    font-size: 10px;
+  }
+  .bc-announcement > span:last-child {
+    font-size: 9px;
+  }
+  .bc-stage {
+    height: clamp(155px, 52vw, 280px);
+  }
+  .bc-studio {
+    top: 0;
+    width: 250cqh;
+  }
+  .bc-stage-heading {
+    top: 7px;
+    left: 8px;
+  }
+  .bc-stage-heading h1 {
+    font-size: 10px;
+  }
+  .bc-stage-heading > span {
+    font-size: 7px;
+  }
+  .bc-timer {
+    width: 33px;
+    height: 33px;
+    padding: 2px;
+  }
+  .bc-timer span {
+    font-size: 18px;
+  }
+  .bc-console {
+    padding: 8px 8px 0;
+    gap: 7px;
+  }
+  .bc-dock {
+    gap: 8px;
+  }
+  .bc-betting-board {
+    grid-template-columns: 33px 1fr 1fr 33px;
+  }
+  .bc-page .bc-spot-player[data-game-bet] {
+    padding-right: 28px;
+  }
+  .bc-page .bc-spot-banker[data-game-bet] {
+    padding-left: 28px;
+  }
+  .bc-page .bc-spot[data-game-bet] {
+    padding-top: 9px;
+  }
+  .bc-spot-title {
+    font-size: 11px;
+  }
+  .bc-spot-playerPair .bc-spot-title,
+  .bc-spot-bankerPair .bc-spot-title {
+    font-size: 8px;
+  }
+  .bc-odds,
+  .bc-spot-player .bc-odds,
+  .bc-spot-banker .bc-odds {
+    font-size: 7px;
+  }
+  .bc-card-panel {
+    inset: 33px 37px 4px;
+  }
+  .bc-card-panel .bc-hands {
+    gap: calc(var(--bc-tie-width) + 2px);
+  }
+  .bc-card-panel .bc-hand-heading {
+    font-size: 9px;
+    margin-bottom: 4px;
+  }
+  .bc-card-panel .bc-hand-total b {
+    font-size: 12px;
+  }
+  .bc-card-panel .bc-result-cards {
+    gap: 3px;
+    min-height: 45px;
+  }
+  .bc-card-panel .bc-playing-card {
+    height: 45px;
+    flex-basis: 30px;
+    min-width: 20px;
+  }
+  .bc-card-panel .bc-playing-card.bc-third-card {
+    height: 30px;
+    flex-basis: 45px;
+    min-width: 28px;
+  }
+  .bc-card-panel .bc-card-corner {
+    top: 3px;
+    left: 3px;
+    font-size: 12px;
+  }
+  .bc-card-panel .bc-card-corner small {
+    font-size: 8px;
+  }
+  .bc-card-panel .bc-card-bottom {
+    inset: auto 3px 3px auto;
+  }
+  .bc-card-panel .bc-card-suit {
+    font-size: 20px;
+  }
+  .bc-card-panel .bc-card-lock {
+    width: 20px;
+    height: 22px;
+  }
+  .bc-card-panel .bc-card-lock svg {
+    width: 15px;
+    height: 15px;
+  }
+  .bc-card-back > small {
+    font-size: 7px;
+  }
+  .bc-spot-lock {
+    width: 13px;
+    height: 13px;
+    top: 8px;
+    right: 5px;
+  }
+  .bc-spot-playerPair .bc-spot-lock,
+  .bc-spot-bankerPair .bc-spot-lock {
+    right: calc(50% - 6px);
+  }
+  .bc-page .bc-coins [data-game-coin],
+  .bc-coins .table-coin-controls > button {
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+  }
+  .bc-coins [data-game-coin] > span[aria-hidden="true"] > span:last-child {
+    font-size: 10px;
+  }
+  .bc-coins .table-coin-controls > button {
+    width: 28px;
+    min-width: 28px;
+  }
+  .bc-coins-locks {
+    right: 28px;
+  }
+  .bc-actions .bc-icon {
+    width: 29px;
+    height: 29px;
+  }
+  .bc-stake-line {
+    gap: 9px;
+    font-size: 9px;
+  }
+  .bc-stake-line b {
+    margin-left: 2px;
+  }
+  .bc-table-details {
+    font-size: 8px;
+    gap: 4px;
+    padding-bottom: 4px;
+  }
+  .bc-wallet > span {
+    gap: 4px;
+  }
+  .bc-wallet b {
+    font-size: 8px;
+  }
+  .bc-history {
+    gap: 8px;
+    padding-top: 6px;
+  }
+  .bc-history-heading {
+    font-size: 9px;
+  }
+  .bc-history-switch button {
+    padding: 4px 6px;
+    min-height: 28px;
+    font-size: 9px;
+  }
+  .bc-statistics {
+    justify-content: flex-start;
+    padding: 4px 18px 10px;
+    gap: 35px;
+  }
+  .bc-statistics-pie {
+    width: 136px;
+    height: 136px;
+  }
+  .bc-pie-percentage {
+    font-size: 10px;
+  }
+  .bc-statistics-legend {
+    font-size: 10px;
+    gap: 10px;
+    min-width: 92px;
+  }
+  .bc-statistics-legend small {
+    font-size: 8px;
+  }
+  .bc-result-cell {
+    min-width: 26px;
+    flex-basis: 26px;
+    height: 29px;
+    font-size: 11px;
+  }
+  .bc-support-link {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+  .bc-history-list {
+    max-height: 210px;
+  }
+}
+@media (max-width: 360px) {
+  .bc-page {
+    --bc-tie-width: 56px;
+    --bc-tie-height: 68px;
+  }
+  .bc-brand-image {
+    width: 92px;
+  }
+  .bc-header {
+    gap: 3px;
+    padding-inline: 5px;
+  }
+  .bc-header nav {
+    gap: 0;
+  }
+  .bc-header .bc-icon,
+  .bc-header [data-testid="btn-game-rules"] {
+    width: 23px;
+  }
+  .bc-card-panel {
+    inset-inline: 35px;
+  }
+  .bc-card-panel .bc-hand-outcome {
+    font-size: 6px;
+  }
+  .bc-card-panel .bc-playing-card {
+    min-width: 18px;
+  }
+  .bc-card-panel .bc-playing-card.bc-third-card {
+    height: 26px;
+    min-width: 28px;
+  }
+  .bc-statistics {
+    padding-inline: 8px;
+    gap: 24px;
+  }
+  .bc-statistics-pie {
+    width: 126px;
+    height: 126px;
+  }
+  .bc-stake-line {
+    gap: 7px;
+    font-size: 8px;
+  }
+}
+@media (min-width: 651px) and (max-height: 520px) {
+  .bc-stage {
+    height: 200px;
+  }
+}

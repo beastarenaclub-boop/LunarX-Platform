@@ -318,7 +318,7 @@ if (!SKIP) {
     await finishTableRound(revealed);
   });
 
-  test("phase durations and min stake come from live config on round creation", async () => {
+  test("Baccarat allows 20 seconds betting with min stake from live config", async () => {
     const before = await setCfg("baccarat", {
       bettingWindowMs: 12_000,
       revealDurationMs: 3_000,
@@ -329,11 +329,13 @@ if (!SKIP) {
       const round = await createTableRound("baccarat");
       track(round.id);
       const cfg = round.config as Record<string, unknown>;
-      assert.equal(cfg.bettingWindowMs, 12_000);
-      assert.equal(cfg.revealDurationMs, 3_000);
+      assert.equal(cfg.bettingWindowMs, 20_000);
+      assert.equal(cfg.revealDurationMs, 8_000);
       assert.equal(cfg.settleDurationMs, 2_000);
       const span = round.settleEndsAt.getTime() - round.createdAt.getTime();
-      assert.ok(Math.abs(span - 17_000) < 1_500, `span=${span}`);
+      assert.ok(Math.abs(span - 30_000) < 1_500, `span=${span}`);
+      assert.equal(round.revealEndsAt.getTime() - round.bettingEndsAt.getTime(), 8_000);
+      assert.equal(round.settleEndsAt.getTime() - round.revealEndsAt.getTime(), 2_000);
 
       // Min-stake enforcement from the same snapshot.
       const userId = await makeFundedUser("baccarat", 100_000n);

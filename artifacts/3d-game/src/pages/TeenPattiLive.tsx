@@ -53,6 +53,7 @@ import { useTeenPattiAudio } from "@/components/teenpattiLive/useTeenPattiAudio"
 import TableAudioControls from "@/components/teenpattiLive/TableAudioControls";
 import "@/components/table/live-bet-dock.css";
 import "@/components/teenpattiLive/teen-patti-mobile.css";
+import "@/components/teenpattiLive/teen-patti-reference.css";
 import {
   TEEN_PATTI_SPOTS,
   categoryLabel,
@@ -271,6 +272,7 @@ export default function TeenPattiLive() {
 
   const round = useTableRound<TeenPattiDeal>("teen-patti-live", {
     enabled: !!user,
+    wholeSecondCountdown: true,
     onSettled: () => {
       invalidateWallet();
     },
@@ -768,7 +770,7 @@ export default function TeenPattiLive() {
       <ChipRack key={coinPreferences.values.join(",") + coinPreferences.showCustom}
         chip={chip}
         onSelect={setChip}
-        disabled={placing || remainingMs <= 0}
+        disabled={!showBettingControls || placing || remainingMs <= 0}
         idSuffix={idSuffix}
         layout="fit"
         className="live-bet-coins"
@@ -810,7 +812,7 @@ export default function TeenPattiLive() {
         key={spot}
         type="button"
         onClick={() => void placeChip(spot)}
-        disabled={placing || remainingMs <= 0}
+        disabled={!showBettingControls || placing || remainingMs <= 0}
         className={cn(
           "relative rounded-xl border-2 bg-gradient-to-b p-2 flex flex-col items-center justify-center gap-1 transition-all disabled:opacity-50 min-w-0",
           compact ? "min-h-14" : "sm:p-3 min-h-[84px]",
@@ -846,7 +848,7 @@ export default function TeenPattiLive() {
 
   return (
     <div
-      className="game-page tpl-live-page min-h-[100dvh] w-full overflow-x-clip bg-[#080e0d] text-white flex justify-center"
+      className="game-page tpl-live-page tp20-page min-h-[100dvh] w-full overflow-x-clip bg-[#080e0d] text-white flex justify-center"
       data-betting={phase === "betting"}
       onPointerDownCapture={() => tableAudio.enableAudio()}
       onKeyDownCapture={() => tableAudio.enableAudio()}
@@ -877,7 +879,7 @@ export default function TeenPattiLive() {
                   <span className="hidden sm:inline">{t(lang, "tplTitle")}</span>
                 </h1>
                 {isLgUp ? <p className="text-[10px] text-white/40 leading-none truncate">
-                  {t(lang, "tplTagline")}
+                  Player A vs Player B · Shared rounds
                 </p> : <p className="text-[11px] font-bold text-emerald-400 font-mono leading-tight" aria-label={t(lang, "balance")} data-testid="text-tpl-balance">
                   ₹{formatRupees(balance.data?.balance ?? "0")}
                 </p>}
@@ -939,28 +941,48 @@ export default function TeenPattiLive() {
             />
             </div>
 
-            {showBettingControls && (
               <div data-testid="tpl-betting-dock" data-live-bet-dock className="tpl-mobile-dock bg-[#081510] border border-white/10 rounded-xl">
                 <div className="live-bet-layout">
-                  <div className="live-bet-spots flex flex-col gap-2" data-testid="tpl-mobile-bet-spots">
-                    <div className="grid grid-cols-3 gap-2">
-                      {(["playerA", "tie", "playerB"] as const).map(spot => spotButton(spot, true))}
+                  <div className="live-bet-spots tp20-bet-grid" data-testid="tpl-mobile-bet-spots">
+                    <div className="tp20-bet-hand">
+                      <h3>Player A</h3>
+                      {spotButton("playerA", true)}
+                      {spotButton("pairPlusA", true)}
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {(["pairPlusA", "pairPlusB"] as const).map(spot => spotButton(spot, true))}
+                    <div className="tp20-bet-tie">{spotButton("tie", true)}</div>
+                    <div className="tp20-bet-hand tp20-bet-hand--b">
+                      <h3>Player B</h3>
+                      {spotButton("playerB", true)}
+                      {spotButton("pairPlusB", true)}
                     </div>
                   </div>
-                  {controls(isLgUp ? "" : "-mobile")}
+                  {showBettingControls ? controls(isLgUp ? "" : "-mobile") : <div className="live-bet-status" role="status">{roundId ? "Bets closed · Next round shortly" : "Connecting to table…"}</div>}
                 </div>
               </div>
-            )}
           </div>
+          <aside className="tp20-sidebar" aria-label="Table results and rules">
+            <h2>Last results</h2>
+            <div className="tp20-history" data-testid="tp20-history">
+              {roadEntries.length ? roadEntries.slice(-20).map((entry, index) => <span key={index}
+                data-winner={entry.winner === "player" ? "playerA" : entry.winner === "banker" ? "playerB" : "tie"}
+                title={entry.winner === "player" ? "Player A" : entry.winner === "banker" ? "Player B" : "Tie"}
+              >{entry.winner === "player" ? "A" : entry.winner === "banker" ? "B" : "T"}</span>) : <small>No completed rounds yet</small>}
+            </div>
+            <h2>Rules</h2>
+            <table className="tp20-paytable" data-testid="tp20-paytable">
+              <caption>Pair Plus</caption>
+              <tbody>{PAIR_PLUS_ROWS.map(row => <tr key={row.key}><td>{row.label}</td><td>{payouts ? `${payouts.pairPlus[row.key].toFixed(2)}×` : "—"}</td></tr>)}</tbody>
+            </table>
+            <p className="tp20-sidebar-note">Returns include your stake. Three cards per hand; the higher ranked hand wins. Pair Plus pays independently.</p>
+            <div className="tp20-table-limits"><span>Table limits</span><b>{minStake != null && maxStake != null ? `₹${minStake.toLocaleString("en-IN")} – ₹${maxStake.toLocaleString("en-IN")}` : "—"}</b></div>
+            <p className="tp20-sidebar-note">Table clock: Delhi · IST (UTC+05:30)</p>
+          </aside>
         </div>
 
       </div>
 
-      <CoinSettingsDialog open={coinSettingsOpen} onOpenChange={setCoinSettingsOpen}
-        preferences={coinPreferences} onSave={coinPreferences.save} />
+      {coinSettingsOpen && <CoinSettingsDialog open onOpenChange={setCoinSettingsOpen}
+        preferences={coinPreferences} onSave={coinPreferences.save} />}
 
       {/* Fairness dialog */}
       <Dialog open={fairnessOpen} onOpenChange={setFairnessOpen}>

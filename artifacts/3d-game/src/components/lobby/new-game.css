@@ -1,0 +1,74 @@
+@property --new-game-border-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.new-game-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  padding: 2px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--new-game-border-angle),
+    #ed9b2099 0deg 220deg,
+    #fbbf24 270deg,
+    #fff9db 310deg,
+    #fbbf24 335deg,
+    #ed9b2099 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: new-game-border-travel 3s linear infinite;
+}
+
+.game-new-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #dc2626, #b91c1c 65%, #991b1b);
+  color: #fff;
+  box-shadow: 0 2px 8px #0005, 0 0 10px #ef444466;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.8px;
+  pointer-events: none;
+}
+
+.game-new-badge::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+@keyframes new-game-border-travel {
+  to {
+    --new-game-border-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .new-game-card::after {
+    animation: none;
+  }
+}

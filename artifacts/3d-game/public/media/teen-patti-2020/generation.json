@@ -1,0 +1,17 @@
+{
+  "created": "2026-10-19",
+  "tool": "Built-in image_gen",
+  "reference": "User-supplied Screen Recording 2026-10-19 103224.mp4, frame at 38 seconds",
+  "presentation": "Archive of initial generated artwork. Active presentation is documented in sequential-footage.json: original reference hand gestures with the passer-by removed, server cards on the felt and larger sequential result cards. Generated dealer artwork is not used.",
+  "assets": [
+    {
+      "file": "studio.webp",
+      "prompt": "Create a photorealistic casino game environment BACKGROUND PLATE for an interactive Teen Patti 20-20 table. The attached screen capture is a visual reference ONLY. Output landscape 16:9, ideally 1536x864. Recreate the central casino studio aesthetic: metallic charcoal and brushed silver walls, gold ornamental wall strips, silver upholstered decorative wall panels, rows of round white studio bulbs, subtle warm yellow floor lighting, a roulette wheel on a cylindrical pedestal at back left, a secondary empty gaming table at back right. Main foreground table has dark aubergine/brown felt, wide curved polished silver rim, black base. Fixed slightly elevated front camera, symmetry. Main curved table fills x=7% to 93% and y=51% to 97%; its rear straight edge is at y=52%; foreground arc at y=95%. Open space centered x=50%, y=10% to 54% for a separate dealer to be composited later. Absolutely NO people anywhere; NO playing cards, NO hands, NO lettering, NO text, NO date, NO UI, NO monitor, NO betting markings, NO logos. Empty clean felt so dynamic cards and text can be rendered on top. Real photographic materials, soft studio shadows, finely textured felt, sharp 4K quality, convincing realistic casino studio, no cartoon or stylization. Do not reproduce the black left sidebar, right results panel, or bottom betting buttons of the reference; output only the photographic studio environment filling the entire image."
+    },
+    {
+      "file": "dealer.webp",
+      "reference": "Existing project asset src/assets/lucky7/dealer.png",
+      "prompt": "Professional uniform recoloring of this existing adult casino employee portrait. Keep the adult woman's face, pose, arms, hands, white long-sleeve shirt, black bow tie, image dimensions and every silhouette boundary EXACTLY unchanged. Change only the black waistcoat into a champagne gold satin waistcoat. Keep all clothing coverage unchanged. Preserve the transparent background and photorealistic texture. Full original framing, do not crop. This is a professional uniform color variant for a game asset."
+    }
+  ]
+}

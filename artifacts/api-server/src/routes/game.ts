@@ -265,7 +265,7 @@ export const GAME_TYPE_META: Record<string, GameTypeMeta> = {
   baccarat: {
     engineType: "card_fixed",
     label: "Card / Table",
-    editableFields: ["maxMultiplier","maxStakePaise","enabled","bettingWindowMs","revealDurationMs","settleDurationMs","minStakePaise"],
+    editableFields: ["maxMultiplier","maxStakePaise","enabled","minStakePaise"],
     capFloors: { maxMultiplier: 12 }, // Pair side bets 11:1 → 12×
     rtpNote:
       "Baccarat uses a fixed paytable (Banker 0.95:1, Player 1:1, Tie 8:1). " +
@@ -354,6 +354,7 @@ for (const code of ["lucky-7", "baccarat", "teen-patti", "teen-patti-live", "and
   GAME_TYPE_META[code].rtpNote = "New rounds target 85% theoretical RTP (15% expected house margin), before posted price rounding and caps. Accepted rounds retain their original version. RTP does not guarantee a round or session profit.";
 }
 GAME_TYPE_META.blackjack.rtpNote = "New hands pay 85% of standard total returns, including draws and insurance. Aborted games are fully refunded. Actual RTP depends on player strategy; it is not a fixed 85%.";
+GAME_TYPE_META.baccarat.rtpNote += " Each round lasts 30 seconds: 20 seconds betting, 8 seconds dealing and 2 seconds results.";
 
 /** Serialisable subset — sent to the admin panel as GET /config/game-type-meta */
 function serializeGameTypeMeta(code: string): (GameTypeMeta & { gameCode: string; paytable?: CardPaytable }) | null {

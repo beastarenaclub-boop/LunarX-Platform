@@ -41,6 +41,25 @@ export interface RegistryEntry {
   enabled: boolean;
 }
 
+// Share the storefront's curated trending order across both lobbies.
+export const TOP_GAME_IDS = [
+  "roulette",
+  "teen-patti-live",
+  "lucky-7-live",
+  "crazy-time",
+  "baccarat",
+  "andar-bahar-live",
+  "dragon-tiger-one-day",
+];
+
+export function compareTopGames(a: LobbyGame, b: LobbyGame): number {
+  const rank = (item: LobbyGame) => {
+    const index = item.enabled ? TOP_GAME_IDS.indexOf(item.id) : -1;
+    return index < 0 ? TOP_GAME_IDS.length : index;
+  };
+  return rank(a) - rank(b);
+}
+
 const posters = import.meta.glob("../../assets/lobby/game-*.jpg", {
   eager: true,
   query: "?url",
@@ -192,5 +211,5 @@ export function resolveCatalog(registry?: RegistryEntry[]): LobbyGame[] {
     const entry = byCode.get(item.registryCode ?? item.id);
     // Keep the implemented SPA route; registry aliases may point to legacy apps.
     return [{ ...item, route, enabled: entry?.enabled ?? item.enabled }];
-  });
+  }).sort(compareTopGames);
 }

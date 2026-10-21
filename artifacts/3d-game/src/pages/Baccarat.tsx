@@ -30,7 +30,7 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import PlayingCard from "@/components/baccarat/PlayingCard";
-import type { RoadEntry } from "@/components/baccarat/roadLayout";
+import type { BaccaratHistoryEntry } from "@/components/baccarat/BaccaratHistory";
 import BaccaratTable from "@/components/baccarat/BaccaratTable";
 import { BET_LABELS, type BaccaratBetType } from "@/components/baccarat/cards";
 import { useTableRound } from "@/components/table/useTableRound";
@@ -248,23 +248,21 @@ export default function Baccarat() {
     [myBets],
   );
 
-  // Roads history from the shared clock's recent outcomes (oldest → newest;
-  // hook.recent is newest-first).
-  const roadEntries: RoadEntry[] = useMemo(() => {
+  // All table results, including rounds the player did not bet on.
+  const resultHistory: BaccaratHistoryEntry[] = useMemo(() => {
     const rows = [...hookRecent]
-      .filter((row) => row.roundId !== roundId)
-      .reverse();
+      .filter((row) => row.roundId !== roundId);
     return rows
       .map((r) => {
         const o = r.outcome as BaccaratDeal | null;
         if (!o) return null;
         return {
-          winner: o.winner,
-          playerPair: o.playerPair,
-          bankerPair: o.bankerPair,
-        } as RoadEntry;
+          roundId: r.roundId,
+          settledAt: r.settledAt,
+          deal: o,
+        };
       })
-      .filter((e): e is RoadEntry => e !== null);
+      .filter((e): e is BaccaratHistoryEntry => e !== null);
   }, [hookRecent, roundId]);
 
   // Reveal the outcome only when we are in reveal/settling for the round the
@@ -573,7 +571,8 @@ export default function Baccarat() {
         onDouble={doubleBets}
         onFairness={() => setFairnessOpen(true)}
         payouts={config.data?.payouts}
-        roads={roadEntries}
+        history={resultHistory}
+        accountLabel={user.isDemo ? "Demo" : user.displayName || "Player"}
       />
 
       {/* Fairness dialog */}

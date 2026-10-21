@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { GAME_TYPE_META, UpdateConfigBody } from "../../routes/game";
 import { getGameConfig, updateGameConfig, invalidateConfigCache } from "../rtp";
 import { getRoundCycleStatus } from "../tableRounds";
+import { BACCARAT_ROUND_TIMING } from "@workspace/api-zod/baccarat-game";
 
 /**
  * Admin per-game table settings (Task: per-game timing, bet limits, profit %).
@@ -38,9 +39,7 @@ test("engine metadata exposes timing + stake fields for every table game", { ski
     assert.ok(meta, `${code} missing from GAME_TYPE_META`);
     assert.equal(meta.engineType, "card_fixed");
     for (const f of [
-      "bettingWindowMs",
-      "revealDurationMs",
-      "settleDurationMs",
+      ...(code === "baccarat" ? [] : ["bettingWindowMs", "revealDurationMs", "settleDurationMs"]),
       ...(code === "roulette" ? [] : ["minStakePaise"]),
       "maxStakePaise",
       "enabled",
@@ -71,6 +70,13 @@ test("Lucky 7 locks its fixed payouts and protects the 12x cap", () => {
   for (const field of ["houseEdge", "rtpMin", "rtpMax"]) {
     assert.equal(meta.editableFields.includes(field), false);
   }
+});
+
+test("Baccarat's 20-second betting window is fixed in engine metadata", () => {
+  const meta = GAME_TYPE_META.baccarat;
+  for (const key of Object.keys(BACCARAT_ROUND_TIMING)) assert.equal(meta.editableFields.includes(key), false);
+  assert.equal(BACCARAT_ROUND_TIMING.bettingWindowMs, 20_000);
+  assert.equal(Object.values(BACCARAT_ROUND_TIMING).reduce((a, b) => a + b, 0), 30_000);
 });
 
 // ── Load: each table game has a config row with sane round timings ─────────
@@ -109,14 +115,15 @@ test("saving timings + bet limits round-trips per game", { skip: SKIP }, async (
         },
         "test-admin",
       );
-      assert.equal(updated.bettingWindowMs, 40_000, code);
-      assert.equal(updated.revealDurationMs, 7_000, code);
-      assert.equal(updated.settleDurationMs, 6_000, code);
+      const timing = code === "baccarat" ? BACCARAT_ROUND_TIMING : { bettingWindowMs: 40_000, revealDurationMs: 7_000, settleDurationMs: 6_000 };
+      assert.equal(updated.bettingWindowMs, timing.bettingWindowMs, code);
+      assert.equal(updated.revealDurationMs, timing.revealDurationMs, code);
+      assert.equal(updated.settleDurationMs, timing.settleDurationMs, code);
       assert.equal(updated.minStakePaise, 500n, code);
       // fresh read (cache invalidated inside updateGameConfig)
       const fresh = await getGameConfig(code);
-      assert.equal(fresh!.bettingWindowMs, 40_000, code);
-      assert.equal(fresh!.revealDurationMs, 7_000, code);
+      assert.equal(fresh!.bettingWindowMs, timing.bettingWindowMs, code);
+      assert.equal(fresh!.revealDurationMs, timing.revealDurationMs, code);
     } finally {
       await db
         .update(gameConfigTable)

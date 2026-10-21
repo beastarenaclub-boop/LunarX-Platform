@@ -463,6 +463,8 @@
   color: #8f95b3;
 }
 .ab-main-spots {
+  --ab-joker-size: 85px;
+  --ab-card-size: 44px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   position: relative;
@@ -522,8 +524,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 85px;
-  height: 85px;
+  width: var(--ab-joker-size);
+  height: var(--ab-joker-size);
   border: 1px solid #c9b89b;
   border-radius: 50%;
   background: radial-gradient(#1e1d1d, #030406 72%);
@@ -541,33 +543,36 @@
 }
 .ab-card {
   display: inline-flex;
-  width: 35px;
+  width: 40px;
   aspect-ratio: 5/7;
   background: #fffdf7;
-  border-radius: 2px;
+  border: 1px solid #ded8c9;
+  border-radius: 4px;
   box-shadow: 0 1px 3px #0008;
-  padding: 2px;
+  padding: 1px;
   flex-shrink: 0;
 }
 .ab-card svg {
+  display: block;
   width: 100%;
   height: 100%;
 }
 .ab-joker .ab-card {
-  width: 37px;
+  width: var(--ab-card-size);
 }
 .ab-last-card {
+  display: flex;
   position: absolute;
   top: 50%;
-  right: 55px;
+  right: calc(var(--ab-joker-size) / 2 + 8px);
   transform: translateY(-50%);
 }
 .ab-bahar .ab-last-card {
   right: auto;
-  left: 55px;
+  left: calc(var(--ab-joker-size) / 2 + 8px);
 }
 .ab-last-card .ab-card {
-  width: 31px;
+  width: var(--ab-card-size);
 }
 .ab-placed-chip {
   position: absolute;
@@ -762,7 +767,7 @@
   font-size: 9px;
 }
 .ab-expanded-history .ab-card {
-  width: 23px;
+  width: 30px;
 }
 .ab-expanded-history > p {
   font-size: 12px;
@@ -845,12 +850,9 @@
   .ab-main-bet {
     min-height: 105px;
   }
-  .ab-joker {
-    width: 100px;
-    height: 100px;
-  }
-  .ab-joker .ab-card {
-    width: 45px;
+  .ab-main-spots {
+    --ab-joker-size: 100px;
+    --ab-card-size: 50px;
   }
   .ab-chips button {
     width: 58px;
@@ -879,7 +881,7 @@
   }
   .ab-board,
   .ab-status-row {
-    grid-template-columns: 24% 39% 37%;
+    grid-template-columns: 17% 46% 37%;
   }
   .ab-main-bet {
     padding: 10px;
@@ -893,21 +895,9 @@
   .ab-main-bet small em {
     display: none;
   }
-  .ab-joker {
-    width: 70px;
-    height: 70px;
-  }
-  .ab-joker .ab-card {
-    width: 31px;
-  }
-  .ab-last-card {
-    right: 42px;
-  }
-  .ab-bahar .ab-last-card {
-    left: 42px;
-  }
-  .ab-last-card .ab-card {
-    width: 25px;
+  .ab-main-spots {
+    --ab-joker-size: 70px;
+    --ab-card-size: 36px;
   }
   .ab-title h1 {
     font-size: 12px;
@@ -1100,22 +1090,6 @@
   .ab-main-bet small em {
     display: inline;
   }
-  .ab-joker {
-    width: 78px;
-    height: 78px;
-  }
-  .ab-joker .ab-card {
-    width: 34px;
-  }
-  .ab-last-card {
-    right: 47px;
-  }
-  .ab-bahar .ab-last-card {
-    left: 47px;
-  }
-  .ab-last-card .ab-card {
-    width: 29px;
-  }
   .ab-range-spots {
     padding: 0;
     gap: 4px;
@@ -1220,16 +1194,6 @@
   }
   .ab-main-bet small {
     font-size: 10px;
-  }
-  .ab-last-card {
-    right: 39px;
-  }
-  .ab-bahar .ab-last-card {
-    left: 39px;
-  }
-  .ab-joker {
-    width: 66px;
-    height: 66px;
   }
   .ab-main-bet .ab-bet-label {
     font-size: 16px;
@@ -1449,12 +1413,9 @@
   .ab-main-bet {
     min-height: 74px;
   }
-  .ab-joker {
-    width: 66px;
-    height: 66px;
-  }
-  .ab-joker .ab-card {
-    width: 29px;
+  .ab-main-spots {
+    --ab-joker-size: 66px;
+    --ab-card-size: 38px;
   }
   .ab-range-spots {
     flex: 1;
@@ -1560,21 +1521,9 @@
   .ab-bet small {
     font-size: 10px;
   }
-  .ab-joker {
-    width: 58px;
-    height: 58px;
-  }
-  .ab-joker .ab-card {
-    width: 26px;
-  }
-  .ab-last-card {
-    right: 36px;
-  }
-  .ab-bahar .ab-last-card {
-    left: 36px;
-  }
-  .ab-last-card .ab-card {
-    width: 23px;
+  .ab-main-spots {
+    --ab-joker-size: 58px;
+    --ab-card-size: 34px;
   }
   .ab-range-spots {
     padding: 0;

@@ -5,6 +5,7 @@ import { bus } from "../realtime/eventBus";
 import { enqueueWebhook } from "./webhookDispatcher";
 import { isRetiredGame } from "../lib/retiredGames";
 import { badRequest } from "../lib/errors";
+import { BACCARAT_ROUND_TIMING } from "@workspace/api-zod/baccarat-game";
 
 export function sha256Hex(data: string): string {
   return crypto.createHash("sha256").update(data).digest("hex");
@@ -653,6 +654,7 @@ export async function getGameConfig(gameCode = "lunar"): Promise<GameConfig | nu
     .where(eq(gameConfigTable.gameCode, gameCode))
     .limit(1);
   if (rows[0]) {
+    if (gameCode === "baccarat") Object.assign(rows[0], BACCARAT_ROUND_TIMING);
     if (isRetiredGame(gameCode)) rows[0].enabled = false;
     configCache.set(gameCode, { value: rows[0], ts: Date.now() });
     return rows[0];
@@ -702,7 +704,7 @@ export async function updateGameConfig(
   if (isRetiredGame(gameCode)) throw badRequest("This game is no longer available.");
   const [updated] = await db
     .update(gameConfigTable)
-    .set({ ...patch, updatedBy, updatedAt: new Date() })
+    .set({ ...patch, ...(gameCode === "baccarat" ? BACCARAT_ROUND_TIMING : {}), updatedBy, updatedAt: new Date() })
     .where(eq(gameConfigTable.gameCode, gameCode))
     .returning();
   invalidateConfigCache(gameCode);

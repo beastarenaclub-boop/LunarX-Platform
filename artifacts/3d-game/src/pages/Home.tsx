@@ -65,6 +65,7 @@ import {
 import { PhotoBannerSlider } from "@/components/lobby/PhotoBannerSlider";
 import { MobileNavigation } from "@/components/site/MobileNavigation";
 import "@/components/lobby/lobby.css";
+import "@/components/lobby/new-game.css";
 
 const CATEGORIES: { id: Category; name: string; icon: typeof Rocket }[] = [
   { id: "all", name: "All Games", icon: Grid2X2 },
@@ -139,6 +140,7 @@ function GameCard({
   eager?: boolean;
 }) {
   const [imageFailed, setImageFailed] = useState(false);
+  const isNew = game.enabled && game.label === "NEW";
   const content = (
     <>
       <div className="lobby-game-art">
@@ -164,7 +166,7 @@ function GameCard({
             <strong>{game.name}</strong>
           </div>
         )}
-        {game.label && game.enabled && (
+        {game.label && game.enabled && !isNew && (
           <span
             className={cn(
               "lobby-game-badge",
@@ -188,6 +190,7 @@ function GameCard({
       <div className="lobby-game-caption">
         <span>{game.name}</span>
       </div>
+      {isNew && <span className="game-new-badge">NEW</span>}
     </>
   );
   const titleScale = Math.min(
@@ -196,7 +199,11 @@ function GameCard({
   );
   return (
     <article
-      className={cn("lobby-game", !game.enabled && "is-unavailable")}
+      className={cn(
+        "lobby-game",
+        isNew && "new-game-card",
+        !game.enabled && "is-unavailable",
+      )}
       style={
         {
           "--game-accent": game.accent,
@@ -209,6 +216,7 @@ function GameCard({
         <Link
           href={game.route}
           aria-label={`Play ${game.name}`}
+          aria-description={isNew ? "New game" : undefined}
           title={game.name}
           data-testid={`card-game-${game.id}`}
         >

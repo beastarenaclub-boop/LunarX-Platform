@@ -1,0 +1,30 @@
+{
+  "source": "Screen Recording 2026-10-19 103224.mp4",
+  "approved": "2026-10-20",
+  "updated": "2026-10-21",
+  "presentation": "Original dealer opening gestures; background passer-by removed. Recorded card values replaced with server cards on the felt and in the result rail.",
+  "betting": [
+    0,
+    18.3
+  ],
+  "opening": [
+    18.3,
+    29.3
+  ],
+  "rest": [
+    29.3,
+    31.3
+  ],
+  "fps": 30,
+  "handOcclusion": "reference-hands-v2.json; precomputed SVG silhouettes; no browser inference or canvas readback",
+  "variants": [
+    {
+      "file": "reference-sequential-v4.mp4",
+      "bytes": 4888216
+    },
+    {
+      "file": "reference-sequential-mobile-v4.mp4",
+      "bytes": 2516306
+    }
+  ]
+}

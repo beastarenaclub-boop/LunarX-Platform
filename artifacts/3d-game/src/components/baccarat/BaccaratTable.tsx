@@ -17,7 +17,11 @@ import {
   Undo2,
   Trash2,
   Users,
+  Home,
+  LockKeyhole,
+  Headphones,
 } from "lucide-react";
+import { B2C_BRAND, B2C_LOGO } from "@/components/b2c/config";
 import { GameRulesButton } from "@/components/game/GameRules";
 import {
   TableCoinRack,
@@ -30,25 +34,14 @@ import { formatRupees } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import BaccaratAudioControls from "./BaccaratAudioControls";
 import { useBaccaratAudio } from "./useBaccaratAudio";
-import { commentaryLines } from "./commentary";
+import BaccaratHands from "./BaccaratHands";
+import { BACCARAT_ROUND_TIMING } from "@workspace/api-zod/baccarat-game";
+import BaccaratHistory, { type BaccaratHistoryEntry } from "./BaccaratHistory";
 import DealerStudio, { type Presentation } from "./DealerStudio";
-import {
-  handTotal,
-  orderedCards,
-  visibleHand,
-  type StudioDeal,
-  type Side,
-} from "./studioTimeline";
-import {
-  BET_LABELS,
-  BET_PAYOUT_LABELS,
-  cardIsRed,
-  cardRankLabel,
-  cardSuitSymbol,
-  type BaccaratBetType,
-} from "./cards";
-import { BigRoad, BeadPlate, type RoadEntry } from "./StudioRoads";
+import { orderedCards, type StudioDeal } from "./studioTimeline";
+import { BET_LABELS, BET_PAYOUT_LABELS, type BaccaratBetType } from "./cards";
 import "./baccarat-studio.css";
+import "./baccarat-reference.css";
 
 interface Props {
   round: TableRoundState<StudioDeal>;
@@ -73,7 +66,8 @@ interface Props {
   onDouble: () => void;
   onFairness: () => void;
   payouts?: Record<BaccaratBetType, number>;
-  roads: RoadEntry[];
+  history: BaccaratHistoryEntry[];
+  accountLabel?: string;
 }
 const spots: BaccaratBetType[] = [
   "playerPair",
@@ -82,18 +76,6 @@ const spots: BaccaratBetType[] = [
   "banker",
   "bankerPair",
 ];
-function Card({ card }: { card: number }) {
-  return (
-    <span
-      className={cn("bc-mini-card", cardIsRed(card) && "bc-red-card")}
-      aria-label={`${cardRankLabel(card)} ${cardSuitSymbol(card)}`}
-    >
-      <b>{cardRankLabel(card)}</b>
-      <span>{cardSuitSymbol(card)}</span>
-    </span>
-  );
-}
-
 export default function BaccaratTable(p: Props) {
   const root = useRef<HTMLDivElement>(null);
   const [motion, setMotion] = useState(
@@ -118,7 +100,7 @@ export default function BaccaratTable(p: Props) {
   const editable = betting && p.available && !p.disabled && !p.placing;
   const count =
     p.deal && presentation.roundId === r.roundId ? presentation.count : 0;
-  const audio = useBaccaratAudio(r, p.deal, count, p.available && !p.disabled);
+  const audio = useBaccaratAudio(r, count, p.available && !p.disabled);
   const complete = !!p.deal && count >= orderedCards(p.deal).length;
   const winner = complete ? p.deal!.winner : null;
   const elapsed =
@@ -135,17 +117,17 @@ export default function BaccaratTable(p: Props) {
         : winner
           ? `${winner === "tie" ? "Tie" : `${BET_LABELS[winner]} wins`}`
           : "No more bets";
-  const currentRoads =
-    complete && p.deal
+  const currentHistory =
+    complete && p.deal && r.roundId
       ? [
-          ...p.roads,
           {
-            winner: p.deal.winner,
-            playerPair: p.deal.playerPair,
-            bankerPair: p.deal.bankerPair,
+            roundId: r.roundId,
+            deal: p.deal,
+            settledAt: null,
           },
+          ...p.history.filter((entry) => entry.roundId !== r.roundId),
         ]
-      : p.roads;
+      : p.history;
   useEffect(() => {
     const update = () => setFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", update);
@@ -159,21 +141,6 @@ export default function BaccaratTable(p: Props) {
       /* Browser may disallow fullscreen in an embedded preview. */
     }
   };
-  function hand(side: Side) {
-    const cards = visibleHand(p.deal, count, side);
-    return (
-      <div className={`bc-hand bc-hand-${side}`} data-testid={`hand-${side}`}>
-        <span className="bc-score" data-testid={`text-${side}-total`}>
-          {cards.length ? handTotal(cards) : "–"}
-        </span>
-        <div className="bc-hand-cards">
-          {cards.map((card, i) => (
-            <Card key={`${r.roundId}-${i}`} card={card} />
-          ))}
-        </div>
-      </div>
-    );
-  }
   return (
     <div
       ref={root}
@@ -181,22 +148,35 @@ export default function BaccaratTable(p: Props) {
       data-game-screen="baccarat"
       data-testid="baccarat-table"
       data-audio-state={audio.audioState}
-      data-commentary={audio.line ?? "idle"}
       data-music-playing={audio.musicPlaying}
+      data-betting-open={editable}
     >
       <div className="bc-stage">
+        <div className="bc-stage-heading">
+          <h1>BACCARAT VIP</h1>
+          <span>ROUND ID: {r.roundId?.toUpperCase() ?? "—"}</span>
+        </div>
         <DealerStudio
           roundId={r.roundId}
           phase={r.phase}
           deal={p.deal}
           elapsedMs={elapsed}
-          revealMs={r.config?.revealDurationMs ?? 12000}
+          revealMs={
+            r.config?.revealDurationMs ?? BACCARAT_ROUND_TIMING.revealDurationMs
+          }
           motion={motion}
           onPresentation={onPresentation}
         />
         <div className="bc-stage-shade" />
-        {audio.needsTap && <button className="bc-enable-audio" onClick={() => audio.activate(true)} data-testid="baccarat-enable-audio">Tap for sound</button>}
-        {audio.line && <div className="bc-commentary-caption" lang="hi" data-testid="baccarat-commentary-caption">{commentaryLines[audio.line]}</div>}
+        {audio.needsTap && (
+          <button
+            className="bc-enable-audio"
+            onClick={() => audio.activate(true)}
+            data-testid="baccarat-enable-audio"
+          >
+            Tap for sound
+          </button>
+        )}
         <div
           className={cn("bc-round-indicator", winner && `bc-result-${winner}`)}
         >
@@ -212,15 +192,28 @@ export default function BaccaratTable(p: Props) {
               <span data-testid="baccarat-countdown">{seconds}</span>
             </div>
           )}
-          <div role="status" data-testid="text-result-winner">
-            {phaseLabel}
-          </div>
           {complete && p.deal?.natural && (
             <small>
               NATURAL {Math.max(p.deal.playerTotal, p.deal.bankerTotal)}
             </small>
           )}
         </div>
+      </div>
+
+      <div
+        className={cn("bc-announcement", winner && `bc-announcement-${winner}`)}
+      >
+        <i aria-hidden="true" />
+        <span role="status" data-testid="text-result-winner">
+          {phaseLabel}
+        </span>
+        <span>
+          {betting
+            ? "20 second betting"
+            : complete
+              ? "Round complete"
+              : "Baccarat VIP"}
+        </span>
       </div>
 
       <header className="bc-header">
@@ -231,20 +224,21 @@ export default function BaccaratTable(p: Props) {
             aria-label="Back to lobby"
             data-testid="btn-back"
           >
-            <ArrowLeft size={18} />
+            <Home size={18} />
           </Link>
-          <div>
-            <h1>
-              <strong>Baccarat</strong> VIP
-            </h1>
-            <span className="bc-limits">
-              ₹{formatRupees(r.config?.minStakePaise ?? "10000")} – ₹
-              {formatRupees(r.config?.maxStakePaise ?? "50000000")}
-            </span>
-          </div>
-          <span className="bc-studio-label">
-            <i /> STUDIO
-          </span>
+          <Link
+            href="/"
+            aria-label={`${B2C_BRAND} lobby`}
+            className="bc-brand-image"
+          >
+            <img src={B2C_LOGO} alt={B2C_BRAND} width={1000} height={216} />
+          </Link>
+        </div>
+        <div className="bc-account">
+          <strong data-testid="text-baccarat-balance">
+            ₹{formatRupees(p.balance)}
+          </strong>
+          <span>{p.accountLabel ?? "Player"}</span>
         </div>
         <nav aria-label="Table controls">
           <BaccaratAudioControls audio={audio} />
@@ -279,72 +273,6 @@ export default function BaccaratTable(p: Props) {
 
       <div className="bc-console">
         <section className="bc-dock" aria-label="Baccarat betting table">
-          <div className="bc-betting-board">
-            {spots.map((spot) => {
-              const staged = p.bets.get(spot) ?? 0;
-              const accepted = r.myBets.reduce(
-                (sum, slip) =>
-                  sum +
-                  (Array.isArray(slip.bets)
-                    ? slip.bets
-                        .filter((b: { type?: string }) => b.type === spot)
-                        .reduce(
-                          (s: number, b: { amountPaise?: string }) =>
-                            s + Number(b.amountPaise ?? 0) / 100,
-                          0,
-                        )
-                    : 0),
-                0,
-              );
-              const amount = staged + accepted;
-              const won =
-                complete &&
-                (winner === spot ||
-                  (spot === "playerPair" && p.deal?.playerPair) ||
-                  (spot === "bankerPair" && p.deal?.bankerPair));
-              return (
-                <button
-                  type="button"
-                  key={spot}
-                  className={cn(
-                    "bc-spot",
-                    `bc-spot-${spot}`,
-                    won && "bc-spot-won",
-                    amount > 0 && "bc-spot-selected",
-                  )}
-                  disabled={!editable}
-                  onClick={() => p.onBet(spot)}
-                  aria-label={`Bet on ${BET_LABELS[spot]}`}
-                  data-game-bet
-                  data-testid={`spot-${spot}`}
-                >
-                  {(spot === "player" || spot === "banker") && hand(spot)}
-                  <span className="bc-spot-title">
-                    {spot === "playerPair"
-                      ? "P Pair"
-                      : spot === "bankerPair"
-                        ? "B Pair"
-                        : BET_LABELS[spot]}
-                  </span>
-                  <span className="bc-odds">
-                    {p.payouts
-                      ? `${p.payouts[spot].toFixed(2)}× return`
-                      : BET_PAYOUT_LABELS[spot]}
-                  </span>
-                  {amount > 0 && (
-                    <span
-                      className="bc-bet-chip"
-                      data-testid={`chipstack-${spot}`}
-                    >
-                      <CoinFace value={amount} sizeClass="w-9 h-9" />
-                      <span className="sr-only">₹{amount}</span>
-                    </span>
-                  )}
-                  {won && <span className="bc-win-mark">WIN</span>}
-                </button>
-              );
-            })}
-          </div>
           <div className="bc-coins">
             <TableCoinRack
               preferences={p.coins}
@@ -352,6 +280,112 @@ export default function BaccaratTable(p: Props) {
               onSelect={p.selectChip}
               disabled={!editable}
             />
+            {!editable && (
+              <div className="bc-coins-locks" aria-hidden="true">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <LockKeyhole key={i} size={16} />
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="bc-table-surface">
+            <div className="bc-card-panel" data-testid="baccarat-card-panel">
+              <div className="bc-card-panel-heading">
+                <span>{complete ? "Round result" : "Current round"}</span>
+                <strong role="status" data-testid="baccarat-card-status">
+                  {complete
+                    ? winner === "tie"
+                      ? "Tie"
+                      : `${BET_LABELS[winner!]} wins`
+                    : betting
+                      ? "Cards face down"
+                      : "Dealing cards"}
+                </strong>
+                {complete && p.deal?.natural && (
+                  <span>
+                    Natural {Math.max(p.deal.playerTotal, p.deal.bankerTotal)}
+                  </span>
+                )}
+              </div>
+              <BaccaratHands
+                key={r.roundId}
+                deal={p.deal}
+                count={count}
+                complete={complete}
+              />
+            </div>
+            <div className="bc-betting-board">
+              {spots.map((spot) => {
+                const staged = p.bets.get(spot) ?? 0;
+                const accepted = r.myBets.reduce(
+                  (sum, slip) =>
+                    sum +
+                    (Array.isArray(slip.bets)
+                      ? slip.bets
+                          .filter((b: { type?: string }) => b.type === spot)
+                          .reduce(
+                            (s: number, b: { amountPaise?: string }) =>
+                              s + Number(b.amountPaise ?? 0) / 100,
+                            0,
+                          )
+                      : 0),
+                  0,
+                );
+                const amount = staged + accepted;
+                const won =
+                  complete &&
+                  (winner === spot ||
+                    (spot === "playerPair" && p.deal?.playerPair) ||
+                    (spot === "bankerPair" && p.deal?.bankerPair));
+                return (
+                  <button
+                    type="button"
+                    key={spot}
+                    className={cn(
+                      "bc-spot",
+                      `bc-spot-${spot}`,
+                      won && "bc-spot-won",
+                      amount > 0 && "bc-spot-selected",
+                    )}
+                    disabled={!editable}
+                    onClick={() => p.onBet(spot)}
+                    aria-label={`Bet on ${BET_LABELS[spot]}`}
+                    data-game-bet
+                    data-testid={`spot-${spot}`}
+                  >
+                    {!editable && (
+                      <LockKeyhole
+                        className="bc-spot-lock"
+                        size={17}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className="bc-spot-title">
+                      {spot === "playerPair"
+                        ? "P Pair"
+                        : spot === "bankerPair"
+                          ? "B Pair"
+                          : BET_LABELS[spot]}
+                    </span>
+                    <span className="bc-odds">
+                      {p.payouts
+                        ? `${p.payouts[spot].toFixed(2)}× return`
+                        : BET_PAYOUT_LABELS[spot]}
+                    </span>
+                    {amount > 0 && (
+                      <span
+                        className="bc-bet-chip"
+                        data-testid={`chipstack-${spot}`}
+                      >
+                        <CoinFace value={amount} sizeClass="w-7 h-7" />
+                        <span className="sr-only">₹{amount}</span>
+                      </span>
+                    )}
+                    {won && <span className="bc-win-mark">WIN</span>}
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <div className="bc-actions">
             <button
@@ -390,12 +424,18 @@ export default function BaccaratTable(p: Props) {
             >
               ×2
             </button>
-            <AutoBetStatus
-              selected={p.bets.size > 0}
-              busy={p.placing}
-              seconds={p.bets.size ? seconds : null}
-              className="bc-auto-status"
-            />
+            {betting ? (
+              <AutoBetStatus
+                selected={p.bets.size > 0}
+                busy={p.placing}
+                seconds={p.bets.size ? seconds : null}
+                className="bc-auto-status"
+              />
+            ) : (
+              <div className="bc-auto-status bc-locked-status">
+                <LockKeyhole size={13} /> Bets locked
+              </div>
+            )}
           </div>
           <div className="bc-stake-line">
             <span data-testid="text-total-staked">
@@ -404,38 +444,16 @@ export default function BaccaratTable(p: Props) {
             <span data-testid="placed-summary">
               Accepted <b>₹{formatRupees(p.accepted)}</b>
             </span>
+            <span>
+              Return{" "}
+              <b data-testid="text-result-payout">
+                ₹{formatRupees(r.phase === "settling" ? p.payout : "0")}
+              </b>
+            </span>
           </div>
         </section>
 
-        <section className="bc-roads" aria-label="Baccarat results history">
-          <div className="bc-road-heading">
-            <span>
-              SHOE HISTORY <b>{currentRoads.length}</b>
-            </span>
-            <div>
-              {(["player", "banker", "tie"] as const).map((side) => (
-                <span key={side} className={`bc-count-${side}`}>
-                  {side[0].toUpperCase()}{" "}
-                  <b>{currentRoads.filter((e) => e.winner === side).length}</b>
-                </span>
-              ))}
-            </div>
-          </div>
-          <BeadPlate entries={currentRoads} />
-          <BigRoad entries={currentRoads} />
-          <div className="bc-road-legend">
-            <span>
-              <i className="bc-player-dot" /> Player
-            </span>
-            <span>
-              <i className="bc-banker-dot" /> Banker
-            </span>
-            <span>
-              <i className="bc-tie-dot" /> Tie
-            </span>
-            <span>8 decks · Punto Banco</span>
-          </div>
-        </section>
+        <BaccaratHistory entries={currentHistory} />
         <aside className="bc-table-details">
           <span className="bc-audience">
             <Users size={13} /> {r.playerCount} at the table
@@ -445,20 +463,44 @@ export default function BaccaratTable(p: Props) {
           </span>
           <div className="bc-wallet">
             <span>
-              Balance{" "}
-              <strong data-testid="text-baccarat-balance">
-                ₹{formatRupees(p.balance)}
-              </strong>
-            </span>
-            <span>
-              Round return{" "}
-              <b data-testid="text-result-payout">
-                ₹{formatRupees(r.phase === "settling" ? p.payout : "0")}
+              Table limits{" "}
+              <b>
+                ₹{formatRupees(r.config?.minStakePaise ?? "10000")} – ₹
+                {formatRupees(r.config?.maxStakePaise ?? "50000000")}
               </b>
             </span>
           </div>
         </aside>
       </div>
+      <footer className="bc-reference-footer">
+        <Link className="bc-support-link" href="/help">
+          <Headphones size={16} /> Support
+        </Link>
+        <div className="bc-footer-links">
+          <Link href="/help">Help centre</Link>
+          <button
+            type="button"
+            onClick={() =>
+              root.current
+                ?.querySelector<HTMLButtonElement>(
+                  '[data-testid="btn-game-rules"]',
+                )
+                ?.click()
+            }
+          >
+            Rules
+          </button>
+        </div>
+        <div className="bc-footer-fairness">
+          <button type="button" onClick={p.onFairness}>
+            <ShieldCheck size={30} />
+            <span>
+              PROVABLY FAIR<small>View round verification</small>
+            </span>
+          </button>
+          <span className="bc-age-mark">18+</span>
+        </div>
+      </footer>
     </div>
   );
 }
