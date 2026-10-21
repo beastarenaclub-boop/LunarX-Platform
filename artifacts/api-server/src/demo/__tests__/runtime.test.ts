@@ -4,6 +4,7 @@ import { Worker } from "node:worker_threads";
 import { randomUUID } from "node:crypto";
 import { DEMO_COINS, DemoSessions, type DemoSession } from "../sessions";
 import { INSTANT_COLLECTION, progressive } from "@workspace/api-zod/instant-collection";
+import { POKER_GAMES } from "@workspace/api-zod/poker";
 
 let worker: Worker;
 let port: number;
@@ -58,6 +59,29 @@ async function ok(session: DemoSession, path: string, body?: unknown, headers?: 
   assert.equal(result.status, 200, `${path}: ${JSON.stringify(result.data)}`);
   return result.data;
 }
+
+test("poker variants accept isolated demo bets and keep private receipts separate", { timeout: 60_000 }, async () => {
+  const a = await visitor(), b = await visitor();
+  for (const game of POKER_GAMES) {
+    let state = await ok(a, `poker/${game}/table`);
+    const deadline = Date.now() + 45_000;
+    while ((state.round.phase !== "betting" || state.round.closesAt - state.serverNow < 3000) && Date.now() < deadline) {
+      await new Promise(resolve => setTimeout(resolve, 250));
+      state = await ok(a, `poker/${game}/table`);
+    }
+    assert.equal(state.round.phase, "betting");
+    assert.ok(state.round.board.every((card: unknown) => card === null));
+    assert.equal(state.round.nonce, undefined);
+    const payload = { roundId: state.round.id, quoteId: state.quoteId, requestId: randomUUID(), selections: [{ market: "p0-back", amountPaise: "10000" }] };
+    await ok(a, `poker/${game}/bet`, payload);
+    const replay = await ok(a, `poker/${game}/bet`, payload);
+    assert.equal(replay.slips.length, 1);
+    assert.equal(replay.balancePaise, String(DEMO_COINS));
+    assert.equal((await ok(b, `poker/${game}/table`)).slips.length, 0);
+  }
+  await command("remove", { token: a.token });
+  assert.equal((await request(a, "poker/poker-one-day/table")).status, 401);
+});
 
 test("real instant bets settle, wallet stays unlimited, and accounts cannot read another hand", async () => {
   const a = await visitor(), b = await visitor();

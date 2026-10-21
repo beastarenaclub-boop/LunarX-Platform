@@ -18,7 +18,7 @@ import {
 } from "../services/teenPatti";
 import {
   settleTeenPattiBets,
-  teenPattiReturnMultiplier,
+  teenPattiPayouts,
   type TeenPattiBetInput,
   type SettledTeenPattiBet,
 } from "../services/teenPattiMath";
@@ -39,7 +39,7 @@ const BetSchema = z.object({
 });
 
 const DealBody = z.object({
-  roundId: z.string().min(1).optional(),
+  roundId: z.string().min(1),
   bets: z.array(BetSchema).min(1).max(TEEN_PATTI_MAX_BETS_PER_DEAL),
 });
 
@@ -91,21 +91,11 @@ router.get("/config", async (_req, res, next) => {
     res.json({
       enabled: cfg.enabled,
       maxMultiplier: cfg.maxMultiplier,
+      minStakePaise: cfg.minStakePaise.toString(),
       maxStakePaise: cfg.maxStakePaise.toString(),
       maxBetsPerDeal: TEEN_PATTI_MAX_BETS_PER_DEAL,
       decks: TEEN_PATTI_DECKS,
-      payouts: {
-        playerA: teenPattiReturnMultiplier("playerA"),
-        playerB: teenPattiReturnMultiplier("playerB"),
-        tie: teenPattiReturnMultiplier("tie"),
-        pairPlus: {
-          pair: teenPattiReturnMultiplier("pairPlusA", "pair"),
-          color: teenPattiReturnMultiplier("pairPlusA", "color"),
-          sequence: teenPattiReturnMultiplier("pairPlusA", "sequence"),
-          pureSequence: teenPattiReturnMultiplier("pairPlusA", "pureSequence"),
-          trail: teenPattiReturnMultiplier("pairPlusA", "trail"),
-        },
-      },
+      payouts: teenPattiPayouts(cfg.maxMultiplier),
     });
   } catch (err) {
     next(err);

@@ -77,6 +77,7 @@ import { BACCARAT_ROUND_TIMING } from "@workspace/api-zod/baccarat-game";
 import {
   dealTeenPatti,
   settleTeenPattiBets,
+  teenPattiPayouts,
   type TeenPattiBetInput,
   type TeenPattiDeal,
 } from "./teenPattiMath";
@@ -132,6 +133,7 @@ export function isTableGame(code: string): code is TableGameCode {
 
 /** Config snapshot persisted on every round row. */
 export interface RoundConfigSnapshot {
+  teenPattiPayouts?: ReturnType<typeof teenPattiPayouts>;
   wheel20Version?: number;
   andarBaharMotionVersion?: number;
   lucky7CardVersion?: number;
@@ -319,13 +321,7 @@ const teenPattiAdapter: TableGameAdapter = {
       if (seen.has(b.type)) throw new Error("DUPLICATE_BET_TYPE");
       seen.add(b.type);
     }
-    const dummy: TeenPattiDeal = {
-      handACards: [0, 14, 28],
-      handBCards: [1, 15, 29],
-      handA: { category: 0, ranks: [0, 0, 0], score: 0 } as unknown as TeenPattiDeal["handA"],
-      handB: { category: 0, ranks: [0, 0, 0], score: 0 } as unknown as TeenPattiDeal["handB"],
-      winner: "tie",
-    };
+    const dummy = dealTeenPatti([0, 1, 2, 3, 4, 5]);
     const { totalStake } = settleTeenPattiBets(inputs, dummy, maxMultiplier);
     return { totalStake };
   },
@@ -359,8 +355,11 @@ const teenPattiAdapter: TableGameAdapter = {
         multiplier,
         maxMultiplier: cfg.maxMultiplier,
       })
+      .onConflictDoNothing({ target: teenPattiRoundsTable.betId })
       .returning({ id: teenPattiRoundsTable.id });
-    return row?.id ?? null;
+    if (row) return row.id;
+    const [existing] = await db.select({ id: teenPattiRoundsTable.id }).from(teenPattiRoundsTable).where(eq(teenPattiRoundsTable.betId, slip.betId));
+    return existing?.id ?? null;
   },
 };
 
@@ -418,8 +417,11 @@ const teenPattiLiveAdapter: TableGameAdapter = {
         multiplier,
         maxMultiplier: cfg.maxMultiplier,
       })
+      .onConflictDoNothing({ target: teenPattiLiveRoundsTable.betId })
       .returning({ id: teenPattiLiveRoundsTable.id });
-    return row?.id ?? null;
+    if (row) return row.id;
+    const [existing] = await db.select({ id: teenPattiLiveRoundsTable.id }).from(teenPattiLiveRoundsTable).where(eq(teenPattiLiveRoundsTable.betId, slip.betId));
+    return existing?.id ?? null;
   },
 };
 const andarBaharAdapter: TableGameAdapter = {
@@ -621,7 +623,10 @@ async function userDisplayName(userId: string): Promise<string | null> {
 }
 
 function roundCfg(round: TableRound): RoundConfigSnapshot {
-  return round.config as RoundConfigSnapshot;
+  const cfg = round.config as RoundConfigSnapshot;
+  return ["teen-patti", "teen-patti-live"].includes(round.gameCode)
+    ? { ...cfg, teenPattiPayouts: teenPattiPayouts(cfg.maxMultiplier, cfg.payoutVersion ?? 1) }
+    : cfg;
 }
 
 function snapshotConfig(cfg: {
@@ -798,6 +803,9 @@ async function advancePhase(
 export async function createTableRound(gameCode: TableGameCode): Promise<TableRound> {
   const cfg = await requireGameConfig(gameCode);
   const snap = snapshotConfig(cfg);
+  if (["teen-patti", "teen-patti-live"].includes(gameCode)) {
+    snap.teenPattiPayouts = teenPattiPayouts(snap.maxMultiplier, snap.payoutVersion);
+  }
   if (gameCode === "coin-flip") Object.assign(snap, COIN_LIVE_TIMING);
   // New coups allow 20 seconds for betting. In-flight rounds retain
   // their original deadlines; the studio adjusts playback to the snapshot.
@@ -1027,6 +1035,7 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
               userId: slip.userId,
               multiplier: creditMultiplier,
               maxMultiplierCap: cfg.maxMultiplier,
+              ...(["teen-patti", "teen-patti-live"].includes(round.gameCode) ? { teenPattiPayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "vegetable-bowl" ? { vegetablePayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "crazy-time" ? { crazyTimePayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "roulette" ? { roulettePayoutPaise: slipPayout } : {}),
@@ -1037,7 +1046,7 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
           }
         } catch (err) {
           if ((err as Error).message !== "BET_ALREADY_SETTLED") throw err;
-          if (round.gameCode === "vegetable-bowl" || round.gameCode === "crazy-time" || round.gameCode === "roulette") {
+          if (["teen-patti", "teen-patti-live", "vegetable-bowl", "crazy-time", "roulette"].includes(round.gameCode)) {
             // A restart can occur after wallet credit but before the slip receipt.
             const [credited] = await db.select({ payout: betsTable.payoutAmount }).from(betsTable).where(eq(betsTable.id, slip.betId));
             payoutAmount = credited?.payout ?? 0n;
@@ -1066,7 +1075,7 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
     }
   }
 
-  if (round.gameCode === "roulette") {
+  if (["roulette", "teen-patti", "teen-patti-live"].includes(round.gameCode)) {
     // Rebuild from receipts so a restart cannot count the same credit twice.
     await db.update(tableRoundsTable).set({
       totalPayout: sql`(select coalesce(sum(${tableRoundBetsTable.payoutAmount}), 0) from ${tableRoundBetsTable} where ${tableRoundBetsTable.roundId} = ${round.id} and ${tableRoundBetsTable.status} = 'settled')`,
@@ -1129,6 +1138,9 @@ async function placeTableBetsUnlocked(input: {
   userId: string;
   bets: unknown[];
 }): Promise<PlacedTableBet> {
+  if (["teen-patti", "teen-patti-live"].includes(input.gameCode) && !(await requireGameConfig(input.gameCode)).enabled) {
+    throw new Error("GAME_DISABLED");
+  }
   const round = await getOpenRound(input.gameCode);
   if (!round || (input.roundId != null && input.roundId !== round.id) || round.phase !== "betting" || round.bettingEndsAt.getTime() <= Date.now()) {
     throw new Error("BETTING_CLOSED");
@@ -1213,7 +1225,7 @@ async function placeTableBetsUnlocked(input: {
       .from(tableRoundsTable)
       .where(eq(tableRoundsTable.id, round.id))
       .limit(1);
-    if (!fresh[0] || fresh[0].phase !== "betting" || (["crazy-time", "roulette"].includes(input.gameCode) && fresh[0].bettingEndsAt.getTime() <= Date.now())) {
+    if (!fresh[0] || fresh[0].phase !== "betting" || (["crazy-time", "roulette", "teen-patti", "teen-patti-live"].includes(input.gameCode) && fresh[0].bettingEndsAt.getTime() <= Date.now())) {
       await refundSlip(slip);
       throw new Error("BETTING_CLOSED");
     }
@@ -1399,7 +1411,7 @@ export async function getTableRoundSnapshot(
 
   // A player's receipt must not disappear behind the 100-row public feed.
   // Crazy Time accepts a single combined slip per user, so this stays small.
-  const personalSlips = (gameCode === "coin-flip" || gameCode === "wheel-2-live" || gameCode === "crazy-time" || gameCode === "7up7down" || gameCode === "lucky-7-live") && userId
+  const personalSlips = (gameCode === "teen-patti" || gameCode === "teen-patti-live" || gameCode === "coin-flip" || gameCode === "wheel-2-live" || gameCode === "crazy-time" || gameCode === "7up7down" || gameCode === "lucky-7-live") && userId
     ? await db.select({ id: tableRoundBetsTable.id, userId: tableRoundBetsTable.userId,
       totalStake: tableRoundBetsTable.totalStake, bets: tableRoundBetsTable.bets,
       status: tableRoundBetsTable.status, payoutAmount: tableRoundBetsTable.payoutAmount,

@@ -6,6 +6,7 @@ export const DEMO_GAME_ROOTS = new Set([
   "wheel-2-live", "7up7down", "crazy-time", "dragon-tiger",
   "dragon-tiger-one-day", "rummy", "vegetable-bowl", "wingo", "forex",
   "lottery", "prize-lotto", "crash", "lunar", "bets",
+  "poker",
 ]);
 
 export function demoRouteAllowed(method: string, path: string) {

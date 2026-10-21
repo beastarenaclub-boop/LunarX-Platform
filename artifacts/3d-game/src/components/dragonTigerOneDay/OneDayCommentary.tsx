@@ -28,6 +28,7 @@ export interface OneDayAudioHandle {
 }
 
 interface Props {
+  voiceEnabled?: boolean;
   phase?: ODPhase;
   roundId?: number;
   dragon?: number;
@@ -42,6 +43,7 @@ interface Props {
 /** Speech uses the same audio output as the game, locked to the filmed take. */
 export function OneDayCommentary(props: Props) {
   const {
+    voiceEnabled = false,
     phase,
     roundId,
     dragon,
@@ -88,20 +90,21 @@ export function OneDayCommentary(props: Props) {
     const sync = () => setVisible(!document.hidden);
     document.addEventListener("visibilitychange", sync);
     const controller = new AbortController();
-    void fetch(`${MEDIA}commentary/manifest.json`, {
-      signal: controller.signal,
-      cache: "no-store",
-    })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((value) => {
-        if (!controller.signal.aborted) setClips(readCommentaryClips(value));
+    if (voiceEnabled)
+      void fetch(`${MEDIA}commentary/manifest.json`, {
+        signal: controller.signal,
+        cache: "no-store",
       })
-      .catch(() => {});
+        .then((response) => (response.ok ? response.json() : null))
+        .then((value) => {
+          if (!controller.signal.aborted) setClips(readCommentaryClips(value));
+        })
+        .catch(() => {});
     return () => {
       controller.abort();
       document.removeEventListener("visibilitychange", sync);
     };
-  }, []);
+  }, [voiceEnabled]);
 
   const activity = useCallback(
     (value: boolean) => {
@@ -124,7 +127,12 @@ export function OneDayCommentary(props: Props) {
   const clip = line ? clips[line] : undefined;
   const key = `${roundId}:${phase}:${line}`;
   const audible =
-    sound && master > 0 && voiceVolume > 0 && connected && visible;
+    voiceEnabled &&
+    sound &&
+    master > 0 &&
+    voiceVolume > 0 &&
+    connected &&
+    visible;
   const eligible =
     roundId !== undefined &&
     audible &&
@@ -147,17 +155,19 @@ export function OneDayCommentary(props: Props) {
         speaking={speaking}
         retry={musicRetry}
       />
-      <SpokenTake
-        eventKey={key}
-        clip={eligible ? clip : undefined}
-        sourceClip={clip}
-        retry={speechRetry}
-        motionEnabled={motionEnabled}
-        volume={Math.min(1, master * voiceVolume * 2)}
-        remaining={remaining}
-        onActivity={activity}
-        onFinish={finish}
-      />
+      {voiceEnabled && (
+        <SpokenTake
+          eventKey={key}
+          clip={eligible ? clip : undefined}
+          sourceClip={clip}
+          retry={speechRetry}
+          motionEnabled={motionEnabled}
+          volume={Math.min(1, master * voiceVolume * 2)}
+          remaining={remaining}
+          onActivity={activity}
+          onFinish={finish}
+        />
+      )}
     </>
   );
 }

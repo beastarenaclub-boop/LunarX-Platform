@@ -8,6 +8,7 @@ import forex from "@/assets/lobby/forex.svg";
 import lottery from "@/assets/lobby/lottery.svg";
 import prizeLotto from "@/assets/lobby/prize-lotto.svg";
 import rummy from "@/assets/lobby/rummy.svg";
+import { POKER_ART } from "@/components/poker/artwork";
 import crazyTime from "@/assets/crazy-time/studio-v2-lobby.jpg";
 import teenPattiLive from "@/assets/teenpatti/naina-betting-poster.jpg";
 import { SPORTS } from "../../../../../lib/virtual-sports/catalog.mjs";
@@ -119,6 +120,9 @@ export const LOBBY_GAMES: LobbyGame[] = [
     artwork: rummy,
     artworkHasTitle: true,
   }),
+  game("poker-one-day", "Poker 1-Day", "table", "#f3ce41", { artwork: POKER_ART["poker-one-day"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "1 day", "holdem"] }),
+  game("poker-20-20", "20-20 Poker", "table", "#84c5ee", { artwork: POKER_ART["poker-20-20"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "20-20", "holdem"] }),
+  game("poker-six-players", "Poker 6 Players", "table", "#00b48a", { artwork: POKER_ART["poker-six-players"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "6 players", "holdem"] }),
   game("lucky-7", "Lucky 7", "table", "#f9d364"),
   game("wheel-2-live", "Wheel 2.0 Live", "live", "#d683ff", { artwork: `${import.meta.env.BASE_URL}media/wheel20-live/studio-poster-v1.jpg`, label: "NEW", tags: ["wheel", "wheel 2.0", "live"] }),
   game("lucky-7-live", "Lucky 7 Live", "live", "#e5c88e", {

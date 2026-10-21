@@ -392,6 +392,7 @@ export async function playTeenPatti(
         userId: input.userId,
         multiplier: creditMultiplier,
         maxMultiplierCap: cfg.maxMultiplier,
+        teenPattiPayoutPaise: totalPayout,
       });
       payoutAmount = out.payoutAmount;
     } else {

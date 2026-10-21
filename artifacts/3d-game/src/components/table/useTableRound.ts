@@ -19,6 +19,10 @@ import {
 export type RoundPhase = "betting" | "reveal" | "settling";
 
 export interface RoundConfigSnapshot {
+  teenPattiPayouts?: {
+    playerA: number; playerB: number; tie: number;
+    pairPlus: Record<string, number>;
+  };
   andarBaharMotionVersion?: number;
   roulettePayoutBase?: number;
   vegetableOutcomeVersion?: 1 | 2;

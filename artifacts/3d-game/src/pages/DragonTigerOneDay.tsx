@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Link } from "wouter";
 import {
-  ArrowLeft,
   Check,
   CircleHelp,
   Clock3,
+  Coins,
+  House,
   LockKeyhole,
+  Megaphone,
+  MessageCircle,
   ShieldCheck,
   Swords,
   Trash2,
@@ -19,7 +22,6 @@ import {
   OD_MARKETS,
   OD_RANKS,
   OD_SUITS,
-  type ODQuote,
 } from "@workspace/api-zod/dragon-tiger-one-day";
 import { useAuth } from "@/lib/auth";
 import { useStore } from "@/game/store";
@@ -29,6 +31,10 @@ import { useOneDayTable } from "@/components/dragonTigerOneDay/useOneDayTable";
 import { AutoBetStatus } from "@/components/table/AutoBet";
 import { OneDayDealer } from "@/components/dragonTigerOneDay/OneDayDealer";
 import { OneDayStudio } from "@/components/dragonTigerOneDay/OneDayStudio";
+import {
+  OneDayCardMarkets,
+  OneDayMatchMarkets,
+} from "@/components/dragonTigerOneDay/OneDayMarkets";
 import { CardBack, CardFace } from "@/components/teenpattiLive/TableCardArt";
 import type { OneDayAudioHandle } from "@/components/dragonTigerOneDay/OneDayCommentary";
 import {
@@ -43,6 +49,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import "@/components/dragonTigerOneDay/one-day.css";
+import "@/components/dragonTigerOneDay/one-day-reference.css";
 
 const money = (paise: string | number | bigint) =>
   `₹${(Number(paise) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
@@ -108,7 +115,6 @@ function OneDayTable({ userId }: { userId?: string }) {
   const sfxVolume = useStore((s) => s.settings.sfxVolume);
   const audible = sound && masterVolume > 0 && sfxVolume > 0;
   const audio = useRef<OneDayAudioHandle>(null);
-  const [group, setGroup] = useState<"popular" | "suits" | "ranks">("popular");
   const [cue, setCue] = useState<{
     id: number;
     take: "invite" | "dragon" | "tiger";
@@ -123,23 +129,9 @@ function OneDayTable({ userId }: { userId?: string }) {
     notifyPlayStarted();
     void unlockAudio();
   };
-  const makeVoiceLoud = () => {
-    flushSync(() =>
-      updateSettings({
-        sound: true,
-        masterVolume: Math.max(masterVolume, 0.7),
-        sfxVolume: Math.max(sfxVolume, 0.8),
-      }),
-    );
-    audio.current?.play();
-    activate();
-  };
   useEffect(() => {
     document.title = "One Day Dragon Tiger · Lunar Casino";
   }, []);
-  useEffect(() => {
-    setGroup("popular");
-  }, [stage, data?.round.id]);
   useEffect(() => {
     if (!data) return;
     const key = `${data.round.id}:${data.round.phase}`;
@@ -236,45 +228,40 @@ function OneDayTable({ userId }: { userId?: string }) {
         : phase === "result"
           ? "Returns are included in your shared wallet."
           : "Accepted bets keep their original prices.";
-  const marketTile = (q: ODQuote) => {
-    const amount = game.draft.bets.find((b) => b.type === q.id)?.amountPaise;
-    return (
-      <button
-        type="button"
-        key={q.id}
-        className={`od-market ${amount ? "od-selected" : ""} od-market-${q.id}`}
-        disabled={!game.canEdit || !q.available}
-        data-testid={`od-market-${q.id}`}
-        onClick={() => {
-          activate();
-          if (game.add(q.id, coins.chip)) {
-            if (sound) playGameSound("select", OD_GAME);
-            if (Date.now() - lastCue.current > 4000) {
-              lastCue.current = Date.now();
-              setCue({
-                id: lastCue.current,
-                take:
-                  q.id === "dragon"
-                    ? "dragon"
-                    : q.id.startsWith("tiger")
-                      ? "tiger"
-                      : "invite",
-              });
-            }
-          }
-        }}
-      >
-        <span>{q.label}</span>
-        <strong>
-          {q.oddsHundredths ? (
-            `${(q.oddsHundredths / 100).toFixed(2)}×`
-          ) : (
-            <LockKeyhole size={15} />
-          )}
-        </strong>
-        {amount && <small>{money(amount)}</small>}
-      </button>
-    );
+  const marketProps = {
+    quotes: activeQuotes,
+    canEdit: game.canEdit,
+    amount: (id: string) =>
+      Number(game.draft.bets.find((bet) => bet.type === id)?.amountPaise ?? 0) +
+      (data?.slips.reduce(
+        (sum, slip) =>
+          sum +
+          slip.selections.reduce(
+            (total, bet) =>
+              total + (bet.market === id ? Number(bet.amountPaise) : 0),
+            0,
+          ),
+        0,
+      ) ?? 0),
+    selected: (id: string) => game.draft.bets.some((bet) => bet.type === id),
+    onSelect: (id: string) => {
+      activate();
+      if (game.add(id, coins.chip)) {
+        if (sound) playGameSound("select", OD_GAME);
+        if (Date.now() - lastCue.current > 4000) {
+          lastCue.current = Date.now();
+          setCue({
+            id: lastCue.current,
+            take:
+              id === "dragon"
+                ? "dragon"
+                : id.startsWith("tiger")
+                  ? "tiger"
+                  : "invite",
+          });
+        }
+      }
+    },
   };
   const verify = async () => {
     const r = data?.round;
@@ -306,13 +293,12 @@ function OneDayTable({ userId }: { userId?: string }) {
       <div className="game-shell od-shell">
         <header className="od-topbar">
           <Link href="/" className="od-back" aria-label="Back to lobby">
-            <ArrowLeft size={18} />
-            <span>Lobby</span>
+            <House size={25} />
           </Link>
           <div className="od-brand">
-            <Swords size={23} />
+            <Coins size={32} />
             <span>
-              LUNAR<small>ONE DAY STUDIO</small>
+              LUNAR<small>CASINO</small>
             </span>
           </div>
           <Link href="/wallet" className="od-wallet">
@@ -357,21 +343,31 @@ function OneDayTable({ userId }: { userId?: string }) {
             <CircleHelp size={20} />
           </button>
         </header>
-        <div className="od-heading">
-          <h1>
-            Dragon <i>&</i> Tiger <em>ONE DAY</em>
-          </h1>
-          <span className="od-round">
-            <i className={game.connected ? "od-online" : ""} /> #
-            {data?.round.id ?? "—"}
-          </span>
+        <div className="od-announcement">
+          <Megaphone size={17} aria-hidden="true" />
+          <span>One Day Dragon Tiger · Two chances. One winning card.</span>
         </div>
         <div className="od-layout">
           <section
             className="od-studio-column"
             aria-label="Dealer studio and cards"
           >
-            <OneDayStudio onVoice={makeVoiceLoud}>
+            <div className="od-heading">
+              <div>
+                <h1>ONE DAY DRAGON TIGER</h1>
+                <span className="od-round">
+                  <i className={game.connected ? "od-online" : ""} />
+                  Round ID: {data?.round.id ?? "—"}
+                </span>
+              </div>
+              <span
+                className="od-table-timer"
+                aria-label={`${game.seconds} seconds remaining`}
+              >
+                <Clock3 size={15} /> {game.seconds.toString().padStart(2, "0")}
+              </span>
+            </div>
+            <OneDayStudio>
               <OneDayDealer
                 audioRef={audio}
                 phase={phase}
@@ -409,176 +405,93 @@ function OneDayTable({ userId }: { userId?: string }) {
                 />
               </div>
             </OneDayStudio>
-            <div className="od-recent">
-              <div className="od-road">
-                {data?.history.slice(0, 12).map((r) => (
-                  <span
-                    key={r.id}
-                    className={"od-bead-" + r.winner}
-                    title={
-                      "#" +
-                      r.id +
-                      ": " +
-                      cardName(r.dragon) +
-                      " / " +
-                      cardName(r.tiger)
-                    }
-                  >
-                    {r.winner === "dragon"
-                      ? "D"
-                      : r.winner === "tiger"
-                        ? "T"
-                        : "="}
-                  </span>
-                ))}
-                {!data?.history.length && <small>Recent results</small>}
-              </div>
-              <button onClick={() => setInfo("history")}>My history ↗</button>
-            </div>
           </section>
           <section className="od-markets-panel" aria-label="Betting markets">
-            <div className={"od-phase od-phase-" + phase} role="status">
-              <span>
-                {status}
-                <small>{hint}</small>
-              </span>
-              <b>
-                <Clock3 size={16} />
-                {game.seconds.toString().padStart(2, "0")}
-              </b>
+            <OneDayMatchMarkets {...marketProps} />
+            <OneDayCardMarkets {...marketProps} side="dragon" />
+            <div data-testid={secondVisible ? "od-second-options" : undefined}>
+              <OneDayCardMarkets {...marketProps} side="tiger" />
             </div>
-            <div className="od-controls">
-              <div className="od-control-title">
-                <b>Choose coin</b>
-                <span>
-                  Round limit left{" "}
-                  <b data-testid="od-limit">{money(game.remainingLimit)}</b>
-                </span>
-              </div>
-              <TableCoinRack
-                preferences={coins}
-                chip={coins.chip}
-                onSelect={coins.selectChip}
-                maxValue={5000}
-                layout="fit"
-                disabled={!game.canEdit}
-              />
-            </div>
-            <div className="od-market-heading">
-              <b>{secondVisible ? "Match · new bhav" : "Match winner"}</b>
-              <small>Total return includes stake</small>
-            </div>
-            <div className="od-match-grid">
-              {activeQuotes.filter((q) => q.side === "match").map(marketTile)}
-            </div>
-            {secondVisible ? (
-              <div
-                className="od-second-options"
-                data-testid="od-second-options"
-              >
-                <div
-                  className="od-side-tabs"
-                  role="tablist"
-                  aria-label="Tiger card options"
-                >
-                  {(["popular", "suits", "ranks"] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      role="tab"
-                      aria-selected={group === tab}
-                      aria-controls="od-card-options"
-                      id={"od-tab-" + tab}
-                      onClick={() => setGroup(tab)}
-                    >
-                      {tab === "popular"
-                        ? "Odd / Even · Colour"
-                        : tab === "suits"
-                          ? "Suit · Type"
-                          : "Exact card"}
-                    </button>
-                  ))}
-                </div>
-                <div
-                  id="od-card-options"
-                  role="tabpanel"
-                  aria-labelledby={"od-tab-" + group}
-                >
-                  <div className="od-options-label">
-                    <b>TIGER CARD</b>
-                    <span>
-                      {group === "popular"
-                        ? "7 loses Odd/Even & Low/High"
-                        : group === "suits"
-                          ? "Face = J, Q, K"
-                          : "Ace = 1 · King = 13"}
-                    </span>
-                  </div>
-                  <div className={"od-options-grid od-options-" + group}>
-                    {activeQuotes
-                      .filter(
-                        (q) =>
-                          q.side === "tiger" &&
-                          (group === "popular"
-                            ? ["Odd / Even", "Colour", "Size"].includes(q.group)
-                            : group === "suits"
-                              ? ["Suit", "Card type"].includes(q.group)
-                              : q.group === "Exact rank"),
-                      )
-                      .map(marketTile)}
-                  </div>
-                </div>
-              </div>
-            ) : (
+            {!secondVisible && (
               <div className="od-unlock" data-testid="od-second-locked">
                 <LockKeyhole size={17} />
                 <span>
                   {game.firstPlaced
-                    ? "First bet accepted. Extra options open after Dragon."
-                    : "Place your first bet to unlock the second chance."}
+                    ? "First bet accepted. Tiger card bets open after Dragon."
+                    : "Place a first-chance match bet to unlock Tiger card bets."}
                 </span>
               </div>
             )}
-            <div className="od-bet-actions">
-              <div>
-                <small>SELECTED · NOT DEBITED</small>
-                <b data-testid="od-staged">{money(selected)}</b>
+            <div className="od-betting-dock">
+              <div className={"od-phase od-phase-" + phase} role="status">
+                <span>
+                  {status}
+                  <small>{hint}</small>
+                </span>
+                <b>
+                  <Clock3 size={16} />
+                  {game.seconds.toString().padStart(2, "0")}
+                </b>
               </div>
-              <button
-                className="od-icon"
-                aria-label="Clear selected bets"
-                disabled={!game.canEdit || !selected}
-                onClick={game.draft.clear}
-              >
-                <Trash2 size={17} />
-              </button>
-              <button
-                className="od-confirm"
-                data-testid="od-confirm"
-                disabled={!game.canEdit || !selected}
-                onClick={() => void game.submit()}
-              >
-                {game.busy ? (
-                  "Confirming…"
-                ) : game.placed ? (
-                  <>
-                    <Check size={16} /> Accepted
-                  </>
-                ) : (
-                  "Confirm " + money(selected)
-                )}
-              </button>
-            </div>
-            <div className="od-auto-line">
-              {game.placed ? (
-                <span>Accepted once · no further debit for this chance</span>
-              ) : (
-                <AutoBetStatus
-                  seconds={stage ? game.seconds : null}
-                  selected={selected > 0}
-                  busy={game.busy}
-                  onCancel={game.draft.clear}
+              <div className="od-controls">
+                <div className="od-control-title">
+                  <b>Choose coin</b>
+                  <span>
+                    Round limit left{" "}
+                    <b data-testid="od-limit">{money(game.remainingLimit)}</b>
+                  </span>
+                </div>
+                <TableCoinRack
+                  preferences={coins}
+                  chip={coins.chip}
+                  onSelect={coins.selectChip}
+                  maxValue={5000}
+                  layout="fit"
+                  disabled={!game.canEdit}
                 />
-              )}
+              </div>
+              <div className="od-bet-actions">
+                <div>
+                  <small>SELECTED · NOT DEBITED</small>
+                  <b data-testid="od-staged">{money(selected)}</b>
+                </div>
+                <button
+                  className="od-icon"
+                  aria-label="Clear selected bets"
+                  disabled={!game.canEdit || !selected}
+                  onClick={game.draft.clear}
+                >
+                  <Trash2 size={17} />
+                </button>
+                <button
+                  className="od-confirm"
+                  data-testid="od-confirm"
+                  disabled={!game.canEdit || !selected}
+                  onClick={() => void game.submit()}
+                >
+                  {game.busy ? (
+                    "Confirming…"
+                  ) : game.placed ? (
+                    <>
+                      <Check size={16} /> Accepted
+                    </>
+                  ) : (
+                    "Confirm " + money(selected)
+                  )}
+                </button>
+              </div>
+              <div className="od-auto-line">
+                {game.placed ? (
+                  <span>Accepted once · no further debit for this chance</span>
+                ) : (
+                  <AutoBetStatus
+                    seconds={stage ? game.seconds : null}
+                    selected={selected > 0}
+                    busy={game.busy}
+                    onCancel={game.draft.clear}
+                  />
+                )}
+              </div>
             </div>
             <button
               className="od-wallet-receipt"
@@ -598,11 +511,57 @@ function OneDayTable({ userId }: { userId?: string }) {
             </button>
           </section>
         </div>
-        <footer className="od-footer">
-          <span>8 decks · Ace low · ₹1 min · ₹5,000 / round</span>
-          <button onClick={() => setInfo("fairness")}>
-            <ShieldCheck size={13} /> Verify round
-          </button>
+        <Link href="/help" className="od-support-strip">
+          <MessageCircle size={23} />
+          <span>Need help? Contact support</span>
+        </Link>
+        <div className="od-recent">
+          <div className="od-road">
+            {data?.history.slice(0, 12).map((r) => (
+              <span
+                key={r.id}
+                className={"od-bead-" + r.winner}
+                title={
+                  "#" +
+                  r.id +
+                  ": " +
+                  cardName(r.dragon) +
+                  " / " +
+                  cardName(r.tiger)
+                }
+              >
+                {r.winner === "dragon" ? "D" : r.winner === "tiger" ? "T" : "="}
+              </span>
+            ))}
+            {!data?.history.length && <small>Recent results</small>}
+          </div>
+          <button onClick={() => setInfo("history")}>My history ↗</button>
+        </div>
+        <footer className="od-support-footer">
+          <Link href="/help" className="od-support-title">
+            Support <MessageCircle size={20} />
+          </Link>
+          <nav aria-label="Game help">
+            <Link href="/help">FAQ</Link>
+            <button onClick={() => setInfo("rules")}>Rules</button>
+            <button onClick={() => setInfo("fairness")}>Verify round</button>
+          </nav>
+          <div className="od-trust-row">
+            <ShieldCheck size={42} aria-hidden="true" />
+            <div>
+              <b>SHARED WALLET</b>
+              <span>One balance across your games</span>
+            </div>
+          </div>
+          <div className="od-responsible">
+            <span>18+</span> Play responsibly
+          </div>
+          <p className="od-table-limits">
+            8 decks · Ace low · ₹1 min · ₹5,000 / round
+          </p>
+          <p className="od-copyright">
+            © {new Date().getFullYear()} Lunar Casino. All rights reserved.
+          </p>
         </footer>
       </div>
       <Dialog
@@ -637,7 +596,7 @@ function OneDayTable({ userId }: { userId?: string }) {
                 Dragon opens next, followed by a 15-second second chance before
                 Tiger opens. A first-chance bet must be accepted to unlock the
                 second chance. First chance offers the match winner; Tiger card
-                options appear after Dragon opens. Both chances settle together.
+                options unlock after Dragon opens. Both chances settle together.
               </p>
               <p>
                 Eight decks are sampled afresh each round without replacing the

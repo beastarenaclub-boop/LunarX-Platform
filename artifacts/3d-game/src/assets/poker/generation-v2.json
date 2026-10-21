@@ -1,0 +1,23 @@
+{
+  "tool": "built-in imagegen (edit)",
+  "assets": [
+    {
+      "file": "poker-one-day-v2.jpg",
+      "source": "poker-one-day-v1.jpg",
+      "title": "POKER 1-DAY",
+      "prompt": "Use case: text-localization. Edit target: the supplied existing casino game artwork. Preserve its scene, palette, composition, playing cards, chips, lighting and 16:9 landscape framing. Add a prominent, beautiful, polished metallic-gold dimensional casino title directly into the image. Exact title: \"POKER 1-DAY\". Arrange \"POKER\" on the first line and \"1-DAY\" on the second line. Place this title on the dark left portion, with generous left padding, approximately within x=6% to 43% and y=34% to 62% of the whole image; the entire lettering must fit in that central vertical band so it survives a wide website banner crop. Use large, bold, crisp elegant serif letterforms with subtle bevel, bright ivory-gold highlights and dark shadow for readability even on a small mobile game thumbnail. This title is the main change, it must be a complete clearly legible integral part of the artwork. Do not add any other words, labels, slogans, watermarks, UI or borders. Keep the artwork on the right intact. Keep top and bottom edges free of title lettering."
+    },
+    {
+      "file": "poker-20-20-v2.jpg",
+      "source": "poker-20-20-v1.jpg",
+      "title": "20-20 POKER",
+      "prompt": "Use case: text-localization. Edit target: the supplied existing casino game artwork. Preserve its scene, palette, composition, playing cards, chips, lighting and 16:9 landscape framing. Add a prominent, beautiful, polished metallic-gold dimensional casino title directly into the image. Exact title: \"20-20 POKER\". Arrange \"20-20\" on the first line and \"POKER\" on the second line. Place this title on the dark left portion, with generous left padding, approximately within x=6% to 43% and y=34% to 62% of the whole image; the entire lettering must fit in that central vertical band so it survives a wide website banner crop. Use large, bold, crisp elegant serif letterforms with subtle bevel, bright ivory-gold highlights and dark shadow for readability even on a small mobile game thumbnail. This title is the main change, it must be a complete clearly legible integral part of the artwork. Do not add any other words, labels, slogans, watermarks, UI or borders. Keep the artwork on the right intact. Keep top and bottom edges free of title lettering."
+    },
+    {
+      "file": "poker-six-players-v2.jpg",
+      "source": "poker-six-players-v1.jpg",
+      "title": "POKER 6 PLAYERS",
+      "prompt": "Use case: text-localization. Edit target: the supplied existing casino game artwork. Preserve its scene, palette, composition, playing cards, chips, lighting and 16:9 landscape framing. Add a prominent, beautiful, polished metallic-gold dimensional casino title directly into the image. Exact title: \"POKER 6 PLAYERS\". Arrange \"POKER\" on the first line and \"6 PLAYERS\" on the second line. Place this title on the dark left portion, with generous left padding, approximately within x=6% to 43% and y=34% to 62% of the whole image; the entire lettering must fit in that central vertical band so it survives a wide website banner crop. Use large, bold, crisp elegant serif letterforms with subtle bevel, bright ivory-gold highlights and dark shadow for readability even on a small mobile game thumbnail. This title is the main change, it must be a complete clearly legible integral part of the artwork. Do not add any other words, labels, slogans, watermarks, UI or borders. Keep the artwork on the right intact. Keep top and bottom edges free of title lettering."
+    }
+  ]
+}

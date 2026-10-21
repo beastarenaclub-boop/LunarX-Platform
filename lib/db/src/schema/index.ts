@@ -35,6 +35,7 @@ export * from "./promotions";
 export * from "./freeBets";
 export * from "./dragonTiger";
 export * from "./dragonTigerOneDay";
+export * from "./poker";
 export * from "./rummy";
 export * from "./wingo";
 export * from "./forex";

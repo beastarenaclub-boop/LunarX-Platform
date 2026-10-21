@@ -156,6 +156,14 @@ test("standalone landing, banner controls and real catalog artwork", async ({
   expect(
     await page.locator(".b2c-game-grid [data-game-id]").count(),
   ).toBeGreaterThan(30);
+  for (const artwork of ["poker-one-day", "poker-20-20", "poker-six-players"]) {
+    await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
+      "src",
+      new RegExp(`${artwork}-v2(?:-[A-Za-z0-9_-]+)?\\.jpg$`),
+    );
+    await expect(page.getByRole("button", { name: "Explore Poker" })).toBeVisible();
+    await page.getByRole("button", { name: "Next banner" }).click();
+  }
   await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
     "src",
     /crash-games-banner\.[a-f0-9]+\.webp$/,
@@ -173,7 +181,7 @@ test("standalone landing, banner controls and real catalog artwork", async ({
   await page.getByRole("button", { name: "Next banner" }).click();
   await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
     "src",
-    /crash-games-banner\.[a-f0-9]+\.webp$/,
+    /poker-one-day-v2(?:-[A-Za-z0-9_-]+)?\.jpg$/,
   );
   await page.getByRole("button", { name: "Previous banner" }).click();
   await expect(page.locator(".b2c-hero > img")).toHaveAttribute(

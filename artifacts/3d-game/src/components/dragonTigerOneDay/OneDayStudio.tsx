@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Maximize, Minimize, Volume2, ZoomIn, ZoomOut } from "lucide-react";
+import { Maximize, Minimize, ZoomIn, ZoomOut } from "lucide-react";
 
 type View = "wide" | "dealer" | "cards";
 const VIEWS: { id: View; label: string; zoom: number; origin: string }[] = [
@@ -9,13 +9,7 @@ const VIEWS: { id: View; label: string; zoom: number; origin: string }[] = [
 ];
 
 /** Move the footage and server cards as one camera, without remounting audio. */
-export function OneDayStudio({
-  children,
-  onVoice,
-}: {
-  children: ReactNode;
-  onVoice: () => void;
-}) {
+export function OneDayStudio({ children }: { children: ReactNode }) {
   const player = useRef<HTMLDivElement>(null);
   const expandButton = useRef<HTMLButtonElement>(null);
   const [view, setView] = useState<View>("wide");
@@ -117,14 +111,6 @@ export function OneDayStudio({
           </span>
           <div className="od-studio-audio">
             <span>AI DEALER · HD</span>
-            <button
-              type="button"
-              className="od-voice-loud"
-              onClick={onVoice}
-              aria-label="Make dealer voice loud"
-            >
-              <Volume2 size={14} /> Voice loud
-            </button>
           </div>
         </div>
       </div>

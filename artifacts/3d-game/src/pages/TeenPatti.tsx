@@ -1,15 +1,29 @@
-import { TEEN_PATTI_MAIN_RETURN, TEEN_PATTI_TIE_RETURN, TEEN_PATTI_PAIR_RETURNS } from "@workspace/api-zod/game-economics";
 import { GameInformationSection } from "@/components/game/GameInformation";
-import { AutoBetStatus, BET_SEND_BUFFER_MS, useTimedBet } from "@/components/table/AutoBet";
+import {
+  AutoBetStatus,
+  BET_SEND_BUFFER_MS,
+  useChipDraft,
+  useTimedBet,
+} from "@/components/table/AutoBet";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { sfx, unlockAudio, preloadTableAudio, voiceRoundLoss, voiceRoundWin } from "@/game/audio";
+import {
+  sfx,
+  unlockAudio,
+  preloadTableAudio,
+  voiceRoundLoss,
+  voiceRoundWin,
+} from "@/game/audio";
 import { notifyPlayStarted } from "@/game/engine";
 import { useStore } from "@/game/store";
 import {
-  ArrowLeft,
+  Home,
+  Spade,
+  Settings,
+  UserRound,
+  Megaphone,
+  LockKeyhole,
   ShieldCheck,
-  Crown,
   Undo2,
   Trash2,
   RotateCcw,
@@ -40,10 +54,15 @@ import { useTableRound } from "@/components/table/useTableRound";
 import RoundPhaseBanner from "@/components/table/RoundPhaseBanner";
 import LiveBetsPanel from "@/components/table/LiveBetsPanel";
 import { formatChip } from "@/components/table/chips";
-import { TableCoinRack, useCoinPreferences } from "@/components/table/CoinSettings";
+import {
+  TableCoinRack,
+  CoinSettingsDialog,
+  useCoinPreferences,
+} from "@/components/table/CoinSettings";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
-import { useIsLgUp } from "@/hooks/use-mobile";
 import { GameRulesButton } from "@/components/game/GameRules";
+import "@/components/teenpattiLive/teen-patti-market.css";
+import "@/components/teenpattiLive/teen-patti-classic.css";
 
 type TeenPattiBetType =
   | "playerA"
@@ -59,8 +78,6 @@ const BET_LABELS: Record<TeenPattiBetType, string> = {
   pairPlusA: "Pair+ A",
   pairPlusB: "Pair+ B",
 };
-
-const BET_PAYOUT_LABELS: Record<TeenPattiBetType, string> = { playerA: `${TEEN_PATTI_MAIN_RETURN / 100}× return`, playerB: `${TEEN_PATTI_MAIN_RETURN / 100}× return`, tie: `${TEEN_PATTI_TIE_RETURN / 100}× return`, pairPlusA: `up to ${TEEN_PATTI_PAIR_RETURNS.trail / 100}×`, pairPlusB: `up to ${TEEN_PATTI_PAIR_RETURNS.trail / 100}×` };
 
 const CATEGORY_LABELS: Record<string, string> = {
   highCard: "High Card",
@@ -112,6 +129,7 @@ interface TeenPattiState {
 interface TeenPattiConfig {
   enabled: boolean;
   maxMultiplier: number;
+  minStakePaise: string;
   maxStakePaise: string;
   maxBetsPerDeal: number;
   decks: number;
@@ -135,13 +153,6 @@ interface VerifyResp extends TeenPattiState {
   verified: boolean;
 }
 
-const SPOTS: TeenPattiBetType[] = [
-  "pairPlusA",
-  "playerA",
-  "tie",
-  "playerB",
-  "pairPlusB",
-];
 const FLIP_STEP_MS = 450;
 
 function apiMessage(err: unknown, fallback: string): string {
@@ -169,7 +180,6 @@ export default function TeenPatti() {
   const { user, isLoading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const sound = useStore((s) => s.settings.sound);
-  const isLgUp = useIsLgUp();
   useEffect(() => {
     if (!authLoading && !user) navigate("/");
   }, [authLoading, user, navigate]);
@@ -213,7 +223,9 @@ export default function TeenPatti() {
   const invalidateWallet = () => {
     void qc.invalidateQueries({ queryKey: getGetWalletBalanceQueryKey() });
     void qc.invalidateQueries({ queryKey: getListMyBetsQueryKey() });
-    void qc.invalidateQueries({ queryKey: getListWalletTransactionsQueryKey() });
+    void qc.invalidateQueries({
+      queryKey: getListWalletTransactionsQueryKey(),
+    });
     void qc.invalidateQueries({ queryKey: ["teenpatti.recent"] });
   };
 
@@ -221,11 +233,8 @@ export default function TeenPatti() {
 
   const round = useTableRound<TeenPattiDeal>("teen-patti", {
     onBettingOpen: () => {
-      // Fresh window: clear reveal state only. Staged chips are KEPT so bets
-      // queued while betting was closed carry into this round; if the player
-      // queued them, they are auto-placed now.
+      // A draft belongs to one round; the draft hook clears it at rollover.
       setRevealRoundId(null);
-
     },
     onResult: (_outcome, roundId) => {
       unlockAudio();
@@ -259,9 +268,13 @@ export default function TeenPatti() {
 
   const coinPreferences = useCoinPreferences("teen-patti", user?.id);
   const { chip, selectChip: setChip } = coinPreferences;
-  const roundWin = useRoundWin({ game: "teen-patti", userId: user?.id, roundId,
-    eligible: phase === "settling", bets: myBets });
-  const [bets, setBets] = useState<Map<TeenPattiBetType, number>>(new Map());
+  const roundWin = useRoundWin({
+    game: "teen-patti",
+    userId: user?.id,
+    roundId,
+    eligible: phase === "settling",
+    bets: myBets,
+  });
   const [history, setHistory] = useState<
     { spot: TeenPattiBetType; amount: number }[]
   >([]);
@@ -269,10 +282,26 @@ export default function TeenPatti() {
   const [placing, setPlacing] = useState(false);
   const [revealRoundId, setRevealRoundId] = useState<string | null>(null);
   const [fairnessOpen, setFairnessOpen] = useState(false);
+  const [coinSettingsOpen, setCoinSettingsOpen] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState<TeenPattiState | null>(null);
   const [verifyData, setVerifyData] = useState<VerifyResp | null>(null);
 
-  const disabledGame = config.data && !config.data.enabled;
+  const disabledGame = config.data?.enabled !== true;
+  const payouts = roundConfig?.teenPattiPayouts ?? config.data?.payouts;
+  const maxStakePaise =
+    roundConfig?.maxStakePaise ?? config.data?.maxStakePaise ?? "0";
+  const minStakePaise =
+    roundConfig?.minStakePaise ?? config.data?.minStakePaise ?? "0";
+  const draft = useChipDraft<TeenPattiBetType>(
+    roundId,
+    !placing && !disabledGame && bettingOpen && remainingMs > 0,
+    balance.data?.balance ?? "0",
+    maxStakePaise,
+  );
+  const bets = useMemo(
+    () => new Map(draft.bets.map((b) => [b.type, Number(b.amountPaise) / 100])),
+    [draft.bets],
+  );
 
   const totalStaked = useMemo(
     () => [...bets.values()].reduce((s, v) => s + v, 0),
@@ -288,7 +317,13 @@ export default function TeenPatti() {
     () => myBets.reduce((s, b) => s + BigInt(b.payoutAmount), 0n),
     [myBets],
   );
-  const settled = myBets.some((b) => b.status === "settled");
+  const settled =
+    myBets.length > 0 &&
+    myBets.every((b) => b.status === "settled" || b.status === "refunded");
+  const activeStakePaise = myBets
+    .filter((b) => b.status !== "refunded")
+    .reduce((sum, b) => sum + BigInt(b.totalStake), 0n);
+  const netPayoutPaise = myPayoutPaise - activeStakePaise;
 
   // Results strip from the shared clock's recent outcomes (oldest → newest;
   // hook.recent is newest-first).
@@ -318,38 +353,62 @@ export default function TeenPatti() {
   const placeBet = (spot: TeenPattiBetType) => {
     // Draft chips belong only to the current betting window.
     if (placing || disabledGame || !bettingOpen || remainingMs <= 0) return;
+    if (!draft.stage([{ type: spot, amountPaise: rupeesToPaise(chip) }])) {
+      toast.error("Check your balance and table limits");
+      return;
+    }
     unlockAudio();
     if (sound) sfx.chipPlace();
-    setBets((prev) => {
-      const next = new Map(prev);
-      next.set(spot, (next.get(spot) ?? 0) + chip);
-      return next;
-    });
     setHistory((h) => [...h, { spot, amount: chip }]);
   };
 
   const undo = () => {
     const last = history[history.length - 1];
-    if (!last) return;
-    setHistory((h) => h.slice(0, -1));
-    setBets((prev) => {
-      const next = new Map(prev);
-      const existing = next.get(last.spot) ?? 0;
-      const remaining = existing - last.amount;
-      if (remaining > 0) next.set(last.spot, remaining);
-      else next.delete(last.spot);
-      return next;
-    });
+    if (!last || placing || !bettingOpen || remainingMs <= 0) return;
+    const next = new Map(bets);
+    const existing = next.get(last.spot) ?? 0;
+    const remaining = existing - last.amount;
+    if (remaining > 0) next.set(last.spot, remaining);
+    else next.delete(last.spot);
+    if (
+      draft.stage(
+        [...next].map(([type, amount]) => ({
+          type,
+          amountPaise: rupeesToPaise(amount),
+        })),
+        true,
+      )
+    ) {
+      setHistory((h) => h.slice(0, -1));
+    }
   };
 
   const clearBets = () => {
-    setBets(new Map());
+    draft.clear();
     setHistory([]);
   };
 
   const rebet = () => {
-    if (!lastBetsRef.current || !bettingOpen || remainingMs <= 0 || placing) return;
-    setBets(new Map(lastBetsRef.current));
+    if (
+      !lastBetsRef.current ||
+      disabledGame ||
+      !bettingOpen ||
+      remainingMs <= 0 ||
+      placing
+    )
+      return;
+    if (
+      !draft.stage(
+        [...lastBetsRef.current].map(([type, amount]) => ({
+          type,
+          amountPaise: rupeesToPaise(amount),
+        })),
+        true,
+      )
+    ) {
+      toast.error("Check your balance and table limits");
+      return;
+    }
     setHistory([]);
   };
 
@@ -359,16 +418,35 @@ export default function TeenPatti() {
       if (!auto) toast.error("Place at least one chip on the table");
       return;
     }
-    if (!bettingOpen) return;
+    if (
+      !bettingOpen ||
+      disabledGame ||
+      !roundId ||
+      round.phaseEndsAt == null ||
+      round.toLocalTime(round.phaseEndsAt) - Date.now() <= 300
+    )
+      return;
+    const draftTotal = draft.bets.reduce(
+      (sum, bet) => sum + BigInt(bet.amountPaise),
+      0n,
+    );
+    if (
+      draftTotal < BigInt(minStakePaise) ||
+      draftTotal > BigInt(maxStakePaise) ||
+      draftTotal > BigInt(balance.data?.balance ?? "0")
+    ) {
+      toast.error(
+        `Check balance and table limits (minimum ₹${formatRupees(minStakePaise)})`,
+      );
+      clearBets();
+      return;
+    }
     if (placingLockRef.current) return;
     placingLockRef.current = true;
     unlockAudio();
     setPlacing(true);
     try {
-      const payload = [...bets.entries()].map(([type, amount]) => ({
-        type,
-        amountPaise: rupeesToPaise(amount),
-      }));
+      const payload = draft.bets;
       await customFetch("/api/teen-patti/deal", {
         method: "POST",
         credentials: "include",
@@ -396,11 +474,19 @@ export default function TeenPatti() {
     }
   };
 
-  useEffect(() => { clearBets(); }, [round.roundId, round.phase]);
+  useEffect(() => {
+    clearBets();
+  }, [round.roundId, round.phase]);
   useTimedBet({
     roundKey: round.roundId,
-    deadline: round.phaseEndsAt == null ? null : round.toLocalTime(round.phaseEndsAt) - BET_SEND_BUFFER_MS,
-    expiresAt: round.phaseEndsAt == null ? null : round.toLocalTime(round.phaseEndsAt) - 300,
+    deadline:
+      round.phaseEndsAt == null
+        ? null
+        : round.toLocalTime(round.phaseEndsAt) - BET_SEND_BUFFER_MS,
+    expiresAt:
+      round.phaseEndsAt == null
+        ? null
+        : round.toLocalTime(round.phaseEndsAt) - 300,
     armed: bets.size > 0,
     enabled: !!user && bettingOpen && !placing && config.data?.enabled === true,
     submit: () => placeBets(true),
@@ -412,16 +498,16 @@ export default function TeenPatti() {
     if (phase !== "settling" || !settled || !roundId) return;
     if (settledToastRef.current === roundId) return;
     settledToastRef.current = roundId;
-    const won = myPayoutPaise > 0n;
+    const won = netPayoutPaise > 0n;
     if (sound) {
-      if (!won) sfx.tableLose("teen-patti");
+      if (netPayoutPaise < 0n) sfx.tableLose("teen-patti");
       if (won) voiceRoundWin("teen-patti", roundId);
-      else voiceRoundLoss("teen-patti", roundId);
+      else if (netPayoutPaise < 0n) voiceRoundLoss("teen-patti", roundId);
     }
     if (won) {
-      toast.success(`You won ₹${formatRupees(myPayoutPaise.toString())}!`);
+      toast.success(`Net win ₹${formatRupees(netPayoutPaise.toString())}!`);
     }
-  }, [phase, settled, roundId, myPayoutPaise, sound]);
+  }, [phase, settled, roundId, netPayoutPaise, sound]);
 
   const openVerify = async (r: TeenPattiState) => {
     setVerifyOpen(r);
@@ -442,14 +528,62 @@ export default function TeenPatti() {
   const winnerLabel = (w: string) =>
     w === "tie" ? "Tie" : w === "playerA" ? "Player A wins" : "Player B wins";
 
-
-  const spotStyles: Record<TeenPattiBetType, string> = {
-    playerA: "bg-amber-900/50 border-amber-500/50 hover:bg-amber-900/70",
-    playerB: "bg-rose-900/50 border-rose-500/50 hover:bg-rose-900/70",
-    tie: "bg-emerald-900/50 border-emerald-500/50 hover:bg-emerald-900/70",
-    pairPlusA: "bg-amber-950/60 border-amber-500/30 hover:bg-amber-950/80",
-    pairPlusB: "bg-rose-950/60 border-rose-500/30 hover:bg-rose-950/80",
+  const locked =
+    placing ||
+    config.data?.enabled !== true ||
+    !bettingOpen ||
+    remainingMs <= 0;
+  const marketButton = (spot: TeenPattiBetType) => {
+    const pairPlus = spot === "pairPlusA" || spot === "pairPlusB";
+    const price = pairPlus
+      ? spot === "pairPlusA"
+        ? "A"
+        : "B"
+      : (payouts?.[spot as "playerA" | "playerB" | "tie"].toFixed(2) ?? "—");
+    return (
+      <button
+        type="button"
+        className="tp20-market-button"
+        data-game-bet
+        data-testid={"spot-" + spot}
+        disabled={locked}
+        onClick={() => placeBet(spot)}
+        aria-label={
+          BET_LABELS[spot] + (locked ? " · Betting closed" : " · " + price)
+        }
+        title={
+          BET_LABELS[spot] +
+          " · " +
+          (pairPlus
+            ? `up to ${payouts?.pairPlus.trail ?? "—"}×`
+            : `${price}× return`)
+        }
+        data-won={shown?.winner === spot}
+      >
+        {locked ? (
+          <LockKeyhole size={21} aria-hidden="true" />
+        ) : (
+          <span className="tp20-market-value">{price}</span>
+        )}
+        {(bets.get(spot) ?? 0) > 0 && (
+          <span className="tp20-market-chip" data-testid={"chipstack-" + spot}>
+            {formatChip(bets.get(spot)!)}
+          </span>
+        )}
+      </button>
+    );
   };
+  const unavailableMarket = (market: string, side: string) => (
+    <button
+      type="button"
+      className="tp20-market-button"
+      disabled
+      aria-label={market + ", Player " + side + " · Unavailable"}
+      title="This market is not available at this table"
+    >
+      <LockKeyhole size={21} aria-hidden="true" />
+    </button>
+  );
 
   const resultSlot = shown ? (
     <span className="flex items-center gap-2">
@@ -458,13 +592,17 @@ export default function TeenPatti() {
         <span
           className={cn(
             "font-mono font-black",
-            myPayoutPaise > 0n ? "text-emerald-300" : "text-rose-300",
+            netPayoutPaise > 0n
+              ? "text-emerald-300"
+              : netPayoutPaise < 0n
+                ? "text-rose-300"
+                : "text-white/70",
           )}
           data-testid="text-result-payout"
         >
-          {myPayoutPaise > 0n
-            ? `+₹${formatRupees(myPayoutPaise.toString())}`
-            : "No win"}
+          {netPayoutPaise === 0n
+            ? "Stake returned"
+            : `${netPayoutPaise > 0n ? "+" : "−"}₹${formatRupees((netPayoutPaise < 0n ? -netPayoutPaise : netPayoutPaise).toString())} net`}
         </span>
       )}
     </span>
@@ -473,6 +611,14 @@ export default function TeenPatti() {
   // Secondary panels are available from the information button.
   const historyPanels = (
     <>
+      <Button
+        variant="ghost"
+        onClick={() => setFairnessOpen(true)}
+        data-testid="btn-fairness"
+      >
+        <ShieldCheck size={16} />
+        Provably fair
+      </Button>
       {/* Results strip */}
       <div className="rounded-xl bg-[#1b0d10] border border-white/5 p-3 flex flex-col gap-2">
         <div className="text-[11px] uppercase font-bold text-white/50">
@@ -567,269 +713,257 @@ export default function TeenPatti() {
   );
 
   return (
-    <div className="game-page min-h-[100dvh] w-full overflow-x-clip bg-[#120608] text-white flex flex-col items-center safe-pb">
+    <div className="game-page tp20-page tp20-reference-ui tp2020-classic min-h-[100dvh] w-full text-white">
       <GameInformationSection>{historyPanels}</GameInformationSection>
-      <div className="game-shell w-full max-w-7xl flex flex-col">
-        {/* Top bar */}
-        <div className="sticky top-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 bg-[#120608]/90 backdrop-blur-md border-b border-white/5 safe-pt">
-          <div className="flex items-center gap-2 min-w-0">
-            <Link href="/">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white/70 hover:text-white h-10 w-10 rounded-full"
-                data-testid="btn-back"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-9 h-9 rounded bg-gradient-to-tr from-amber-500 to-rose-600 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.35)]">
-                <Crown className="w-5 h-5 text-white" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-base sm:text-lg font-black tracking-tight uppercase truncate">
-                  Teen Patti 20/20
-                </h1>
-                <p className="text-[10px] text-white/40 leading-none truncate">
-                  A vs B • Single deck • Provably fair
-                </p>
-              </div>
-            </div>
+      <div className="game-shell">
+        <header className="tpl-page-header tp20-topbar safe-pt">
+          <Link
+            href="/"
+            className="tp20-home-link"
+            aria-label="Back to lobby"
+            data-testid="btn-back"
+          >
+            <Home size={26} />
+          </Link>
+          <div className="tp20-wordmark">
+            <Spade aria-hidden="true" />
+            <h1>
+              TEEN PATTI<span>20 / 20</span>
+            </h1>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex flex-col items-end mr-1">
-              <span className="text-[10px] text-white/50 font-medium uppercase">
-                Balance
-              </span>
-              <span
-                className="text-sm font-bold text-emerald-400 font-mono"
-                data-testid="text-teenpatti-balance"
-              >
-                ₹{formatRupees(balance.data?.balance ?? "0")}
-              </span>
-            </div>
-            <GameRulesButton gameCode="teen-patti" />
-            <GameInformationSection><Button
-              variant="ghost"
-              size="icon"
-              className="text-white/70 hover:text-white h-10 w-10 rounded-full"
-              aria-label="Fairness"
-              onClick={() => setFairnessOpen(true)}
-              data-testid="btn-fairness"
+          <div className="tp20-account">
+            <span
+              className="tp20-account-balance"
+              data-testid="text-teenpatti-balance"
+              aria-label="Balance"
             >
-              <ShieldCheck className="w-5 h-5" />
-            </Button></GameInformationSection>
+              ₹{formatRupees(balance.data?.balance ?? "0")}
+            </span>
+            <span className="tp20-account-name">
+              <UserRound size={13} />
+              {user.isDemo ? "Demo" : user.displayName || "Player"}
+            </span>
           </div>
+          <button
+            type="button"
+            className="tp20-settings"
+            aria-label="Coin and sound settings"
+            onClick={() => setCoinSettingsOpen(true)}
+          >
+            <Settings size={25} />
+          </button>
+        </header>
+        <div className="tp20-announcement">
+          <span>20–20 Teen Patti · Pick your player. Follow the cards.</span>
+          <Megaphone size={20} aria-hidden="true" />
         </div>
-
         {disabledGame && (
-          <div className="m-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200 text-sm">
+          <p className="tp2020-disabled" role="status">
             Teen Patti is currently disabled by the operator.
-          </div>
+          </p>
         )}
-
-        {/* Round timer banner — always visible near the top. */}
-        <div className="px-3 pt-3">
-          <RoundPhaseBanner
-            phase={phase}
-            remainingMs={remainingMs}
-            durationMs={phaseDurationMs}
-            settleDurationMs={round.config?.settleDurationMs}
-            resultSlot={resultSlot}
-          />
-        </div>
-
-        <div data-game-screen="teen-patti" className="flex-1 flex flex-col lg:flex-row gap-3 p-3 pb-44 lg:pb-3 min-h-0">
-          {/* Hands + recent */}
-          <div className="lg:w-[420px] flex flex-col gap-3">
-            <div className="rounded-xl bg-[#1b0d10] border border-amber-500/15 p-4 flex flex-col gap-4">
-              {/* Hand A */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-16 sm:w-20 shrink-0 text-right">
-                  <div className="text-[10px] uppercase font-bold text-amber-400">
-                    Player A
-                  </div>
+        <div data-game-screen="teen-patti" className="tp2020-content">
+          <section
+            className="tp2020-card-stage"
+            aria-label="Teen Patti 20/20 table"
+          >
+            <div className="tp2020-round-label">
+              <strong>20-20 TEENPATTI</strong>
+              <span title={roundId ?? undefined}>
+                Round ID: {roundId || "Connecting…"}
+              </span>
+            </div>
+            <div className="tp2020-stage-actions">
+              <Link href="/" aria-label="Game lobby">
+                <Home size={22} />
+              </Link>
+              <GameRulesButton gameCode="teen-patti" />
+            </div>
+            {shown && (
+              <div className="tp2020-hands">
+                {(["A", "B"] as const).map((side, hand) => (
                   <div
-                    className="text-[11px] font-bold text-white/70 leading-tight"
-                    data-testid="text-hand-a-category"
+                    className="tp2020-hand"
+                    key={side}
+                    aria-label={"Player " + side + " cards"}
                   >
-                    {shown ? CATEGORY_LABELS[shown.handA.category] : "–"}
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 min-h-[6rem] items-center min-w-0 flex-1">
-                  {shown ? (
-                    shown.handACards.map((card, i) => (
-                      <PlayingCard
-                        key={`${revealRoundId}-a-${i}`}
-                        card={card}
-                        flipDelayMs={i * 2 * FLIP_STEP_MS}
-                      />
-                    ))
-                  ) : (
-                    <span className="text-xs text-white/25 italic">
-                      Cards appear here
-                    </span>
-                  )}
-                </div>
-              </div>
-              {/* Hand B */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-16 sm:w-20 shrink-0 text-right">
-                  <div className="text-[10px] uppercase font-bold text-rose-400">
-                    Player B
-                  </div>
-                  <div
-                    className="text-[11px] font-bold text-white/70 leading-tight"
-                    data-testid="text-hand-b-category"
-                  >
-                    {shown ? CATEGORY_LABELS[shown.handB.category] : "–"}
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 min-h-[6rem] items-center min-w-0 flex-1">
-                  {shown &&
-                    shown.handBCards.map((card, i) => (
-                      <PlayingCard
-                        key={`${revealRoundId}-bb-${i}`}
-                        card={card}
-                        flipDelayMs={(i * 2 + 1) * FLIP_STEP_MS}
-                      />
-                    ))}
-                </div>
-              </div>
-              {/* Result line */}
-              <div className="h-8 flex items-center justify-center">
-                {shown ? (
-                  <div className="flex items-center gap-3">
-                    <Badge
-                      className={cn(
-                        "font-black uppercase",
-                        shown.winner === "playerA" && "bg-amber-600",
-                        shown.winner === "playerB" && "bg-rose-600",
-                        shown.winner === "tie" && "bg-emerald-600",
+                    <div className="tp2020-cards">
+                      {(hand === 0 ? shown.handACards : shown.handBCards).map(
+                        (card, i) => (
+                          <PlayingCard
+                            key={String(revealRoundId) + side + i}
+                            card={card}
+                            small
+                            flipDelayMs={(i * 2 + hand) * FLIP_STEP_MS}
+                            className="tp2020-playing-card"
+                          />
+                        ),
                       )}
-                      data-testid="text-result-winner"
+                    </div>
+                    <span
+                      className="sr-only"
+                      data-testid={
+                        hand === 0
+                          ? "text-hand-a-category"
+                          : "text-hand-b-category"
+                      }
                     >
-                      {winnerLabel(shown.winner)}
-                    </Badge>
-                    {settled && placedCount > 0 && (
-                      <span
-                        className={cn(
-                          "text-lg font-black font-mono",
-                          myPayoutPaise > 0n
-                            ? "text-emerald-400"
-                            : "text-rose-400",
-                        )}
-                      >
-                        {myPayoutPaise > 0n
-                          ? `+₹${formatRupees(myPayoutPaise.toString())}`
-                          : `-₹${formatRupees(placedTotalPaise.toString())}`}
-                      </span>
-                    )}
+                      {
+                        CATEGORY_LABELS[
+                          (hand === 0 ? shown.handA : shown.handB).category
+                        ]
+                      }
+                    </span>
                   </div>
-                ) : dealing ? (
-                  <span className="text-sm text-white/50 animate-pulse">
-                    Revealing…
-                  </span>
+                ))}
+              </div>
+            )}
+            <div className="tp2020-stage-status" role="status">
+              {shown ? (
+                <span data-testid="text-result-winner">
+                  {winnerLabel(shown.winner)}
+                </span>
+              ) : dealing ? (
+                "Revealing cards…"
+              ) : bettingOpen ? (
+                "Place your bets"
+              ) : (
+                "Waiting for next round…"
+              )}
+            </div>
+            <span className="tp2020-countdown" aria-label="Seconds remaining">
+              {roundId ? Math.max(0, Math.ceil(remainingMs / 1000)) : "—"}
+            </span>
+          </section>
+          <section className="tp2020-betting" aria-label="Betting markets">
+            <table className="tp20-market-table" data-testid="tp2020-markets">
+              <caption className="sr-only">
+                Teen Patti 20/20 betting markets
+              </caption>
+              <thead>
+                <tr>
+                  <td />
+                  <th scope="col">PLAYER A</th>
+                  <th scope="col">PLAYER B</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">PLAYER</th>
+                  <td>{marketButton("playerA")}</td>
+                  <td>{marketButton("playerB")}</td>
+                </tr>
+                <tr>
+                  <th scope="row">3 BACCARAT</th>
+                  <td>{unavailableMarket("3 Baccarat", "A")}</td>
+                  <td>{unavailableMarket("3 Baccarat", "B")}</td>
+                </tr>
+                <tr>
+                  <th scope="row">TOTAL</th>
+                  <td>{unavailableMarket("Total", "A")}</td>
+                  <td>{unavailableMarket("Total", "B")}</td>
+                </tr>
+                <tr>
+                  <th scope="row">PAIR PLUS</th>
+                  <td>{marketButton("pairPlusA")}</td>
+                  <td>{marketButton("pairPlusB")}</td>
+                </tr>
+                <tr>
+                  <th scope="row">
+                    <span
+                      className="tp20-suits tp20-suits-black"
+                      aria-label="Spades and clubs"
+                    >
+                      ♠ ♣
+                    </span>
+                  </th>
+                  <td>{unavailableMarket("Spades and clubs", "A")}</td>
+                  <td>{unavailableMarket("Spades and clubs", "B")}</td>
+                </tr>
+                <tr>
+                  <th scope="row">
+                    <span
+                      className="tp20-suits tp20-suits-red"
+                      aria-label="Hearts and diamonds"
+                    >
+                      ♥ ♦
+                    </span>
+                  </th>
+                  <td>{unavailableMarket("Hearts and diamonds", "A")}</td>
+                  <td>{unavailableMarket("Hearts and diamonds", "B")}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="tp20-result-row">
+              <div
+                className="tp20-history"
+                data-testid="tp2020-history"
+                aria-label="Recent winners, oldest to newest"
+              >
+                {strip.length ? (
+                  strip.slice(-10).map((entry) => (
+                    <span
+                      key={entry.id}
+                      data-winner={entry.winner}
+                      title={winnerLabel(entry.winner)}
+                    >
+                      {entry.winner === "playerA"
+                        ? "A"
+                        : entry.winner === "playerB"
+                          ? "B"
+                          : "T"}
+                    </span>
+                  ))
                 ) : (
-                  <span className="text-sm text-white/30">
-                    {bettingOpen ? "Place your bets" : "Waiting for next round…"}
-                  </span>
+                  <small>No completed rounds yet</small>
                 )}
               </div>
             </div>
-          </div>
-
-          {/* Table + controls */}
-          <div className="flex-1 flex flex-col gap-3 min-w-0">
-            {/* Betting spots */}
-            <div
-              className={cn(
-                "game-bet-grid rounded-xl bg-gradient-to-b from-[#3b1d12]/80 to-[#24100c]/80 border border-amber-500/20 p-3 sm:p-4 grid gap-2 transition-opacity",
-                !bettingOpen && "opacity-50",
-              )}
-            >
-              {SPOTS.map((spot) => {
-                const amount = bets.get(spot) ?? 0;
-                const won =
-                  shown != null &&
-                  ((spot === "playerA" && shown.winner === "playerA") ||
-                    (spot === "playerB" && shown.winner === "playerB") ||
-                    (spot === "tie" && shown.winner === "tie"));
-                return (
-                  <button
-                    key={spot}
-                    type="button"
-                    onClick={() => placeBet(spot)}
-                    disabled={placing || !!disabledGame || !bettingOpen || remainingMs <= 0}
-                    className={cn(
-                      "relative rounded-xl border-2 p-2 sm:p-4 min-h-[72px] sm:min-h-[92px] flex flex-col items-center justify-center gap-1 transition-colors disabled:cursor-not-allowed min-w-0",
-                      spotStyles[spot],
-                      won && "ring-2 ring-amber-400",
-                      (spot === "playerA" ||
-                        spot === "playerB" ||
-                        spot === "tie") &&
-                        "sm:min-h-[120px]",
-                    )}
-                    data-game-bet data-testid={`spot-${spot}`}
-                  >
-                    <span className="font-black uppercase tracking-wide text-xs sm:text-base text-center leading-tight break-words max-w-full">
-                      {BET_LABELS[spot]}
-                    </span>
-                    <span className="text-[10px] text-white/50 font-mono">
-                      {BET_PAYOUT_LABELS[spot]}
-                    </span>
-                    {amount > 0 && (
-                      <span
-                        className="absolute -top-2 -right-2 min-w-[2rem] h-8 px-1 rounded-full bg-amber-400 border-2 border-dashed border-amber-700 text-black text-[10px] font-black flex items-center justify-center shadow-lg"
-                        data-testid={`chipstack-${spot}`}
-                      >
-                        {formatChip(amount)}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Pair Plus paytable */}
-            <div className="rounded-xl bg-[#1b0d10] border border-white/5 p-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] font-mono text-white/50">
-              <span className="uppercase font-bold text-white/60">
-                Pair Plus:
-              </span>
-              <span>Pair {TEEN_PATTI_PAIR_RETURNS.pair / 100}× return</span>
-              <span>Color {TEEN_PATTI_PAIR_RETURNS.color / 100}× return</span>
-              <span>Sequence {TEEN_PATTI_PAIR_RETURNS.sequence / 100}× return</span>
-              <span>Pure Seq 30:1</span>
-              <span className="text-amber-300">Trail {TEEN_PATTI_PAIR_RETURNS.trail / 100}× return</span>
-            </div>
-
-            {/* Placed slips summary */}
-            {placedCount > 0 && (
-              <div
-                className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3 flex items-center justify-between text-sm"
-                data-testid="placed-summary"
-              >
-                <span className="text-emerald-200 font-semibold">
-                  {placedCount} slip{placedCount === 1 ? "" : "s"} placed
-                </span>
-                <span className="font-mono font-black text-emerald-300">
-                  ₹{formatRupees(placedTotalPaise.toString())}
-                </span>
-              </div>
-            )}
-
-            {/* Staged bets chips (desktop) */}
-            {bets.size > 0 && (
-              <div className="hidden lg:flex flex-wrap gap-1.5">
-                {[...bets.entries()].map(([spot, amount]) => (
-                  <span
-                    key={spot}
-                    className="text-[10px] px-2 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 font-mono"
-                  >
-                    {BET_LABELS[spot]} · ₹{amount}
-                  </span>
+          </section>
+          <aside className="tp20-sidebar" aria-label="Rules and payouts">
+            <h2 className="tp20-rules-heading">RULES</h2>
+            <table className="tp20-paytable" data-testid="tp2020-paytable">
+              <caption>Pair Plus</caption>
+              <tbody>
+                {(
+                  [
+                    "pair",
+                    "color",
+                    "sequence",
+                    "pureSequence",
+                    "trail",
+                  ] as const
+                ).map((key) => (
+                  <tr key={key}>
+                    <td>{CATEGORY_LABELS[key]}</td>
+                    <td>{payouts?.pairPlus[key]?.toFixed(2) ?? "—"}×</td>
+                  </tr>
                 ))}
+              </tbody>
+            </table>
+            <p className="tp20-sidebar-note">
+              Returns include your stake. The higher ranked three-card hand
+              wins. Pair Plus pays independently. Locked markets are
+              unavailable.
+            </p>
+          </aside>
+          <div className="tp2020-extra-controls">
+            <div className="tp20-extra-market">
+              <span>TIE</span>
+              {marketButton("tie")}
+              <small>Same ranked hands</small>
+            </div>
+            <RoundPhaseBanner
+              phase={phase}
+              remainingMs={remainingMs}
+              durationMs={phaseDurationMs}
+              settleDurationMs={round.config?.settleDurationMs}
+              resultSlot={resultSlot}
+            />
+            {placedCount > 0 && (
+              <div className="tp2020-placed" data-testid="placed-summary">
+                <span>{placedCount} slips placed</span>
+                <b>₹{formatRupees(placedTotalPaise.toString())}</b>
               </div>
             )}
           </div>
@@ -840,7 +974,11 @@ export default function TeenPatti() {
           <div className="game-shell w-full max-w-7xl mx-auto p-3 flex flex-col gap-2">
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <TableCoinRack preferences={coinPreferences} chip={chip} onSelect={setChip} />
+                <TableCoinRack
+                  preferences={coinPreferences}
+                  chip={chip}
+                  onSelect={setChip}
+                />
               </div>
 
               <div className="text-right shrink-0">
@@ -890,12 +1028,25 @@ export default function TeenPatti() {
                 <RotateCcw className="w-4 h-4 sm:mr-1" />
                 <span className="hidden sm:inline">Rebet</span>
               </Button>
-              <AutoBetStatus selected={bets.size > 0} busy={placing} seconds={bets.size > 0 ? Math.ceil(remainingMs / 1000) : null} className="flex-1" />
+              <AutoBetStatus
+                selected={bets.size > 0}
+                busy={placing}
+                seconds={bets.size > 0 ? Math.ceil(remainingMs / 1000) : null}
+                className="flex-1"
+              />
             </div>
           </div>
         </div>
       </div>
 
+      {coinSettingsOpen && (
+        <CoinSettingsDialog
+          open
+          onOpenChange={setCoinSettingsOpen}
+          preferences={coinPreferences}
+          onSave={coinPreferences.save}
+        />
+      )}
       {/* Fairness dialog */}
       <RoundWinDialog win={roundWin.win} onClose={roundWin.dismiss} />
       <Dialog open={fairnessOpen} onOpenChange={setFairnessOpen}>

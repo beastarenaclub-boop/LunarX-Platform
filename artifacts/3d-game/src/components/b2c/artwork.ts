@@ -1,6 +1,26 @@
 import { b2cMedia, b2cBanner } from "./media";
+import { POKER_ART } from "../poker/artwork";
+import { POKER_GAMES } from "@workspace/api-zod/poker";
 
-export const B2C_BANNERS = [
+type StorefrontBanner = {
+  src: string;
+  srcSet?: string;
+  width: number;
+  height: number;
+  alt: string;
+  position: string;
+  poker?: boolean;
+};
+
+export const B2C_BANNERS: StorefrontBanner[] = [
+  ...POKER_GAMES.map((game) => ({
+    src: POKER_ART[game].src,
+    width: 1672,
+    height: 941,
+    alt: `${POKER_ART[game].title} — ${POKER_ART[game].subtitle}`,
+    position: "center",
+    poker: true,
+  })),
   {
     ...b2cBanner("crash-games-banner.png"),
     alt: "Crash Games — JetX and Fury Flight",
@@ -102,6 +122,9 @@ export const B2C_GAME_ORDER = [
   "teen-patti-live",
   "teen-patti",
   "rummy",
+  "poker-one-day",
+  "poker-20-20",
+  "poker-six-players",
   "blackjack",
   "lucky-7-live",
   "roulette",

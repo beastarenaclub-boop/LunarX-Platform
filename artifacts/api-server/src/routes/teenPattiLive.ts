@@ -14,7 +14,7 @@ import {
   TEEN_PATTI_LIVE_MAX_BETS_PER_ROUND,
   TEEN_PATTI_LIVE_DECKS,
 } from "../services/teenPattiLive";
-import { teenPattiReturnMultiplier } from "../services/teenPattiMath";
+import { teenPattiPayouts } from "../services/teenPattiMath";
 import { requireGameConfig } from "../services/rtp";
 import {
   placeTableBets,
@@ -32,7 +32,7 @@ const BetSchema = z.object({
 });
 
 const BetBody = z.object({
-  roundId: z.string().min(1).optional(),
+  roundId: z.string().min(1),
   bets: z.array(BetSchema).min(1).max(TEEN_PATTI_LIVE_MAX_BETS_PER_ROUND),
 });
 
@@ -83,18 +83,7 @@ router.get("/config", async (_req, res, next) => {
       // Same fixed paytable as the flat Teen Patti table — read straight from
       // the shared math module so the two games can never quote different
       // prices for the same bet.
-      payouts: {
-        playerA: teenPattiReturnMultiplier("playerA"),
-        playerB: teenPattiReturnMultiplier("playerB"),
-        tie: teenPattiReturnMultiplier("tie"),
-        pairPlus: {
-          pair: teenPattiReturnMultiplier("pairPlusA", "pair"),
-          color: teenPattiReturnMultiplier("pairPlusA", "color"),
-          sequence: teenPattiReturnMultiplier("pairPlusA", "sequence"),
-          pureSequence: teenPattiReturnMultiplier("pairPlusA", "pureSequence"),
-          trail: teenPattiReturnMultiplier("pairPlusA", "trail"),
-        },
-      },
+      payouts: teenPattiPayouts(cfg.maxMultiplier),
     });
   } catch (err) {
     next(err);

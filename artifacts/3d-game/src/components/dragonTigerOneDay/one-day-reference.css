@@ -1,0 +1,744 @@
+/* Exchange-style One Day table. Studio/camera geometry stays in one-day.css. */
+.game-viewport[data-game-viewport="dragon-tiger-one-day"] {
+  background: #202629;
+}
+.od-page {
+  padding: 0 !important;
+  color: #d7dadd;
+  background: #202629;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.game-viewport .od-shell {
+  max-width: 760px;
+  background: #2d3337;
+  box-shadow: 0 0 40px #0003;
+}
+.od-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 70px;
+  gap: 10px;
+  padding: 8px 14px;
+  border: 0;
+  background: #23282c;
+}
+.od-back {
+  justify-content: center;
+  min-width: 32px;
+  color: #b6bdc1;
+}
+.od-brand {
+  gap: 6px;
+  margin: 0;
+  color: #ffd531;
+  font-size: 30px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -1px;
+  line-height: 0.9;
+  text-shadow: 1px 2px 0 #ac6400;
+}
+.od-brand > svg {
+  width: 31px;
+  height: 35px;
+}
+.od-brand small {
+  margin-top: 6px;
+  color: #f0c75f;
+  font-size: 8px;
+  font-style: normal;
+  letter-spacing: 5px;
+  text-shadow: none;
+}
+.od-wallet {
+  gap: 6px;
+  padding: 5px 7px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #e0e3e5;
+}
+.od-wallet small {
+  color: #aeb6bb;
+  font-size: 8px;
+  letter-spacing: 0.5px;
+}
+.od-wallet b {
+  font-size: 16px;
+}
+.od-icon {
+  border-color: #69747a60;
+  border-radius: 3px;
+  background: #353c40;
+  color: #c4cbce;
+}
+.od-icon:hover {
+  background: #465158;
+}
+.od-topbar .od-icon {
+  border: 0;
+  background: transparent;
+}
+.od-announcement {
+  position: sticky;
+  top: 70px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 32px;
+  padding: 6px 12px;
+  background: #146b53;
+  color: #f0f4f3;
+  font-size: 12px;
+}
+.od-announcement svg {
+  flex-shrink: 0;
+  order: 1;
+}
+.od-announcement span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.od-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 0;
+}
+.od-studio-column,
+.od-markets-panel {
+  width: 100%;
+}
+.od-heading {
+  height: 44px;
+  padding: 5px 10px;
+  background: #0b0913;
+  border-top: 3px solid #ef4b55;
+}
+.od-heading h1 {
+  margin: 0 0 3px;
+  color: #f2d138;
+  font:
+    700 13px Arial,
+    Helvetica,
+    sans-serif;
+  letter-spacing: 0.15px;
+}
+.od-round {
+  gap: 5px;
+  color: #dedee2;
+  font-size: 10px;
+}
+.od-table-timer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #f24c59;
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.od-studio {
+  border: 0;
+  border-radius: 0;
+}
+.od-camera-controls {
+  border: 0;
+  border-radius: 0;
+  background: #23282c;
+}
+.od-camera-views button[aria-pressed="true"] {
+  color: #f0d23d;
+  background: #f0d23d14;
+  box-shadow: inset 0 0 0 1px #f0d23d35;
+}
+.od-markets-panel {
+  padding: 20px 4px 8px;
+  border: 0;
+  border-radius: 0;
+  background: #2d3337;
+}
+.od-match-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 0;
+}
+.od-market {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  gap: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #d7dadd;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  transition: filter 150ms ease;
+}
+.od-market:disabled {
+  opacity: 1;
+}
+.od-market:hover:enabled {
+  background: transparent;
+  filter: brightness(1.18);
+}
+.od-market > span {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.od-market.od-selected {
+  background: transparent;
+  box-shadow: none;
+}
+.od-market .od-bet-price {
+  display: block;
+  padding: 8px 2px 10px;
+  color: #c1c6ca;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 600;
+}
+.od-bet-face {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 46px;
+  border: 2px solid #7dc5ef;
+  background: #405969;
+}
+.od-bet-label {
+  font-size: 14px;
+  font-weight: 700;
+}
+.od-bet-stake {
+  color: #c0c6ca;
+  font-size: 12px;
+  font-weight: 400;
+}
+.od-market-lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  color: #fff;
+  background: #202426bc;
+}
+.od-market-lock svg {
+  filter: drop-shadow(0 1px 1px #0005);
+}
+.od-selected .od-bet-face {
+  box-shadow:
+    inset 0 0 0 2px #fff,
+    0 0 0 1px #fff;
+}
+.od-stake-chip {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  z-index: 3;
+  padding: 2px 4px;
+  border: 1px solid #fff7;
+  border-radius: 10px;
+  background: #0c8767;
+  color: #fff;
+  font-size: 10px;
+  line-height: 1.2;
+}
+.od-match-bet .od-bet-face {
+  min-height: 58px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 8px;
+}
+.od-match-bet .od-bet-price {
+  position: absolute;
+  top: 23px;
+  right: 12px;
+  padding: 0;
+  z-index: 1;
+}
+.od-match-bet .od-bet-label {
+  font-size: 14px;
+}
+.od-market-dragon .od-bet-face {
+  border-color: #f44e58;
+  background: #513638;
+}
+.od-market-tiger .od-bet-face {
+  border-color: #e4ca39;
+  background: #555139;
+}
+.od-market-dragon .od-bet-price {
+  right: 39px;
+}
+.od-market-tiger .od-bet-face {
+  padding-left: 40px;
+}
+.od-market-tie {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  z-index: 4;
+  width: 72px;
+  height: 72px;
+  transform: translateX(-50%);
+}
+.od-market-tie .od-bet-face {
+  height: 72px;
+  min-height: 72px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 19px;
+  padding: 9px 0 0;
+  border: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #00ae85;
+}
+.od-market-tie .od-bet-label {
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+}
+.od-market-tie .od-bet-price {
+  top: 34px;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  color: #fff;
+  text-align: center;
+  font-size: 12px;
+}
+.od-market-tie .od-bet-stake {
+  color: #e7fffa;
+  line-height: 1;
+}
+.od-market-suited-tie {
+  grid-column: 1 / -1;
+}
+.od-market-suited-tie .od-bet-face {
+  background: #273544;
+  border-color: #1554b1;
+}
+.od-market-suited-tie .od-bet-price {
+  top: 14px;
+}
+.od-market-suited-tie .od-bet-stake {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+}
+.od-market-suited-tie .od-bet-face {
+  justify-content: center;
+}
+.od-card-markets {
+  margin-top: 18px;
+}
+.od-card-markets h2 {
+  margin: 0 0 2px;
+  color: #f14d59;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.od-card-markets-tiger h2 {
+  color: #efcf36;
+}
+.od-colour-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+.od-black-suits,
+.od-red-suits {
+  font-family: Arial, "Segoe UI Symbol", sans-serif;
+  font-size: 20px;
+  text-shadow:
+    0 0 1px #fff,
+    0 1px 1px #fff8;
+}
+.od-black-suits {
+  color: #111;
+}
+.od-red-suits {
+  color: #ef4148;
+}
+.od-rank-board {
+  margin-top: 20px;
+  padding: 0 7% 8px;
+  border: 1px solid #b5bdc2;
+  background: #23282c;
+}
+.od-rank-caption {
+  display: block;
+  padding: 6px 0;
+  color: #bec5c9;
+  text-align: center;
+  font-size: 11px;
+}
+.od-rank-caption > span {
+  color: #929ba1;
+}
+.od-rank-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px 8px;
+}
+.od-rank-bet:nth-child(11) {
+  grid-column: 2;
+}
+.od-rank-bet .od-bet-face {
+  width: clamp(34px, 8.2vw, 52px);
+  min-height: 0;
+  border: 0;
+  background: transparent;
+}
+.od-rank-bet {
+  min-width: 44px;
+  min-height: 58px;
+  flex-direction: column-reverse;
+}
+.od-rank-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: clamp(34px, 8.2vw, 52px);
+  aspect-ratio: 0.7;
+  border: 1px solid #dbd148;
+  background: #fffef6;
+  color: #060606;
+  box-shadow: inset 0 0 3px #0002;
+}
+.od-rank-card > b {
+  font-size: clamp(22px, 5.4vw, 33px);
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+.od-rank-suits {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 85%;
+  font-family: Arial, "Segoe UI Symbol", sans-serif;
+  font-size: clamp(12px, 3.2vw, 18px);
+  line-height: 0.85;
+}
+.od-rank-suits > span:nth-child(even) {
+  color: #ef1220;
+}
+.od-rank-bet .od-bet-price {
+  padding: 3px 0 0;
+  font-size: 9px;
+  font-weight: 400;
+}
+.od-extra-markets {
+  margin-top: 8px;
+  border: 1px solid #707d8540;
+}
+.od-extra-markets summary {
+  padding: 12px 8px;
+  cursor: pointer;
+  color: #d4dade;
+  font-size: 12px;
+}
+.od-extra-markets summary span {
+  margin-left: 8px;
+  color: #aeb8bf;
+  font-size: 10px;
+}
+.od-extra-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  padding: 0 6px 8px;
+}
+.od-extra-grid .od-bet-label {
+  font-size: 10px;
+}
+.od-unlock {
+  min-height: 38px;
+  margin: 12px 4px 0;
+  border-color: #72828b60;
+  border-radius: 0;
+  color: #bfc8cd;
+}
+.od-betting-dock {
+  margin: 14px 0 8px;
+  padding: 10px;
+  border-top: 2px solid #00ad84;
+  background: #232a2e;
+}
+.od-phase > span {
+  color: #e2d596;
+}
+.od-phase small {
+  color: #b3bfc6;
+}
+.od-phase > b {
+  color: #f2515c;
+}
+.od-phase-second > span {
+  color: #6fe1ba;
+}
+.od-controls {
+  border-top-color: #75838b40;
+}
+.od-control-title > span {
+  color: #b5bec4;
+}
+.od-bet-actions {
+  border-top-color: #75838b40;
+}
+.od-bet-actions small {
+  color: #b3c0c7;
+}
+.od-confirm {
+  border-color: #00bd91;
+  border-radius: 3px;
+  background: #009b76;
+  color: #fff;
+}
+.od-auto-line,
+.od-auto-line button {
+  color: #b5c7c3;
+}
+.od-wallet-receipt {
+  border-color: #75838b40;
+  border-radius: 0;
+  background: #262d32;
+}
+.od-wallet-receipt > span,
+.od-wallet-receipt small {
+  color: #b9c3c9;
+}
+.od-wallet-receipt b {
+  color: #eceddf;
+}
+.od-support-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 5px 12px;
+  background: #00ac83;
+  color: #e5fff8;
+  font-size: 12px;
+}
+.od-recent {
+  padding: 8px 10px;
+  gap: 8px;
+}
+.od-road {
+  flex-wrap: nowrap;
+  flex: 1;
+  gap: 2px;
+  overflow: hidden;
+}
+.od-road > span {
+  flex: 0 0 29px;
+  width: 29px;
+  height: 29px;
+  border: 1px solid #5f676d70;
+  border-radius: 0;
+  background: #080a0b;
+  font-size: 11px;
+}
+.od-road .od-bead-dragon {
+  color: #f54e58;
+}
+.od-road .od-bead-tiger {
+  color: #e4ca39;
+}
+.od-road .od-bead-tie {
+  color: #00d39f;
+}
+.od-road > small {
+  color: #aebbc2;
+}
+.od-recent button {
+  color: #c0c8cd;
+  min-height: 30px;
+}
+.od-support-footer {
+  background: #23282c;
+}
+.od-support-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 43px;
+  padding: 8px 12px;
+  background: #434547;
+  font-size: 20px;
+  font-weight: 700;
+}
+.od-support-footer nav {
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 4px 10px;
+}
+.od-support-footer nav > * {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  color: #c1c8cd;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.od-trust-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 15px 12px;
+}
+.od-trust-row > svg {
+  color: #8bd452;
+}
+.od-trust-row b,
+.od-trust-row span {
+  display: block;
+  font-size: 12px;
+}
+.od-trust-row b {
+  margin-bottom: 4px;
+  letter-spacing: 0.6px;
+}
+.od-trust-row span {
+  color: #aeb7bd;
+}
+.od-responsible {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: #aeb7bd;
+  font-size: 11px;
+}
+.od-responsible > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 29px;
+  height: 29px;
+  border: 1px solid #e2434d;
+  border-radius: 50%;
+  color: #e2e6e8;
+  font-weight: 700;
+}
+.od-table-limits {
+  padding: 12px 8px;
+  color: #aeb7bd;
+  font-size: 10px;
+  text-align: center;
+}
+.od-copyright {
+  margin: 0;
+  padding: 16px 10px 24px;
+  border-top: 1px dashed #7b8389;
+  color: #aeb7bd;
+  font-size: 11px;
+  text-align: center;
+}
+.od-info {
+  background: #252c30 !important;
+  border-color: #78868f70 !important;
+}
+.od-page summary:focus-visible {
+  outline: 2px solid #f6d389;
+  outline-offset: 2px;
+}
+@media (max-width: 480px) {
+  .od-topbar {
+    height: 58px;
+    gap: 4px;
+    padding: 5px 7px;
+  }
+  .od-brand {
+    font-size: 24px;
+  }
+  .od-brand > svg {
+    width: 25px;
+    height: 29px;
+  }
+  .od-brand small {
+    font-size: 6px;
+    letter-spacing: 4px;
+  }
+  .od-wallet {
+    padding: 4px;
+  }
+  .od-wallet small {
+    font-size: 6px;
+  }
+  .od-wallet b {
+    font-size: 13px;
+  }
+  .od-topbar .od-icon {
+    width: 30px;
+    height: 34px;
+  }
+  .od-announcement {
+    top: 58px;
+    min-height: 28px;
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+  .od-heading {
+    height: 42px;
+  }
+  .od-heading h1 {
+    font-size: 12px;
+  }
+  .od-round {
+    font-size: 9px;
+  }
+  .od-rank-board {
+    padding-inline: 5%;
+  }
+}
+@media (max-width: 360px) {
+  .od-brand {
+    font-size: 22px;
+  }
+  .od-brand > svg {
+    display: none;
+  }
+  .od-topbar {
+    gap: 3px;
+  }
+  .od-bet-label {
+    font-size: 12px;
+  }
+  .od-rank-grid {
+    gap: 5px 4px;
+  }
+  .od-extra-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .od-control-title > span {
+    font-size: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .od-market {
+    transition: none;
+  }
+}

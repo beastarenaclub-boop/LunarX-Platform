@@ -209,6 +209,25 @@ export interface TeenPattiSettleResult {
   totalPayout: bigint;
 }
 
+/** Quote exactly the same hundredths and cap that settlement uses. */
+export function teenPattiPayouts(maxMultiplier: number, payoutVersion = 2) {
+  const cap = Math.max(1, Math.floor(maxMultiplier * 100)) / 100;
+  const quote = (type: TeenPattiBetType, category?: TeenPattiCategory) =>
+    Math.min(cap, teenPattiReturnMultiplier(type, category, payoutVersion));
+  return {
+    playerA: quote("playerA"),
+    playerB: quote("playerB"),
+    tie: quote("tie"),
+    pairPlus: {
+      pair: quote("pairPlusA", "pair"),
+      color: quote("pairPlusA", "color"),
+      sequence: quote("pairPlusA", "sequence"),
+      pureSequence: quote("pairPlusA", "pureSequence"),
+      trail: quote("pairPlusA", "trail"),
+    },
+  };
+}
+
 /**
  * Settle a list of bets against a deal. Cap: per-bet return multiplier is
  * clamped to `maxMultiplier` (hundredths-exact), mirroring baccarat.

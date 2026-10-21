@@ -61,7 +61,13 @@ import {
   type RegistryEntry,
 } from "@/components/lobby/catalog";
 import { B2CAuthDialog } from "@/components/b2c/B2CAuthDialog";
-import { B2C_BRAND, B2C_HEADLINE, B2C_HOME, B2C_ICON, B2C_LOGO } from "@/components/b2c/config";
+import {
+  B2C_BRAND,
+  B2C_HEADLINE,
+  B2C_HOME,
+  B2C_ICON,
+  B2C_LOGO,
+} from "@/components/b2c/config";
 import { applyB2CBranding } from "@/components/b2c/branding";
 import { ACCOUNT_OPTIONS } from "@/components/site/AccountOptions";
 import { B2CSlider } from "@/components/b2c/B2CSlider";
@@ -263,16 +269,23 @@ export default function B2C({
   );
   const filtering =
     category !== "all" || !!provider || !!tableFilter || !!query.trim();
-  const balance = user?.isDemo ? "∞ Demo coins" : wallet.data
-    ? `₹${formatRupees(wallet.data.balances.lunar ?? "0")}`
-    : "—";
+  const balance = user?.isDemo
+    ? "∞ Demo coins"
+    : wallet.data
+      ? `₹${formatRupees(wallet.data.balances.lunar ?? "0")}`
+      : "—";
   const activeBanner = B2C_BANNERS[slide];
   useEffect(() => {
     if (browse || authOpen || settings || menu) return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const timer = window.setInterval(() => {
-      if (reducedMotion.matches || document.hidden || bannerRef.current?.matches(":hover, :focus-within")) return;
-      setSlide(current => (current + 1) % B2C_BANNERS.length);
+      if (
+        reducedMotion.matches ||
+        document.hidden ||
+        bannerRef.current?.matches(":hover, :focus-within")
+      )
+        return;
+      setSlide((current) => (current + 1) % B2C_BANNERS.length);
     }, 6000);
     return () => window.clearInterval(timer);
   }, [browse, authOpen, settings, menu]);
@@ -313,11 +326,19 @@ export default function B2C({
     if (demoPending || isLoading) return;
     setDemoPending(true);
     try {
-      await customFetch("/api/auth/demo-login", { method: "POST", body: "{}", headers: { "Content-Type": "application/json" } });
+      await customFetch("/api/auth/demo-login", {
+        method: "POST",
+        body: "{}",
+        headers: { "Content-Type": "application/json" },
+      });
       // Reload clears game stores, cached balances and old realtime connections.
       window.location.assign(authOpen ? destination : B2C_HOME);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not start demo. Please retry.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Could not start demo. Please retry.",
+      );
       setDemoPending(false);
     }
   }
@@ -475,14 +496,26 @@ export default function B2C({
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="b2c-dropdown" align="end">
-                  <DropdownMenuItem disabled={user.isDemo} onSelect={() => navigate("/profile")}>
+                  <DropdownMenuItem
+                    disabled={user.isDemo}
+                    onSelect={() => navigate("/profile")}
+                  >
                     Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => navigate("/wallet")}>
                     Wallet
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  {ACCOUNT_OPTIONS.map(({ href, label, icon: Icon }) => <DropdownMenuItem key={href} disabled={user.isDemo && href.startsWith("/settings/")} onSelect={() => navigate(href)}><Icon size={16} />{label}</DropdownMenuItem>)}
+                  {ACCOUNT_OPTIONS.map(({ href, label, icon: Icon }) => (
+                    <DropdownMenuItem
+                      key={href}
+                      disabled={user.isDemo && href.startsWith("/settings/")}
+                      onSelect={() => navigate(href)}
+                    >
+                      <Icon size={16} />
+                      {label}
+                    </DropdownMenuItem>
+                  ))}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     disabled={logout.isPending}
@@ -503,13 +536,15 @@ export default function B2C({
               >
                 Login
               </button>
-              {canDemo && <button
-                className="b2c-button"
-                disabled={demoPending || isLoading}
-                onClick={startDemo}
-              >
-                {demoPending ? "Starting…" : "Demo"}
-              </button>}
+              {canDemo && (
+                <button
+                  className="b2c-button"
+                  disabled={demoPending || isLoading}
+                  onClick={startDemo}
+                >
+                  {demoPending ? "Starting…" : "Demo"}
+                </button>
+              )}
             </>
           )}
         </div>
@@ -525,7 +560,7 @@ export default function B2C({
           {!browse && (
             <>
               <section
-                className="b2c-hero"
+                className={`b2c-hero${activeBanner.poker ? " b2c-poker-hero" : ""}`}
                 ref={bannerRef}
                 aria-label="Featured games"
                 aria-roledescription="carousel"
@@ -540,6 +575,19 @@ export default function B2C({
                   style={{ objectPosition: activeBanner.position }}
                   fetchPriority="high"
                 />
+                {activeBanner.poker && (
+                  <div className="b2c-poker-hero-copy">
+                    <button
+                      onClick={() => {
+                        chooseCategory("table");
+                        setQuery("poker");
+                      }}
+                    >
+                      Explore Poker <ChevronRight size={15} />
+                    </button>
+                    <small>20-second betting rounds</small>
+                  </div>
+                )}
                 <button
                   className="b2c-banner-prev"
                   aria-label="Previous banner"

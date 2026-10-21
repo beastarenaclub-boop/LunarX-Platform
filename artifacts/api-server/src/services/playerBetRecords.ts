@@ -32,5 +32,9 @@ export function playerBetRecords(userId: string | SQL) {
       LEFT JOIN LATERAL (SELECT amount FROM wallet_ledger WHERE user_id = ${userId} AND ref_type = 'rummy_payout' AND ref_id = l.ref_id LIMIT 1) paid ON true
       LEFT JOIN rummy_sessions s ON s.user_id = l.user_id AND l.ref_id = s.user_id || ':' || (s.state->'table'->>'round')
       WHERE l.user_id = ${userId} AND l.ref_type = 'rummy_bet' AND l.amount < 0
+    UNION ALL SELECT 'poker:' || b.id, b.created_at, r.game, b.round_id::text,
+      b.stake_paise::text, b.payout_paise::text,
+      CASE WHEN b.payout_paise IS NULL THEN 'placed' WHEN b.payout_paise > 0 THEN 'won' ELSE 'lost' END
+      FROM poker_bets b JOIN poker_rounds r ON r.id = b.round_id WHERE b.user_id = ${userId}
   `;
 }

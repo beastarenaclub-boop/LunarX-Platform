@@ -1,0 +1,215 @@
+/* The lobby's Teen Patti 20/20 route is the card table, separate from Live. */
+.tp2020-classic {
+  font-family: Arial, sans-serif;
+}
+.game-viewport .tp2020-classic .game-shell {
+  max-width: 1180px;
+  margin-inline: auto;
+}
+.tp2020-classic .tp20-announcement {
+  min-height: 34px;
+  padding: 0 12px;
+}
+.game-viewport .tp2020-classic .tp2020-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 0 12px;
+  padding: 0;
+}
+.tp2020-card-stage {
+  position: relative;
+  grid-column: 1;
+  width: 100%;
+  aspect-ratio: 1.8;
+  background: linear-gradient(165deg, #080510, #150c25);
+  overflow: hidden;
+}
+.tp2020-round-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  gap: 4px;
+  max-width: 70%;
+  padding: 7px 8px;
+  background: #030207a8;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+.tp2020-round-label strong {
+  color: #efd632;
+  font-size: 12px;
+}
+.tp2020-round-label span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tp2020-stage-actions {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: grid;
+  gap: 5px;
+}
+.tp2020-stage-actions a,
+.tp2020-stage-actions button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border: 1px solid #d6d6d6;
+  border-radius: 50%;
+  background: #08060faa;
+  color: #eee;
+}
+.tp2020-hands {
+  position: absolute;
+  top: 32%;
+  left: 0;
+  padding: 5px;
+  border-radius: 0 7px 7px 0;
+  background: #030207cc;
+}
+.tp2020-hand + .tp2020-hand {
+  margin-top: 5px;
+}
+.tp2020-cards {
+  display: flex;
+  gap: 4px;
+}
+.tp2020-classic .tp2020-playing-card {
+  width: 28px;
+  height: 40px;
+}
+.tp2020-playing-card > div > div {
+  border-radius: 1px;
+}
+.tp2020-playing-card > div > div:last-child {
+  border-color: #edd4c4;
+  background: repeating-linear-gradient(
+    45deg,
+    #af1731,
+    #af1731 2px,
+    #eb9699 2px,
+    #eb9699 3px
+  ) !important;
+}
+.tp2020-stage-status {
+  position: absolute;
+  bottom: 12px;
+  left: 10px;
+  right: 50px;
+  color: #b3a8c8;
+  font-size: 11px;
+}
+.tp2020-countdown {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  color: #efd632;
+  font: 700 20px/1 monospace;
+}
+.tp2020-betting {
+  grid-column: 1;
+  background: #2e3539;
+}
+.tp2020-classic .tp20-sidebar {
+  grid-column: 2;
+  grid-row: 1 / 4;
+  align-self: start;
+}
+.tp2020-classic .tp20-history > span {
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+.tp2020-classic .tp20-paytable {
+  width: 100%;
+  border-collapse: collapse;
+  color: #d5d9da;
+}
+.tp2020-classic .tp20-paytable td {
+  width: 50%;
+  border: 1px solid #454c50;
+}
+.tp2020-classic .tp20-paytable td:last-child {
+  text-align: center;
+}
+.tp2020-extra-controls {
+  display: grid;
+  gap: 10px;
+  grid-column: 1;
+  padding: 10px;
+  background: #2e3539;
+}
+.tp2020-placed {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #bce9ce;
+}
+.tp2020-disabled {
+  padding: 12px;
+  background: #5c4724;
+  color: #ffe8ad;
+  font-size: 13px;
+}
+.game-viewport .tp2020-classic .game-bottom-bar {
+  position: static;
+  width: 100%;
+  margin: 0;
+  background: #272e32;
+  border-top: 1px solid #464e54;
+}
+.tp2020-classic .game-bottom-bar > .game-shell {
+  padding: 12px;
+}
+.tp2020-classic .game-bottom-bar .table-coin-controls {
+  flex-wrap: wrap;
+}
+@media (max-width: 1023px) {
+  .game-viewport .tp2020-classic .tp2020-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tp2020-classic .tp20-sidebar {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .tp2020-classic .tp20-market-table {
+    font-size: 13px;
+  }
+  .tp2020-classic .tp20-rules-heading {
+    margin-bottom: 10px;
+  }
+}
+@media (max-width: 559px) {
+  .tp2020-round-label {
+    font-size: 9px;
+    padding: 6px;
+    gap: 3px;
+  }
+  .tp2020-round-label strong {
+    font-size: 10px;
+  }
+  .tp2020-classic .tp20-market-table {
+    font-size: 11px;
+  }
+  .tp2020-classic .tp2020-playing-card {
+    width: 21px;
+    height: 30px;
+  }
+  .tp2020-cards {
+    gap: 3px;
+  }
+  .tp2020-playing-card span {
+    font-size: 12px;
+  }
+  .tp2020-classic .tp20-topbar {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}

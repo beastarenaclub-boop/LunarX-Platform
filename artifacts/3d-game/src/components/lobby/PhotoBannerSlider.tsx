@@ -6,7 +6,8 @@ import type { LobbyGame } from "./catalog";
 import roundOne from "@/assets/lobby/banners/round-one.png";
 import megaFireBlaze from "@/assets/lobby/banners/mega-fire-blaze.png";
 import redDoor from "@/assets/lobby/banners/red-door-roulette.png";
-import gravityPoker from "@/assets/lobby/banners/gravity-poker.png";
+import { POKER_ART } from "@/components/poker/artwork";
+import { POKER_GAMES } from "@workspace/api-zod/poker";
 import arcadeRoulette from "@/assets/lobby/banners/arcade-roulette.png";
 import "./photo-banner-slider.css";
 
@@ -18,14 +19,14 @@ interface Banner {
   alt: string;
   gameId?: string;
   launchUrl?: string;
+  artworkHasTitle?: boolean;
 }
 
 const BANNERS: Banner[] = [
+  ...POKER_GAMES.map(code => ({ image: POKER_ART[code].src, title: POKER_ART[code].title, subtitle: "20-second betting · " + POKER_ART[code].subtitle, color: POKER_ART[code].accent, alt: POKER_ART[code].title + " casino poster", gameId: code, artworkHasTitle: true })),
   { image: roundOne, title: "Round One", subtitle: "The casino collection", color: "#eacb82", alt: "Round One casino banner with a golden vault and a roulette host", gameId: "roulette" },
   { image: megaFireBlaze, title: "Mega Fire Blaze", subtitle: "Roulette Live", color: "#f5a5f3", alt: "Mega Fire Blaze Roulette Live banner with a host and a red roulette table", gameId: "roulette" },
   { image: redDoor, title: "Red Door Roulette", subtitle: "Behind the red door", color: "#f5cd94", alt: "Red Door Roulette Live banner with a host, red door and golden roulette table", gameId: "roulette" },
-  // The Poker launch URL will be supplied by the site owner.
-  { image: gravityPoker, title: "Gravity Poker", subtitle: "A different perspective", color: "#f0c6af", alt: "Gravity Poker banner with a dealer and floating playing cards" },
   { image: arcadeRoulette, title: "Arcade Roulette", subtitle: "Take your seat at the wheel", color: "#eecb84", alt: "Arcade Roulette banner with a golden roulette wheel and numbered balls", gameId: "roulette" },
 ];
 
@@ -114,12 +115,14 @@ export function PhotoBannerSlider({ games }: { games: LobbyGame[] }) {
         <div className="photo-banners-viewport" ref={viewport}>
           <div className="photo-banners-track">
             {BANNERS.map((banner, index) => (
-              <div className="photo-banners-slide" key={banner.title} role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${BANNERS.length}: ${banner.title}`} aria-hidden={selected !== index} inert={selected !== index}>
+              <div className={`photo-banners-slide${banner.artworkHasTitle ? " photo-banners-titled" : ""}`} key={banner.title} role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${BANNERS.length}: ${banner.title}`} aria-hidden={selected !== index} inert={selected !== index}>
                 <img src={banner.image} alt={banner.alt} width={1200} height={384} loading="lazy" decoding="async" draggable={false} />
                 <div className="photo-banners-copy">
-                  <span style={{ color: banner.color }}>THE LUNAR COLLECTION</span>
-                  <strong>{banner.title}</strong>
-                  <p>{banner.subtitle}</p>
+                  {!banner.artworkHasTitle && <>
+                    <span style={{ color: banner.color }}>THE LUNAR COLLECTION</span>
+                    <strong>{banner.title}</strong>
+                    <p>{banner.subtitle}</p>
+                  </>}
                   <BannerPlayButton banner={banner} games={games} active={selected === index} />
                 </div>
               </div>

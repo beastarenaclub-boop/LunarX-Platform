@@ -3,7 +3,7 @@ import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { fitGameViewport } from "../../../../lib/game-ui/fitViewport";
 import { GameInformationProvider } from "./game/GameInformation";
 
-const nativeInstant = (game?: string) => INSTANT_COLLECTION.some(g => g.code === game);
+const nativeInstant = (game?: string) => game?.startsWith("poker-") || INSTANT_COLLECTION.some(g => g.code === game);
 const layouts: Record<string, string> = {
   "lucky-7": "dealer", "teen-patti-live": "dealer",
   "lucky-7-live": "lucky7-live", "wheel-2-live": "wheel20-live",

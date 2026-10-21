@@ -1,6 +1,11 @@
 import { GameInformationSection } from "@/components/game/GameInformation";
 import { GameRulesButton } from "@/components/game/GameRules";
-import { AutoBetStatus, BET_SEND_BUFFER_MS, useTimedBet, useChipDraft } from "@/components/table/AutoBet";
+import {
+  AutoBetStatus,
+  BET_SEND_BUFFER_MS,
+  useTimedBet,
+  useChipDraft,
+} from "@/components/table/AutoBet";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import {
@@ -37,8 +42,14 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTableRound, type MyBet } from "@/components/table/useTableRound";
-import LastResultBanner, { useLastRevealedOutcome } from "@/components/table/LastResultBanner";
-import { CoinSettingsButton, CoinSettingsDialog, useCoinPreferences } from "@/components/table/CoinSettings";
+import LastResultBanner, {
+  useLastRevealedOutcome,
+} from "@/components/table/LastResultBanner";
+import {
+  CoinSettingsButton,
+  CoinSettingsDialog,
+  useCoinPreferences,
+} from "@/components/table/CoinSettings";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
 import LiveBetsPanel from "@/components/table/LiveBetsPanel";
 import ChipRack, { formatChip } from "@/components/table/chips";
@@ -245,7 +256,6 @@ export default function TeenPattiLive() {
     retry: false,
     staleTime: 60_000,
   });
-  const payouts = configQuery.data?.payouts;
 
   const recentQuery = useQuery<TeenPattiLiveRoundState[]>({
     queryKey: ["teen-patti-live", "recent"],
@@ -304,6 +314,11 @@ export default function TeenPattiLive() {
 
   // Follow the live betting deadline, including its final safety cutoff.
   const showBettingControls = bettingOpen && configQuery.data?.enabled === true;
+  const payouts = config?.teenPattiPayouts ?? configQuery.data?.payouts;
+  const minStakePaise =
+    config?.minStakePaise ?? configQuery.data?.minStakePaise ?? "0";
+  const maxStakePaise =
+    config?.maxStakePaise ?? configQuery.data?.maxStakePaise ?? "0";
 
   // ---- the cards on the felt ----------------------------------------------
   // The hands from the last deal stay on the table through the next betting
@@ -407,19 +422,27 @@ export default function TeenPattiLive() {
     myBets.length > 0 && myBets.every((b) => b.status === "settled");
 
   // The felt shows only wagers accepted for the current round.
-  const draft = useChipDraft<BetType>(roundId, showBettingControls && remainingMs > 0 && !placing, balance.data?.balance ?? "0", configQuery.data?.maxStakePaise ?? "0");
-  useEffect(() => { if (phase !== "betting") draft.clear(); }, [phase]);
+  const draft = useChipDraft<BetType>(
+    roundId,
+    showBettingControls && remainingMs > 0 && !placing,
+    balance.data?.balance ?? "0",
+    maxStakePaise,
+  );
+  useEffect(() => {
+    if (phase !== "betting") draft.clear();
+  }, [phase]);
   const feltChips = useMemo<SpotAmounts>(() => {
     const out: SpotAmounts = {};
     for (const b of myBets) {
       if (!Array.isArray(b.bets)) continue;
       for (const raw of b.bets as SlipBet[]) {
         if (!raw || !SHORT_LABELS[raw.type]) continue;
-        const rupees = Number(BigInt(raw.amountPaise || "0") / 100n);
+        const rupees = Number(raw.amountPaise || "0") / 100;
         out[raw.type] = (out[raw.type] ?? 0) + rupees;
       }
     }
-    for (const bet of draft.bets) out[bet.type] = (out[bet.type] ?? 0) + Number(bet.amountPaise) / 100;
+    for (const bet of draft.bets)
+      out[bet.type] = (out[bet.type] ?? 0) + Number(bet.amountPaise) / 100;
     return out;
   }, [myBets, draft.bets]);
 
@@ -435,38 +458,96 @@ export default function TeenPattiLive() {
     [lang],
   );
 
-  const lastResult = useLastRevealedOutcome(rest?.deal ?? null, rest?.roundId, landedRound, roundId, recent);
-  const roundWin = useRoundWin({ game: "teen-patti-live", userId: user?.id, roundId,
-    eligible: phase === "settling" && landed && rest?.roundId === roundId, bets: myBets });
-  useEffect(() => { if (roundWin.win) setCoinSettingsOpen(false); }, [roundWin.win]);
+  const lastResult = useLastRevealedOutcome(
+    rest?.deal ?? null,
+    rest?.roundId,
+    landedRound,
+    roundId,
+    recent,
+  );
+  const roundWin = useRoundWin({
+    game: "teen-patti-live",
+    userId: user?.id,
+    roundId,
+    eligible: phase === "settling" && landed && rest?.roundId === roundId,
+    bets: myBets,
+  });
+  useEffect(() => {
+    if (roundWin.win) setCoinSettingsOpen(false);
+  }, [roundWin.win]);
 
   // Result audio follows the completed visual and all final server slips.
   const toastedRef = useRef<string | null>(null);
   useEffect(() => {
-    if (phase !== "settling" || !roundId || !landed || rest?.roundId !== roundId) return;
-    if (!myBets.length || myBets.some(b => b.status !== "settled" && b.status !== "refunded")) return;
+    if (
+      phase !== "settling" ||
+      !roundId ||
+      !landed ||
+      rest?.roundId !== roundId
+    )
+      return;
+    if (
+      !myBets.length ||
+      myBets.some((b) => b.status !== "settled" && b.status !== "refunded")
+    )
+      return;
     if (toastedRef.current === roundId) return;
     toastedRef.current = roundId;
-    const net = myPayoutPaise - myBets.filter(b => b.status === "settled").reduce((sum, b) => sum + BigInt(b.totalStake), 0n);
+    const net =
+      myPayoutPaise -
+      myBets
+        .filter((b) => b.status === "settled")
+        .reduce((sum, b) => sum + BigInt(b.totalStake), 0n);
     if (net === 0n) return;
     const won = net > 0n;
     if (sound) {
-      if (!won && !myBets.some(b => b.status === "settled" && BigInt(b.payoutAmount) > BigInt(b.totalStake))) sfx.tableLose("teen-patti-live");
+      if (
+        !won &&
+        !myBets.some(
+          (b) =>
+            b.status === "settled" &&
+            BigInt(b.payoutAmount) > BigInt(b.totalStake),
+        )
+      )
+        sfx.tableLose("teen-patti-live");
       // Same croupier vocabulary the other live tables use.
       if (won) voiceRoundWin("teen-patti-live", roundId);
       else voiceRoundLoss("teen-patti-live", roundId);
     }
-
   }, [phase, roundId, myBets, myPayoutPaise, sound, rest, landed]);
 
   const placeChip = (spot: BetType) => {
     unlockAudio();
-    if (!draft.stage([{ type: spot, amountPaise: rupeesToPaise(chip) }])) toast.error("Check your balance and table limits");
+    if (!draft.stage([{ type: spot, amountPaise: rupeesToPaise(chip) }]))
+      toast.error("Check your balance and table limits");
     else if (sound) sfx.teenPattiChipPlace();
   };
   const submitDraft = async () => {
-    if (!user || !showBettingControls || !roundId || placingLockRef.current || !draft.bets.length) return;
-    if (phaseEndsAt == null || toLocalTime(phaseEndsAt) - Date.now() <= 300) return;
+    if (
+      !user ||
+      !showBettingControls ||
+      !roundId ||
+      placingLockRef.current ||
+      !draft.bets.length
+    )
+      return;
+    if (phaseEndsAt == null || toLocalTime(phaseEndsAt) - Date.now() <= 300)
+      return;
+    const draftTotal = draft.bets.reduce(
+      (sum, bet) => sum + BigInt(bet.amountPaise),
+      0n,
+    );
+    if (
+      draftTotal < BigInt(minStakePaise) ||
+      draftTotal > BigInt(maxStakePaise) ||
+      draftTotal > BigInt(balance.data?.balance ?? "0")
+    ) {
+      toast.error(
+        `Check balance and table limits (minimum ₹${formatRupees(minStakePaise)})`,
+      );
+      draft.clear();
+      return;
+    }
     placingLockRef.current = true;
     setPlacing(true);
     unlockAudio();
@@ -519,9 +600,13 @@ export default function TeenPattiLive() {
 
   useTimedBet({
     roundKey: roundId,
-    deadline: phaseEndsAt == null ? null : toLocalTime(phaseEndsAt) - BET_SEND_BUFFER_MS,
+    deadline:
+      phaseEndsAt == null
+        ? null
+        : toLocalTime(phaseEndsAt) - BET_SEND_BUFFER_MS,
     expiresAt: phaseEndsAt == null ? null : toLocalTime(phaseEndsAt) - 300,
-    armed: draft.bets.length > 0, enabled: !!user && showBettingControls && !placing,
+    armed: draft.bets.length > 0,
+    enabled: !!user && showBettingControls && !placing,
     submit: submitDraft,
   });
 
@@ -565,28 +650,33 @@ export default function TeenPattiLive() {
 
   if (!user) return null;
 
-  const minStake = configQuery.data
-    ? Number(BigInt(configQuery.data.minStakePaise) / 100n)
-    : null;
-  const maxStake = configQuery.data
-    ? Number(BigInt(configQuery.data.maxStakePaise) / 100n)
-    : null;
+  const minStake = configQuery.data ? Number(minStakePaise) / 100 : null;
+  const maxStake = configQuery.data ? Number(maxStakePaise) / 100 : null;
 
   const spotPayoutLabel = (spot: BetType): string => {
     if (!payouts) return "—";
     if (spot === "pairPlusA" || spot === "pairPlusB")
-      return `≤ ${payouts.pairPlus.trail.toFixed(0)}×`;
+      return `≤ ${payouts.pairPlus.trail.toFixed(2)}×`;
     return `${payouts[spot].toFixed(2)}×`;
   };
 
-
   const resultLine = lastResult ? (
     <span data-testid="text-result-line" className="font-mono uppercase">
-      {lastResult.outcome.winner === "tie" ? t(lang, "tplTieResult")
-        : t(lang, SPOT_LABEL_KEYS[lastResult.outcome.winner]) + " " + t(lang, "tplWins")}
-      {lastResult.outcome.winner !== "tie" && <span className="ml-2 text-white/50">
-        · {categoryLabel(lastResult.outcome.winner === "playerB" ? lastResult.outcome.handB.category : lastResult.outcome.handA.category)}
-      </span>}
+      {lastResult.outcome.winner === "tie"
+        ? t(lang, "tplTieResult")
+        : t(lang, SPOT_LABEL_KEYS[lastResult.outcome.winner]) +
+          " " +
+          t(lang, "tplWins")}
+      {lastResult.outcome.winner !== "tie" && (
+        <span className="ml-2 text-white/50">
+          ·{" "}
+          {categoryLabel(
+            lastResult.outcome.winner === "playerB"
+              ? lastResult.outcome.handB.category
+              : lastResult.outcome.handA.category,
+          )}
+        </span>
+      )}
     </span>
   ) : null;
 
@@ -765,27 +855,32 @@ export default function TeenPattiLive() {
   const controls = (idSuffix = "") => (
     <>
       <div className="live-bet-status flex items-center justify-between text-[10px] font-bold uppercase text-emerald-200">
-        <span>Betting open</span><span className="font-mono tabular-nums">{Math.ceil(remainingMs / 1000)}s</span>
+        <span>Betting open</span>
+        <span className="font-mono tabular-nums">
+          {Math.ceil(remainingMs / 1000)}s
+        </span>
       </div>
-      <ChipRack key={coinPreferences.values.join(",") + coinPreferences.showCustom}
+      <ChipRack
+        key={coinPreferences.values.join(",") + coinPreferences.showCustom}
         chip={chip}
         onSelect={setChip}
         disabled={!showBettingControls || placing || remainingMs <= 0}
         idSuffix={idSuffix}
         layout="fit"
         className="live-bet-coins"
-        values={coinPreferences.values} showCustom={coinPreferences.showCustom}
+        values={coinPreferences.values}
+        showCustom={coinPreferences.showCustom}
       />
       <div
         className="live-bet-summary flex items-center justify-between gap-3 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2"
         data-testid={`text-placed-summary${idSuffix}`}
       >
         <div className="flex min-w-0 items-center gap-2">
-            <CoinSettingsButton onClick={() => setCoinSettingsOpen(true)} />
-            <span className="min-w-0 text-[10px] text-emerald-300 font-bold uppercase">
-          {t(lang, "tplPlacedThisRound")}
-        </span>
-          </div>
+          <CoinSettingsButton onClick={() => setCoinSettingsOpen(true)} />
+          <span className="min-w-0 text-[10px] text-emerald-300 font-bold uppercase">
+            {t(lang, "tplPlacedThisRound")}
+          </span>
+        </div>
         <span
           className="shrink-0 text-sm font-black font-mono text-amber-300"
           data-testid={`text-total-staked${idSuffix}`}
@@ -793,12 +888,19 @@ export default function TeenPattiLive() {
           ₹{formatRupees(placedTotalPaise.toString())}
         </span>
       </div>
-      <AutoBetStatus selected={draft.bets.length > 0} seconds={draft.bets.length ? Math.ceil(remainingMs / 1000) : null} busy={placing} onCancel={draft.clear} />
+      <AutoBetStatus
+        selected={draft.bets.length > 0}
+        seconds={draft.bets.length ? Math.ceil(remainingMs / 1000) : null}
+        busy={placing}
+        onCancel={draft.clear}
+      />
       {minStake != null && maxStake != null && (
-        <GameInformationSection><div className="live-bet-limits text-[10px] text-white/35 font-mono">
-          {t(lang, "tplLimits")} ₹{minStake.toLocaleString("en-IN")} – ₹
-          {maxStake.toLocaleString("en-IN")}
-        </div></GameInformationSection>
+        <GameInformationSection>
+          <div className="live-bet-limits text-[10px] text-white/35 font-mono">
+            {t(lang, "tplLimits")} ₹{minStake.toLocaleString("en-IN")} – ₹
+            {maxStake.toLocaleString("en-IN")}
+          </div>
+        </GameInformationSection>
       )}
     </>
   );
@@ -821,7 +923,8 @@ export default function TeenPattiLive() {
             "ring-2 ring-emerald-400 shadow-[0_0_28px_rgba(52,211,153,0.45)] scale-[1.02]",
           lost && "opacity-45",
         )}
-        data-game-bet data-testid={`spot-${spot}`}
+        data-game-bet
+        data-testid={"spot-" + spot}
       >
         <span className="font-black uppercase tracking-wide text-xs sm:text-base leading-tight text-center">
           {t(lang, SPOT_LABEL_KEYS[spot])}
@@ -832,9 +935,9 @@ export default function TeenPattiLive() {
         {amount > 0 && (
           <span
             className="absolute -top-2 -right-2 min-w-[2rem] h-8 px-1 rounded-full bg-amber-400 border-2 border-dashed border-amber-700 text-black text-[10px] font-black flex items-center justify-center shadow-lg"
-            data-testid={`chipstack-${spot}`}
+            data-testid={"chipstack-" + spot}
           >
-            {amount >= 1000 ? `${amount / 1000}k` : amount}
+            {amount >= 1000 ? String(amount / 1000) + "k" : amount}
           </span>
         )}
         {won && (
@@ -853,7 +956,13 @@ export default function TeenPattiLive() {
       onPointerDownCapture={() => tableAudio.enableAudio()}
       onKeyDownCapture={() => tableAudio.enableAudio()}
     >
-      <GameInformationSection>{liveBetsPanel}{recentResultsPanel}{pairPlusPanel}{myBetsPanel}{myDealsPanel}</GameInformationSection>
+      <GameInformationSection>
+        {liveBetsPanel}
+        {recentResultsPanel}
+        {pairPlusPanel}
+        {myBetsPanel}
+        {myDealsPanel}
+      </GameInformationSection>
       <RoundWinDialog win={roundWin.win} onClose={roundWin.dismiss} />
       <div className="game-shell w-full max-w-[1440px] flex flex-col">
         {/* Top bar */}
@@ -876,113 +985,203 @@ export default function TeenPattiLive() {
               <div className="min-w-0">
                 <h1 className="text-base sm:text-lg font-black tracking-tight uppercase truncate">
                   <span className="sm:hidden">Teen Patti</span>
-                  <span className="hidden sm:inline">{t(lang, "tplTitle")}</span>
+                  <span className="hidden sm:inline">
+                    {t(lang, "tplTitle")}
+                  </span>
                 </h1>
-                {isLgUp ? <p className="text-[10px] text-white/40 leading-none truncate">
-                  Player A vs Player B · Shared rounds
-                </p> : <p className="text-[11px] font-bold text-emerald-400 font-mono leading-tight" aria-label={t(lang, "balance")} data-testid="text-tpl-balance">
-                  ₹{formatRupees(balance.data?.balance ?? "0")}
-                </p>}
+                {isLgUp ? (
+                  <p className="text-[10px] text-white/40 leading-none truncate">
+                    Player A vs Player B · Shared rounds
+                  </p>
+                ) : (
+                  <p
+                    className="text-[11px] font-bold text-emerald-400 font-mono leading-tight"
+                    aria-label={t(lang, "balance")}
+                    data-testid="text-tpl-balance"
+                  >
+                    ₹{formatRupees(balance.data?.balance ?? "0")}
+                  </p>
+                )}
               </div>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            {isLgUp && <div className="flex flex-col items-end mr-1">
-              <span className="text-[10px] text-white/50 font-medium uppercase">
-                {t(lang, "balance")}
-              </span>
-              <span
-                className="text-sm font-bold text-emerald-400 font-mono"
-                data-testid="text-tpl-balance"
-              >
-                ₹{formatRupees(balance.data?.balance ?? "0")}
-              </span>
-            </div>}
+            {isLgUp && (
+              <div className="flex flex-col items-end mr-1">
+                <span className="text-[10px] text-white/50 font-medium uppercase">
+                  {t(lang, "balance")}
+                </span>
+                <span
+                  className="text-sm font-bold text-emerald-400 font-mono"
+                  data-testid="text-tpl-balance"
+                >
+                  ₹{formatRupees(balance.data?.balance ?? "0")}
+                </span>
+              </div>
+            )}
             <TableAudioControls audio={tableAudio} />
             <GameRulesButton gameCode="teen-patti-live" />
-            <GameInformationSection><Button
-              variant="ghost"
-              size="icon"
-              className="text-white/70 hover:text-white h-10 w-10 rounded-full"
-              aria-label={t(lang, "provablyFair")}
-              onClick={() => setFairnessOpen(true)}
-              data-testid="btn-fairness"
-            >
-              <ShieldCheck className="w-5 h-5" />
-            </Button></GameInformationSection>
+            <GameInformationSection>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white/70 hover:text-white h-10 w-10 rounded-full"
+                aria-label={t(lang, "provablyFair")}
+                onClick={() => setFairnessOpen(true)}
+                data-testid="btn-fairness"
+              >
+                <ShieldCheck className="w-5 h-5" />
+              </Button>
+            </GameInformationSection>
           </div>
         </div>
 
-        <div
-          className="tpl-game-content flex-1 flex flex-col lg:flex-row gap-3 p-3 min-h-0"
-        >
+        <div className="tpl-game-content flex-1 flex flex-col lg:flex-row gap-3 p-3 min-h-0">
           {/* Table */}
-          <div data-game-screen="teen-patti-live" className="tpl-main-column flex-1 flex flex-col gap-3 min-w-0">
-            <LastResultBanner roundId={lastResult?.roundId}>{resultLine}</LastResultBanner>
-
+          <div
+            data-game-screen="teen-patti-live"
+            className="tpl-main-column flex-1 flex flex-col gap-3 min-w-0"
+          >
+            <LastResultBanner roundId={lastResult?.roundId}>
+              {resultLine}
+            </LastResultBanner>
             <div className="live-game-scene">
-            <TeenPattiTable
-              deal={phase === "betting" ? null : (rest?.deal ?? null)}
-              roundId={phase === "betting" ? roundId : (rest?.roundId ?? null)}
-              revealEndsAt={revealEndsAt}
-              revealDurationMs={config?.revealDurationMs ?? 9000}
-              bettingEndsAt={
-                phase === "betting" && phaseEndsAt != null
-                  ? toLocalTime(phaseEndsAt) - BET_SEND_BUFFER_MS
-                  : null
-              }
-              bettingDurationMs={config?.bettingWindowMs ?? 20000}
-              chips={feltChips}
-              audio={dealAudio}
-              onSettled={onDealSettled}
-              resultEnabled={!roundWin.win && phase !== "betting" && rest?.roundId === roundId}
-              spotLabels={spotLabels}
-              waitingLabel={t(lang, "tplWaitingDeal")}
-            />
+              <TeenPattiTable
+                deal={phase === "betting" ? null : (rest?.deal ?? null)}
+                roundId={
+                  phase === "betting" ? roundId : (rest?.roundId ?? null)
+                }
+                revealEndsAt={revealEndsAt}
+                revealDurationMs={config?.revealDurationMs ?? 9000}
+                bettingEndsAt={
+                  phase === "betting" && phaseEndsAt != null
+                    ? toLocalTime(phaseEndsAt) - BET_SEND_BUFFER_MS
+                    : null
+                }
+                bettingDurationMs={config?.bettingWindowMs ?? 20000}
+                chips={feltChips}
+                audio={dealAudio}
+                onSettled={onDealSettled}
+                resultEnabled={
+                  !roundWin.win &&
+                  phase !== "betting" &&
+                  rest?.roundId === roundId
+                }
+                spotLabels={spotLabels}
+                waitingLabel={t(lang, "tplWaitingDeal")}
+              />
             </div>
 
-              <div data-testid="tpl-betting-dock" data-live-bet-dock className="tpl-mobile-dock bg-[#081510] border border-white/10 rounded-xl">
-                <div className="live-bet-layout">
-                  <div className="live-bet-spots tp20-bet-grid" data-testid="tpl-mobile-bet-spots">
-                    <div className="tp20-bet-hand">
-                      <h3>Player A</h3>
-                      {spotButton("playerA", true)}
-                      {spotButton("pairPlusA", true)}
-                    </div>
-                    <div className="tp20-bet-tie">{spotButton("tie", true)}</div>
-                    <div className="tp20-bet-hand tp20-bet-hand--b">
-                      <h3>Player B</h3>
-                      {spotButton("playerB", true)}
-                      {spotButton("pairPlusB", true)}
-                    </div>
+            <div
+              data-testid="tpl-betting-dock"
+              data-live-bet-dock
+              className="tpl-mobile-dock bg-[#081510] border border-white/10 rounded-xl"
+            >
+              <div className="live-bet-layout">
+                <div
+                  className="live-bet-spots tp20-bet-grid"
+                  data-testid="tpl-mobile-bet-spots"
+                >
+                  <div className="tp20-bet-hand">
+                    <h3>Player A</h3>
+                    {spotButton("playerA", true)}
+                    {spotButton("pairPlusA", true)}
                   </div>
-                  {showBettingControls ? controls(isLgUp ? "" : "-mobile") : <div className="live-bet-status" role="status">{roundId ? "Bets closed · Next round shortly" : "Connecting to table…"}</div>}
+                  <div className="tp20-bet-tie">{spotButton("tie", true)}</div>
+                  <div className="tp20-bet-hand tp20-bet-hand--b">
+                    <h3>Player B</h3>
+                    {spotButton("playerB", true)}
+                    {spotButton("pairPlusB", true)}
+                  </div>
                 </div>
+                {showBettingControls ? (
+                  controls(isLgUp ? "" : "-mobile")
+                ) : (
+                  <div className="live-bet-status" role="status">
+                    {roundId
+                      ? "Bets closed · Next round shortly"
+                      : "Connecting to table…"}
+                  </div>
+                )}
               </div>
+            </div>
           </div>
           <aside className="tp20-sidebar" aria-label="Table results and rules">
             <h2>Last results</h2>
             <div className="tp20-history" data-testid="tp20-history">
-              {roadEntries.length ? roadEntries.slice(-20).map((entry, index) => <span key={index}
-                data-winner={entry.winner === "player" ? "playerA" : entry.winner === "banker" ? "playerB" : "tie"}
-                title={entry.winner === "player" ? "Player A" : entry.winner === "banker" ? "Player B" : "Tie"}
-              >{entry.winner === "player" ? "A" : entry.winner === "banker" ? "B" : "T"}</span>) : <small>No completed rounds yet</small>}
+              {roadEntries.length ? (
+                roadEntries.slice(-20).map((entry, index) => (
+                  <span
+                    key={index}
+                    data-winner={
+                      entry.winner === "player"
+                        ? "playerA"
+                        : entry.winner === "banker"
+                          ? "playerB"
+                          : "tie"
+                    }
+                    title={
+                      entry.winner === "player"
+                        ? "Player A"
+                        : entry.winner === "banker"
+                          ? "Player B"
+                          : "Tie"
+                    }
+                  >
+                    {entry.winner === "player"
+                      ? "A"
+                      : entry.winner === "banker"
+                        ? "B"
+                        : "T"}
+                  </span>
+                ))
+              ) : (
+                <small>No completed rounds yet</small>
+              )}
             </div>
             <h2>Rules</h2>
             <table className="tp20-paytable" data-testid="tp20-paytable">
               <caption>Pair Plus</caption>
-              <tbody>{PAIR_PLUS_ROWS.map(row => <tr key={row.key}><td>{row.label}</td><td>{payouts ? `${payouts.pairPlus[row.key].toFixed(2)}×` : "—"}</td></tr>)}</tbody>
+              <tbody>
+                {PAIR_PLUS_ROWS.map((row) => (
+                  <tr key={row.key}>
+                    <td>{row.label}</td>
+                    <td>
+                      {payouts
+                        ? `${payouts.pairPlus[row.key].toFixed(2)}×`
+                        : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-            <p className="tp20-sidebar-note">Returns include your stake. Three cards per hand; the higher ranked hand wins. Pair Plus pays independently.</p>
-            <div className="tp20-table-limits"><span>Table limits</span><b>{minStake != null && maxStake != null ? `₹${minStake.toLocaleString("en-IN")} – ₹${maxStake.toLocaleString("en-IN")}` : "—"}</b></div>
-            <p className="tp20-sidebar-note">Table clock: Delhi · IST (UTC+05:30)</p>
+            <p className="tp20-sidebar-note">
+              Returns include your stake. Three cards per hand; the higher
+              ranked hand wins. Pair Plus pays independently.
+            </p>
+            <div className="tp20-table-limits">
+              <span>Table limits</span>
+              <b>
+                {minStake != null && maxStake != null
+                  ? `₹${minStake.toLocaleString("en-IN")} – ₹${maxStake.toLocaleString("en-IN")}`
+                  : "—"}
+              </b>
+            </div>
+            <p className="tp20-sidebar-note">
+              Table clock: Delhi · IST (UTC+05:30)
+            </p>
           </aside>
         </div>
-
       </div>
 
-      {coinSettingsOpen && <CoinSettingsDialog open onOpenChange={setCoinSettingsOpen}
-        preferences={coinPreferences} onSave={coinPreferences.save} />}
+      {coinSettingsOpen && (
+        <CoinSettingsDialog
+          open
+          onOpenChange={setCoinSettingsOpen}
+          preferences={coinPreferences}
+          onSave={coinPreferences.save}
+        />
+      )}
 
       {/* Fairness dialog */}
       <Dialog open={fairnessOpen} onOpenChange={setFairnessOpen}>

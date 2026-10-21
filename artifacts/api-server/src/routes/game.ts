@@ -1,4 +1,5 @@
 import { INSTANT_COLLECTION } from "@workspace/api-zod/instant-collection";
+import { POKER_GAMES, POKER_TITLES } from "@workspace/api-zod/poker";
 import { ROULETTE_PAYOUT_BASE, ROULETTE_RTP_PERCENT } from "@workspace/api-zod/roulette-game";
 import { BACCARAT_RETURNS, BACCARAT_PROBABILITIES, TEEN_PATTI_MAIN_RETURN, TEEN_PATTI_TIE_RETURN, TEEN_PATTI_PAIR_RETURNS, ANDAR_FIRST_RETURN, ANDAR_SECOND_RETURN, ANDAR_RANGE_RETURNS } from "@workspace/api-zod/game-economics";
 import { Router, type IRouter } from "express";
@@ -163,6 +164,7 @@ const CARD_PAYTABLES: Record<string, CardPaytable> = {
 };
 
 export const GAME_TYPE_META: Record<string, GameTypeMeta> = {
+  ...Object.fromEntries(POKER_GAMES.map(code => [code, { engineType: "card_fixed" as const, label: POKER_TITLES[code], editableFields: ["enabled"], capFloors: {}, rtpNote: "Poker prices, bonus paytables and timing are defined in the versioned poker configuration. Six-player odds depend on the public starting hands." }])),
   "wheel-2-live": {
     engineType: "card_fixed", label: "Wheel 2.0 Live · fixed wheel",
     editableFields: ["maxStakePaise", "enabled", "bettingWindowMs", "revealDurationMs", "settleDurationMs", "minStakePaise"],
@@ -555,6 +557,7 @@ router.put(
 // routes, and live `enabled` status. Player apps consume this so the lobby
 // hides/shows "SOON" badges based on real config rather than hard-coding.
 const GAME_META: Record<string, { title: string; route: string }> = {
+  ...Object.fromEntries(POKER_GAMES.map(code => [code, { title: POKER_TITLES[code], route: `/${code}` }])),
   ...Object.fromEntries(INSTANT_COLLECTION.map(g => [g.code, { title: g.name, route: `/${g.code}` }])),
   "crazy-time": { title: "Crazy Time", route: "/crazy-time" },
   "vegetable-bowl": { title: "Vegetable Bowl", route: "/vegetable-bowl" },

@@ -393,6 +393,13 @@
       "when": 1792370400000,
       "tag": "0055_deposit_funding_agent",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1792558800000,
+      "tag": "0056_poker_tables",
+      "breakpoints": true
     }
   ]
 }

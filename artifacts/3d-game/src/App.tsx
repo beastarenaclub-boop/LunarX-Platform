@@ -52,6 +52,7 @@ const VegetableBowl = lazy(() => import("@/pages/VegetableBowl"));
 const HorseRacing = lazy(() => import("@/pages/HorseRacing"));
 const BikeRacing = lazy(() => import("@/pages/BikeRacing"));
 const Rummy = lazy(() => import("@/pages/Rummy"));
+const Poker = lazy(() => import("@/pages/Poker"));
 const DragonTiger = lazy(() => import("@/pages/DragonTiger"));
 const WinGo = lazy(() => import("@/pages/WinGo"));
 const ForexTrading = lazy(() => import("@/pages/ForexTrading"));
@@ -93,6 +94,9 @@ const GAME_ROUTES = new Set([
   "/dragon-tiger",
   "/dragon-tiger-one-day",
   "/rummy",
+  "/poker-one-day",
+  "/poker-20-20",
+  "/poker-six-players",
   "/wingo",
   "/lunar-colour-trading",
   "/forex-trading",
@@ -198,6 +202,7 @@ function App() {
         <GameViewport game={game}>
         <Suspense fallback={<AuthSplash />}>
         <Switch>
+          {(["poker-one-day", "poker-20-20", "poker-six-players"] as const).map(game => <Route key={game} path={`/${game}`}><Protected><Poker game={game} /></Protected></Route>)}
           {["accountstatement", "currentbets", "activity", "casinoresult", "livecasinoresult", "sportbookresult"].map(kind => <Route key={kind} path={`/report/${kind}`}><Protected><AccountReport key={kind} kind={kind} /></Protected></Route>)}
           {["buttonvalue", "changepassword", "secureauth"].map(kind => <Route key={kind} path={`/settings/${kind}`}><Protected><AccountSettings key={kind} kind={kind} /></Protected></Route>)}
           {/* Auth screens — logged-out only. */}

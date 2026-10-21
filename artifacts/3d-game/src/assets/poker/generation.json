@@ -1,0 +1,20 @@
+{
+  "tool": "built-in imagegen",
+  "assets": [
+    {
+      "code": "poker-one-day",
+      "prompt": "Use case: ads-marketing. Create a polished 3D casino poker promotional artwork for an existing black/emerald/gold website named Crypto777. Landscape 16:9 composition, premium physically rendered materials, beautiful dramatic lighting, highly polished professional game key art, sharp ivory playing cards, textured casino chips, tasteful gold trim. This is a decorative website poster, no UI, no screenshots, no human characters, no currency notes, no text, no letters other than normal ranks printed on playing cards, no logos, no watermarks, no promises of money or wins. Leave the leftmost 35 percent as dark atmospheric negative space for HTML title overlays, with the main scene centered around 65 percent horizontally. Keep all important objects inside central 85 percent so mobile crops work. Theme: CLASSIC POKER. Rich emerald green felt and midnight black background. A beautifully arranged fan of ace of spades, king of hearts, queen of clubs and jack of diamonds, dimensional red black and gold chip stacks in foreground, elegant gold rim on a poker table. Luxurious classic casino mood, subtle golden dust in the light, very readable bold central card silhouettes. The left negative space is near-black emerald.",
+      "file": "poker-one-day-v1.jpg"
+    },
+    {
+      "code": "poker-20-20",
+      "prompt": "Use case: ads-marketing. Create a polished 3D casino poker promotional artwork for an existing black/emerald/gold website named Crypto777. Landscape 16:9 composition, premium physically rendered materials, beautiful dramatic lighting, highly polished professional game key art, sharp ivory playing cards, textured casino chips, tasteful gold trim. This is a decorative website poster, no UI, no screenshots, no human characters, no currency notes, no text, no letters other than normal ranks printed on playing cards, no logos, no watermarks, no promises of money or wins. Leave the leftmost 35 percent as dark atmospheric negative space for HTML title overlays, with the main scene centered around 65 percent horizontally. Keep all important objects inside central 85 percent so mobile crops work. Theme: HEAD TO HEAD POKER. Two dramatic opposing pairs of ivory playing cards, one on a red lit side and one on an amber gold lit side, with polished dark casino chips between them and a subtle sweeping ribbon of light. Deep burgundy and midnight purple background, red and gold contrasting edge lights, clean dramatic diagonal composition suggesting a quick poker showdown. Avoid lightning clutter. The left negative space is near-black burgundy.",
+      "file": "poker-20-20-v1.jpg"
+    },
+    {
+      "code": "poker-six-players",
+      "prompt": "Use case: ads-marketing. Create a polished 3D casino poker promotional artwork for an existing black/emerald/gold website named Crypto777. Landscape 16:9 composition, premium physically rendered materials, beautiful dramatic lighting, highly polished professional game key art, sharp ivory playing cards, textured casino chips, tasteful gold trim. This is a decorative website poster, no UI, no screenshots, no human characters, no currency notes, no text, no letters other than normal ranks printed on playing cards, no logos, no watermarks, no promises of money or wins. Leave the leftmost 35 percent as dark atmospheric negative space for HTML title overlays, with the main scene centered around 65 percent horizontally. Keep all important objects inside central 85 percent so mobile crops work. Theme: SIX PLAYER POKER. A gorgeous raised oval midnight-blue poker table in three-quarter overhead perspective, precisely six small pairs of ivory playing cards and six distinct chip stacks arranged at six seats around the rim, a row of five community cards centered on the felt. Gold table rim, cobalt blue ambient light, subtle warm gold spotlights, luxurious miniature casino-table diorama. Keep the six-seat structure visually legible, right-side scene. The left negative space is near-black navy.",
+      "file": "poker-six-players-v1.jpg"
+    }
+  ]
+}

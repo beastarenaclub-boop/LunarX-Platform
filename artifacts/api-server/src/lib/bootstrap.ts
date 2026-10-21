@@ -1,4 +1,5 @@
 import { RETIRED_GAME_CODES } from "./retiredGames";
+import { POKER_GAMES, POKER_CONFIG } from "@workspace/api-zod/poker";
 import { INSTANT_COLLECTION } from "@workspace/api-zod/instant-collection";
 import { W20_GAME, W20_TIMING, W20_RTP } from "@workspace/api-zod/wheel20-live";
 import { L7_GAME, L7_TIMING } from "@workspace/api-zod/lucky7-live";
@@ -37,6 +38,12 @@ export function logDatabaseTarget(): void {
  * existing config and historical settlement data are preserved.
  */
 export async function ensureGameConfigDefaults(): Promise<void> {
+  for (const gameCode of POKER_GAMES) {
+    await db.insert(gameConfigTable).values({ gameCode, enabled: true, settlementMode: "house_edge",
+      minStakePaise: BigInt(POKER_CONFIG.minStakePaise), maxStakePaise: BigInt(POKER_CONFIG.maxStakePaise),
+      maxMultiplier: 3000, bettingWindowMs: POKER_CONFIG.bettingMs[gameCode],
+    }).onConflictDoNothing();
+  }
   await db.insert(gameConfigTable).values({ gameCode: W20_GAME, enabled: true, settlementMode: "house_edge", houseEdge: 1 - Math.max(...Object.values(W20_RTP)), rtpMin: Math.min(...Object.values(W20_RTP)) * 100, rtpMax: Math.max(...Object.values(W20_RTP)) * 100, maxMultiplier: 321, minStakePaise: 1000n, maxStakePaise: 20_000_000n, ...W20_TIMING }).onConflictDoNothing();
   // Remove retired games from player/admin registries without touching bet history.
   await db.delete(gameConfigTable).where(inArray(gameConfigTable.gameCode, ["redjet", "redy", "vortex-2", "propel-x", "nomad", "aviatrix", "aviajet", "skydot", "vortex", "orizon"]));

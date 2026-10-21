@@ -33,7 +33,9 @@ async function startRuntime(): Promise<Runtime> {
     // Some shared engines use console.error. Never retain demo game logs.
     worker.stdout?.resume(); worker.stderr?.resume();
     const port = await new Promise<number>((resolve, reject) => {
-      const timer = setTimeout(() => { void worker.terminate(); reject(new Error("Demo startup timed out")); }, 30_000);
+      // A cold in-memory database can take over 30s on the local Docker stack.
+      // Allow it to finish instead of discarding a healthy worker mid-startup.
+      const timer = setTimeout(() => { void worker.terminate(); reject(new Error("Demo startup timed out")); }, 60_000);
       worker.on("message", (message) => {
         if (message.ready) { clearTimeout(timer); resolve(message.port); }
         if (message.reply) {

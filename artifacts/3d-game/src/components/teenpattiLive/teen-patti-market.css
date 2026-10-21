@@ -1,0 +1,459 @@
+/* The 20–20 market screen uses the reference's slate, sky blue and green. */
+.tp20-reference-ui.tp20-page {
+  background: #23292c;
+  color: #eceeef;
+}
+.tp20-reference-ui .tpl-page-header.tp20-topbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  padding: 12px 16px;
+  border: 0;
+  background: #23282c;
+}
+.tp20-reference-ui .tp20-home-link,
+.tp20-reference-ui .tp20-settings {
+  display: grid;
+  flex: 0 0 44px;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: #b5babd;
+  border-radius: 4px;
+}
+.tp20-reference-ui .tp20-home-link:hover,
+.tp20-reference-ui .tp20-settings:hover {
+  background: #ffffff0e;
+  color: white;
+}
+.tp20-wordmark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: auto;
+}
+.tp20-wordmark > svg {
+  width: 33px;
+  height: 40px;
+  fill: #efc33b;
+  color: #ffe790;
+}
+.tp20-wordmark h1 {
+  margin: 0;
+  color: #ffca2b;
+  font:
+    900 27px/0.95 Arial,
+    sans-serif;
+  letter-spacing: -1.2px;
+  text-shadow: 1px 2px 0 #89551b;
+}
+.tp20-wordmark h1 span {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  letter-spacing: 5px;
+  color: #fff0af;
+}
+.tp20-account {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  min-width: 0;
+}
+.tp20-account-balance {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.tp20-account-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 115px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #c7cbcd;
+  font-size: 12px;
+}
+.tp20-announcement {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding-left: 12px;
+  background: #146c54;
+  color: #deeee8;
+}
+.tp20-announcement > span {
+  flex: 1;
+  font-size: 12px;
+}
+.tp20-announcement > svg {
+  flex-shrink: 0;
+  color: #f2d544;
+}
+.tp20-announcement [data-testid="tpl-audio-settings"] {
+  border-radius: 0;
+}
+.game-viewport[data-game-layout="dealer"] .tp20-reference-ui .tpl-game-content,
+.tp20-reference-ui .tpl-game-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 12px;
+  padding: 12px;
+  align-items: start;
+}
+.tp20-reference-ui .live-game-scene {
+  position: relative;
+}
+.tp20-scene-actions {
+  position: absolute;
+  z-index: 15;
+  right: 4px;
+  top: 4px;
+}
+.tp20-scene-actions button {
+  background: #090612aa;
+  color: white;
+  border: 1px solid #d8d8d8;
+}
+.tp20-reference-ui .tpl-mobile-dock {
+  background: #2e3539;
+}
+.tp20-market-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 5px;
+  font-size: 14px;
+}
+.tp20-market-table th {
+  font-weight: 600;
+}
+.tp20-market-table thead th {
+  padding: 3px 0 0;
+  color: #ed535b;
+  font-weight: 400;
+}
+.tp20-market-table thead th:last-child {
+  color: #ead22c;
+}
+.tp20-market-table td {
+  padding: 0;
+}
+.tp20-market-table tbody th {
+  padding: 0 8px;
+  text-align: left;
+  background: #444545;
+}
+.tp20-reference-ui .tp20-market-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  padding: 5px;
+  border: 2px solid #81c4e9;
+  border-radius: 0;
+  background: #405b6b;
+  box-shadow: inset 0 0 0 1px #ffffff12;
+  color: #f5f6f7;
+  font:
+    700 16px/1 Arial,
+    sans-serif;
+  touch-action: manipulation;
+  transition:
+    background 120ms,
+    border-color 120ms;
+}
+.tp20-reference-ui .tp20-market-button:hover:enabled {
+  background: #53768a;
+  border-color: #c5eaff;
+}
+.tp20-reference-ui .tp20-market-button:active:enabled {
+  background: #2e6a88;
+}
+.tp20-reference-ui .tp20-market-button:disabled {
+  opacity: 1;
+  background: #353a3d;
+  cursor: not-allowed;
+}
+.tp20-reference-ui .tp20-market-button[data-won="true"] {
+  border-color: #f1d849;
+  background: #4e4b35;
+}
+.tp20-reference-ui button:focus-visible,
+.tp20-reference-ui a:focus-visible {
+  outline: 2px solid #ffe071;
+  outline-offset: 2px;
+}
+.tp20-market-chip {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 2px;
+  border: 2px dashed #986c13;
+  border-radius: 50%;
+  background: #f5d572;
+  color: #38260c;
+  font-size: 9px;
+}
+.tp20-market-winner {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  color: #ffdf6e;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+.tp20-suits {
+  font:
+    32px/1 Georgia,
+    serif;
+  word-spacing: 4px;
+}
+.tp20-suits-black {
+  color: #141414;
+  -webkit-text-stroke: 0.6px #d0c4a4;
+  text-shadow: 0 1px 2px #000;
+}
+.tp20-suits-red {
+  color: #d83841;
+  -webkit-text-stroke: 0.6px #e2c8ae;
+  text-shadow: 0 1px 2px #000;
+}
+.tp20-result-row {
+  padding: 9px 10px 12px;
+}
+.tp20-reference-ui .tp20-history {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.tp20-reference-ui .tp20-history > span {
+  flex: 0 1 42px;
+  min-width: 0;
+  height: 36px;
+  border: 1px solid #4a4d4e;
+  background: #030404;
+  color: #edda30;
+  font-size: 13px;
+}
+.tp20-reference-ui .tp20-history > span[data-winner="playerA"] {
+  color: #ed4c56;
+}
+.tp20-reference-ui .tp20-history > span[data-winner="tie"] {
+  color: #70dab5;
+}
+.tp20-wager-controls {
+  border-top: 1px solid #4c5357;
+  padding: 8px 10px;
+}
+.tp20-extra-market {
+  display: grid;
+  grid-template-columns: 60px minmax(72px, 120px) 1fr;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.tp20-extra-market > span {
+  font-weight: 700;
+}
+.tp20-extra-market small {
+  color: #aebbc2;
+  font-size: 11px;
+}
+.game-viewport[data-game-layout="dealer"] .tp20-reference-ui .live-bet-layout,
+.tp20-reference-ui .live-bet-layout {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "status status" "coins coins" "summary summary" "actions actions";
+  gap: 8px;
+  padding: 8px 0 0;
+}
+.tp20-reference-ui .live-bet-status {
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.tp20-reference-ui .live-bet-summary > div > span {
+  display: inline;
+  font-size: 10px;
+}
+.tp20-reference-ui .tp20-sidebar {
+  padding: 0;
+  border: 0;
+  background: #2e3539;
+}
+.tp20-reference-ui .tp20-rules-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0 10px;
+  margin: 0 0 12px;
+  background: #146c54;
+  color: #f0d932;
+  font-size: 16px;
+}
+.tp20-rules-heading button {
+  color: #e3eee9;
+}
+.tp20-reference-ui .tp20-paytable {
+  font-size: 13px;
+}
+.tp20-reference-ui .tp20-paytable caption {
+  padding: 11px;
+  background: #146c54;
+  font-size: 14px;
+}
+.tp20-reference-ui .tp20-paytable td {
+  padding: 10px;
+  border-color: #454c50;
+}
+.tp20-reference-ui .tp20-sidebar-note {
+  margin: 12px;
+  font-size: 11px;
+}
+.tp20-reference-ui .tp20-table-limits {
+  margin: 12px;
+}
+.tp20-reference-ui .tpl-main-column > [data-testid="last-result-banner"] {
+  margin: 0;
+}
+
+@media (max-width: 1023px) {
+  .game-viewport[data-game-layout="dealer"]
+    .tp20-reference-ui
+    .tpl-game-content,
+  .tp20-reference-ui .tpl-game-content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding: 0;
+  }
+  .tp20-reference-ui .tp20-sidebar {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 559px) {
+  .tp20-reference-ui .tpl-page-header.tp20-topbar {
+    gap: 5px;
+    min-height: 64px;
+    padding: 8px 5px;
+  }
+  .tp20-wordmark {
+    gap: 5px;
+  }
+  .tp20-wordmark > svg {
+    width: 23px;
+    height: 31px;
+  }
+  .tp20-wordmark h1 {
+    font-size: clamp(19px, 5.2vw, 27px);
+    letter-spacing: -1px;
+    white-space: nowrap;
+  }
+  .tp20-wordmark h1 span {
+    margin-top: 5px;
+    font-size: 10px;
+    letter-spacing: 4px;
+  }
+  .tp20-account-balance {
+    font-size: 12px;
+  }
+  .tp20-account-name {
+    font-size: 11px;
+    max-width: 75px;
+  }
+  .tp20-announcement {
+    padding-left: 8px;
+  }
+  .tp20-announcement > span {
+    font-size: 11px;
+  }
+  .game-viewport[data-game-layout="dealer"]
+    .tp20-reference-ui
+    [data-testid="teen-patti-table"],
+  .tp20-reference-ui [data-testid="teen-patti-table"] {
+    aspect-ratio: 1.8;
+  }
+  .tp20-reference-ui .tp20-stage {
+    align-items: center;
+  }
+  .tp20-reference-ui .tp20-camera {
+    aspect-ratio: 1036 / 586;
+    width: 100%;
+  }
+  .tp20-reference-ui .tp20-card-rail {
+    align-self: stretch;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+  }
+  .tp20-reference-ui .tp20-round-label {
+    position: absolute;
+    z-index: 8;
+    top: 2px;
+    left: 2px;
+    width: 155px;
+    margin: 0;
+    padding: 4px;
+    background: #05030bcc;
+    font-size: 9px;
+  }
+  .tp20-reference-ui .tp20-round-label span {
+    font-size: 8px;
+  }
+  .tp20-reference-ui .tp20-hand-readout {
+    top: 30%;
+    left: 4px;
+    right: 4px;
+    gap: 5px;
+  }
+  .tp20-reference-ui .tp20-readout-hand > b {
+    font-size: 7px;
+  }
+  .tp20-reference-ui .tp20-readout-hand small {
+    font-size: 6px;
+  }
+  .tp20-market-table {
+    border-spacing: 4px;
+    font-size: 12px;
+  }
+  .tp20-market-table tbody th {
+    padding: 0 5px;
+  }
+  .tp20-reference-ui .tp20-market-button {
+    height: 44px;
+    min-height: 44px;
+    font-size: 15px;
+  }
+  .tp20-suits {
+    font-size: 28px;
+  }
+  .tp20-result-row {
+    padding: 8px 10px 10px;
+  }
+  .tp20-reference-ui .tp20-history > span {
+    height: 30px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tp20-reference-ui .tp20-market-button {
+    transition: none;
+  }
+}

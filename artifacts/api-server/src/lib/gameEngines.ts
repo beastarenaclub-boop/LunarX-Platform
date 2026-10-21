@@ -5,6 +5,7 @@ import { startTableRoundEngines } from "../services/tableRounds";
 import { startDragonTigerEngine } from "../services/dragonTiger";
 import { startOneDayDragonTigerEngine } from "../services/dragonTigerOneDay";
 import { startRummyEngine } from "../services/rummy";
+import { startPokerEngine } from "../services/poker";
 import { startWingoEngine } from "../services/wingo";
 import { startLotteryEngine } from "../services/lottery";
 import { startPrizeLottoEngine } from "../services/prizeLotto";
@@ -22,6 +23,7 @@ export function startGameEngines() {
   startDragonTigerEngine();
   startOneDayDragonTigerEngine();
   startRummyEngine();
+  startPokerEngine();
   startWingoEngine();
   startLotteryEngine();
   startPrizeLottoEngine();

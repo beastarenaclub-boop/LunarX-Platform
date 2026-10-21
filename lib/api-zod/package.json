@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./poker": "./src/poker.ts",
     "./baccarat-game": "./src/baccarat-game.ts",
     "./wheel20-live": "./src/wheel20-live.ts",
     "./andar-bahar-live": "./src/andar-bahar-live.ts",

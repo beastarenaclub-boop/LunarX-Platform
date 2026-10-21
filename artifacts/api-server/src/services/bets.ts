@@ -5,7 +5,7 @@ import {
   type Bet,
 } from "@workspace/db";
 import { and, desc, eq, lt, or, sql } from "drizzle-orm";
-import { postEntry, toWalletScope } from "./wallet";
+import { postEntry, publishWalletBalance, toWalletScope, type TxClient } from "./wallet";
 import {
   debitForBet as bonusDebit,
   creditForWin as bonusCreditWin,
@@ -297,6 +297,8 @@ export interface CashOutInput {
   crazyTimePayoutPaise?: bigint;
   /** Exact server-computed Vegetable Bowl return. Never accepted by a public route. */
   vegetablePayoutPaise?: bigint;
+  /** Exact, server-only Teen Patti return, using the accepted round's paytable. */
+  teenPattiPayoutPaise?: bigint;
   betId: string;
   userId: string;
   multiplier: number;
@@ -316,6 +318,10 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   const existing = rows[0];
   if (!existing) throw new Error("BET_NOT_FOUND");
   if (existing.userId !== input.userId) throw new Error("BET_NOT_FOUND");
+  const isTeenPatti = existing.gameCode === "teen-patti" || existing.gameCode === "teen-patti-live";
+  if (isTeenPatti && (input.teenPattiPayoutPaise === undefined || input.teenPattiPayoutPaise < 0n || input.teenPattiPayoutPaise > existing.stakeAmount * 876n)) {
+    throw badRequest("Teen Patti payouts are settled by the game server.");
+  }
   if (existing.gameCode === "roulette" && (input.roulettePayoutPaise === undefined || input.roulettePayoutPaise < 0n || input.roulettePayoutPaise > existing.stakeAmount * 36n)) {
     throw badRequest("Roulette bets settle automatically on the winning pocket.");
   }
@@ -342,7 +348,9 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   const cfg = await requireGameConfig(existing.gameCode);
   const liveCap = cfg.maxMultiplier;
   const snapshotCap = input.maxMultiplierCap ?? Number.POSITIVE_INFINITY;
-  const cappedMultiplier = existing.gameCode === "roulette"
+  const cappedMultiplier = isTeenPatti
+    ? Number(input.teenPattiPayoutPaise!) / Number(existing.stakeAmount)
+    : existing.gameCode === "roulette"
     ? Number(input.roulettePayoutPaise!) / Number(existing.stakeAmount)
     : Math.min(input.multiplier, liveCap, snapshotCap);
   const stake = existing.stakeAmount;
@@ -351,7 +359,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   // The round-end settlement service later sums every bet, takes 5% as
   // company profit, and splits 95% across winners weighted by stake×multiplier.
   // The legacy 'house_edge' mode keeps the per-bet immediate credit path.
-  const isPariMutuel = existing.gameCode !== "roulette" && existing.gameCode !== "vegetable-bowl" && existing.gameCode !== "crazy-time" && ((existing.metadata as { settlementMode?: string } | null)?.settlementMode ?? cfg.settlementMode) === "pari_mutuel";
+  const isPariMutuel = !isTeenPatti && existing.gameCode !== "roulette" && existing.gameCode !== "vegetable-bowl" && existing.gameCode !== "crazy-time" && ((existing.metadata as { settlementMode?: string } | null)?.settlementMode ?? cfg.settlementMode) === "pari_mutuel";
   // Free bets settle immediately at stake × multiplier straight to the CASH
   // wallet even in pari-mutuel mode: their stake never entered the shared
   // pool (no debit happened), so they cannot participate in the 95/5 split.
@@ -360,7 +368,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
     | null;
   const isFreeBet = !!existingMeta?.freeBet;
   const payout =
-    existing.gameCode === "roulette" ? input.roulettePayoutPaise! : existing.gameCode === "crazy-time" ? input.crazyTimePayoutPaise! : existing.gameCode === "vegetable-bowl" ? input.vegetablePayoutPaise! : isPariMutuel && !isFreeBet
+    isTeenPatti ? input.teenPattiPayoutPaise! : existing.gameCode === "roulette" ? input.roulettePayoutPaise! : existing.gameCode === "crazy-time" ? input.crazyTimePayoutPaise! : existing.gameCode === "vegetable-bowl" ? input.vegetablePayoutPaise! : isPariMutuel && !isFreeBet
       ? 0n
       : BigInt(Math.floor(Number(stake) * cappedMultiplier));
   // CRITICAL: settle the bet status FIRST with a conditional UPDATE on
@@ -369,7 +377,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   // one returns a row, the other returns []. Only the winner credits the
   // wallet, eliminating the prior TOCTOU double-credit race.
   const now = new Date();
-  const [updated] = await db
+  const updateStatus = (client: typeof db | TxClient) => client
     .update(betsTable)
     .set({
       status: "cashed_out",
@@ -379,6 +387,26 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
     })
     .where(and(eq(betsTable.id, existing.id), eq(betsTable.status, "placed")))
     .returning();
+  // Shared Teen Patti slips use the local cash wallet. Commit the settled bet
+  // and its credit together, so a process restart cannot leave an unpaid win.
+  const atomicTeenPattiCredit = isTeenPatti && !existing.partnerId && !existingMeta?.useBonus && !isFreeBet;
+  let updated: Bet | undefined;
+  if (atomicTeenPattiCredit) {
+    const result = await db.transaction(async (tx) => {
+      const [bet] = await updateStatus(tx);
+      if (!bet) throw new Error("BET_ALREADY_SETTLED");
+      const { entry } = await postEntry({
+        userId: input.userId, type: "win", amount: payout,
+        scope: toWalletScope(existing.gameCode), refType: "bet", refId: existing.id,
+        memo: `Teen Patti return @${cappedMultiplier.toFixed(2)}×`,
+      }, tx);
+      return { bet, balance: entry.balanceAfter };
+    });
+    updated = result.bet;
+    publishWalletBalance({ userId: input.userId, scope: toWalletScope(existing.gameCode), balance: result.balance, entryType: "win", amount: payout });
+  } else {
+    [updated] = await updateStatus(db);
+  }
   if (!updated) {
     // Lost the race; another request already settled this bet.
     throw new Error("BET_ALREADY_SETTLED");
@@ -404,7 +432,9 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
     !!partnerForCredit?.walletCallbackUrl &&
     !!existing.partnerPlayerRef;
   try {
-    if (isPariMutuel && !isFreeBet) {
+    if (atomicTeenPattiCredit) {
+      // Already durably credited in the status transaction above.
+    } else if (isPariMutuel && !isFreeBet) {
       // Skip wallet credit entirely — settleRoundPariMutuel pays out at
       // round end. We still emit the settled webhook below so partners see
       // the cashout decision in real time, even though the credit is

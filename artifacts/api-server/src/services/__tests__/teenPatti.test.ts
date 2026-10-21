@@ -6,6 +6,7 @@ import {
   dealTeenPatti,
   settleTeenPattiBets,
   teenPattiReturnMultiplier,
+  teenPattiPayouts,
   TEEN_PATTI_RETURN_HUNDREDTHS,
   type TeenPattiBetInput,
 } from "../teenPattiMath";
@@ -17,6 +18,100 @@ const A = 0,
   K = 12,
   Q = 11,
   J = 10;
+
+describe("Teen Patti displayed odds and exact payouts", () => {
+  it("quotes the settlement cap for every Pair Plus category and payout version", () => {
+    const hands = [
+      [0, 13, 26],
+      [0, 12, 11],
+      [0, 25, 37],
+      [0, 5, 9],
+      [0, 13, 7],
+      [0, 18, 35],
+    ];
+    for (const version of [1, 2])
+      for (const cap of [1.01, 2.37, 40, 1000]) {
+        const quote = teenPattiPayouts(cap, version);
+        for (const cards of hands) {
+          const hand = evaluateHand(cards);
+          const deal = {
+            handACards: cards,
+            handBCards: cards,
+            handA: hand,
+            handB: hand,
+            winner: "tie" as const,
+          };
+          const amount = 10003n;
+          const settled = settleTeenPattiBets(
+            [{ type: "pairPlusA", amountPaise: amount }],
+            deal,
+            cap,
+            version,
+          );
+          const price =
+            hand.category === "highCard" ? 0 : quote.pairPlus[hand.category];
+          assert.equal(
+            settled.totalPayout,
+            (amount * BigInt(Math.round(price * 100))) / 100n,
+          );
+        }
+      }
+  });
+
+  it("returns both main stakes on a tie and pays capped Tie/Pair Plus independently", () => {
+    const deal = dealTeenPatti([0, 13, 5, 18, 9, 22]);
+    assert.equal(deal.winner, "tie");
+    const bets = ["playerA", "playerB", "tie", "pairPlusA", "pairPlusB"].map(
+      (type) => ({
+        type: type as TeenPattiBetInput["type"],
+        amountPaise: 10003n,
+      }),
+    );
+    const result = settleTeenPattiBets(bets, deal, 2.37, 2);
+    assert.deepEqual(
+      result.settled.map((b) => b.payoutPaise),
+      ["10003", "10003", "23707", "23707", "23707"],
+    );
+    assert.equal(result.totalPayout, 91127n);
+  });
+
+  it("pays Pair Plus on the losing hand too, with no refund of a losing main bet", () => {
+    const deal = dealTeenPatti([0, 1, 13, 14, 26, 15]);
+    assert.equal(deal.winner, "playerA");
+    assert.equal(deal.handB.category, "pair");
+    const result = settleTeenPattiBets(
+      [
+        { type: "playerB", amountPaise: 10003n },
+        { type: "pairPlusB", amountPaise: 10003n },
+      ],
+      deal,
+      40,
+      2,
+    );
+    assert.deepEqual(
+      result.settled.map((b) => b.payoutPaise),
+      ["0", "17505"],
+    );
+  });
+
+  it("classifies all 22,100 possible hands with the expected category frequencies", () => {
+    const counts: Record<string, number> = {};
+    for (let a = 0; a < 50; a++)
+      for (let b = a + 1; b < 51; b++)
+        for (let c = b + 1; c < 52; c++) {
+          const category = evaluateHand([a, b, c]).category;
+          counts[category] = (counts[category] ?? 0) + 1;
+        }
+    assert.deepEqual(counts, {
+      trail: 52,
+      pureSequence: 48,
+      sequence: 720,
+      color: 1096,
+      pair: 3744,
+      highCard: 16440,
+    });
+  });
+});
 
 describe("teen patti hand evaluation", () => {
   it("categorizes hands correctly", () => {
@@ -42,7 +137,10 @@ describe("teen patti hand evaluation", () => {
       evaluateHand([c(A, 2), c(1, 2), c(2, 2)]).category,
       "pureSequence",
     );
-    assert.equal(evaluateHand([c(A, 0), c(1, 1), c(2, 2)]).category, "sequence");
+    assert.equal(
+      evaluateHand([c(A, 0), c(1, 1), c(2, 2)]).category,
+      "sequence",
+    );
   });
 
   it("orders categories: trail > pureSeq > seq > color > pair > high", () => {
@@ -72,7 +170,10 @@ describe("teen patti hand evaluation", () => {
   });
 
   it("K-A-2 is NOT a sequence (no wraparound)", () => {
-    assert.equal(evaluateHand([c(K, 0), c(A, 1), c(1, 2)]).category, "highCard");
+    assert.equal(
+      evaluateHand([c(K, 0), c(A, 1), c(1, 2)]).category,
+      "highCard",
+    );
   });
 
   it("pair comparison: pair rank then kicker; trail by rank (aces high)", () => {
