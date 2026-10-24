@@ -308,6 +308,31 @@ for (const viewport of [
       await expect(p.page.getByRole("dialog")).toContainText("platform funds");
       expect(errors).toEqual([]);
       await p.page.getByRole("button", { name: "Close", exact: true }).click();
+      if (viewport.width === 320) {
+        await p.page.route("**/api/ludo/state", async (route) => {
+          const response = await route.fetch();
+          const json = await response.json();
+          await route.fulfill({
+            response,
+            json: { ...json, balancePaise: "1000000000000" },
+          });
+        });
+        await p.page.reload();
+        await expect(p.page.locator(".ld-wallet b")).toContainText(
+          "10,00,00,00,000",
+        );
+        const rules = p.page.getByRole("button", {
+          name: "Game rules",
+          exact: true,
+        });
+        const headerBox = await rules.boundingBox();
+        expect(headerBox!.x + headerBox!.width).toBeLessThanOrEqual(320);
+        await rules.click();
+        await expect(p.page.getByRole("dialog")).toBeVisible();
+        await p.page
+          .getByRole("button", { name: "Close", exact: true })
+          .click();
+      }
       await p.page.screenshot({
         path: `tmp/ludo-ui-checks/preview-${viewport.width}.png`,
         fullPage: true,

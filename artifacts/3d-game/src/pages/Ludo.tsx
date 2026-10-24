@@ -351,7 +351,9 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
           <Coins size={22} />
           <span>
             <small>{demo ? "Demo wallet" : "Your wallet"}</small>
-            <b>{data ? money(data.balancePaise) : "—"}</b>
+            <b title={data ? money(data.balancePaise) : undefined}>
+              {data ? money(data.balancePaise) : "—"}
+            </b>
           </span>
         </div>
         <button

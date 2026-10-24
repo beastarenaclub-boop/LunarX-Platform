@@ -79,11 +79,15 @@
   color: #fff;
 }
 .ld-wallet {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 9px;
   margin-left: auto;
   color: #ffd75c;
+}
+.ld-wallet > span {
+  min-width: 0;
 }
 .ld-wallet small {
   display: block;
@@ -91,6 +95,10 @@
   color: #b9cde6;
 }
 .ld-wallet b {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 20px;
   color: #fff;
   font-variant-numeric: tabular-nums;
