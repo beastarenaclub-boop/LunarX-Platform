@@ -171,6 +171,7 @@ const CARD_PAYTABLES: Record<string, CardPaytable> = {
 
 export const GAME_TYPE_META: Record<string, GameTypeMeta> = {
   ...Object.fromEntries(POKER_GAMES.map(code => [code, { engineType: "card_fixed" as const, label: POKER_TITLES[code], editableFields: ["enabled"], capFloors: {}, rtpNote: "Poker prices, bonus paytables and timing are defined in the versioned poker configuration. Six-player odds depend on the public starting hands." }])),
+  "ludo": { engineType:"card_fixed", label:"Ludo Live", editableFields:["enabled"], capFloors:{}, rtpNote:"Multiplayer Ludo. Fixed 10% commission, winner receives 90% of the seat pool. Computer seats are funded by the house. Dice and legal moves are identical for every seat." },
   "teen-patti-joker": {
     engineType: "card_fixed", label: "Teenpatti Joker 20-20",
     editableFields: ["maxStakePaise", "minStakePaise", "enabled"],
@@ -590,6 +591,7 @@ const GAME_META: Record<string, { title: string; route: string }> = {
   "sic-bo": { title: "Sic Bo", route: "/sic-bo" },
   "andar-bahar": { title: "Andar Bahar", route: "/andar-bahar" },
   "lucky-7": { title: "Lucky 7", route: "/lucky-7" },
+  "ludo": { title:"Ludo Live", route:"/ludo" },
   "teen-patti-joker": { title: "Teenpatti Joker 20-20", route: "/teen-patti-joker" },
   "wheel-2-live": { title: "Wheel 2.0 Live", route: "/wheel-2-live" },
   "lucky-7-live": { title: "Lucky 7 Live", route: "/lucky-7-live" },

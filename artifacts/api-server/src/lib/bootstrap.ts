@@ -39,6 +39,7 @@ export function logDatabaseTarget(): void {
  * existing config and historical settlement data are preserved.
  */
 export async function ensureGameConfigDefaults(): Promise<void> {
+  await db.insert(gameConfigTable).values({ gameCode:"ludo", enabled:true, settlementMode:"house_edge", houseEdge:0.10, rtpMin:90, rtpMax:90, maxMultiplier:3.6, minStakePaise:1000n, maxStakePaise:50000n, bettingWindowMs:20000 }).onConflictDoNothing();
   for (const gameCode of POKER_GAMES) {
     await db.insert(gameConfigTable).values({ gameCode, enabled: true, settlementMode: "house_edge",
       minStakePaise: BigInt(POKER_CONFIG.minStakePaise), maxStakePaise: BigInt(POKER_CONFIG.maxStakePaise),

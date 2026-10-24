@@ -76,3 +76,4 @@ test-results/
 .openai/
 artifacts/api-server/src/demo/schema.generated.sql
 artifacts/api-server/.poker-tests/
+artifacts/api-server/.ludo-tests/

@@ -8,6 +8,7 @@ import { DEMO_COINS } from "../demo/sessions";
 // Game codes remain accepted by legacy clients. All resolve to one wallet.
 // "lunar" is the existing storage key, not a restriction on where funds work.
 export const WALLET_SCOPES = [
+  "ludo",
   ...INSTANT_COLLECTION.map(g => g.code),
   "lunar",
   "mines",

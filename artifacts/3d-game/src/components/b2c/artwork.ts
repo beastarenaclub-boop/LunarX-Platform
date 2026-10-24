@@ -119,6 +119,7 @@ export const B2C_AVATAR = b2cMedia("player-avatar.png");
 export const B2C_LOTTERY = b2cMedia("lottery.png");
 
 export const B2C_GAME_ORDER = [
+  "ludo",
   "teen-patti-joker",
   "teen-patti-live",
   "teen-patti",

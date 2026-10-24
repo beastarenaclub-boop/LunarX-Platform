@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./ludo": "./src/ludo.ts",
     "./poker": "./src/poker.ts",
     "./baccarat-game": "./src/baccarat-game.ts",
     "./wheel20-live": "./src/wheel20-live.ts",

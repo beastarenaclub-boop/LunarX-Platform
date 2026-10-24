@@ -76,7 +76,7 @@ router.get("/:kind", requireAuth, async (req, res, next) => {
       if (kind === "sportbookresult") filters.push(sport);
       if (kind === "livecasinoresult")
         filters.push(
-          sql`game IN ('roulette','baccarat','blackjack','teen-patti','teen-patti-live','andar-bahar','andar-bahar-live','lucky-7','lucky-7-live','wheel-2-live','teen-patti-joker','7up7down','crazy-time','dragon-tiger','dragon-tiger-one-day','vegetable-bowl','rummy','poker-one-day','poker-20-20','poker-six-players')`,
+          sql`game IN ('ludo','roulette','baccarat','blackjack','teen-patti','teen-patti-live','andar-bahar','andar-bahar-live','lucky-7','lucky-7-live','wheel-2-live','teen-patti-joker','7up7down','crazy-time','dragon-tiger','dragon-tiger-one-day','vegetable-bowl','rummy','poker-one-day','poker-20-20','poker-six-players')`,
         );
     }
     const result = await db.execute(

@@ -8,6 +8,8 @@ attached_assets
 **/dist
 **/*.tsbuildinfo
 **/test-results*
+**/.ludo-tests
+**/.poker-tests
 **/tests
 **/*.log
 exports/

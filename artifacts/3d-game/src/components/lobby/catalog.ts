@@ -135,6 +135,7 @@ export const LOBBY_GAMES: LobbyGame[] = [
     artwork: rummy,
     artworkHasTitle: true,
   }),
+  game("ludo", "Ludo Live", "table", "#ebc882", { artwork:"/media/ludo/cover.svg", artworkHasTitle:true, label:"LIVE", tags:["ludo", "multiplayer", "2 players", "4 players", "computer"] }),
   game("poker-one-day", "Poker 1-Day", "table", "#f3ce41", { artwork: POKER_ART["poker-one-day"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "1 day", "holdem"] }),
   game("poker-20-20", "20-20 Poker", "table", "#84c5ee", { artwork: POKER_ART["poker-20-20"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "20-20", "holdem"] }),
   game("poker-six-players", "Poker 6 Players", "table", "#00b48a", { artwork: POKER_ART["poker-six-players"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "6 players", "holdem"] }),

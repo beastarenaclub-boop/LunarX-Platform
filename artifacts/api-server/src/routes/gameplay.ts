@@ -37,6 +37,7 @@ import reportsRouter from "./reports";
 
 // The same routers run against either the real store or the isolated demo worker.
 const router = Router();
+router.use("/ludo", ludoRouter);
 router.use("/reports", reportsRouter);
 router.use("/instant", instantCollectionRouter);
 router.use("/virtual-sports", virtualSportsRouter);
@@ -73,3 +74,4 @@ router.use("/forex", forexRouter);
 router.use("/lottery", lotteryRouter);
 router.use("/prize-lotto", prizeLottoRouter);
 export default router;
+import ludoRouter from "./ludo";

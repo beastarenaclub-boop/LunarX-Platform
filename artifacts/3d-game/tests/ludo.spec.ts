@@ -1,0 +1,273 @@
+import {
+  test,
+  expect,
+  type Browser,
+  type BrowserContext,
+  type Page,
+} from "@playwright/test";
+import type { LudoTable } from "@workspace/api-zod/ludo";
+const base = "http://127.0.0.1:5398";
+async function player(
+  browser: Browser,
+  name: string,
+  viewport = { width: 1440, height: 1000 },
+) {
+  const context = await browser.newContext({ baseURL: base, viewport });
+  const login = await context.request.post("/api/test/ludo/login", {
+    data: { name },
+  });
+  expect(login.ok()).toBeTruthy();
+  const { id } = await login.json();
+  const page = await context.newPage();
+  await page.goto("/ludo");
+  await expect(
+    page.getByRole("button", { name: "Find a match" }),
+  ).toBeEnabled();
+  return { context, page, id };
+}
+const state = async (context: BrowserContext) =>
+  (await (await context.request.get("/api/ludo/state")).json()) as LudoTable;
+async function finish(context: BrowserContext, page: Page, seat = 0) {
+  const t = await state(context);
+  await context.request.post("/api/test/ludo/winning-move", {
+    data: { id: t.match!.id, seat },
+  });
+  await expect(
+    page.getByRole("button", { name: "Move 4", exact: true }),
+  ).toBeEnabled();
+  await page.getByRole("button", { name: "Move 4", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "You take the crown!" }),
+  ).toBeVisible();
+}
+test("two accounts play the same real board, receive private WS events and resume after refresh", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Aarav"),
+    b = await player(browser, "Meera");
+  const events: string[] = [];
+  a.page.on("websocket", (ws) =>
+    ws.on("framereceived", (f) => events.push(String(f.payload))),
+  );
+  await a.page.reload();
+  try {
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      a.page.getByRole("heading", { name: "Finding your opponents" }),
+    ).toBeVisible();
+    await b.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      a.page.getByRole("heading", { name: "Your turn", exact: true }),
+    ).toBeVisible();
+    await expect(
+      b.page.getByRole("heading", { name: "Aarav's turn" }),
+    ).toBeVisible();
+    const [one, two] = await Promise.all([state(a.context), state(b.context)]);
+    expect(one.match!.id).toBe(two.match!.id);
+    expect(one.match!.you).toBe(0);
+    expect(two.match!.you).toBe(1);
+    expect(one.balancePaise).toBe("99000");
+    await a.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect
+      .poll(async () => (await state(b.context)).match!.state.rollNonce)
+      .toBe(1);
+    await a.page.reload();
+    await expect(a.page.locator(".ld-match-id")).toContainText(
+      one.match!.id.slice(0, 8).toUpperCase(),
+    );
+    expect((await state(a.context)).balancePaise).toBe("99000");
+    await expect
+      .poll(() =>
+        events.some(
+          (e) => e.includes(`ludo:${a.id}`) && e.includes('"op":"event"'),
+        ),
+      )
+      .toBeTruthy();
+    const denied = await a.page.evaluate(
+      (other) =>
+        new Promise<string>((resolve) => {
+          const ws = new WebSocket(`ws://${location.host}/ws`);
+          ws.onopen = () =>
+            ws.send(
+              JSON.stringify({ op: "subscribe", topic: `ludo:${other}` }),
+            );
+          ws.onmessage = ({ data }) => {
+            const m = JSON.parse(data);
+            if (m.op === "denied") {
+              ws.close();
+              resolve(m.reason);
+            }
+          };
+        }),
+      b.id,
+    );
+    expect(denied).toBe("forbidden");
+    await finish(a.context, a.page);
+    await expect(
+      b.page.getByRole("heading", { name: "Aarav wins!" }),
+    ).toBeVisible();
+    expect((await state(a.context)).balancePaise).toBe("100800");
+    await a.page.screenshot({
+      path: "../../test-results/ludo/desktop-result.png",
+      fullPage: true,
+    });
+  } finally {
+    await a.context.close();
+    await b.context.close();
+  }
+});
+test("four separate accounts join one table with four human seats", async ({
+  browser,
+}) => {
+  const players = [];
+  for (const name of [
+    "Red Player",
+    "Green Player",
+    "Yellow Player",
+    "Blue Player",
+  ])
+    players.push(await player(browser, name));
+  try {
+    for (const p of players) {
+      await p.page
+        .getByRole("button", { name: "4 players Classic battle" })
+        .click();
+      await p.page.getByRole("button", { name: "Find a match" }).click();
+      await expect(p.page.locator(".ld-match-id")).toBeVisible();
+    }
+    const t = await state(players[0].context);
+    expect(t.match!.capacity).toBe(4);
+    expect(
+      t.match!.state.players.every((p) => p?.kind === "human"),
+    ).toBeTruthy();
+    expect(t.match!.prizePaise).toBe("3600");
+    for (const p of players) {
+      expect((await state(p.context)).match!.id).toBe(t.match!.id);
+      await expect(p.page.locator(".ld-player")).toHaveCount(4);
+    }
+    await players[0].page.screenshot({
+      path: "../../test-results/ludo/four-players.png",
+      fullPage: true,
+    });
+    await finish(players[0].context, players[0].page);
+    expect((await state(players[0].context)).balancePaise).toBe("102600");
+  } finally {
+    for (const p of players) await p.context.close();
+  }
+});
+test("empty 4-player table fills with three labelled computers after the real countdown", async ({
+  browser,
+}) => {
+  const p = await player(browser, "Solo Player", { width: 390, height: 844 });
+  try {
+    await p.page
+      .getByRole("button", { name: "4 players Classic battle" })
+      .click();
+    await p.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      p.page.getByRole("heading", { name: "Your turn", exact: true }),
+    ).toBeVisible({ timeout: 30000 });
+    const t = await state(p.context);
+    expect(
+      t.match!.state.players.filter((x) => x?.kind === "computer"),
+    ).toHaveLength(3);
+    await expect(
+      p.page.locator(".ld-player").filter({ hasText: "Computer" }),
+    ).toHaveCount(3);
+    const roll = p.page.getByRole("button",{name:"Roll dice",exact:true});
+    const rollBox = await roll.boundingBox();
+    expect(rollBox!.y + rollBox!.height).toBeLessThanOrEqual(844);
+    await roll.click();
+    await expect.poll(async()=>(await state(p.context)).match!.state.rollNonce).toBeGreaterThan(0);
+    await p.page.screenshot({
+      path: "../../test-results/ludo/mobile-match.png",
+      fullPage: true,
+    });
+    await p.context.setOffline(true);
+    await expect(
+      p.page.getByText("Reconnecting…", { exact: true }),
+    ).toBeVisible({ timeout: 15000 });
+    await p.context.setOffline(false);
+    await expect(p.page.getByText("LIVE TABLE", { exact: true })).toBeVisible();
+    expect((await state(p.context)).match!.id).toBe(t.match!.id);
+    await p.page
+      .getByRole("button", { name: "Leave match", exact: true })
+      .click();
+    await p.page.getByRole("button", { name: "Forfeit & leave" }).click();
+    await expect
+      .poll(async () => (await state(p.context)).match!.status)
+      .toBe("finished");
+    expect((await state(p.context)).balancePaise).toBe("99000");
+  } finally {
+    await p.context.setOffline(false);
+    await p.context.close();
+  }
+});
+test("lost join response can be retried without double debit; cancellation refunds once", async ({
+  browser,
+}) => {
+  const p = await player(browser, "Retry Player");
+  try {
+    await p.page.route(
+      "**/api/ludo/join",
+      async (route) => {
+        await route.fetch();
+        await route.abort("failed");
+      },
+      { times: 1 },
+    );
+    await p.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      p.page.getByRole("button", { name: "Retry last action" }),
+    ).toBeVisible();
+    await p.page.getByRole("button", { name: "Retry last action" }).click();
+    await expect(
+      p.page.getByRole("button", { name: "Cancel & refund entry" }),
+    ).toBeEnabled();
+    expect((await state(p.context)).balancePaise).toBe("99000");
+    await p.page.getByRole("button", { name: "Cancel & refund entry" }).click();
+    await expect(
+      p.page.getByRole("heading", { name: "Entry refunded" }),
+    ).toBeVisible();
+    expect((await state(p.context)).balancePaise).toBe("100000");
+  } finally {
+    await p.context.close();
+  }
+});
+for (const viewport of [
+  { width: 320, height: 740 },
+  { width: 390, height: 844 },
+  { width: 844, height: 390 },
+])
+  test(`lobby, controls and rules fit ${viewport.width}x${viewport.height}`, async ({
+    browser,
+  }) => {
+    const p = await player(browser, "Mobile Player", viewport);
+    const errors: string[] = [];
+    p.page.on("pageerror", (e) => errors.push(e.message));
+    try {
+      expect(
+        await p.page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBeTruthy();
+      const button = p.page.getByRole("button", { name: "Find a match" });
+      await button.scrollIntoViewIfNeeded();
+      const box = await button.boundingBox();
+      expect(box!.width).toBeGreaterThan(150);
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      await p.page.getByRole("button", { name: "How to play" }).click();
+      await expect(p.page.getByRole("dialog")).toContainText("10%");
+      await expect(p.page.getByRole("dialog")).toContainText("platform funds");
+      expect(errors).toEqual([]);
+      await p.page.getByRole("button", { name: "Close", exact: true }).click();
+      await p.page.screenshot({
+        path: `../../test-results/ludo/preview-${viewport.width}.png`,
+        fullPage: true,
+      });
+    } finally {
+      await p.context.close();
+    }
+  });

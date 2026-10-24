@@ -2196,6 +2196,7 @@ const GAME_META_ADMIN: Record<string, { title: string; route: string }> = {
   "sic-bo": { title: "Sic Bo", route: "/sic-bo" },
   "andar-bahar": { title: "Andar Bahar", route: "/andar-bahar" },
   "lucky-7": { title: "Lucky 7", route: "/lucky-7" },
+  "ludo": { title:"Ludo Live", route:"/ludo" },
   "teen-patti-joker": { title: "Teenpatti Joker 20-20", route: "/teen-patti-joker" },
   "wheel-2-live": { title: "Wheel 2.0 Live", route: "/wheel-2-live" },
   "lucky-7-live": { title: "Lucky 7 Live", route: "/lucky-7-live" },

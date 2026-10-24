@@ -54,6 +54,7 @@ const HorseRacing = lazy(() => import("@/pages/HorseRacing"));
 const BikeRacing = lazy(() => import("@/pages/BikeRacing"));
 const Rummy = lazy(() => import("@/pages/Rummy"));
 const Poker = lazy(() => import("@/pages/Poker"));
+const Ludo = lazy(() => import("@/pages/Ludo"));
 const DragonTiger = lazy(() => import("@/pages/DragonTiger"));
 const WinGo = lazy(() => import("@/pages/WinGo"));
 const ForexTrading = lazy(() => import("@/pages/ForexTrading"));
@@ -73,6 +74,7 @@ const VirtualSports = lazy(() => import("@/pages/VirtualSports"));
 // Routes where background music is allowed to play. Everything else (lobby,
 // wallet, profile, history, etc.) stays silent on open.
 const GAME_ROUTES = new Set([
+  "/ludo",
   ...INSTANT_COLLECTION.map(g => `/${g.code}`),
   "/mines",
   "/chicken-road",
@@ -204,6 +206,7 @@ function App() {
         <GameViewport game={game}>
         <Suspense fallback={<AuthSplash />}>
         <Switch>
+          <Route path="/ludo"><Protected><Ludo /></Protected></Route>
           {(["poker-one-day", "poker-20-20", "poker-six-players"] as const).map(game => <Route key={game} path={`/${game}`}><Protected><Poker game={game} /></Protected></Route>)}
           {["accountstatement", "currentbets", "activity", "casinoresult", "livecasinoresult", "sportbookresult"].map(kind => <Route key={kind} path={`/report/${kind}`}><Protected><AccountReport key={kind} kind={kind} /></Protected></Route>)}
           {["buttonvalue", "changepassword", "secureauth"].map(kind => <Route key={kind} path={`/settings/${kind}`}><Protected><AccountSettings key={kind} kind={kind} /></Protected></Route>)}

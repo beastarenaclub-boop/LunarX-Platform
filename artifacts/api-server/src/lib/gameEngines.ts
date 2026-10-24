@@ -16,6 +16,7 @@ import { startBikeLiveGameEngine } from "../services/bikeLiveGame";
 import { startHorseLiveGameEngine } from "../services/horseLiveGame";
 
 export function startGameEngines() {
+  startLudoEngine();
   startCrashSettlement();
   startBlackjackTimeoutSweeper();
   startChickenTimeoutSweeper();
@@ -33,3 +34,4 @@ export function startGameEngines() {
   startBikeLiveGameEngine();
   startHorseLiveGameEngine();
 }
+import { startLudoEngine } from "../services/ludo";

@@ -400,6 +400,13 @@
       "when": 1792558800000,
       "tag": "0056_poker_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 57,
+      "version": "7",
+      "when": 1792886400000,
+      "tag": "0057_ludo_matches",
+      "breakpoints": true
     }
   ]
 }

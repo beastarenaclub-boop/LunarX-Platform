@@ -1,5 +1,6 @@
 // Closed allowlist: a demo request must never reach real money/account routes.
 export const DEMO_GAME_ROOTS = new Set([
+  "ludo",
   "instant", "virtual-sports", "mines", "chicken-road", "plinko", "dice",
   "horse-racing", "bike-racing", "roulette", "baccarat", "teen-patti",
   "teen-patti-live", "blackjack", "andar-bahar", "lucky-7", "lucky-7-live",
