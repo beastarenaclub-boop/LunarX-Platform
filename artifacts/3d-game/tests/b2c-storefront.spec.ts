@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { checkCategoryScrolling } from "./fixtures/category-scroll";
 
 async function setup(
   page: Page,
@@ -232,12 +233,73 @@ test("search, categories, disabled games and empty results", async ({
     .click();
   await page
     .getByRole("navigation", { name: "Browse games" })
-    .getByRole("button", { name: "Crash", exact: true })
+    .getByRole("button", { name: "Crash Games", exact: true })
     .click();
   await expect(page.locator("#b2c-games [data-game-id='jetx']")).toBeVisible();
   await expect(
     page.locator("#b2c-games [data-game-id='roulette']"),
   ).toHaveCount(0);
+});
+
+test("category strips support mouse dragging and touch swiping without selecting games", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const { errors } = await setup(page, { loggedIn: true });
+  await checkCategoryScrolling(page, page.getByRole("navigation", { name: "Casino game types" }));
+  await checkCategoryScrolling(page, page.getByRole("navigation", { name: "Browse games" }));
+  expect(errors).toEqual([]);
+});
+
+test("game families include every variant and category buttons stay aligned and reachable", async ({ page }, testInfo) => {
+  const { errors } = await setup(page, { loggedIn: true });
+  const navigation = page.getByRole("navigation", { name: "Casino game types" });
+  const initialCount = await page.locator("#b2c-games [data-game-id]").count();
+  const families: Record<string, string[]> = {
+    Poker: ["poker-one-day", "poker-20-20", "poker-six-players"],
+    "Teen Patti": ["teen-patti", "teen-patti-live", "teen-patti-joker"],
+    "Chicken Road": ["chicken-road", "chicken-road-pirate", "chicken-road-2"],
+    "Dice Games": ["dice", "7up7down", "lucky-7"],
+    Racing: ["wild-trails", "bike-racing", "virtual-formula"],
+  };
+  for (const width of [320, 360, 390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const [name, ids] of Object.entries(families)) {
+      // Choosing a category outside the strip must also reveal its active tab.
+      await page.getByRole("navigation", { name: "Browse games" }).getByRole("button", { name, exact: true }).click();
+      const button = navigation.getByRole("button", { name, exact: true });
+      await expect(button).toHaveAttribute("aria-pressed", "true");
+      // Fractional slot widths can put a fraction of one pixel outside the clip.
+      await expect(button).toBeInViewport({ ratio: 0.99 });
+      const actual = await page.locator("#b2c-games [data-game-id]").evaluateAll(elements => elements.map(element => element.getAttribute("data-game-id")));
+      expect(actual.sort()).toEqual([...ids].sort());
+      await expect.poll(() => navigation.evaluate(nav => {
+        const bounds = nav.getBoundingClientRect();
+        return [...nav.querySelectorAll("button")].filter(button => {
+          const item = button.getBoundingClientRect();
+          return item.left >= bounds.left - 1 && item.right <= bounds.right + 1;
+        }).length;
+      }), { message: `At least six complete categories at ${width}px` }).toBeGreaterThanOrEqual(6);
+    }
+    const dimensions = await navigation.getByRole("button").evaluateAll(buttons => buttons.map(button => {
+      const bounds = button.getBoundingClientRect();
+      const icon = button.querySelector("svg")!.getBoundingClientRect();
+      const label = button.querySelector("span")!.getBoundingClientRect();
+      return [bounds.width, bounds.height, icon.top, label.top].map(Math.round).join(",");
+    }));
+    expect(new Set(dimensions).size, JSON.stringify(dimensions)).toBe(1);
+    const clippedLabels = await navigation.locator("button span").evaluateAll(labels => labels.filter(label => label.scrollHeight > label.clientHeight + 1 || label.scrollWidth > label.clientWidth + 1).map(label => label.textContent));
+    expect(clippedLabels).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: testInfo.outputPath(`categories-${width}.png`) });
+  }
+  await navigation.getByRole("button", { name: "All Casino", exact: true }).click();
+  await expect(page.locator("#b2c-games [data-game-id]")).toHaveCount(initialCount);
+  await navigation.getByRole("button", { name: "Instant Games", exact: true }).click();
+  await expect(page.locator("#b2c-games [data-game-id='jetx']")).toBeVisible();
+  await expect(page.locator("#b2c-games [data-game-id='mines']")).toBeDisabled();
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.getByRole("button", { name: "Search games", exact: true }).click();
+  await expect(page.getByRole("searchbox", { name: "Search games" })).toBeFocused();
+  expect(errors).toEqual([]);
 });
 
 test("demo creates a temporary session and opens games with unlimited coins", async ({

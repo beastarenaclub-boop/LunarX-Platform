@@ -1,4 +1,5 @@
 import { GameInformationDrawer } from "@/components/game/GameInformation";
+import BaccaratRules from "@/components/baccarat/BaccaratRules";
 import { useEffect, useMemo, useState } from "react";
 import { Info, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -95,10 +96,10 @@ export const GAME_RULES: Record<GameRulesCode, GameRules> = {
   },
   baccarat: {
     name: "Baccarat VIP",
-    objective: "Bet on Player, Banker, Tie, or a pair side bet. The hand closest to 9 wins under baccarat dealing rules.",
+    objective: "Bet on Player, Banker, Tie, a pair, or the winning hand's final score. The hand closest to 9 wins under baccarat dealing rules. Score bets lose on a tie, including 0-0.",
     controls: "Select chips on the available spots. Your slip submits automatically when the countdown ends. Review, clear or undo before that time.",
     phases: "Betting opens; two hands are dealt and a third card may be drawn by baccarat rules; the result is revealed; accepted bets settle.",
-    payouts: "Player and Banker use the posted table payouts (Banker commonly pays 0.95:1), Tie and pair payouts are shown on the board. A winning ₹100 bet returns stake plus its posted profit; losing bets return ₹0.",
+    payouts: "Player and Banker pay 1:1 profit, except Banker winning with 6 pays 0.5:1. Tie pays 8:1 and pairs pay 11:1. Winning bets return stake plus profit; losing bets return ₹0.",
     limits: "Minimum chip is ₹1. The server-configured maximum stake and bets per deal apply; the active table configuration is authoritative.",
     rtp: "Baccarat uses its fixed server paytable. Theoretical RTP varies by spot and the configured deck/dealing rules; it is not a guarantee for the next deal.",
     fairness: "Use the separate fairness action and completed-round verification to inspect the committed seeds, deal, winner, and payout replay.",
@@ -253,6 +254,7 @@ export function GameRulesButton({ gameCode }: { gameCode: string }) {
               </section>
             ))}
           </div>
+          {gameCode === "baccarat" && <BaccaratRules />}
           <p className="flex items-start gap-2 text-xs text-white/45">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300/70" />
             The separate provably-fair control remains available for seed commitments and verification; this panel does not alter game math.
@@ -268,7 +270,7 @@ export function getGameRules(code: string): GameRules {
   const payouts: Record<string, string> = {
     "lucky-7": "Under/Over return 2.04×; Exactly 7 returns 5.10×, including stake. A 7 loses Under and Over.",
     roulette: "Total return includes your stake: straight 36× (₹1 returns ₹36), split 18×, street 12×, corner 9×, six-number line 6×, dozen/column 3×, red/black and other outside bets 2×. Zero loses the outside bets. Accepted older rounds retain their original paytable.",
-    baccarat: "Player 1.69×, Banker 1.64×, Tie 8.93×, Pair 11.37× total return. Player/Banker push on a tie. See the posted total-return rates.",
+    baccarat: "Profit odds: Player 1:1; Banker 1:1, except a Banker win with 6 pays 0.5:1; Tie 8:1; Player Pair and Banker Pair 11:1. Winning-score bets: 1–4 pays 7.5:1, 5–6 pays 4:1, 7 pays 4.5:1, 8 pays 3:1 and 9 pays 2.5:1. Winning bets also return the stake. On a tie, Player/Banker main bets push and all score bets lose; pairs still settle independently. The Banker 6 exception applies only to the Banker main bet. Previously accepted rounds retain their posted rates.",
     "teen-patti": "Player A/B and Pair+ use the posted total-return rates. Exact ties push main bets. Rates target 85% RTP, rounded down.",
     "teen-patti-live": "Player A/B and Pair+ use the posted total-return rates. Exact ties push main bets. Rates target 85% RTP, rounded down.",
     "andar-bahar": "Starting/other side and card ranges use the posted total-return rates. All prices include the original stake and round down to paise.",
@@ -280,6 +282,7 @@ export function getGameRules(code: string): GameRules {
   return { ...rules, ...(payouts[code] ? { payouts: payouts[code] } : {}),
     ...(code === "roulette" ? { limits: "₹10 minimum on every selection. Single numbers (including zero): ₹20,000 maximum; multi-number and outside selections: ₹1,00,000 maximum. Limits combine all bets on the same selection per player per round. The overall table slip limit also applies. Auto bet sends only your selected chips for the current round; a new round requires a new selection." } : {}),
     rtp: code === "roulette" ? "37 equally likely pockets and a 36-base paytable give 97.2973% theoretical RTP and a 2.7027% house edge. Results are independent of stakes. Neither a round nor a session guarantees company profit."
+      : code === "baccarat" ? "Fixed odds with half profit on Banker wins totaling 6. Theoretical RTP varies by bet and the eight-deck drawing rules; these prices are not adjusted to an 85% target. Previously accepted rounds keep their original paytable."
       : code === "blackjack" ? "Returns are 85% of the standard paytable; actual RTP depends on player strategy and the card rules, so it is not an exact 85% guarantee."
       : code === "rummy" ? "15% table commission. Individual RTP is skill-dependent and is not fixed at 85%."
       : "85% theoretical RTP target over many plays (15% expected house margin), subject to posted price rounding and multiplier caps. Individual rounds and sessions can lose money for either side. Previously accepted bets retain their original terms." };

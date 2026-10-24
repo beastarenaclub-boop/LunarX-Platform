@@ -1,0 +1,34 @@
+﻿{
+  "tool": "Runway generate_video",
+  "taskId": "51ac807a-18dd-481d-9603-f8bb84e580f4",
+  "model": "seedance-2",
+  "prompt": "Photorealistic cinematic footage of a fictional adult Indian female casino dealer, age 28, behind a real midnight blue felt card table. ONE continuous locked-off frontal medium-wide shot, 16:9, ten seconds. A real movie camera look, natural skin texture, warm brown skin, dark brown eyes, long dark hair neatly behind shoulders, black blouse and tailored burgundy waistcoat, small gold hoop earrings. Professional warm expression. Both hands with five fingers, elbows and full face visible. Intimate dark-wood casino lounge with warm amber lamps and subtle purple background accent. Table lower 40 percent, face upper middle, clear sharp hands and softly blurred background. IMPORTANT TABLE LAYOUT FROM THE VERY FIRST FRAME THROUGH THE LAST: EXACTLY SEVEN distinct playing cards, ALL FACE DOWN with identical plain deep burgundy backs and thin ivory paper edges. Three separate cards in one horizontal row on the LEFT of the image, a SINGLE separate card in the CENTER, and three separate cards in one horizontal row on the RIGHT. Large clear gap separates these three groups: [3 cards] [1 card] [3 cards]. All seven cards are already on the felt at the start. They remain completely still in exactly those positions and remain face-down for the entire shot. No card faces or rank symbols ever visible. A squared matching deck sits beside the dealer near the rear edge, well away from the seven laid-out cards. Performance: first two seconds she looks toward the player and blinks naturally, hands relaxed behind the cards. Seconds two to four she gently taps the top of the squared spare deck with her fingertips and draws her hand back. Seconds four to seven, looking down, she makes a small natural open-hand presentation gesture toward the left three-card group, then the center single card, then the right three-card group, her fingers remaining BEHIND the cards and never covering them. Seconds seven to ten her hands settle relaxed on the rear felt; she looks back toward the player with a small confident smile and a subtle nod. Restrained human motions, natural breathing, credible card-table hostess performance. The seven cards NEVER move, flip, multiply, disappear, overlap or change. No dealing additional cards, no shuffling, no lifting cards. No camera movement, zoom, cuts, text, logos, graphics, watermark, extra people or cartoon rendering. Premium cinematic realism and stable anatomy.",
+  "source": "tmp/teenpatti-joker/cinema/dealer-source-v2.mp4",
+  "output": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 24,
+    "durationSeconds": 10,
+    "audio": false
+  },
+  "assets": [
+    "dealer-cinema-v1.mp4",
+    "dealer-cinema-mobile-v1.mp4",
+    "dealer-cinema-poster-v1.webp",
+    "dealer-cinema-result-v1.webp"
+  ],
+  "cleanFelt": {
+    "tool": "Built-in image_gen",
+    "prompt": "Edit the supplied casino still frame. Keep the exact same adult woman, face, pose, hands, deck under her hand on the left, room, camera, framing and lighting. Remove ONLY the six separate face-down playing cards lying on the table (five across the foreground and one centered behind them) and ALL five gold rectangular card-slot outlines. Fill those removed objects with continuous natural midnight navy blue felt matching the surrounding felt, realistic subtle texture and existing table lighting. The table playing surface should be empty, except the original stacked deck under her hand at the far left. Do not change the dealer, hands, clothing, deck, background, camera, tabletop geometry or colors. No new objects, no text, no watermark. Full original landscape 16:9 frame.",
+    "asset": "src/assets/teenpatti-joker/clean-felt-v1.png"
+  },
+  "packaging": "artifacts/3d-game/scripts/prepare-joker-cinema.mjs",
+  "processing": "Offline feathered felt replacement removes generated prop-card slots and retains the original moving hands in the foreground. Face, body and upper studio remain from the video. Runtime projects exactly seven server-supplied cards onto the clear felt.",
+  "role": "Fictional adult AI dealer presenting the card table. Not a live camera. Game outcomes and payouts come only from the server.",
+  "discarded": [
+    {
+      "taskId": "d0059a4c-7489-4e37-b286-830b31836747",
+      "reason": "The card count and face markings did not match Teen Patti Joker."
+    }
+  ]
+}

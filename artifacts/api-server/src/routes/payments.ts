@@ -60,7 +60,7 @@ const GameScope = z
     "andar-bahar",
     "lucky-7",
     "lucky-7-live",
-  "wheel-2-live",
+  "wheel-2-live", "teen-patti-joker",
   ])
   .default("lunar");
 

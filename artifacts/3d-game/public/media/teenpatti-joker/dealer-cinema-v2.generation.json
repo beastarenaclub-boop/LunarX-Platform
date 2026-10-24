@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-21",
+  "output": {
+    "durationSeconds": 33,
+    "fps": 24,
+    "desktop": {
+      "file": "dealer-cinema-v2.mp4",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 10861288
+    },
+    "mobile": {
+      "file": "dealer-cinema-mobile-v2.mp4",
+      "width": 1280,
+      "height": 720,
+      "bytes": 3655785
+    }
+  },
+  "review": "Reviewed one-second contact frames of all four takes. Riffle/overhand shuffle, ribbon spread, packet cut, individual card slides and collection are visible. Generated prop count/layout is illustrative and does not reproduce the seven server cards one-to-one; authoritative cards are shown in the result rail. AI prop/shot continuity imperfections remain.",
+  "provider": "Runway",
+  "model": "seedance-2.5",
+  "sourceReferenceTaskId": "51ac807a-18dd-481d-9603-f8bb84e580f4",
+  "referenceResearch": [
+    {
+      "url": "https://games.evolution.com/live-casino/live-poker/",
+      "use": "Reviewed official dealer/table framing; no external casino footage is bundled."
+    },
+    {
+      "file": "artifacts/3d-game/public/media/teen-patti-2020/reference-sequential-v4.mp4",
+      "use": "Reviewed existing project recording for physical handling and table workflow; not used in output."
+    }
+  ],
+  "takes": [
+    {
+      "name": "shuffle",
+      "taskId": "01fa7579-1826-4153-b20d-61d03327975b",
+      "prompt": "Reimagine the supplied video as a premium cinematic casino sequence. Preserve the identity of this fictional adult Indian woman aged 28, black blouse, burgundy waistcoat, dark hair, warm amber wood casino lounge and midnight blue felt table. The supplied clip is ONLY an appearance and set reference: replace its timid presenting gestures with the specified real card handling. Full natural human speed, believable finger contact with rigid paper cards, natural eye movement following her hands, subtle breathing. 16:9, photographic skin, cinematic but clear lighting on hands, no artificial beauty blur. All cards have plain burgundy backs and ivory paper edges. No text, titles, logos, HUD, watermarks or cuts within the shot. Never freeze or repeat motion. Medium-wide shot, tripod, face and both hands clearly visible. EMPTY felt except ONE complete deck she holds. Over the whole shot she continuously shuffles the deck: splits it into two halves, uses both thumbs to riffle the corners together visibly, pushes the interleaved halves together on the felt, squares the edges by tapping the packet, then performs a smooth overhand shuffle. Real loose card edges and packets changing position. Show an actual practiced shuffle from beginning to end, never just waving over the deck. She glances up briefly near the end and back down. No cards laid in a row on the felt.",
+      "source": "tmp/teenpatti-joker/cinema-v2/shuffle.mp4"
+    },
+    {
+      "name": "cut",
+      "taskId": "f7b4c1be-0b4b-4327-a534-45dd7eb57337",
+      "prompt": "Reimagine the supplied video as a premium cinematic casino sequence. Preserve the identity of this fictional adult Indian woman aged 28, black blouse, burgundy waistcoat, dark hair, warm amber wood casino lounge and midnight blue felt table. The supplied clip is ONLY an appearance and set reference: replace its timid presenting gestures with the specified real card handling. Full natural human speed, believable finger contact with rigid paper cards, natural eye movement following her hands, subtle breathing. 16:9, photographic skin, cinematic but clear lighting on hands, no artificial beauty blur. All cards have plain burgundy backs and ivory paper edges. No text, titles, logos, HUD, watermarks or cuts within the shot. Never freeze or repeat motion. A slightly elevated medium shot from the player's left, face and both hands in frame, table occupies lower half. She spreads the burgundy-backed full deck into a curved ribbon across the felt using her right palm, then gathers it into one packet, cuts the deck into three packets, stacks the packets and squares them. She looks down at the moving cards, then toward the player with a small acknowledging smile. This is continuous varied professional card-table preparation, no idle loop. Card backs always facing camera, no printed faces. Keep all motion physically attached to hands.",
+      "source": "tmp/teenpatti-joker/cinema-v2/cut.mp4"
+    },
+    {
+      "name": "deal",
+      "taskId": "ffc0fe72-8378-439a-99a3-57bd2521c25b",
+      "prompt": "Reimagine the supplied video as a premium cinematic casino sequence. Preserve the identity of this fictional adult Indian woman aged 28, black blouse, burgundy waistcoat, dark hair, warm amber wood casino lounge and midnight blue felt table. The supplied clip is ONLY an appearance and set reference: replace its timid presenting gestures with the specified real card handling. Full natural human speed, believable finger contact with rigid paper cards, natural eye movement following her hands, subtle breathing. 16:9, photographic skin, cinematic but clear lighting on hands, no artificial beauty blur. All cards have plain burgundy backs and ivory paper edges. No text, titles, logos, HUD, watermarks or cuts within the shot. Never freeze or repeat motion. A slightly elevated frontal medium shot shows the adult woman's full face and all her hands above a completely clear felt tabletop. Starting with one full deck in her left hand and NO loose cards on the table, she physically peels one card at a time using right thumb and index finger and slides each face-down card onto the felt. Deal one central card first, then alternate three left and three right, seven cards total. Perform each separate slide at natural speed during the first seven seconds. Each placed card stays on the felt. By second seven: three burgundy backs on screen-left, one central burgundy back, three on screen-right. Last three seconds she sets the remaining deck near her elbow and makes a restrained acknowledgement while looking down at the laid cards. The visible cards remain face down: NO flips, NO ranks, NO faces, no automatic card appearance. Hands visibly carry every card. Prioritize convincingly human dealing over perfect arrangement.",
+      "source": "tmp/teenpatti-joker/cinema-v2/deal.mp4"
+    },
+    {
+      "name": "collect",
+      "taskId": "d3f7509d-ee57-4fa1-92f6-a1731c38725d",
+      "prompt": "Reimagine the supplied video as a premium cinematic casino sequence. Preserve the identity of this fictional adult Indian woman aged 28, black blouse, burgundy waistcoat, dark hair, warm amber wood casino lounge and midnight blue felt table. The supplied clip is ONLY an appearance and set reference: replace its timid presenting gestures with the specified real card handling. Full natural human speed, believable finger contact with rigid paper cards, natural eye movement following her hands, subtle breathing. 16:9, photographic skin, cinematic but clear lighting on hands, no artificial beauty blur. All cards have plain burgundy backs and ivory paper edges. No text, titles, logos, HUD, watermarks or cuts within the shot. Never freeze or repeat motion. A closer elevated frontal shot includes woman's full face, arms and the playing surface. Seven burgundy-backed cards lie on the felt in two groups of three and one central card. In the first six seconds she physically sweeps both three-card groups inward with both hands, picks up the center card, gathers all seven into a single packet, taps the packet's edges on the felt, then places it on the remaining deck by her left elbow. The paper cards travel with her hands and never dissolve. Remaining seconds she picks up the deck and makes an easy practiced overhand shuffle. Professional calm expression, looking between cards and camera. Show continuous real handling throughout, no posing, no freeze, no repeated gestures.",
+      "source": "tmp/teenpatti-joker/cinema-v2/collect.mp4"
+    }
+  ],
+  "packaging": "artifacts/3d-game/scripts/prepare-joker-sequence.mjs",
+  "processing": "Native frames trimmed into four editorial shots. No hand/felt replacement, synthetic card overlay, reversed frames, freeze-frame tail, or optical flow.",
+  "role": "AI-generated cinematic dealer performance. The game server supplies all playable results in the card rail. This is not a live camera feed."
+}

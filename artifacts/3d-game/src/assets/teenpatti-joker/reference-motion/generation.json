@@ -1,0 +1,149 @@
+{
+  "status": "Complete: reference v3 activated in the local main frontend and validated at native playback speed.",
+  "request": "Preserve the current fictional adult AI dealer while matching the supplied recording's movements.",
+  "source": {
+    "file": "Screen Recording 2026-10-21 223438.mp4",
+    "crop": {
+      "x": 0,
+      "y": 32,
+      "width": 508,
+      "height": 286
+    },
+    "segments": [
+      {
+        "start": 0,
+        "duration": 23,
+        "keyframe": 0.5
+      },
+      {
+        "start": 23,
+        "duration": 23,
+        "keyframe": 0.5
+      },
+      {
+        "start": 46,
+        "duration": 20.9,
+        "keyframe": 4
+      }
+    ]
+  },
+  "imageGeneration": {
+    "tool": "imagegen",
+    "mode": "built-in imagegen edit",
+    "prompt": "Edit image 1 as a precise video keyframe. Image 2 is the approved fictional adult AI dealer identity and room reference. Replace ONLY the woman in image 1 with exactly the adult Indian woman from image 2: recognizable same face, skin tone, dark hair swept behind her shoulders, small gold hoop earrings, black long-sleeved collared shirt and fitted burgundy waistcoat. CRITICAL preserve image 1's exact body pose, arm and finger positions, head direction and gaze. Her hands must occupy exactly the same pixels and touch the exact same objects as image 1. Do not copy the shuffle pose from image 2. Keep image 1's fixed camera/framing and the entire blue table geometry, all seven marked slots, the extra burn-card slot at screen-left, the mouse, the clear card shoe at screen-right, the exact number and positions of existing physical cards. Leave empty slots empty; leave card backs unchanged. On face-up cards, remove ONLY printed ranks and pips, leaving clean blank ivory paper in exactly the same shapes and positions with original shadows. Keep the physical table labels PLAYER A, PLAYER B, JOKER. Replace the black/logo wall behind her with the identical warm dark wood and amber-lamp casino room from image 2, seen from the camera position of image 1. Remove all screen overlays, sidebar card readouts, logos, tiny round ID, green top strip, playback/mute/home/info buttons, and loading spinner. Make the small screen on the left unlit dark glass with no text. Do not add or move cards. Photographic realism, detailed hands and face. One single 16:9 full-frame image, no collage.",
+    "identityReference": "public/media/teenpatti-joker/dealer-cinema-poster-v2.webp",
+    "anchors": [
+      "anchor-01.png",
+      "anchor-02.png",
+      "anchor-03.png"
+    ]
+  },
+  "videoGeneration": {
+    "tool": "Runway edit_video",
+    "mode": "source-video edit with edited keyframe",
+    "prompt": "Replace the female dealer, her clothes, and the room background with the fictional adult Indian AI dealer in the edited keyframe: black long-sleeved collared shirt, burgundy waistcoat, swept-back dark hair, gold hoop earrings, warm wood casino room. Preserve the source video's exact hand movements, card trajectories, face-up card count, card locations, pauses, camera framing and timing. Remove all screen UI, logos, round numbers, playback buttons, floating card readouts and the loading spinner throughout. Remove printed ranks and pips only from face-up cards so they are blank ivory paper; keep card backs. Leave every placed card on the table until the source hands physically move it. Keep the card shoe, mouse and table labels as in the keyframe.",
+    "jobs": [
+      {
+        "id": "01",
+        "taskId": "fe2076e1-3019-449b-9d81-7c99c2fb4b91",
+        "status": "SUCCEEDED",
+        "savedOutput": "section-01.mp4"
+      },
+      {
+        "id": "02",
+        "taskId": "74235846-7d8b-4ac4-9b3c-ab00161f02d1",
+        "status": "FAILED"
+      },
+      {
+        "id": "03",
+        "taskId": "ce7f8f9a-d9ee-4785-b2f0-06191459d7af",
+        "status": "FAILED"
+      }
+    ],
+    "retries": [
+      {
+        "id": "02",
+        "taskId": "e4b9d260-0bd2-4129-b2c8-746d8fd0fddf",
+        "status": "SUCCEEDED",
+        "savedOutput": "section-02.mp4"
+      },
+      {
+        "id": "03",
+        "taskId": "26b483d4-7a52-422e-b54c-a7123c256632",
+        "status": "RUNNING"
+      },
+      {
+        "id": "03-exact",
+        "taskId": "07d304ee-fecf-4a14-a885-d1c26e12b69f",
+        "status": "SUCCEEDED",
+        "duration": 20,
+        "reason": "Alternate exact-duration source after the longer-input render remained at preparation; not a confirmed diagnosis of the service failure.",
+        "savedOutput": "section-03.mp4"
+      }
+    ]
+  },
+  "timing": {
+    "betting": 20,
+    "reveal": 49,
+    "settle": 17,
+    "cardLandings": [
+      8,
+      15,
+      20,
+      27,
+      34,
+      41,
+      48
+    ]
+  },
+  "rejectedApproach": "Initial loose motion-transfer renders reset already-dealt cards and retained a buffering spinner. They were not activated.",
+  "review": {
+    "url": "http://localhost:5384/reference-review.html",
+    "referenceSecondsReady": 66,
+    "previewIncludesPreparationSeconds": 20,
+    "details": "Full film inspected through last card, hold, collection and shoe reload. Corrected disappearing/premature papers, preserved hands and large moving stacks, and removed the extra residual table pad.",
+    "savedAssets": [
+      "anchor-01.png",
+      "anchor-02.png",
+      "anchor-03.png",
+      "section-01.mp4",
+      "paper-tracks-preview.json",
+      "../../../../public/media/teenpatti-joker/dealer-reference-preview-v3.mp4",
+      "section-02.mp4",
+      "section-03.mp4",
+      "paper-tracks.json",
+      "../../../../public/media/teenpatti-joker/dealer-reference-v3.mp4",
+      "../../../../public/media/teenpatti-joker/dealer-reference-mobile-v3.mp4",
+      "../../../../public/media/teenpatti-joker/dealer-reference-poster-v3.webp",
+      "../../../../public/media/teenpatti-joker/dealer-reference-result-v3.webp"
+    ],
+    "previewFilm": "public/media/teenpatti-joker/dealer-reference-v3.mp4"
+  },
+  "validation": {
+    "frontendTypecheck": "passed after the final poster-readiness fix",
+    "frontendBuild": "passed after the final poster-readiness fix; bundle-size advisory only",
+    "apiBuild": "passed",
+    "apiTests": "7 passed",
+    "browserTests": "14 scenarios passed across the full run and focused checks: 12 initially passed; the refresh test had a blank-page load and passed unchanged on retry; the added missed-loadeddata regression passed.",
+    "mainPageSmoke": "Actual main route with isolated demo sessions: native 20/49/17 configuration, 86s 1280px mobile video visibly playing at 1x with opacity 1, table-ink canvas present (7543 painted pixels), no browser/API errors or horizontal overflow. Sessions signed out without bets.",
+    "media": "1080p and 720p films validated at 2064 frames, 24fps, 86 seconds",
+    "database": "Only original teen-patti-joker 20000/7000/6000 config upgraded to 20000/49000/17000. Custom configs and in-flight round deadlines preserved."
+  },
+  "mainFrontend": {
+    "url": "http://localhost:5180/teen-patti-joker",
+    "film": "dealer-reference-v3.mp4",
+    "mobileFilm": "dealer-reference-mobile-v3.mp4",
+    "duration": 86,
+    "timingMs": {
+      "betting": 20000,
+      "reveal": 49000,
+      "settle": 17000
+    }
+  },
+  "limitations": [
+    "Generated video follows the reference choreography and timing but is not a frame-identical motion capture. Small appearance/position differences remain between edited sections.",
+    "Server card values are projected onto tracked photographed paper; some video-model paper artifacts are corrected by the local compositor."
+  ],
+  "readinessFix": "A video can load while the lazy route is suspended before React observes loadeddata. The sync loop now uses readyState to reveal the moving film and mount its table ink; missed-loadeddata regression test added.",
+  "completedAt": "2026-10-21T19:35:04.169Z"
+}

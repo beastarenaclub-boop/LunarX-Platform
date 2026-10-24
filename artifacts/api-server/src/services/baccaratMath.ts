@@ -1,4 +1,15 @@
 import { BACCARAT_RETURNS } from "@workspace/api-zod/game-economics";
+import {
+  BACCARAT_BET_TYPES,
+  BACCARAT_SCORE_RETURNS,
+  BACCARAT_PAYOUT_VERSION,
+  BACCARAT_PAYTABLE,
+  BACCARAT_BANKER_SIX_RETURN,
+  baccaratWinningScoreBet,
+  type BaccaratBetType,
+  type BaccaratPayouts,
+} from "@workspace/api-zod/baccarat-game";
+export { BACCARAT_BET_TYPES, type BaccaratBetType } from "@workspace/api-zod/baccarat-game";
 /**
  * Pure Punto Banco baccarat math: dealing (exact tableau third-card rules)
  * and settlement. No IO — fully deterministic given the shuffled shoe, so
@@ -8,21 +19,6 @@ import { BACCARAT_RETURNS } from "@workspace/api-zod/game-economics";
  * integer 0..(52*decks - 1); `card % 52` is the canonical card, rank =
  * (card % 52) % 13 with 0=A, 1=2, ... 8=9, 9=10, 10=J, 11=Q, 12=K.
  */
-
-export type BaccaratBetType =
-  | "player"
-  | "banker"
-  | "tie"
-  | "playerPair"
-  | "bankerPair";
-
-export const BACCARAT_BET_TYPES: readonly BaccaratBetType[] = [
-  "player",
-  "banker",
-  "tie",
-  "playerPair",
-  "bankerPair",
-];
 
 export interface BaccaratBetInput {
   type: BaccaratBetType;
@@ -161,10 +157,37 @@ const RETURN_HUNDREDTHS: Record<BaccaratBetType, bigint> = {
   tie: 900n,
   playerPair: 1200n,
   bankerPair: 1200n,
+  score1_4: BigInt(BACCARAT_SCORE_RETURNS.score1_4),
+  score5_6: BigInt(BACCARAT_SCORE_RETURNS.score5_6),
+  score7: BigInt(BACCARAT_SCORE_RETURNS.score7),
+  score8: BigInt(BACCARAT_SCORE_RETURNS.score8),
+  score9: BigInt(BACCARAT_SCORE_RETURNS.score9),
 };
 
-export function baccaratReturnMultiplier(type: BaccaratBetType, payoutVersion = 2): number {
-  return Number(payoutVersion === 2 ? BACCARAT_RETURNS[type] : RETURN_HUNDREDTHS[type]) / 100;
+const VERSION_TWO_RETURNS: Record<BaccaratBetType, number> = {
+  ...BACCARAT_RETURNS,
+  ...BACCARAT_SCORE_RETURNS,
+};
+
+function returnHundredths(type: BaccaratBetType, payoutVersion: number, bankerTotal?: number): bigint {
+  if (payoutVersion === BACCARAT_PAYOUT_VERSION) {
+    return BigInt(type === "banker" && bankerTotal === 6 ? BACCARAT_BANKER_SIX_RETURN : BACCARAT_PAYTABLE[type]);
+  }
+  return payoutVersion === 2 ? BigInt(VERSION_TWO_RETURNS[type]) : RETURN_HUNDREDTHS[type];
+}
+
+export function baccaratReturnMultiplier(type: BaccaratBetType, payoutVersion = BACCARAT_PAYOUT_VERSION, bankerTotal?: number): number {
+  return Number(returnHundredths(type, payoutVersion, bankerTotal)) / 100;
+}
+
+/** Quote the same snapshotted version and cap that settlement uses. */
+export function baccaratPayouts(maxMultiplier: number, payoutVersion = BACCARAT_PAYOUT_VERSION): BaccaratPayouts {
+  const cap = Math.max(100, Math.floor(maxMultiplier * 100)) / 100;
+  return {
+    payoutVersion,
+    payouts: Object.fromEntries(BACCARAT_BET_TYPES.map((type) => [type, Math.min(cap, baccaratReturnMultiplier(type, payoutVersion))])) as Record<BaccaratBetType, number>,
+    bankerSixReturn: Math.min(cap, baccaratReturnMultiplier("banker", payoutVersion, 6)),
+  };
 }
 
 export interface BaccaratSettlement {
@@ -217,11 +240,18 @@ export function settleBaccaratBets(
       case "bankerPair":
         didWin = deal.bankerPair;
         break;
+      case "score1_4":
+      case "score5_6":
+      case "score7":
+      case "score8":
+      case "score9":
+        didWin = b.type === baccaratWinningScoreBet(deal);
+        break;
     }
 
     let payout = 0n;
     if (didWin) {
-      const quoted = payoutVersion === 2 ? BigInt(BACCARAT_RETURNS[b.type]) : RETURN_HUNDREDTHS[b.type];
+      const quoted = returnHundredths(b.type, payoutVersion, deal.bankerTotal);
       const hundredths = quoted < capHundredths ? quoted : capHundredths;
       payout = (b.amountPaise * hundredths) / 100n;
     } else if (push) {

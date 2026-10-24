@@ -15,6 +15,7 @@ import {
   generateSeed,
 } from "./rtp";
 import {
+  BACCARAT_BET_TYPES,
   dealBaccarat,
   settleBaccaratBets,
   type BaccaratBetInput,
@@ -22,9 +23,10 @@ import {
   type BaccaratDeal,
 } from "./baccaratMath";
 import { placeBet, cashOutBet, settleLoss, refundStake } from "./bets";
+import { BACCARAT_PAYOUT_VERSION } from "@workspace/api-zod/baccarat-game";
 
 export const BACCARAT_GAME_CODE = "baccarat";
-export const BACCARAT_MAX_BETS_PER_DEAL = 5;
+export const BACCARAT_MAX_BETS_PER_DEAL = BACCARAT_BET_TYPES.length;
 export const BACCARAT_DECKS = CARD_GAME_DECKS["baccarat"] ?? 8;
 
 export interface DealInput {
@@ -323,7 +325,7 @@ export async function playBaccarat(
     clientSeed = claimed.clientSeed;
     nonce = claimed.nonce;
     deal = deriveBaccaratDeal(serverSeed, clientSeed, nonce);
-    const result = settleBaccaratBets(input.bets, deal, cfg.maxMultiplier, 2);
+    const result = settleBaccaratBets(input.bets, deal, cfg.maxMultiplier, BACCARAT_PAYOUT_VERSION);
     settled = result.settled;
     totalPayout = result.totalPayout;
   } catch (err) {

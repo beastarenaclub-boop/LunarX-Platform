@@ -576,7 +576,7 @@ export default function TeenPatti() {
   const unavailableMarket = (market: string, side: string) => (
     <button
       type="button"
-      className="tp20-market-button"
+      className="tp20-market-button tp20-unavailable"
       disabled
       aria-label={market + ", Player " + side + " · Unavailable"}
       title="This market is not available at this table"

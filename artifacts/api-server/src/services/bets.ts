@@ -77,6 +77,7 @@ export interface PlaceBetInput {
 
 export async function placeBet(input: PlaceBetInput): Promise<Bet> {
   if (isRetiredGame(input.gameCode)) throw badRequest("This game is no longer available.");
+  if (input.gameCode === "teen-patti-joker") throw badRequest("Use the Joker 20-20 table to confirm your bet.");
   if (input.gameCode === "wheel-2-live") throw badRequest("Use the Wheel 2.0 Live table to confirm your bet.");
   if (input.gameCode === "lucky-7-live") throw badRequest("Use the Lucky 7 Live table to confirm your bet.");
   if (input.gameCode === "7up7down") throw badRequest("Use the 7 Up 7 Down table to confirm your bet.");
@@ -327,6 +328,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   }
   if (existing.gameCode === "chicken-road") throw badRequest("Use the Chicken Road game to cash out.");
   if (existing.gameCode === "7up7down") throw badRequest("7 Up 7 Down payouts are settled by the game server.");
+  if (existing.gameCode === "teen-patti-joker") throw badRequest("Joker 20-20 bets are settled by the game server.");
   if (existing.gameCode === "wheel-2-live") throw badRequest("Wheel 2.0 Live outcomes are settled by the game server.");
   if (existing.gameCode === "lucky-7-live") throw badRequest("Lucky 7 Live payouts are settled by the game server.");
   if (existing.gameCode === "crazy-time" && (input.crazyTimePayoutPaise === undefined || input.crazyTimePayoutPaise < 0n || input.crazyTimePayoutPaise > existing.stakeAmount * 5001n)) {
@@ -630,6 +632,7 @@ export async function settleLoss(
   }
   if (existing.gameCode === "chicken-road") throw badRequest("Chicken Road outcomes are settled by the game server.");
   if (existing.gameCode === "7up7down") throw badRequest("7 Up 7 Down outcomes are settled by the game server.");
+  if (existing.gameCode === "teen-patti-joker") throw badRequest("Joker 20-20 bets are settled by the game server.");
   if (existing.gameCode === "wheel-2-live") throw badRequest("Wheel 2.0 Live outcomes are settled by the game server.");
   if (existing.gameCode === "lucky-7-live") throw badRequest("Lucky 7 Live outcomes are settled by the game server.");
   if (existing.gameCode === "crazy-time" && !crazyTimeTableSettlement) {

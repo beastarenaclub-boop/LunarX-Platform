@@ -7,8 +7,9 @@ import {
 } from "./wheelData";
 import { cn } from "@/lib/utils";
 import { formatChip } from "@/components/table/chips";
+import MobileBettingBoard from "./MobileBettingBoard";
 
-interface Props {
+export interface BettingBoardProps {
   payoutBase?: number;
   bets: Map<string, PlacedBet>;
   onPlace: (bet: Omit<PlacedBet, "amount">) => void;
@@ -74,7 +75,7 @@ function Hotspot({
   );
 }
 
-export default function BettingBoard({ bets, onPlace, disabled, highlight, payoutBase = 36 }: Props) {
+export default function BettingBoard({ bets, onPlace, disabled, highlight, payoutBase = 36 }: BettingBoardProps) {
   const chipFor = (b: { type: BetType; numbers?: number[]; selection?: number }) =>
     bets.get(betKey(b))?.amount;
 
@@ -98,6 +99,7 @@ export default function BettingBoard({ bets, onPlace, disabled, highlight, payou
 
   return (
     <div className="roulette-board-area min-w-0 w-full">
+    <MobileBettingBoard bets={bets} onPlace={onPlace} disabled={disabled} highlight={highlight} payoutBase={payoutBase} />
     <p className="roulette-mobile-hint">Swipe the table to see all numbers</p>
     <div className="roulette-board-scroll w-full pb-1 overflow-x-auto overflow-y-hidden touch-manipulation" role="region" aria-label="Roulette betting table" tabIndex={0}>
       <div className="roulette-number-board min-w-[320px] max-w-[800px] w-full mx-auto select-none">

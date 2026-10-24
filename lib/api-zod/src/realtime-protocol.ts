@@ -67,6 +67,8 @@ export const ALLOWED_ROLES_PER_TOPIC: Record<
   "table-rounds:teen-patti-live": ["player", "agent", "support", "admin", "super_admin"],
   "table-rounds:andar-bahar": ["player", "agent", "support", "admin", "super_admin"],
   "table-rounds:lucky-7": ["player", "agent", "support", "admin", "super_admin"],
+  "table-rounds:teen-patti-joker": ["player", "agent", "support", "admin", "super_admin"],
+  "game-config:teen-patti-joker": ["player", "agent", "support", "admin", "super_admin"],
   "table-rounds:wheel-2-live": ["player", "agent", "support", "admin", "super_admin"],
   "table-rounds:lucky-7-live": ["player", "agent", "support", "admin", "super_admin"],
   "table-rounds:crazy-time": ["player", "agent", "support", "admin", "super_admin"],

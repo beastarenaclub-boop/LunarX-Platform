@@ -35,11 +35,12 @@ import { cn } from "@/lib/utils";
 import BaccaratAudioControls from "./BaccaratAudioControls";
 import { useBaccaratAudio } from "./useBaccaratAudio";
 import BaccaratHands from "./BaccaratHands";
+import BaccaratScoreboard from "./BaccaratScoreboard";
 import { BACCARAT_ROUND_TIMING } from "@workspace/api-zod/baccarat-game";
 import BaccaratHistory, { type BaccaratHistoryEntry } from "./BaccaratHistory";
 import DealerStudio, { type Presentation } from "./DealerStudio";
 import { orderedCards, type StudioDeal } from "./studioTimeline";
-import { BET_LABELS, BET_PAYOUT_LABELS, type BaccaratBetType } from "./cards";
+import { BET_LABELS, BET_PAYOUT_LABELS, profitOdds, type BaccaratBetType } from "./cards";
 import "./baccarat-studio.css";
 import "./baccarat-reference.css";
 
@@ -66,6 +67,7 @@ interface Props {
   onDouble: () => void;
   onFairness: () => void;
   payouts?: Record<BaccaratBetType, number>;
+  bankerSixReturn?: number;
   history: BaccaratHistoryEntry[];
   accountLabel?: string;
 }
@@ -128,6 +130,13 @@ export default function BaccaratTable(p: Props) {
           ...p.history.filter((entry) => entry.roundId !== r.roundId),
         ]
       : p.history;
+  const spotAmount = (spot: BaccaratBetType) => (p.bets.get(spot) ?? 0) + r.myBets.reduce(
+    (sum, slip) => sum + (Array.isArray(slip.bets)
+      ? slip.bets.filter((b: { type?: string }) => b.type === spot)
+          .reduce((total: number, b: { amountPaise?: string }) => total + Number(b.amountPaise ?? 0) / 100, 0)
+      : 0),
+    0,
+  );
   useEffect(() => {
     const update = () => setFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", update);
@@ -273,6 +282,13 @@ export default function BaccaratTable(p: Props) {
 
       <div className="bc-console">
         <section className="bc-dock" aria-label="Baccarat betting table">
+          <BaccaratScoreboard
+            editable={editable}
+            result={complete ? p.deal : null}
+            payouts={p.payouts}
+            amount={spotAmount}
+            onBet={p.onBet}
+          />
           <div className="bc-coins">
             <TableCoinRack
               preferences={p.coins}
@@ -316,22 +332,7 @@ export default function BaccaratTable(p: Props) {
             </div>
             <div className="bc-betting-board">
               {spots.map((spot) => {
-                const staged = p.bets.get(spot) ?? 0;
-                const accepted = r.myBets.reduce(
-                  (sum, slip) =>
-                    sum +
-                    (Array.isArray(slip.bets)
-                      ? slip.bets
-                          .filter((b: { type?: string }) => b.type === spot)
-                          .reduce(
-                            (s: number, b: { amountPaise?: string }) =>
-                              s + Number(b.amountPaise ?? 0) / 100,
-                            0,
-                          )
-                      : 0),
-                  0,
-                );
-                const amount = staged + accepted;
+                const amount = spotAmount(spot);
                 const won =
                   complete &&
                   (winner === spot ||
@@ -350,6 +351,9 @@ export default function BaccaratTable(p: Props) {
                     disabled={!editable}
                     onClick={() => p.onBet(spot)}
                     aria-label={`Bet on ${BET_LABELS[spot]}`}
+                    title={spot === "banker" && p.bankerSixReturn != null
+                      ? `Banker pays ${p.payouts ? profitOdds(p.payouts.banker) : BET_PAYOUT_LABELS.banker}; a winning total of 6 pays ${profitOdds(p.bankerSixReturn)} profit, plus returned stake.`
+                      : undefined}
                     data-game-bet
                     data-testid={`spot-${spot}`}
                   >
@@ -369,8 +373,11 @@ export default function BaccaratTable(p: Props) {
                     </span>
                     <span className="bc-odds">
                       {p.payouts
-                        ? `${p.payouts[spot].toFixed(2)}× return`
+                        ? profitOdds(p.payouts[spot])
                         : BET_PAYOUT_LABELS[spot]}
+                      {spot === "banker" && p.bankerSixReturn != null && p.payouts && p.bankerSixReturn < p.payouts.banker && (
+                        <span data-testid="banker-six-odds"> · 6 pays {profitOdds(p.bankerSixReturn)}</span>
+                      )}
                     </span>
                     {amount > 0 && (
                       <span

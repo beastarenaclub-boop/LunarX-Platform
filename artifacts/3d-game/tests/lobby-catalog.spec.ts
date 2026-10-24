@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { checkCategoryScrolling } from "./fixtures/category-scroll";
 
 async function setupLobby(
   page: Page,
@@ -21,6 +22,10 @@ async function setupLobby(
   await page.routeWebSocket("**/*", (socket) => socket.onMessage(() => {}));
   await page.route("**/api/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
+    if (path === "/api/network/website")
+      return route.fulfill({ contentType: "application/json", body: "null" });
+    if (path === "/api/auth/site")
+      return route.fulfill({ json: { channel: "b2b", signupEnabled: false } });
     if (path === "/api/auth/me")
       return route.fulfill({
         json: {
@@ -151,14 +156,14 @@ test("search, category and provider filters return matching games and recover fr
   await page.setViewportSize({ width: 1440, height: 900 });
   await setupLobby(page);
   await page.getByTestId("btn-category-racing").click();
-  await expect(page.locator("[data-game-id]")).toHaveCount(2);
+  await expect(page.locator("[data-game-id]")).toHaveCount(7);
   await expect(page.getByTestId("card-game-bike-racing")).toBeVisible();
   await page.getByTestId("btn-category-all").click();
   await page.getByRole("button", { name: "Search games", exact: true }).click();
   const input = page.getByRole("searchbox");
   await expect(input).toBeFocused();
   await input.fill("  cHiCkEn  ");
-  await expect(page.locator("[data-game-id]")).toHaveCount(1);
+  await expect(page.locator("[data-game-id]")).toHaveCount(3);
   await expect(page.getByTestId("card-game-chicken-road")).toBeVisible();
   await input.fill("a game that does not exist");
   await expect(
@@ -178,6 +183,34 @@ test("search, category and provider filters return matching games and recover fr
   await expect(page.getByTestId("card-game-chicken-road")).toHaveCount(0);
   await page.getByRole("button", { name: "Clear all filters" }).click();
   await expect(page.getByTestId("card-game-chicken-road")).toBeVisible();
+});
+
+test("category strip supports mouse dragging and touch swiping without changing the filter", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const errors = await setupLobby(page);
+  await checkCategoryScrolling(page, page.getByRole("navigation", { name: "Game categories", exact: true }));
+  await expect(page.locator("[data-game-id]")).toHaveCount(3);
+  expect(errors).toEqual([]);
+});
+
+test("families with three games are available from the header and mobile menu", async ({ page }) => {
+  const errors = await setupLobby(page);
+  const initialCount = await page.locator("[data-game-id]").count();
+  for (const category of ["poker", "teen-patti", "chicken-road", "dice-games", "racing-games"]) {
+    await page.getByTestId(`btn-category-${category}`).click();
+    await expect(page.locator("[data-game-id]")).toHaveCount(3);
+    await expect(page.getByTestId(`btn-category-${category}`)).toHaveAttribute("aria-pressed", "true");
+    if (category === "teen-patti") await expect(page.getByTestId("card-game-teen-patti-joker")).toBeVisible();
+  }
+  await page.getByTestId("btn-category-all").click();
+  await expect(page.locator("[data-game-id]")).toHaveCount(initialCount);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Open menu" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Poker", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.locator("[data-game-id]")).toHaveCount(3);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
 });
 
 test("favourites persist without duplicating cards and mobile drawers support keyboard dismissal", async ({
@@ -218,7 +251,7 @@ test("favourites persist without duplicating cards and mobile drawers support ke
   await expect(
     page.getByRole("heading", { name: /Live Casino/ }),
   ).toBeVisible();
-  await expect(page.locator("[data-game-id]")).toHaveCount(3);
+  await expect(page.locator("[data-game-id]")).toHaveCount(7);
   expect(errors).toEqual([]);
 });
 
@@ -235,12 +268,22 @@ test("responsive lobby fits phones, tablets and desktops with working artwork", 
     expect(size.document, `overflow at ${width}px`).toBeLessThanOrEqual(
       size.viewport,
     );
+    if (width <= 800) {
+      const count = await page.getByRole("navigation", { name: "Game categories", exact: true }).evaluate(nav => {
+        const bounds = nav.getBoundingClientRect();
+        return [...nav.querySelectorAll("button")].filter(button => {
+          const item = button.getBoundingClientRect();
+          return item.left >= bounds.left - 1 && item.right <= bounds.right + 1;
+        }).length;
+      });
+      expect(count, `Six categories visible at ${width}px`).toBeGreaterThanOrEqual(6);
+    }
     await expect(page.getByTestId("card-game-jetx")).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Open menu" }),
     ).toBeInViewport();
     if (width === 390 || width === 1920) {
-      await page.locator(".lobby-event-banner").scrollIntoViewIfNeeded();
+      await page.locator(".photo-banners").scrollIntoViewIfNeeded();
       await page.evaluate(async () => {
         await Promise.all(
           Array.from(document.images)
@@ -256,7 +299,7 @@ test("responsive lobby fits phones, tablets and desktops with working artwork", 
     }
   }
   const broken = await page
-    .locator(".lobby-game-art img, .lobby-event-image")
+    .locator(".lobby-game-art img, .photo-banners-slide img")
     .evaluateAll((images) =>
       images
         .filter((element) => {

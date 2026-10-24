@@ -1,0 +1,7 @@
+{
+  "tool": "Built-in image_gen",
+  "prompt": "Use case: ads-marketing. Asset type: finished landscape 16:9 casino game lobby thumbnail for an existing dark casino frontend. Create a polished premium game-title graphic for Teen Patti Joker. The design must read clearly at a small 200px-wide tile: very large, sharp, perfectly spelled embossed gold typography, arranged in three lines with exact text \"TEEN PATTI\" / \"JOKER\" / \"20-20\". JOKER is the largest line; 20-20 is a smaller bright cyan badge. Center the complete title within generous 8 percent safe margins. Behind the title, a richly detailed playing-card jester emblem in purple, magenta and gold, a fan of three elegant playing cards, and small stacks of casino chips at the bottom corners. Black and deep violet background, cyan and magenta neon rim lighting, warm gold metallic highlights, restrained glowing particles. Match a luxurious 3D casino illustration style, dramatic contrast, professional finished artwork, clean hierarchy, no clutter over the lettering. A single full-bleed rectangular game tile, no grid, no mockup, no UI, no buttons, no additional words, no watermark. Original playing-card jester design; no movie character.",
+  "source": "01a15f28-34c9-7be3-a7d4-713dbe0be9bf/exec-a753b512-e48f-482d-a22a-91fc6451de5b.png",
+  "asset": "lobby-title-v1.webp",
+  "processing": "Resized proportionally to 960 × 540 and encoded as WebP at quality 0.9 for lobby delivery. No content edits."
+}

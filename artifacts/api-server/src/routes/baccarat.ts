@@ -1,4 +1,5 @@
 import { storedPayoutVersion } from "@workspace/api-zod/game-economics";
+import { BACCARAT_BET_TYPES } from "@workspace/api-zod/baccarat-game";
 import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middlewares/auth";
@@ -18,7 +19,7 @@ import {
 } from "../services/baccarat";
 import {
   settleBaccaratBets,
-  baccaratReturnMultiplier,
+  baccaratPayouts,
   type BaccaratBetInput,
   type SettledBaccaratBet,
 } from "../services/baccaratMath";
@@ -32,7 +33,7 @@ import { badRequest, notFound } from "../lib/errors";
 const router: IRouter = Router();
 
 const BetSchema = z.object({
-  type: z.enum(["player", "banker", "tie", "playerPair", "bankerPair"]),
+  type: z.enum(BACCARAT_BET_TYPES),
   amountPaise: z
     .string()
     .regex(/^\d{1,18}$/u, "amountPaise must be positive integer paise"),
@@ -94,13 +95,7 @@ router.get("/config", async (_req, res, next) => {
       maxStakePaise: cfg.maxStakePaise.toString(),
       maxBetsPerDeal: BACCARAT_MAX_BETS_PER_DEAL,
       decks: BACCARAT_DECKS,
-      payouts: {
-        player: baccaratReturnMultiplier("player"),
-        banker: baccaratReturnMultiplier("banker"),
-        tie: baccaratReturnMultiplier("tie"),
-        playerPair: baccaratReturnMultiplier("playerPair"),
-        bankerPair: baccaratReturnMultiplier("bankerPair"),
-      },
+      ...baccaratPayouts(cfg.maxMultiplier),
     });
   } catch (err) {
     next(err);

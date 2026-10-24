@@ -10,6 +10,8 @@ import "../../../lib/game-ui/controls.css";
 import "../../../lib/game-ui/viewport.css";
 import "../../../lib/game-ui/game-layouts.css";
 import "./mobile.css";
+import "./game-mobile-fit.css";
+import "./table-mobile-fit.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -11,7 +11,11 @@ export function fitGameViewport(
     if (disposed) return;
     const viewport = window.visualViewport;
     // Pinch zoom must magnify the existing layout, not reflow it into a smaller box.
-    const height = Math.round(viewport && viewport.scale === 1 ? viewport.height : window.innerHeight);
+    const visibleHeight = viewport && viewport.scale === 1 ? viewport.height : window.innerHeight;
+    // A demo/session banner sits above the game. Using the whole viewport here
+    // creates a second page scrollbar and pushes the betting dock off screen.
+    const top = Math.max(0, host.getBoundingClientRect().top + window.scrollY);
+    const height = Math.max(1, Math.floor(visibleHeight - top));
     host.style.height = `${height}px`;
     const style = getComputedStyle(host);
     const available = host.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
@@ -36,6 +40,15 @@ export function fitGameViewport(
   measure();
   const resize = new ResizeObserver(queue);
   resize.observe(host);
+  const observeChrome = () => {
+    for (let sibling = host.previousElementSibling; sibling; sibling = sibling.previousElementSibling) {
+      resize.observe(sibling);
+    }
+    queue();
+  };
+  observeChrome();
+  const chrome = new MutationObserver(observeChrome);
+  if (host.parentElement) chrome.observe(host.parentElement, { childList: true });
   window.addEventListener("resize", queue);
   window.visualViewport?.addEventListener("resize", queue);
   document.fonts.ready.then(queue);
@@ -43,6 +56,7 @@ export function fitGameViewport(
     disposed = true;
     cancelAnimationFrame(scheduled);
     resize.disconnect();
+    chrome.disconnect();
     window.removeEventListener("resize", queue);
     window.visualViewport?.removeEventListener("resize", queue);
     host.style.removeProperty("height");

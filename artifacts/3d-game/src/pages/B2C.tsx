@@ -6,12 +6,9 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleUserRound,
-  Club,
   Crown,
-  Dice5,
   Flag,
   Gamepad2,
-  Grid2X2,
   Headphones,
   LogOut,
   Menu,
@@ -22,11 +19,9 @@ import {
   Settings,
   ShieldCheck,
   Spade,
-  Ticket,
   Trophy,
   Wallet,
   X,
-  Zap,
 } from "lucide-react";
 import {
   customFetch,
@@ -60,6 +55,8 @@ import {
   type LobbyGame,
   type RegistryEntry,
 } from "@/components/lobby/catalog";
+import { getCasinoCategories, getLobbyCategories, matchesGameCategory } from "@/components/lobby/categories";
+import { useCategoryDrag } from "@/components/lobby/useCategoryDrag";
 import { B2CAuthDialog } from "@/components/b2c/B2CAuthDialog";
 import {
   B2C_BRAND,
@@ -87,29 +84,6 @@ import { toast } from "sonner";
 import "@/components/b2c/b2c.css";
 import "@/components/lobby/new-game.css";
 
-const CATEGORIES: { id: Category; name: string; icon: typeof Rocket }[] = [
-  { id: "crash", name: "Crash", icon: Rocket },
-  { id: "lottery", name: "Lottery", icon: Ticket },
-  { id: "racing", name: "Virtual Sports", icon: Flag },
-  { id: "live", name: "Live Casino", icon: Play },
-  { id: "instant", name: "Instant Games", icon: Zap },
-  { id: "table", name: "Table Games", icon: Spade },
-];
-const TABLE_FILTERS = [
-  { name: "All Casino", term: "", icon: Grid2X2 },
-  { name: "Roulette", term: "roulette", icon: CircleUserRound },
-  { name: "Teenpatti", term: "teen patti", icon: Spade },
-  { name: "Baccarat", term: "baccarat", icon: Club },
-  { name: "Dragon Tiger", term: "dragon tiger", icon: Crown },
-  { name: "Andar Bahar", term: "andar bahar", icon: Club },
-  { name: "Lucky 7", term: "lucky 7", icon: Dice5 },
-  { name: "Blackjack", term: "blackjack", icon: Spade },
-  { name: "Rummy", term: "rummy", icon: Spade },
-  { name: "Wheel", term: "wheel", icon: CircleUserRound },
-  { name: "Sports", term: "", category: "racing" as Category, icon: Flag },
-  { name: "Lottery", term: "", category: "lottery" as Category, icon: Ticket },
-  { name: "Others", term: "", category: "instant" as Category, icon: Grid2X2 },
-];
 function RegistryListener({ code }: { code: string }) {
   const qc = useQueryClient();
   useRealtimeTopic<{ type: string }>(`game-config:${code}`, (event) => {
@@ -180,7 +154,6 @@ export default function B2C({
   const qc = useQueryClient();
   const [demoPending, setDemoPending] = useState(false);
   const [category, setCategory] = useState<Category>("all");
-  const [tableFilter, setTableFilter] = useState("");
   const [provider, setProvider] = useState("");
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -193,6 +166,8 @@ export default function B2C({
     initialLogin ? getLoginDestination : () => B2C_HOME,
   );
   const catalogRef = useRef<HTMLElement>(null);
+  const categoryNavRef = useRef<HTMLElement>(null);
+  useCategoryDrag(categoryNavRef, !!user);
   const bannerRef = useRef<HTMLElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const browse = !!user;
@@ -253,22 +228,23 @@ export default function B2C({
     (a, b) => compareTopGames(a, b) || order(a.id) - order(b.id),
   );
   const providers = [...new Set(games.map((game) => game.provider))];
+  const categories = getLobbyCategories(games);
+  const casinoCategories = getCasinoCategories(games);
   const trending = TOP_GAME_IDS.flatMap((id) => {
     const game = games.find((g) => g.id === id);
     return game?.enabled ? [game] : [];
   });
   const filtered = games.filter(
     (game) =>
-      (category === "all" || game.category === category) &&
+      matchesGameCategory(game, category) &&
       (!provider || game.provider === provider) &&
-      (!tableFilter || game.name.toLowerCase().includes(tableFilter)) &&
       (!query.trim() ||
         `${game.name} ${game.provider}`
           .toLowerCase()
           .includes(query.trim().toLowerCase())),
   );
   const filtering =
-    category !== "all" || !!provider || !!tableFilter || !!query.trim();
+    category !== "all" || !!provider || !!query.trim();
   const balance = user?.isDemo
     ? "∞ Demo coins"
     : wallet.data
@@ -298,7 +274,6 @@ export default function B2C({
   }, [searchOpen]);
   function clearFilters() {
     setCategory("all");
-    setTableFilter("");
     setProvider("");
     setQuery("");
   }
@@ -392,11 +367,12 @@ export default function B2C({
           <span>{name.toUpperCase()}</span>
         </button>
       ))}
-      {CATEGORIES.filter((item) => item.id !== "racing").map((item) => (
+      {categories.filter((item) => item.id !== "all" && item.id !== "racing").map((item) => (
         <button
           key={item.id}
           className={category === item.id ? "is-active" : ""}
           onClick={() => chooseCategory(item.id)}
+          aria-pressed={category === item.id && !provider}
         >
           <item.icon />
           <span>{item.name.toUpperCase()}</span>
@@ -417,14 +393,15 @@ export default function B2C({
         )}
       {browse && (
         <div className="b2c-topbar">
-          <nav aria-label="Browse games">
-            {CATEGORIES.map((item) => (
+          <nav ref={categoryNavRef} aria-label="Browse games">
+            {categories.map((item) => (
               <button
                 key={item.id}
                 className={category === item.id ? "is-active" : ""}
                 onClick={() => chooseCategory(item.id)}
+                aria-pressed={category === item.id && !provider}
               >
-                {item.id === "crash" && <Rocket size={21} />}
+                <item.icon size={17} />
                 {item.name}
               </button>
             ))}
@@ -470,6 +447,14 @@ export default function B2C({
                 : "Welcome to your casino. Discover your favourite games."}
               <Megaphone size={30} />
             </span>
+            <button
+              className="b2c-search-toggle b2c-mobile-category-search"
+              aria-label="Search games"
+              aria-expanded={searchOpen}
+              onClick={() => setSearchOpen(!searchOpen)}
+            >
+              {searchOpen ? <X /> : <Search />}
+            </button>
           </div>
         )}
         <div className="b2c-header-actions">
@@ -578,10 +563,7 @@ export default function B2C({
                 {activeBanner.poker && (
                   <div className="b2c-poker-hero-copy">
                     <button
-                      onClick={() => {
-                        chooseCategory("table");
-                        setQuery("poker");
-                      }}
+                      onClick={() => chooseCategory("poker")}
                     >
                       Explore Poker <ChevronRight size={15} />
                     </button>
@@ -630,21 +612,17 @@ export default function B2C({
             {browse ? (
               <>
                 <div className="b2c-category-bar">
-                  <B2CScrollNav>
-                    {TABLE_FILTERS.map((item) => (
+                  <B2CScrollNav activeCategory={category}>
+                    {casinoCategories.map((item) => (
                       <button
-                        key={item.name}
+                        key={item.id}
                         className={
-                          tableFilter === item.term &&
-                          category === (item.category ?? "all")
+                          category === item.id && !provider
                             ? "is-active"
                             : ""
                         }
-                        onClick={() => {
-                          clearFilters();
-                          setTableFilter(item.term);
-                          setCategory(item.category ?? "all");
-                        }}
+                        onClick={() => chooseCategory(item.id)}
+                        aria-pressed={category === item.id && !provider}
                       >
                         <item.icon size={21} />
                         <span>{item.name}</span>
@@ -682,7 +660,7 @@ export default function B2C({
                 {filtering && (
                   <div className="b2c-filter-summary">
                     <span>
-                      {filtered.length} games{provider ? ` · ${provider}` : ""}
+                      {filtered.length} games{provider ? ` · ${provider}` : category !== "all" ? ` · ${[...categories, ...casinoCategories].find((item) => item.id === category)?.name}` : ""}
                     </span>
                     <button onClick={clearFilters}>
                       Clear filters <X size={14} />

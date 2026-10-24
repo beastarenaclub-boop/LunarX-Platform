@@ -21,7 +21,8 @@
     "./vegetable-game": "./src/vegetable-game.ts",
     "./crazy-time-game": "./src/crazy-time-game.ts",
     "./chicken-road-game": "./src/chicken-road-game.ts",
-    "./instant-collection": "./src/instant-collection.ts"
+    "./instant-collection": "./src/instant-collection.ts",
+    "./teenpatti-joker": "./src/teenpatti-joker.ts"
   },
   "dependencies": {
     "zod": "catalog:"

@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useCategoryDrag } from "@/components/lobby/useCategoryDrag";
 
 /** Keep every category reachable by touch, keyboard and explicit scroll controls. */
-export function B2CScrollNav({ children }: { children: ReactNode }) {
+export function B2CScrollNav({ children, activeCategory }: { children: ReactNode; activeCategory: string }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
+  useCategoryDrag(navRef);
   const [scroll, setScroll] = useState({ overflow: false, previous: false, next: false });
 
   useEffect(() => {
@@ -30,6 +32,18 @@ export function B2CScrollNav({ children }: { children: ReactNode }) {
       nav.removeEventListener("scroll", measure);
     };
   }, []);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    const active = nav?.querySelector('[aria-pressed="true"]');
+    if (!nav || !active) return;
+    const bounds = nav.getBoundingClientRect();
+    const item = active.getBoundingClientRect();
+    if (item.left < bounds.left)
+      nav.scrollBy({ left: item.left - bounds.left, behavior: "instant" });
+    else if (item.right > bounds.right)
+      nav.scrollBy({ left: item.right - bounds.right, behavior: "instant" });
+  }, [activeCategory]);
 
   function move(left: number) {
     navRef.current?.scrollBy({

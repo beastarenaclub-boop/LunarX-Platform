@@ -1,6 +1,6 @@
 .casino-lobby {
   --lobby-muted: #697382;
-  --lobby-header-height: 60px;
+  --lobby-header-height: 105px;
   min-height: 100dvh;
   background: #fff;
   color: var(--site-ink);
@@ -48,7 +48,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 22px;
+  flex-wrap: wrap;
+  gap: 0 22px;
   height: var(--lobby-header-height);
   padding: 0 23px;
   border-top: 2px solid var(--site-primary);
@@ -62,6 +63,7 @@
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  height: 52px;
 }
 .lobby-brand-group {
   gap: 25px;
@@ -87,18 +89,29 @@
 .lobby-primary-nav {
   display: flex;
   align-items: stretch;
-  justify-content: center;
-  flex: 1;
+  justify-content: flex-start;
+  flex: 1 0 100%;
+  order: 3;
+  height: 48px;
   align-self: stretch;
-  gap: clamp(9px, 1.5vw, 30px);
+  gap: clamp(8px, 0.8vw, 14px);
   min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  padding-inline: 4px;
+}
+.lobby-primary-nav::-webkit-scrollbar {
+  display: none;
 }
 .lobby-nav-item {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
+  flex-shrink: 0;
+  min-height: 40px;
   white-space: nowrap;
   color: var(--site-ink);
   font-size: 13px;
@@ -1100,7 +1113,7 @@
     gap: 16px;
   }
   .lobby-primary-nav {
-    gap: 30px;
+    gap: 14px;
   }
   .lobby-nav-item {
     font-size: 14px;
@@ -1108,7 +1121,7 @@
 }
 @media (max-width: 1550px) {
   .lobby-header {
-    gap: 17px;
+    gap: 0 17px;
     padding-inline: 16px;
     background: var(--site-header-background);
     box-shadow: 0 3px 16px #142b3a08;
@@ -1126,7 +1139,7 @@
     font-weight: 750;
   }
   .lobby-primary-nav {
-    gap: 14px;
+    gap: 12px;
   }
   .lobby-nav-item {
     font-size: 12px;
@@ -1171,7 +1184,7 @@
     height: 48px;
     flex-basis: 100%;
     justify-content: flex-start;
-    gap: 30px;
+    gap: 12px;
     overflow-x: auto;
     scrollbar-width: none;
   }
@@ -1268,7 +1281,7 @@
     box-shadow: 0 3px 16px #142b3a08;
   }
   .lobby-primary-nav {
-    gap: 24px;
+    gap: 10px;
   }
   .lobby-main {
     width: calc(100% - 28px);
@@ -1358,7 +1371,7 @@
   }
   .lobby-primary-nav {
     height: 44px;
-    gap: 21px;
+    gap: 8px;
   }
   .lobby-nav-item {
     font-size: 12px;
@@ -1482,6 +1495,43 @@
   }
   .lobby-event-copy h2 {
     font-size: 23px;
+  }
+}
+@media (max-width: 800px) {
+  .casino-lobby .lobby-primary-nav {
+    gap: 2px;
+    padding-inline: 0;
+    scroll-padding-inline: 0;
+    scroll-snap-type: x mandatory;
+  }
+  .lobby-primary-nav > a {
+    display: none;
+  }
+  .lobby-primary-nav .lobby-nav-item {
+    flex: 0 0 min(72px, calc((100% - 12px) / 6));
+    min-width: 0;
+    min-height: 44px;
+    flex-direction: column;
+    align-self: stretch;
+    gap: 2px;
+    padding: 2px 1px;
+    font-size: 10px;
+    line-height: 11px;
+    white-space: normal;
+    scroll-snap-align: start;
+  }
+  .lobby-primary-nav .lobby-nav-item svg {
+    width: 16px;
+    height: 16px;
+  }
+  .lobby-primary-nav .lobby-nav-item > span:not(.lobby-nav-badge) {
+    width: 100%;
+    height: 22px;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+  .lobby-primary-nav .lobby-nav-badge {
+    display: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {

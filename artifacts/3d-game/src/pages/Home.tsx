@@ -7,15 +7,12 @@ import {
   ChevronRight,
   CircleHelp,
   CircleUserRound,
-  Club,
-  Flag,
   Gamepad2,
   Gift,
   Grid2X2,
   History,
   LogOut,
   Menu,
-  Plane,
   Play,
   Plus,
   Rocket,
@@ -62,20 +59,13 @@ import {
   type LobbyGame,
   type RegistryEntry,
 } from "@/components/lobby/catalog";
+import { getLobbyCategories, matchesGameCategory } from "@/components/lobby/categories";
+import { useCategoryDrag } from "@/components/lobby/useCategoryDrag";
 import { PhotoBannerSlider } from "@/components/lobby/PhotoBannerSlider";
 import { MobileNavigation } from "@/components/site/MobileNavigation";
 import "@/components/lobby/lobby.css";
 import "@/components/lobby/new-game.css";
 
-const CATEGORIES: { id: Category; name: string; icon: typeof Rocket }[] = [
-  { id: "all", name: "All Games", icon: Grid2X2 },
-  { id: "instant", name: "Instant Games", icon: Rocket },
-  { id: "crash", name: "Crash Games", icon: Plane },
-  { id: "live", name: "Live Casino", icon: Play },
-  { id: "table", name: "Live Table", icon: Club },
-  { id: "racing", name: "Virtual Sport", icon: Flag },
-  { id: "lottery", name: "Lottery", icon: Ticket },
-];
 const ACCOUNT_LINKS = [
   { name: "Wallet", href: "/wallet", icon: Wallet, id: "wallet" },
   { name: "Bet history", href: "/history", icon: History, id: "history" },
@@ -147,6 +137,7 @@ function GameCard({
         {game.artwork && !imageFailed && (
           <img
             src={game.artwork}
+            style={{ objectFit: game.artworkFit }}
             alt=""
             loading={eager ? "eager" : "lazy"}
             decoding="async"
@@ -316,6 +307,8 @@ export default function Home() {
   const [allProviders, setAllProviders] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const topRef = useRef<HTMLElement>(null);
+  const categoryNavRef = useRef<HTMLElement>(null);
+  useCategoryDrag(categoryNavRef);
   const favouriteKey = `lunar:lobby:favourites:${user?.id ?? "guest"}`;
   const [savedState, setSavedState] = useState<{ key: string; ids: string[] }>({
     key: "",
@@ -329,6 +322,7 @@ export default function Home() {
     retry: false,
   });
   const games = resolveCatalog(registry.data);
+  const categories = getLobbyCategories(games);
   useRealtimeResync(() => {
     void qc.invalidateQueries({ queryKey: ["game.registry"] });
   });
@@ -409,7 +403,7 @@ export default function Home() {
   const search = query.trim().toLocaleLowerCase();
   const filtered = games.filter(
     (game) =>
-      (category === "all" || game.category === category || (category === "instant" && game.tags?.includes("instant"))) &&
+      matchesGameCategory(game, category) &&
       (!provider || game.provider === provider) &&
       (!search ||
         `${game.name} ${game.provider}`.toLocaleLowerCase().includes(search)),
@@ -423,7 +417,7 @@ export default function Home() {
     : provider
       ? provider
       : category !== "all"
-        ? (CATEGORIES.find((item) => item.id === category)?.name ??
+        ? (categories.find((item) => item.id === category)?.name ??
           "Quick Play")
         : showAll
           ? "All Games"
@@ -474,18 +468,18 @@ export default function Home() {
             {masterWebsite?.logoUrl ? <img src={masterWebsite.logoUrl} alt={masterWebsite.name} style={{maxWidth:160,maxHeight:44,objectFit:'contain'}}/> : masterWebsite ? <span className="max-w-[160px] truncate" title={masterWebsite.name}>{masterWebsite.name}</span> : <>LUNAR<span>PLAY</span></>}
           </Link>
         </div>
-        <nav className="lobby-primary-nav" aria-label="Game categories">
+        <nav ref={categoryNavRef} className="lobby-primary-nav" aria-label="Game categories">
           <Link href="/promotions" className="lobby-nav-item">
             <Gift size={17} />
             <span>Promotions</span>
           </Link>
-          {CATEGORIES.map(({ id, name, icon: Icon }) => (
+          {categories.map(({ id, name, icon: Icon }) => (
             <button
               key={id}
               onClick={() => chooseCategory(id)}
               className={cn(
                 "lobby-nav-item",
-                (id === "live" || id === "table") && "is-highlighted",
+                id === "live" && "is-highlighted",
                 category === id && "is-active",
               )}
               aria-pressed={category === id}
@@ -493,7 +487,7 @@ export default function Home() {
             >
               <Icon size={17} />
               <span>{name}</span>
-              {(id === "live" || id === "table") && (
+              {id === "live" && (
                 <span className="lobby-nav-badge" aria-hidden="true">
                   <i /> LIVE
                 </span>
@@ -910,14 +904,15 @@ export default function Home() {
           <SheetTitle className="lobby-drawer-title">{masterWebsite?.name ?? 'LUNAR PLAY'}</SheetTitle>
           <SheetDescription>Find your next favourite game.</SheetDescription>
           <nav aria-label="Browse games" className="lobby-drawer-links">
-            {CATEGORIES.map(({ id, name, icon: Icon }) => (
+            {categories.map(({ id, name, icon: Icon }) => (
               <button
                 key={id}
                 className={cn(
-                  (id === "live" || id === "table") && "is-highlighted",
+                  id === "live" && "is-highlighted",
                   category === id && "is-active",
                 )}
                 onClick={() => chooseCategory(id)}
+                aria-pressed={category === id}
               >
                 <Icon size={19} />
                 {name}

@@ -1,7 +1,8 @@
 import { INSTANT_COLLECTION } from "@workspace/api-zod/instant-collection";
 import { POKER_GAMES, POKER_TITLES } from "@workspace/api-zod/poker";
 import { ROULETTE_PAYOUT_BASE, ROULETTE_RTP_PERCENT } from "@workspace/api-zod/roulette-game";
-import { BACCARAT_RETURNS, BACCARAT_PROBABILITIES, TEEN_PATTI_MAIN_RETURN, TEEN_PATTI_TIE_RETURN, TEEN_PATTI_PAIR_RETURNS, ANDAR_FIRST_RETURN, ANDAR_SECOND_RETURN, ANDAR_RANGE_RETURNS } from "@workspace/api-zod/game-economics";
+import { TEEN_PATTI_MAIN_RETURN, TEEN_PATTI_TIE_RETURN, TEEN_PATTI_PAIR_RETURNS, ANDAR_FIRST_RETURN, ANDAR_SECOND_RETURN, ANDAR_RANGE_RETURNS } from "@workspace/api-zod/game-economics";
+import { BACCARAT_PAYTABLE } from "@workspace/api-zod/baccarat-game";
 import { Router, type IRouter } from "express";
 import { db, gameRoundsTable, gameConfigTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
@@ -155,7 +156,12 @@ const teenTable: CardPaytable = { blendedEdge: "15% target, plus downward price 
 const CARD_PAYTABLES: Record<string, CardPaytable> = {
   "lucky-7": { blendedEdge: "15%", rows: returns({ under: 204, exactly: 510, over: 204 }) },
   roulette: { blendedEdge: "2.7027%", rows: [1,2,3,4,6,12,18].map(n => ({ outcome: n + " covered pockets", pays: (ROULETTE_PAYOUT_BASE / n).toFixed(4) + "× total return", theoreticalRtp: ROULETTE_RTP_PERCENT.toFixed(4) + "%" })) },
-  baccarat: { blendedEdge: "15% target, plus downward price rounding", rows: Object.entries(BACCARAT_RETURNS).map(([outcome, value]) => ({ outcome, pays: (value / 100).toFixed(2) + "× total return", theoreticalRtp: ((BACCARAT_PROBABILITIES[outcome as keyof typeof BACCARAT_PROBABILITIES] * value / 100 + (["player", "banker"].includes(outcome) ? BACCARAT_PROBABILITIES.tie : 0)) * 100).toFixed(2) + "%" })) },
+  baccarat: {
+    blendedEdge: "Fixed reference odds; RTP varies by market. Banker wins with 6 pay half profit",
+    rows: [
+      ...Object.entries(BACCARAT_PAYTABLE).map(([outcome, value]) => ({ outcome, pays: (value / 100).toFixed(2) + "× total return" + (outcome.startsWith("score") ? "; winning hand score, ties lose" : outcome === "banker" ? "; except 1.50× on a winning 6" : "") })),
+    ],
+  },
   "teen-patti": teenTable, "teen-patti-live": teenTable,
   "andar-bahar": { blendedEdge: "15% target, plus downward price rounding", rows: returns({ firstSide: ANDAR_FIRST_RETURN, secondSide: ANDAR_SECOND_RETURN, ...ANDAR_RANGE_RETURNS }) },
   blackjack: { blendedEdge: "Strategy dependent; 15% reduction of standard returns", rows: [{outcome:"Win",pays:"1.70× total"},{outcome:"Natural blackjack",pays:"2.125× total"},{outcome:"Draw",pays:"0.85× total"},{outcome:"Insurance win",pays:"2.55× total"}] },
@@ -165,6 +171,12 @@ const CARD_PAYTABLES: Record<string, CardPaytable> = {
 
 export const GAME_TYPE_META: Record<string, GameTypeMeta> = {
   ...Object.fromEntries(POKER_GAMES.map(code => [code, { engineType: "card_fixed" as const, label: POKER_TITLES[code], editableFields: ["enabled"], capFloors: {}, rtpNote: "Poker prices, bonus paytables and timing are defined in the versioned poker configuration. Six-player odds depend on the public starting hands." }])),
+  "teen-patti-joker": {
+    engineType: "card_fixed", label: "Teenpatti Joker 20-20",
+    editableFields: ["maxStakePaise", "minStakePaise", "enabled"],
+    capFloors: { maxMultiplier: 3.75 },
+    rtpNote: "One 52-card deck. Joker rank is wild; Pure Sequence ranks above Trail. A/B return 1.98x; exact ties refund. Joker Even 2.10x, Odd 1.79x (A=1, J=11, Q=12, K=13), color 1.95x, suit 3.75x. Returns include stake. Side-bet RTP: Even 96.923%, Odd 96.385%, colors 97.5%, suits 93.75%. Main-bet RTP depends on tie frequency.",
+  },
   "wheel-2-live": {
     engineType: "card_fixed", label: "Wheel 2.0 Live · fixed wheel",
     editableFields: ["maxStakePaise", "enabled", "bettingWindowMs", "revealDurationMs", "settleDurationMs", "minStakePaise"],
@@ -270,7 +282,7 @@ export const GAME_TYPE_META: Record<string, GameTypeMeta> = {
     editableFields: ["maxMultiplier","maxStakePaise","enabled","minStakePaise"],
     capFloors: { maxMultiplier: 12 }, // Pair side bets 11:1 → 12×
     rtpNote:
-      "Baccarat uses a fixed paytable (Banker 0.95:1, Player 1:1, Tie 8:1). " +
+      "Baccarat profit odds: Player/Banker 1:1, Banker winning 6 pays 0.5:1, Tie 8:1, Pairs 11:1. Winning-score profit odds: 1-4 7.5:1, 5-6 4:1, 7 4.5:1, 8 3:1, 9 2.5:1. Main bets push on ties; score bets lose. " +
       "The house edge and RTP are mathematically determined by the paytable — they cannot be changed from the admin panel. " +
       "Only the stake limit and maximum multiplier cap (must stay ≥ 12 to cover Pair side bets) are operator-adjustable.",
   },
@@ -352,7 +364,7 @@ export const GAME_TYPE_META: Record<string, GameTypeMeta> = {
   },
 };
 
-for (const code of ["lucky-7", "baccarat", "teen-patti", "teen-patti-live", "andar-bahar", "vegetable-bowl", "crazy-time", "chicken-road"]) {
+for (const code of ["lucky-7", "teen-patti", "teen-patti-live", "andar-bahar", "vegetable-bowl", "crazy-time", "chicken-road"]) {
   GAME_TYPE_META[code].rtpNote = "New rounds target 85% theoretical RTP (15% expected house margin), before posted price rounding and caps. Accepted rounds retain their original version. RTP does not guarantee a round or session profit.";
 }
 GAME_TYPE_META.blackjack.rtpNote = "New hands pay 85% of standard total returns, including draws and insurance. Aborted games are fully refunded. Actual RTP depends on player strategy; it is not a fixed 85%.";
@@ -578,6 +590,7 @@ const GAME_META: Record<string, { title: string; route: string }> = {
   "sic-bo": { title: "Sic Bo", route: "/sic-bo" },
   "andar-bahar": { title: "Andar Bahar", route: "/andar-bahar" },
   "lucky-7": { title: "Lucky 7", route: "/lucky-7" },
+  "teen-patti-joker": { title: "Teenpatti Joker 20-20", route: "/teen-patti-joker" },
   "wheel-2-live": { title: "Wheel 2.0 Live", route: "/wheel-2-live" },
   "lucky-7-live": { title: "Lucky 7 Live", route: "/lucky-7-live" },
 };

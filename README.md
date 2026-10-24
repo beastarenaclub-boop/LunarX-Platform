@@ -332,3 +332,29 @@ three selectable camera views and automatic camera changes following the coded r
 account to use the same wallet, coin rack and automatic betting controls as
 Lucky 7. Bets and payouts settle on the server; all visual assets are bundled.
 See [Horse Racing controls and setup](docs/turf-club.md).
+
+## Teenpatti Joker 20-20
+
+The new lobby entry opens `/teen-patti-joker`. It has its own shared round clock
+(20 seconds betting, 7 seconds reveal, 6 seconds result display), versioned rules,
+ten betting markets, and the existing shared wallet. The server confirms and
+settles bets atomically; retries reuse the original receipt. No schema changes
+are needed: the shared round and slip tables retain the deal, seed, and payout.
+
+The Joker's rank is wild in both hands. Ranking follows the supplied reference:
+Pure Sequence, Trail, Sequence, Color, Pair, High Card. Exact ties return the A/B
+stakes. Joker side bets use Ace=1, Jack=11, Queen=12, King=13. Displayed odds are
+total returns including stake: A/B 1.98, Even 2.10, Odd 1.79, Red/Black 1.95,
+individual suits 3.75. These rules live in `lib/api-zod/src/teenpatti-joker.ts`.
+
+`npm run joker:test` builds the API and runs math plus isolated in-memory HTTP
+round tests. `npm run joker:test:browser` checks betting, reconnection, rules,
+and desktop/mobile layouts. `npm run joker:dev` opens an isolated frontend on
+port 5384; it uses the existing authentication and API on port 5200.
+
+Rebuild the local Docker preview with `docker compose up -d --build api web`
+to load the new route and startup configuration. The table illustration is a
+simulated dealer, with animated cards supplied by the server. Its built-in
+imagegen prompt and source metadata are in
+`artifacts/3d-game/public/media/teenpatti-joker/generation.json`; the bundled
+image is `studio.webp` in the same directory.

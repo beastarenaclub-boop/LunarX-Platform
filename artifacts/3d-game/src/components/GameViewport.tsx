@@ -8,6 +8,7 @@ const layouts: Record<string, string> = {
   "lucky-7": "dealer", "teen-patti-live": "dealer",
   "lucky-7-live": "lucky7-live", "wheel-2-live": "wheel20-live",
   "andar-bahar-live": "andar-bahar-live",
+  "teen-patti-joker": "teenpatti-joker",
   "crazy-time": "crazy-time",
   roulette: "roulette", mines: "mines", plinko: "plinko", dice: "dice",
   baccarat: "baccarat-studio", "teen-patti": "cards", "andar-bahar": "cards", blackjack: "blackjack",
@@ -34,10 +35,9 @@ export default function GameViewport({
       surface = content.current;
     if (!host || !surface || !game) return;
     host.scrollTop = 0;
-    // JetX's grid follows dynamic viewport units directly, so a resize cannot
-    // leave a previously measured pixel height on its scene or betting dock.
-    // Colour trading reflows and scrolls naturally so its touch targets never shrink.
-    if (game === "jetx" || nativeInstant(game) || game === "wingo" || game === "crazy-time" || game === "chicken-road" || game === "dragon-tiger-one-day" || game === "wheel-2-live" || game === "lucky-7-live" || game === "andar-bahar-live" || game === "baccarat") return;
+    // Every framed game follows the visible viewport, including soft keyboards
+    // and session banners. Colour Trading uses document scrolling instead.
+    if (game === "wingo") return;
     return fitGameViewport(host, surface, game === "vegetable-bowl");
   }, [game]);
   if (!game) return <>{children}</>;
@@ -45,7 +45,7 @@ export default function GameViewport({
     <div ref={frame} className="game-viewport" data-game-viewport={game} data-game-layout={layouts[game] ?? "standard"}>
       <div
         ref={content}
-        className={`game-fit-content${nativeInstant(game) || game === "vegetable-bowl" || game === "crazy-time" || game === "chicken-road" || game === "dragon-tiger-one-day" || game === "wheel-2-live" || game === "lucky-7-live" || game === "andar-bahar-live" || game === "baccarat" ? " game-fit-native" : ""}`}
+        className={`game-fit-content${nativeInstant(game) || game === "vegetable-bowl" || game === "crazy-time" || game === "chicken-road" || game === "dragon-tiger-one-day" || game === "wheel-2-live" || game === "teen-patti-joker" || game === "lucky-7-live" || game === "andar-bahar-live" || game === "baccarat" ? " game-fit-native" : ""}`}
       >
         <GameInformationProvider key={game}>{children}</GameInformationProvider>
       </div>

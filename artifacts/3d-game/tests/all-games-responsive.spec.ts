@@ -19,7 +19,8 @@ test("keyboard-sized viewport and client navigation keep controls reachable", as
     window.dispatchEvent(new PopStateEvent("popstate"));
   });
   await expect(page.getByTestId("chicken-road-page")).toBeVisible();
-  expect(await frame.evaluate(el => ({ height: el.style.height, scroll: el.scrollTop, fit: (el.firstElementChild as HTMLElement).style.getPropertyValue("--fit-height") }))).toEqual({ height: "", scroll: 0, fit: "" });
+  await expect(frame).toHaveAttribute("data-fit-scale", "1.000");
+  expect(await frame.evaluate(el => ({ height: el.clientHeight, scroll: el.scrollTop }))).toEqual({ height: 300, scroll: 0 });
   await page.setViewportSize({ width: 844, height: 390 });
   await page.getByTestId("chicken-play").click({ trial: true, timeout: 10000 });
 });

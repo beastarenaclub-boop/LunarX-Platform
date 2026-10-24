@@ -104,7 +104,13 @@ test("Big Road retains long streak tails, collisions and leading ties", () => {
   expect(cells.every((c) => c.row < 6)).toBe(true);
 });
 
-async function setup(page: Page, wallet = 50000000, historyCount = 43) {
+async function setup(page: Page, wallet = 50000000, historyCount = 43, legacyRound = false) {
+  let payoutVersion = legacyRound ? 2 : 3;
+  const currentPayouts = {
+    player: 2, banker: 2, tie: 9, playerPair: 12, bankerPair: 12,
+    score1_4: 8.5, score5_6: 5, score7: 5.5, score8: 4, score9: 3.5,
+  };
+  const legacyPayouts = { ...currentPayouts, player: 1.69, banker: 1.64, tie: 8.93, playerPair: 11.37, bankerPair: 11.37 };
   let phase = "betting",
     deadline = 0,
     outcome: StudioDeal | null = null,
@@ -152,14 +158,10 @@ async function setup(page: Page, wallet = 50000000, historyCount = 43) {
         decks: 8,
         maxMultiplier: 12,
         maxStakePaise: "50000000",
-        maxBetsPerDeal: 5,
-        payouts: {
-          player: 1.8,
-          banker: 1.75,
-          tie: 8.56,
-          playerPair: 10.91,
-          bankerPair: 10.91,
-        },
+        maxBetsPerDeal: 10,
+        payoutVersion: 3,
+        bankerSixReturn: 1.5,
+        payouts: currentPayouts,
       };
     else if (path === "/api/baccarat/recent") body = [];
     else if (path === "/api/baccarat/round") {
@@ -190,7 +192,12 @@ async function setup(page: Page, wallet = 50000000, historyCount = 43) {
         totalStake: "175000",
         config: {
           ...BACCARAT_ROUND_TIMING,
-
+          payoutVersion,
+          baccaratPayouts: {
+            payoutVersion,
+            payouts: payoutVersion === 3 ? currentPayouts : legacyPayouts,
+            bankerSixReturn: payoutVersion === 3 ? 1.5 : 1.64,
+          },
           minStakePaise: "10000",
           maxStakePaise: "50000000",
         },
@@ -239,6 +246,7 @@ async function setup(page: Page, wallet = 50000000, historyCount = 43) {
           settledAt: new Date().toISOString(),
         });
       round++;
+      payoutVersion = 3;
       phase = "betting";
       deadline = Date.now() + BACCARAT_ROUND_TIMING.bettingWindowMs;
       outcome = null;
@@ -274,6 +282,7 @@ test("face-down cards wait for lock, flip in dealer order, and reset next round"
     Number(await page.getByTestId("baccarat-countdown").textContent()),
   ).toBeLessThanOrEqual(20);
   await expect(hands.locator(".bc-face-card")).toHaveCount(0);
+  await expect(page.locator('.bc-score-spot[data-winning="true"]')).toHaveCount(0);
   await expect(page.getByTestId("text-player-total")).toHaveText("–");
   await hands.evaluate((el) => {
     const w = window as any;
@@ -294,6 +303,7 @@ test("face-down cards wait for lock, flip in dealer order, and reset next round"
               ?.textContent,
             status: document.querySelector('[data-testid="text-result-winner"]')
               ?.textContent,
+            score: document.querySelector('[data-testid="baccarat-score-result"]')?.textContent,
           });
         }
       }
@@ -328,8 +338,10 @@ test("face-down cards wait for lock, flip in dealer order, and reset next round"
   );
   expect(firstFlip).toMatchObject({ playerTotal: "2", bankerTotal: "–" });
   expect(firstFlip.status).not.toContain("wins");
+  expect(firstFlip.score).not.toContain("Score 9");
   await expect(page.getByTestId("text-player-total")).toHaveText("0");
   await expect(page.getByTestId("text-banker-total")).toHaveText("9");
+  await expect(page.getByTestId("spot-score9")).toHaveAttribute("data-winning", "true");
   await expect(page.getByTestId("text-result-winner")).toHaveText(
     "Banker wins",
   );
@@ -349,6 +361,7 @@ test("face-down cards wait for lock, flip in dealer order, and reset next round"
   });
   await state.next();
   await expect(page.getByTestId("text-player-total")).toHaveText("–");
+  await expect(page.locator('.bc-score-spot[data-winning="true"]')).toHaveCount(0);
   await expect(page.getByTestId("spot-player")).toBeEnabled();
   await expect(
     hands.locator('.bc-playing-card[data-revealed="false"]'),
@@ -396,6 +409,60 @@ test("wallet limits prevent an unaffordable draft", async ({ page }) => {
     "Selected ₹100",
   );
   expect(state.posts).toHaveLength(0);
+});
+
+test("round quotes retain old rates, then switch to reference odds and Banker 6 rules", async ({ page }) => {
+  const state = await setup(page, 50000000, 43, true);
+  await expect(page.getByTestId("spot-player").locator(".bc-odds")).toHaveText("0.69:1");
+  await expect(page.getByTestId("spot-banker").locator(".bc-odds")).toHaveText("0.64:1");
+  await expect(page.getByTestId("banker-six-odds")).toHaveCount(0);
+  await state.next();
+  await expect(page.getByTestId("spot-player").locator(".bc-odds")).toHaveText("1:1");
+  await expect(page.getByTestId("spot-banker").locator(".bc-odds")).toHaveText("1:1 · 6 pays 0.5:1");
+  await expect(page.getByTestId("spot-tie").locator(".bc-odds")).toHaveText("8:1");
+  await expect(page.getByTestId("spot-playerPair").locator(".bc-odds")).toHaveText("11:1");
+  await expect(page.getByTestId("spot-bankerPair").locator(".bc-odds")).toHaveText("11:1");
+  await page.getByTestId("btn-game-rules").click();
+  const rules = page.getByTestId("baccarat-drawing-rules");
+  await expect(rules.locator("table")).toHaveCount(2);
+  await expect(page.getByTestId("banker-six-example")).toContainText("₹100 returns ₹150");
+  await expect(rules).toContainText("Pairs use only the first two cards");
+  await page.keyboard.press("Escape");
+  expect(state.errors).toEqual([]);
+});
+
+test("score markets support all ten spots, chip editing, auto submission, locks and repeat", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const state = await setup(page);
+  const scoreboard = page.getByTestId("baccarat-scoreboard");
+  await expect(scoreboard.locator(".bc-score-label")).toHaveText(["Score 1-4", "Score 5-6", "Score 7", "Score 8", "Score 9"]);
+  await expect(scoreboard.locator(".bc-score-odds")).toHaveText(["7.5:1", "4:1", "4.5:1", "3:1", "2.5:1"]);
+  await page.getByTestId("spot-score9").click();
+  await page.getByTestId("btn-double").click();
+  await expect(page.getByTestId("chipstack-score9")).toContainText("₹200");
+  await page.getByTestId("btn-undo").click();
+  await expect(page.getByTestId("chipstack-score9")).toContainText("₹100");
+  await page.getByTestId("btn-clear").click();
+  const types = ["player", "banker", "tie", "playerPair", "bankerPair", "score1_4", "score5_6", "score7", "score8", "score9"];
+  for (const type of types) await page.getByTestId(`spot-${type}`).click();
+  await expect(page.getByTestId("text-total-staked")).toHaveText("Selected ₹1,000");
+  await page.screenshot({ path: review("score-bets-mobile.png") });
+  await state.closeSoon();
+  await expect.poll(() => state.posts.length).toBe(1);
+  expect(state.posts[0].bets).toEqual(types.map((type) => ({ type, amountPaise: "10000" })));
+  for (const type of types) await expect(page.getByTestId(`chipstack-${type}`)).toBeVisible();
+  await state.reveal(six, 7500);
+  await expect(page.getByTestId("spot-score9")).toBeDisabled();
+  await expect(scoreboard.locator(".bc-score-lock")).toHaveCount(5);
+  await expect(page.getByTestId("spot-score9")).toHaveAttribute("data-winning", "true");
+  await expect(page.getByTestId("baccarat-score-result")).toHaveText("Banker · Score 9");
+  await state.next();
+  await page.getByTestId("btn-rebet").click();
+  await expect(page.getByTestId("text-total-staked")).toHaveText("Selected ₹1,000");
+  await state.reveal({ ...natural, winner: "tie", bankerCards: [3, 17], bankerTotal: 9 }, 7500);
+  await expect(page.getByTestId("baccarat-score-result")).toHaveText("Tie · No score winner");
+  await expect(scoreboard.locator('[data-winning="true"]')).toHaveCount(0);
+  expect(state.errors).toEqual([]);
 });
 
 test("phone layout, natural outcome on a late join and safe video failure", async ({
@@ -470,6 +537,8 @@ test("screen sizes keep the table, bets and coins together with the app styles l
         pair = box(".bc-spot-playerPair");
       const coins = box(".bc-coins"),
         actions = box(".bc-actions");
+      const scoreboard = box(".bc-scoreboard");
+      const scoreSpots = [...document.querySelectorAll(".bc-score-spot")].map((el) => el.getBoundingClientRect());
       const coinButtons = [
         ...document.querySelectorAll(".bc-coins [data-game-coin]"),
       ].map((el) => el.getBoundingClientRect());
@@ -481,7 +550,9 @@ test("screen sizes keep the table, bets and coins together with the app styles l
       return {
         overflow: document.documentElement.scrollWidth > innerWidth,
         center: Math.abs(board.x + board.width / 2 - innerWidth / 2),
-        tableGap: coins.top - stage.bottom,
+        tableGap: scoreboard.top - stage.bottom,
+        scoreCoinGap: coins.top - scoreboard.bottom,
+        scoresFit: scoreSpots.length === 5 && scoreSpots.every((spot) => spot.left >= scoreboard.left && spot.right <= scoreboard.right + 1 && spot.height >= 44 && spot.top === scoreSpots[0].top),
         cardsInsideBoard: hands.every(
           (hand) => hand.top >= board.top && hand.bottom <= board.bottom,
         ),
@@ -525,6 +596,9 @@ test("screen sizes keep the table, bets and coins together with the app styles l
       `${width} table-to-bets gap`,
     ).toBeGreaterThanOrEqual(0);
     expect(layout.tableGap).toBeLessThanOrEqual(10);
+    expect(layout.scoresFit, `${width} score bets fit on one row`).toBe(true);
+    expect(layout.scoreCoinGap).toBeGreaterThanOrEqual(0);
+    expect(layout.scoreCoinGap).toBeLessThanOrEqual(10);
     expect(
       layout.betGap,
       `${width} adjacent bet targets`,

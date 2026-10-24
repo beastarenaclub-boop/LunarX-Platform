@@ -1,0 +1,14 @@
+[data-drag-scroll] {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-x pan-y pinch-zoom;
+}
+[data-drag-scroll] :is(button, a) {
+  cursor: inherit;
+}
+[data-drag-scroll][data-dragging] {
+  cursor: grabbing;
+  scroll-snap-type: none !important;
+  scroll-behavior: auto !important;
+}

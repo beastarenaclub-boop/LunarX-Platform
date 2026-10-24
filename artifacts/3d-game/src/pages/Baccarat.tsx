@@ -82,6 +82,8 @@ interface BaccaratState {
 }
 
 interface BaccaratConfig {
+  payoutVersion: number;
+  bankerSixReturn: number;
   enabled: boolean;
   maxMultiplier: number;
   maxStakePaise: string;
@@ -214,6 +216,9 @@ export default function Baccarat() {
     serverSeed,
     config: roundConfig,
   } = round;
+  const activePayouts = roundConfig?.baccaratPayouts?.payouts ?? config.data?.payouts;
+  const bankerSixReturn = roundConfig?.baccaratPayouts?.bankerSixReturn ?? config.data?.bankerSixReturn;
+  const roundReady = round.snapshot?.roundId === roundId;
 
   const coinPreferences = useCoinPreferences("baccarat", user?.id);
   const { chip, selectChip: setChip } = coinPreferences;
@@ -286,6 +291,8 @@ export default function Baccarat() {
     if (
       placing ||
       config.data?.enabled !== true ||
+      !roundReady ||
+      !Number.isFinite(activePayouts?.[spot]) ||
       !bettingOpen ||
       remainingMs <= 0 ||
       !balance.data
@@ -359,9 +366,10 @@ export default function Baccarat() {
       [...draftRef.current].map(([spot, value]) => [spot, value * 2]),
     );
     if (!validDraft(next)) return;
+    const addedChips = [...draftRef.current].map(([spot, amount]) => ({ spot, amount }));
     setHistory((h) => [
       ...h,
-      ...[...draftRef.current].map(([spot, amount]) => ({ spot, amount })),
+      ...addedChips,
     ]);
     draftRef.current = next;
     setBets(next);
@@ -553,7 +561,7 @@ export default function Baccarat() {
         deal={shown}
         balance={balance.data?.balance ?? "0"}
         disabled={!!disabledGame}
-        available={config.data?.enabled === true && !!balance.data}
+        available={config.data?.enabled === true && !!balance.data && roundReady}
         placing={placing}
         bets={bets}
         chip={chip}
@@ -570,7 +578,8 @@ export default function Baccarat() {
         onRebet={rebet}
         onDouble={doubleBets}
         onFairness={() => setFairnessOpen(true)}
-        payouts={config.data?.payouts}
+        payouts={activePayouts}
+        bankerSixReturn={bankerSixReturn}
         history={resultHistory}
         accountLabel={user.isDemo ? "Demo" : user.displayName || "Player"}
       />

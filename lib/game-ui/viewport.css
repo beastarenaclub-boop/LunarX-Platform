@@ -23,6 +23,7 @@
 }
 .game-fit-content {
   --game-fit: 1;
+  --fit-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   position: relative;
   width: 100%;
   min-width: 0;

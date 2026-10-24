@@ -3,7 +3,7 @@ export const DEMO_GAME_ROOTS = new Set([
   "instant", "virtual-sports", "mines", "chicken-road", "plinko", "dice",
   "horse-racing", "bike-racing", "roulette", "baccarat", "teen-patti",
   "teen-patti-live", "blackjack", "andar-bahar", "lucky-7", "lucky-7-live",
-  "wheel-2-live", "7up7down", "crazy-time", "dragon-tiger",
+  "wheel-2-live", "teen-patti-joker", "7up7down", "crazy-time", "dragon-tiger",
   "dragon-tiger-one-day", "rummy", "vegetable-bowl", "wingo", "forex",
   "lottery", "prize-lotto", "crash", "lunar", "bets",
   "poker",

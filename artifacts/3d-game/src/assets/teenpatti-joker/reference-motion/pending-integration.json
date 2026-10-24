@@ -1,0 +1,45 @@
+{
+  "status": "Complete - readable server card ranks on table and card rail",
+  "mainFrontend": {
+    "url": "http://localhost:5180/teen-patti-joker",
+    "film": "dealer-playback-v4.mp4",
+    "artwork": "dealer-playback-v4.webp",
+    "videoEnabled": true,
+    "paperMaskingEnabled": false,
+    "dimensions": {
+      "width": 960,
+      "height": 540
+    },
+    "fps": 24,
+    "durationSeconds": 86,
+    "filmBytes": 5607610,
+    "timingMs": {
+      "betting": 20000,
+      "reveal": 49000,
+      "settle": 17000
+    },
+    "vectorCardValuesEnabled": true,
+    "offlineHandMasks": true
+  },
+  "implementation": {
+    "playback": "One player and source across preparation, confirmation, deal and collection. Native video events align phase changes and large drift; no 100ms media timer or per-frame canvas work.",
+    "controls": "Pause/resume, reduced-motion default with manual play, retry after download failure, and automatic pause while hidden or disconnected.",
+    "cards": "Server ranks and suits appear on tracked table papers as lightweight SVG. Hand masks are prepared offline at six samples per second; there are no runtime video pixel reads. The larger card rail uses bold ranks of at least 22px; Player B visual order matches the physical table.",
+    "script": "artifacts/3d-game/scripts/optimize-joker-playback.mjs",
+    "tableRankScript": "artifacts/3d-game/scripts/prepare-joker-table-ranks.mjs",
+    "tableRankData": {
+      "frames": 396,
+      "rawBytes": 357201,
+      "gzipBytes": 33233
+    }
+  },
+  "validation": {
+    "frontendTypecheck": "passed",
+    "frontendBuild": "passed; bundle-size advisory from embedded vector frame data",
+    "browserTests": "17 passed, including matching server values and readable ranks at 360px, 390px and 1440px, dealer motion, reveal order, stale connections and reduced motion.",
+    "mainPageSmoke": "Actual 390px main route: table 7-clubs matched card rail 7, dealer playing at 1x, 121 frames advanced in five seconds with zero dropped frames. Zero canvas pixel reads, canvas elements, browser errors, or horizontal overflow. Isolated demo session signed out without placing a bet."
+  },
+  "serverTiming": "Existing round timing preserved; no backend runtime change applied.",
+  "sourceAssets": "Original generated films and calibration retained. Compact geometry and offline hand masks drive the SVG rank overlay; the heavy JokerPaperInk canvas component remains unused.",
+  "updatedOn": "2026-10-23"
+}

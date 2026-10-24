@@ -44,6 +44,7 @@ const Dice = lazy(() => import("@/pages/Dice"));
 const Roulette = lazy(() => import("@/pages/Roulette"));
 const Baccarat = lazy(() => import("@/pages/Baccarat"));
 const TeenPatti = lazy(() => import("@/pages/TeenPatti"));
+const TeenPattiJoker = lazy(() => import("@/pages/TeenPattiJoker"));
 const TeenPattiLive = lazy(() => import("@/pages/TeenPattiLive"));
 const Blackjack = lazy(() => import("@/pages/Blackjack"));
 const AndarBahar = lazy(() => import("@/pages/AndarBahar"));
@@ -82,6 +83,7 @@ const GAME_ROUTES = new Set([
   "/blackjack",
   "/teen-patti",
   "/teen-patti-live",
+  "/teen-patti-joker",
   "/andar-bahar",
   "/andar-bahar-live",
   "/lucky-7",
@@ -290,6 +292,7 @@ function App() {
               <TeenPatti />
             </Protected>
           </Route>
+          <Route path="/teen-patti-joker"><Protected><Suspense fallback={<AuthSplash />}><TeenPattiJoker /></Suspense></Protected></Route>
           <Route path="/teen-patti-live">
             <Protected>
               <TeenPattiLive />

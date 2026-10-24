@@ -1,0 +1,160 @@
+/* Phone tables reserve space for bets first; the studio uses the remaining height. */
+.roulette-phone-board { display: none; }
+@media (max-width: 899px) {
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-page { height: var(--fit-height); min-height: 0; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-page-header { padding-block: 2px; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-live-layout { display: flex; margin: 4px 8px; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-live-layout > .roulette-studio-column { height: clamp(64px, calc(var(--fit-height) - 520px), 280px); flex: none; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-controls-column { flex: 1; min-height: 0; }
+  :root .game-viewport[data-game-viewport="roulette"] :is(.roulette-studio-topline, .roulette-studio-footer, .roulette-round-status, .roulette-mobile-hint, .roulette-board-scroll) { display: none; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-betting-panel { padding: 5px 6px; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-bet-toolbar { margin-bottom: 4px; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-bet-scroll { min-height: 244px; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-phone-board { display: block; }
+  .roulette-phone-tabs { display: flex; gap: 4px; margin-bottom: 4px; }
+  .roulette-phone-tabs button { flex: 1; min-width: 0; min-height: 32px; border-radius: 5px; color: #bdd4c5; background: #ffffff08; font-size: 11px; }
+  .roulette-phone-tabs button[aria-pressed="true"] { background: #e7c276; color: #17251a; font-weight: 700; }
+  .roulette-phone-numbers { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; }
+  .roulette-phone-choice { position: relative; min-width: 0; min-height: 28px; border: 1px solid #ffffff30; border-radius: 3px; background: #173c2c; color: #fff; font-size: 12px; font-weight: 700; touch-action: manipulation; }
+  .roulette-phone-choice.is-red { background: #ac1831; }
+  .roulette-phone-choice.is-black { background: #171b20; }
+  .roulette-phone-choice.is-zero { grid-column: 1 / -1; background: #08764b; }
+  .roulette-phone-choice:focus-visible { outline: 2px solid #ffdb7d; outline-offset: -2px; }
+  .roulette-phone-choice.is-winning { box-shadow: inset 0 0 0 2px #ffdb7d; }
+  .roulette-phone-choice:disabled { opacity: .75; }
+  .roulette-phone-chip { position: absolute; right: 1px; bottom: 1px; border-radius: 10px; padding: 1px 3px; font-size: 8px; line-height: 12px; color: #161e15; background: #f4d785; pointer-events: none; }
+  .roulette-phone-outside, .roulette-phone-combination-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+  .roulette-phone-outside .roulette-phone-choice { min-height: 48px; }
+  .roulette-phone-combinations select { width: 100%; min-height: 36px; margin-bottom: 4px; border: 1px solid #ffffff30; border-radius: 5px; color: #fff; background: #123426; }
+  .roulette-phone-combination-list { max-height: 166px; overflow-y: auto; }
+  .roulette-phone-combination-list .roulette-phone-choice { min-height: 40px; font-size: 10px; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-coin-section .coin-rack-options { scroll-padding-inline: 3px; }
+
+  :root .game-viewport[data-game-viewport="lucky-7"] .lucky7-header { display: grid; grid-template-columns: 1fr auto; gap: 0 4px; padding: 2px 8px; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .lucky7-header-details { grid-column: 1 / -1; justify-self: end; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .lucky7-wallet { min-height: 22px; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .lucky7-header-details > p { display: none; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .live-game-scene { width: min(100%, calc(max(110px, var(--fit-height) - 330px) * 16 / 9)); justify-self: center; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .lucky7-studio-table { width: 100%; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .live-bet-layout { grid-template-columns: 1fr; grid-template-areas: "status" "spots" "coins" "summary" "actions"; gap: 4px; padding: 6px; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .live-bet-summary { min-height: 20px; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .live-bet-actions { width: 100%; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .coin-rack-options { display: flex; flex-wrap: nowrap; width: 100%; min-width: 0; overflow-x: auto; }
+
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-stage { min-height: 0; height: clamp(120px, calc(var(--fit-height) - 386px), 440px); max-height: none; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-bet-layout { padding: 10px 10px 5px; gap: 8px; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-main-bets { height: 54px; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-spot.l7-seven { width: 64px; height: 64px; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-controls { padding: 6px 10px 3px; gap: 6px 8px; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-chip-rack { gap: 8px; justify-content: space-between; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-actions button { min-height: 40px; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-confirm { min-height: 40px; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-feedback { min-height: 22px; padding-block: 3px; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-footer { padding: 6px 10px; gap: 4px 8px; }
+}
+@media (max-width: 899px) and (max-height: 650px) {
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-history-strip { display: none; }
+}
+@media (max-width: 899px) {
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-page-header { padding-block: 2px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] [data-game-screen] { padding: 6px; gap: 6px; flex: none; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-main-column { gap: 6px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-main-column > [data-testid="andar-bahar-table"] { padding: 6px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-main-column > .andar-main-bets { padding: 4px 0; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-table-content { padding: 4px; gap: 4px; grid-template-columns: 42px minmax(0, 1fr); }
+  :root .game-viewport[data-game-viewport="andar-bahar"] [data-testid^="side-"] { padding: 5px; min-height: 0; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-lane-heading { margin-bottom: 2px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] [data-testid^="side-"] .andar-card-strip { height: 52px; min-height: 0; padding-bottom: 2px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-card-strip > .mx-auto > div { height: 40px; width: 28px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-card-strip > .mx-auto > span { display: none; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-card-strip [data-testid^="card-"] { width: 34px; height: 48px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-card-strip [data-testid^="card-"] span { font-size: 14px; line-height: 1; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-joker > div > div { width: 36px; height: 52px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-main-bets button { width: 100%; min-height: 52px; padding: 5px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-main-bets button > span:first-child { font-size: 15px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-main-column > .andar-range-panel { padding: 6px; gap: 4px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .game-bottom-bar > div { padding: 6px; gap: 5px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .game-bottom-bar { width: 100%; min-width: 0; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .coin-rack-options { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 4px; min-width: 0; width: 100%; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp20-market-table tr:has(.tp20-unavailable) { display: none; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp20-topbar { min-height: 48px; height: 48px; padding-block: 3px; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp20-market-button { min-height: 44px; height: 44px; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp20-result-row { padding-block: 4px; min-height: 24px; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp20-announcement { display: none; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp2020-extra-controls { gap: 4px; padding: 4px 8px; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp2020-card-stage { aspect-ratio: auto; height: clamp(110px, calc(var(--fit-height) - 420px), 250px); }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp20-sidebar { margin-top: 10px; }
+  :root .game-viewport[data-game-viewport="teen-patti"] [data-testid="chip-rack"] > div:first-child { flex-wrap: nowrap; overflow-x: auto; gap: 4px; padding: 2px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger"] .dt-studio-scene { height: clamp(110px, calc(var(--fit-height) - 400px), 300px); min-height: 0; }
+  :root .game-viewport[data-game-viewport="dragon-tiger"] .coin-rack-options { display: flex; flex-wrap: nowrap; overflow-x: auto; width: 100%; min-width: 0; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-topbar { min-height: 44px; height: 44px; padding-block: 2px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-announcement { position: static; min-height: 24px; padding-block: 3px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-heading { height: 34px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-studio:not(.od-studio-expanded .od-studio) { height: clamp(90px, calc(var(--fit-height) - 450px), 260px); min-height: 0; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-camera-controls { flex-wrap: nowrap; overflow-x: auto; padding: 4px; gap: 4px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-camera-controls > * { flex-shrink: 0; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-camera-controls :is(button, input) { min-height: 32px; min-width: 28px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-markets-panel { display: flex; flex-direction: column; padding: 6px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-match-grid { order: -2; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-match-bet { position: relative; inset: auto; grid-area: auto; flex-direction: column; width: 100%; height: 64px; margin: 0; transform: none; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-match-bet .od-bet-face { width: 100%; height: 46px; min-height: 0; border-radius: 4px; clip-path: none; padding: 4px; justify-content: center; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-match-bet .od-bet-price { position: static; width: 100%; height: 18px; font-size: 11px; text-align: center; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-match-bet .od-bet-label { font-size: 11px; white-space: normal; overflow-wrap: anywhere; min-width: 0; max-width: 100%; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-match-bet .od-bet-stake { position: static; font-size: 10px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-betting-dock { order: -1; margin: 5px 0; padding: 6px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-controls { padding-block: 5px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-bet-actions { padding-block: 5px; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .coin-rack-options { display: flex; flex-wrap: nowrap; overflow-x: auto; width: 100%; min-width: 0; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-lane-heading { align-items: center; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-lane-heading > div:first-child > span { font-size: 10px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-lane-heading > div:last-child > div:last-child { display: none; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] :is(.andar-lane-footer, [data-testid="deal-progress"]) { display: none; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-side-bets button { min-height: 40px; padding: 2px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-side-bets button > span:nth-child(2) { white-space: nowrap; font-size: 8px; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] [data-testid="chip-rack"] > div:first-child { flex-wrap: nowrap; overflow-x: auto; gap: 4px; padding: 2px; }
+}
+@media (min-width: 560px) and (max-width: 899px) and (max-height: 500px) {
+  :root .game-viewport[data-game-viewport="roulette"] [data-game-screen="roulette"].roulette-live-layout { display: grid; grid-template-columns: minmax(140px, .35fr) minmax(0, 1fr); align-items: stretch; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-live-layout > .roulette-studio-column { height: 100%; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-betting-panel { display: grid; grid-template-columns: minmax(0, 1fr) 180px; grid-template-rows: 32px minmax(0, 1fr); gap: 4px 8px; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-bet-toolbar { grid-column: 1 / -1; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-bet-dock-controls { border: 0; min-width: 0; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-bet-actions { flex-wrap: wrap; }
+  :root .game-viewport[data-game-viewport="roulette"] .roulette-auto-switch { margin-left: 0; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .lucky7-table-column { grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: auto 1fr; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .lucky7-betting-dock { grid-column: 2; grid-row: 1 / 3; align-self: start; }
+  :root .game-viewport[data-game-viewport="lucky-7"] .live-game-scene { width: 100%; grid-column: 1; grid-row: 2; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-table-shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 1fr); }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-stage { height: calc(var(--fit-height) - 48px); }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-live { padding: 0; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-bet-layout { grid-template-columns: 1fr; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-brand { display: none; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-controls { flex-wrap: wrap; }
+  :root .game-viewport[data-game-viewport="lucky-7-live"] .l7-chip-rack { width: 100%; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-main-column { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 54px 1fr; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] [data-testid="andar-bahar-table"] { grid-column: 1; grid-row: 1 / 3; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-main-bets { grid-column: 2; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .andar-range-panel { grid-column: 2; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .game-bottom-bar { max-width: none; width: 100%; }
+  :root .game-viewport[data-game-viewport="andar-bahar"] .game-bottom-bar > div { display: grid; grid-template-columns: 1fr 1fr; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp2020-content { grid-template-columns: minmax(0, 1fr) minmax(280px, 1fr); }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp2020-content > .tp2020-betting { grid-row: 1; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp2020-extra-controls { grid-column: 2; grid-row: 2; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp2020-card-stage { grid-row: 1 / 3; height: 190px; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp20-topbar { min-height: 44px; height: 44px; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp20-market-button { min-height: 36px; height: 36px; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp20-result-row { min-height: 18px; padding-block: 1px; }
+  :root .game-viewport[data-game-viewport="teen-patti"] .tp2020-extra-controls { padding-block: 2px; gap: 2px; }
+  :root .game-viewport[data-game-viewport="baccarat"] .bc-page { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); grid-template-rows: 44px 26px auto; align-items: start; }
+  :root .game-viewport[data-game-viewport="baccarat"] .bc-header { grid-column: 1 / -1; grid-row: 1; height: 44px; }
+  :root .game-viewport[data-game-viewport="baccarat"] .bc-announcement { grid-column: 1 / -1; grid-row: 2; }
+  :root .game-viewport[data-game-viewport="baccarat"] .bc-stage { grid-column: 1; grid-row: 3; height: 240px; }
+  :root .game-viewport[data-game-viewport="baccarat"] .bc-console { grid-column: 2; grid-row: 3; padding: 4px; }
+  :root .game-viewport[data-game-viewport="baccarat"] .bc-page { --bc-bet-height: 112px; --bc-tie-width: 64px; --bc-tie-height: 70px; }
+  :root .game-viewport[data-game-viewport="baccarat"] .bc-reference-footer { grid-column: 1 / -1; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-layout { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); align-items: start; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-shell { max-width: none; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-studio-column { grid-column: 1; grid-row: 1; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-markets-panel { grid-column: 2; grid-row: 1; }
+  :root .game-viewport[data-game-viewport="dragon-tiger-one-day"] .od-studio { height: 210px; }
+}

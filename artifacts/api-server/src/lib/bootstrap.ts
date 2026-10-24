@@ -1,11 +1,12 @@
 import { RETIRED_GAME_CODES } from "./retiredGames";
 import { POKER_GAMES, POKER_CONFIG } from "@workspace/api-zod/poker";
 import { INSTANT_COLLECTION } from "@workspace/api-zod/instant-collection";
+import { JOKER_GAME, JOKER_TIMING } from "@workspace/api-zod/teenpatti-joker";
 import { W20_GAME, W20_TIMING, W20_RTP } from "@workspace/api-zod/wheel20-live";
 import { L7_GAME, L7_TIMING } from "@workspace/api-zod/lucky7-live";
 import { db, usersTable, rolesTable, gameConfigTable } from "@workspace/db";
 import { ROULETTE_HOUSE_EDGE, ROULETTE_PAYOUT_BASE, ROULETTE_RTP_PERCENT, ROULETTE_LIMITS } from "@workspace/api-zod/roulette-game";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { hashPassword } from "./password";
 import { normalizeEmail } from "../services/auth";
 import { logger } from "./logger";
@@ -44,6 +45,15 @@ export async function ensureGameConfigDefaults(): Promise<void> {
       maxMultiplier: 3000, bettingWindowMs: POKER_CONFIG.bettingMs[gameCode],
     }).onConflictDoNothing();
   }
+  await db.insert(gameConfigTable).values({ gameCode: JOKER_GAME, enabled: true, settlementMode: "house_edge", houseEdge: 0.02, rtpMin: 93.75, rtpMax: 100, maxMultiplier: 3.75, minStakePaise: 1000n, maxStakePaise: 20_000_000n, ...JOKER_TIMING }).onConflictDoNothing();
+  // Upgrade only the original studio timing. Custom settings and the saved
+  // deadlines of rounds already in progress remain intact.
+  await db.update(gameConfigTable).set(JOKER_TIMING).where(and(
+    eq(gameConfigTable.gameCode, JOKER_GAME),
+    eq(gameConfigTable.bettingWindowMs, 20_000),
+    eq(gameConfigTable.revealDurationMs, 7_000),
+    eq(gameConfigTable.settleDurationMs, 6_000),
+  ));
   await db.insert(gameConfigTable).values({ gameCode: W20_GAME, enabled: true, settlementMode: "house_edge", houseEdge: 1 - Math.max(...Object.values(W20_RTP)), rtpMin: Math.min(...Object.values(W20_RTP)) * 100, rtpMax: Math.max(...Object.values(W20_RTP)) * 100, maxMultiplier: 321, minStakePaise: 1000n, maxStakePaise: 20_000_000n, ...W20_TIMING }).onConflictDoNothing();
   // Remove retired games from player/admin registries without touching bet history.
   await db.delete(gameConfigTable).where(inArray(gameConfigTable.gameCode, ["redjet", "redy", "vortex-2", "propel-x", "nomad", "aviatrix", "aviajet", "skydot", "vortex", "orizon"]));

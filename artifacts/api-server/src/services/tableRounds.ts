@@ -3,6 +3,9 @@ import { settleCoinLive, refundCoinLive, voidCoinLiveRound } from "./coinFlipLiv
 import { W20_VERSION, normalizeW20Bets, w20Stake, w20Payout, type W20Bet, type W20Outcome } from "@workspace/api-zod/wheel20-live";
 import { deriveW20Outcome } from "./wheel20LiveMath";
 import { settleW20Live } from "./wheel20Live";
+import { JOKER_VERSION, normalizeJokerBets, jokerStake, jokerPayout, type JokerBet, type JokerOutcome } from "@workspace/api-zod/teenpatti-joker";
+import { deriveJokerOutcome } from "./teenPattiJokerMath";
+import { settleJokerBets } from "./teenPattiJoker";
 import { withRouletteAdmission } from "./rouletteAdmission";
 import { AB_MOTION_VERSION, andarBaharRevealMs } from "@workspace/api-zod/andar-bahar-live";
 import { L7_VERSION, normalizeL7Bets, l7Stake, l7Payout, type L7Bet, type L7Card } from "@workspace/api-zod/lucky7-live";
@@ -69,11 +72,12 @@ import {
 } from "./rouletteMath";
 import {
   settleBaccaratBets,
+  baccaratPayouts,
   type BaccaratBetInput,
   type BaccaratDeal,
 } from "./baccaratMath";
-import { deriveBaccaratDeal } from "./baccarat";
-import { BACCARAT_ROUND_TIMING } from "@workspace/api-zod/baccarat-game";
+import { deriveBaccaratDeal, BACCARAT_MAX_BETS_PER_DEAL } from "./baccarat";
+import { BACCARAT_ROUND_TIMING, BACCARAT_PAYOUT_VERSION } from "@workspace/api-zod/baccarat-game";
 import {
   dealTeenPatti,
   settleTeenPattiBets,
@@ -111,6 +115,7 @@ import { CRAZY_TIME_VERSION, CRAZY_TIME_MAX_RETURN, type CrazyTimeOutcome } from
 import { deriveCrazyTimeOutcome, validateCrazyTimeBets, settleCrazyTimeBets, type CrazyTimeBetInput } from "./crazyTimeMath";
 
 export const TABLE_GAME_CODES = [
+  "teen-patti-joker",
   "coin-flip",
   "wheel-2-live",
   "lucky-7-live",
@@ -133,8 +138,10 @@ export function isTableGame(code: string): code is TableGameCode {
 
 /** Config snapshot persisted on every round row. */
 export interface RoundConfigSnapshot {
+  baccaratPayouts?: ReturnType<typeof baccaratPayouts>;
   teenPattiPayouts?: ReturnType<typeof teenPattiPayouts>;
   wheel20Version?: number;
+  jokerVersion?: number;
   andarBaharMotionVersion?: number;
   lucky7CardVersion?: number;
   crazyTimeVersion?: typeof CRAZY_TIME_VERSION;
@@ -256,7 +263,7 @@ const rouletteAdapter: TableGameAdapter = {
 const baccaratAdapter: TableGameAdapter = {
   validate(bets, maxMultiplier) {
     const inputs = toBetInputs<BaccaratBetInput>(bets);
-    if (inputs.length > 5) throw new Error("TOO_MANY_BETS");
+    if (inputs.length > BACCARAT_MAX_BETS_PER_DEAL) throw new Error("TOO_MANY_BETS");
     const seen = new Set<string>();
     for (const b of inputs) {
       if (seen.has(b.type)) throw new Error("DUPLICATE_BET_TYPE");
@@ -545,6 +552,12 @@ const lucky7Adapter: TableGameAdapter = {
 };
 
 const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdapter> = {
+  "teen-patti-joker": {
+    validate: bets => ({ totalStake: jokerStake(normalizeJokerBets(bets as JokerBet[])) }),
+    derive: (seed, client, nonce) => deriveJokerOutcome(seed, client, nonce),
+    settle: (bets, outcome, _cap, _edge, cfg) => ({ settled: bets, totalPayout: jokerPayout(bets as JokerBet[], outcome as JokerOutcome, cfg.jokerVersion) }),
+    async insertAudit({ round }) { return round.id; },
+  },
   "wheel-2-live": {
     validate: bets => ({ totalStake: w20Stake(normalizeW20Bets(bets as W20Bet[])) }),
     derive: (seed, client, nonce) => deriveW20Outcome(seed, client, nonce),
@@ -624,6 +637,9 @@ async function userDisplayName(userId: string): Promise<string | null> {
 
 function roundCfg(round: TableRound): RoundConfigSnapshot {
   const cfg = round.config as RoundConfigSnapshot;
+  if (round.gameCode === "baccarat") {
+    return { ...cfg, baccaratPayouts: baccaratPayouts(cfg.maxMultiplier, cfg.payoutVersion ?? 1) };
+  }
   return ["teen-patti", "teen-patti-live"].includes(round.gameCode)
     ? { ...cfg, teenPattiPayouts: teenPattiPayouts(cfg.maxMultiplier, cfg.payoutVersion ?? 1) }
     : cfg;
@@ -809,7 +825,12 @@ export async function createTableRound(gameCode: TableGameCode): Promise<TableRo
   if (gameCode === "coin-flip") Object.assign(snap, COIN_LIVE_TIMING);
   // New coups allow 20 seconds for betting. In-flight rounds retain
   // their original deadlines; the studio adjusts playback to the snapshot.
-  if (gameCode === "baccarat") Object.assign(snap, BACCARAT_ROUND_TIMING);
+  if (gameCode === "baccarat") {
+    Object.assign(snap, BACCARAT_ROUND_TIMING);
+    snap.payoutVersion = BACCARAT_PAYOUT_VERSION;
+    snap.baccaratPayouts = baccaratPayouts(snap.maxMultiplier, snap.payoutVersion);
+  }
+  if (gameCode === "teen-patti-joker") { snap.jokerVersion = JOKER_VERSION; snap.maxMultiplier = 3.75; }
   if (gameCode === "wheel-2-live") { snap.wheel20Version = W20_VERSION; snap.maxMultiplier = 321; }
   if (gameCode === "andar-bahar") snap.andarBaharMotionVersion = AB_MOTION_VERSION;
   if (gameCode === "lucky-7-live") {
@@ -983,6 +1004,7 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
   if (round.gameCode === "coin-flip") { await settleCoinLive(round); return; }
   if (round.gameCode === "lucky-7-live") { await settleL7Live(round); return; }
   if (round.gameCode === "wheel-2-live") { await settleW20Live(round); return; }
+  if (round.gameCode === "teen-patti-joker") { await settleJokerBets(round); return; }
   if (round.gameCode === "7up7down") { await settleSevenLive(round); return; }
   const cfg = roundCfg(round);
   const slips = await db
@@ -1411,7 +1433,7 @@ export async function getTableRoundSnapshot(
 
   // A player's receipt must not disappear behind the 100-row public feed.
   // Crazy Time accepts a single combined slip per user, so this stays small.
-  const personalSlips = (gameCode === "teen-patti" || gameCode === "teen-patti-live" || gameCode === "coin-flip" || gameCode === "wheel-2-live" || gameCode === "crazy-time" || gameCode === "7up7down" || gameCode === "lucky-7-live") && userId
+  const personalSlips = (gameCode === "teen-patti" || gameCode === "teen-patti-live" || gameCode === "coin-flip" || gameCode === "wheel-2-live" || gameCode === "teen-patti-joker" || gameCode === "crazy-time" || gameCode === "7up7down" || gameCode === "lucky-7-live") && userId
     ? await db.select({ id: tableRoundBetsTable.id, userId: tableRoundBetsTable.userId,
       totalStake: tableRoundBetsTable.totalStake, bets: tableRoundBetsTable.bets,
       status: tableRoundBetsTable.status, payoutAmount: tableRoundBetsTable.payoutAmount,

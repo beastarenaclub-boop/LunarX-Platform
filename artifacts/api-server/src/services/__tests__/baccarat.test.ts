@@ -4,6 +4,9 @@ import {
   dealBaccarat,
   settleBaccaratBets,
   baccaratCardValue,
+  baccaratReturnMultiplier,
+  baccaratPayouts,
+  BACCARAT_BET_TYPES,
   cardRank,
   type BaccaratBetInput,
   type BaccaratDeal,
@@ -116,6 +119,48 @@ test("pairs detected by rank on the initial two cards", () => {
   assert.equal(cardRank(c(7)), cardRank(c(7, 1)));
 });
 
+test("the complete third-card table matches the supplied rules", () => {
+  const cardFor = (value: number, suit = 0) => c(value === 0 ? 12 : value - 1, suit);
+  const bankerDrawsOn = [
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    [0, 1, 2, 3, 4, 5, 6, 7, 9],
+    [2, 3, 4, 5, 6, 7],
+    [4, 5, 6, 7],
+    [6, 7],
+    [],
+  ];
+  for (let banker = 0; banker <= 7; banker++) {
+    for (let third = 0; third <= 9; third++) {
+      const d = deal([c(9), cardFor(banker), c(0), c(9, 1), cardFor(third, 2), c(0, 3)]);
+      assert.equal(d.playerCards.length, 3);
+      assert.equal(d.bankerCards.length, bankerDrawsOn[banker].includes(third) ? 3 : 2, `Banker ${banker}, Player third ${third}`);
+    }
+  }
+  for (let player = 0; player <= 9; player++) {
+    const d = deal([cardFor(player), c(6), c(9), c(9, 1), c(0, 2)]);
+    assert.equal(d.playerCards.length, player <= 5 ? 3 : 2, `Player ${player}`);
+  }
+  for (const player of [6, 7]) {
+    for (let banker = 0; banker <= 9; banker++) {
+      const d = deal([cardFor(player), cardFor(banker, 1), c(9), c(9, 1), c(0, 2)]);
+      assert.equal(d.playerCards.length, 2);
+      assert.equal(d.bankerCards.length, banker <= 5 ? 3 : 2, `Player stands, Banker ${banker}`);
+    }
+  }
+  for (const natural of [8, 9]) {
+    for (let other = 0; other <= 9; other++) {
+      for (const [player, banker] of [[natural, other], [other, natural]]) {
+        const d = deal([cardFor(player), cardFor(banker, 1), c(9), c(9, 1)]);
+        assert.equal(d.playerCards.length, 2);
+        assert.equal(d.bankerCards.length, 2);
+        assert.equal(d.natural, true);
+      }
+    }
+  }
+});
+
 // --- Settlement / payouts ------------------------------------------------
 
 function mkDeal(overrides: Partial<BaccaratDeal>): BaccaratDeal {
@@ -223,6 +268,52 @@ test("invalid bets rejected", () => {
   );
 });
 
+test("score bets cover every final winning total with exact reference payouts for either hand", () => {
+  const scoreTypes = ["score1_4", "score5_6", "score7", "score8", "score9"] as const;
+  const bets = scoreTypes.map((type) => ({ type, amountPaise: 10000n }));
+  for (const version of [1, 2, 3]) {
+    for (const winner of ["player", "banker"] as const) {
+      for (let total = 1; total <= 9; total++) {
+        const expectedIndex = total <= 4 ? 0 : total <= 6 ? 1 : total - 5;
+        const expectedPayout = [85000n, 50000n, 55000n, 40000n, 35000n][expectedIndex];
+        const result = settleBaccaratBets(bets, mkDeal({
+          winner,
+          playerTotal: winner === "player" ? total : total - 1,
+          bankerTotal: winner === "banker" ? total : total - 1,
+        }), MAX, version);
+        assert.equal(result.totalStake, 50000n);
+        assert.equal(result.totalPayout, expectedPayout);
+        assert.deepEqual(result.settled.filter((b) => b.didWin).map((b) => b.type), [scoreTypes[expectedIndex]]);
+        assert.equal(baccaratReturnMultiplier(scoreTypes[expectedIndex], version), Number(expectedPayout) / 10000);
+      }
+    }
+  }
+});
+
+test("ties at any score lose every score bet, while main bets still push", () => {
+  for (let total = 0; total <= 9; total++) {
+    const result = settleBaccaratBets(BACCARAT_BET_TYPES.map((type) => ({ type, amountPaise: 10000n })), mkDeal({
+      winner: "tie", playerTotal: total, bankerTotal: total,
+    }), MAX, 2);
+    assert.equal(result.totalStake, 100000n);
+    assert.ok(result.settled.filter((b) => b.type.startsWith("score")).every((b) => !b.didWin && !b.push && b.payoutPaise === "0"));
+    assert.ok(result.settled.filter((b) => b.type === "player" || b.type === "banker").every((b) => b.push && b.payoutPaise === "10000"));
+  }
+});
+
+test("score payouts floor fractional paise, respect caps, and use the completed third-card total", () => {
+  const finalDeal = deal([c(1), c(0), c(1, 1), c(0, 1), c(5), c(6)]);
+  assert.equal(finalDeal.playerTotal, 0);
+  assert.equal(finalDeal.bankerTotal, 9);
+  const bets: BaccaratBetInput[] = [
+    { type: "score1_4", amountPaise: 33n },
+    { type: "score9", amountPaise: 33n },
+  ];
+  assert.equal(settleBaccaratBets(bets, finalDeal, MAX, 2).totalPayout, 115n);
+  assert.equal(settleBaccaratBets(bets, finalDeal, 2, 2).totalPayout, 66n);
+  assert.throws(() => settleBaccaratBets([{ type: "score0" as never, amountPaise: 100n }], finalDeal, MAX, 2), /INVALID_BACCARAT_BET/);
+});
+
 test("shoe derivation is deterministic and a valid 8-deck permutation", () => {
   const a = deriveDeckShuffle("s", "c", 7, 8);
   const b = deriveDeckShuffle("s", "c", 7, 8);
@@ -236,6 +327,62 @@ test("shoe derivation is deterministic and a valid 8-deck permutation", () => {
   assert.ok(["player", "banker", "tie"].includes(d.winner));
   assert.ok(d.playerCards.length >= 2 && d.playerCards.length <= 3);
   assert.ok(d.bankerCards.length >= 2 && d.bankerCards.length <= 3);
+});
+
+test("reference paytable quotes every market, plus the Banker 6 exception", () => {
+  const quoted = baccaratPayouts(12);
+  assert.equal(quoted.payoutVersion, 3);
+  assert.deepEqual(quoted.payouts, {
+    player: 2, banker: 2, tie: 9, playerPair: 12, bankerPair: 12,
+    score1_4: 8.5, score5_6: 5, score7: 5.5, score8: 4, score9: 3.5,
+  });
+  assert.equal(quoted.bankerSixReturn, 1.5);
+  assert.equal(baccaratPayouts(1.25).bankerSixReturn, 1.25);
+  assert.ok(Object.values(baccaratPayouts(4).payouts).every(value => value <= 4));
+});
+
+test("Banker 6 pays half profit only on the main Banker bet; score and pair pay in full", () => {
+  const d = deal([c(9), c(2), c(0), c(2, 1), c(12)]);
+  assert.equal(d.bankerTotal, 6);
+  assert.equal(d.winner, "banker");
+  assert.equal(d.bankerPair, true);
+  const result = settleBaccaratBets([
+    { type: "banker", amountPaise: 10000n },
+    { type: "score5_6", amountPaise: 10000n },
+    { type: "bankerPair", amountPaise: 10000n },
+  ], d, 12, 3);
+  assert.deepEqual(result.settled.map(b => b.payoutPaise), ["15000", "50000", "120000"]);
+  assert.equal(result.totalPayout, 185000n);
+  assert.ok(result.settled.every(b => b.payoutVersion === 3 && b.didWin));
+  assert.equal(settleBaccaratBets([{ type: "banker", amountPaise: 33n }], d, 12, 3).totalPayout, 49n);
+  assert.equal(settleBaccaratBets([{ type: "banker", amountPaise: 10000n }], d, 1.25, 3).totalPayout, 12500n);
+});
+
+test("new main bets pay even money except Banker 6; ties push mains and lose scores", () => {
+  for (const winner of ["player", "banker"] as const) {
+    for (let score = 1; score <= 9; score++) {
+      const d = mkDeal({ winner, playerTotal: winner === "player" ? score : 0, bankerTotal: winner === "banker" ? score : 0 });
+      const result = settleBaccaratBets([{ type: winner, amountPaise: 10000n }], d, MAX, 3);
+      assert.equal(result.totalPayout, winner === "banker" && score === 6 ? 15000n : 20000n);
+    }
+  }
+  for (let score = 0; score <= 9; score++) {
+    const result = settleBaccaratBets(BACCARAT_BET_TYPES.map(type => ({ type, amountPaise: 10000n })), mkDeal({
+      winner: "tie", playerTotal: score, bankerTotal: score, playerPair: true, bankerPair: true,
+    }), MAX, 3);
+    assert.equal(result.totalPayout, 10000n + 10000n + 90000n + 120000n + 120000n);
+    assert.ok(result.settled.filter(b => b.type.startsWith("score")).every(b => b.payoutPaise === "0" && !b.didWin));
+  }
+});
+
+test("historical payout versions replay unchanged, including Banker wins on 6", () => {
+  const d = mkDeal({ winner: "banker", bankerTotal: 6, playerTotal: 5 });
+  const bet: BaccaratBetInput[] = [{ type: "banker", amountPaise: 10000n }];
+  assert.equal(settleBaccaratBets(bet, d, MAX, 1).totalPayout, 19500n);
+  assert.equal(settleBaccaratBets(bet, d, MAX, 2).totalPayout, 16400n);
+  assert.equal(settleBaccaratBets(bet, d, MAX, 3).totalPayout, 15000n);
+  assert.equal(baccaratPayouts(MAX, 1).bankerSixReturn, 1.95);
+  assert.equal(baccaratPayouts(MAX, 2).bankerSixReturn, 1.64);
 });
 
 test("empirical RTP sanity over 3000 seeded coups (player/banker near classic edges)", () => {

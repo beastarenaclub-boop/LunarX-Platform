@@ -13,22 +13,37 @@ import crazyTime from "@/assets/crazy-time/studio-v2-lobby.jpg";
 import teenPattiLive from "@/assets/teenpatti/naina-betting-poster.jpg";
 import { SPORTS } from "../../../../../lib/virtual-sports/catalog.mjs";
 
-export type Category =
-  | "all"
+export type PrimaryCategory =
   | "crash"
   | "instant"
   | "live"
   | "table"
   | "racing"
   | "lottery";
+export type GameFamily =
+  | "roulette"
+  | "poker"
+  | "teen-patti"
+  | "baccarat"
+  | "dragon-tiger"
+  | "andar-bahar"
+  | "lucky-7"
+  | "blackjack"
+  | "rummy"
+  | "wheel"
+  | "chicken-road"
+  | "dice-games"
+  | "racing-games";
+export type Category = "all" | PrimaryCategory | GameFamily;
 export interface LobbyGame {
   id: string;
   name: string;
   route: string;
   provider: string;
-  category: Exclude<Category, "all">;
+  category: PrimaryCategory;
   artwork?: string;
   artworkHasTitle?: boolean;
+  artworkFit?: "cover" | "contain";
   accent: string;
   label?: string;
   enabled: boolean;
@@ -139,6 +154,13 @@ export const LOBBY_GAMES: LobbyGame[] = [
     artwork: colour,
     artworkHasTitle: true,
   }),
+  game("teen-patti-joker", "Teenpatti Joker 20-20", "table", "#e879df", {
+    artwork: `${import.meta.env.BASE_URL}media/teenpatti-joker/lobby-title-v1.webp`,
+    artworkHasTitle: true,
+    artworkFit: "contain",
+    label: "NEW",
+    tags: ["teenpatti", "teen patti", "joker", "20-20", "cards"],
+  }),
   game("teen-patti-live", "Teen Patti Live", "live", "#ffc67d", {
     artwork: teenPattiLive,
     label: "LIVE",
@@ -182,7 +204,7 @@ export const LOBBY_GAMES: LobbyGame[] = [
 ];
 
 for (const game of LOBBY_GAMES) {
-  if (game.category === "instant" || game.category === "crash") game.tags = ["instant"];
+  if (game.category === "instant" || game.category === "crash") game.tags = [...new Set([...(game.tags ?? []), "instant"])];
   if (REQUESTED_INSTANT_CODES.includes(game.id)) game.label = "INSTANT";
 }
 LOBBY_GAMES.sort((a, b) => {

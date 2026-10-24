@@ -1,4 +1,5 @@
 import { BET_SEND_BUFFER_MS } from "./AutoBet";
+import type { BaccaratPayouts } from "@workspace/api-zod/baccarat-game";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -19,6 +20,7 @@ import {
 export type RoundPhase = "betting" | "reveal" | "settling";
 
 export interface RoundConfigSnapshot {
+  baccaratPayouts?: BaccaratPayouts;
   teenPattiPayouts?: {
     playerA: number; playerB: number; tie: number;
     pairPlus: Record<string, number>;
@@ -379,6 +381,11 @@ export function useTableRound<TOutcome = unknown>(
     enabled ? `game-config:${game}` : null,
     (ev) => {
       if (!ev || ev.type !== "updated") return;
+      if (game === "baccarat") {
+        // Accepted terms come from this round, not a later admin change.
+        refetch();
+        return;
+      }
       setConfig((prev) => ({
         houseEdge: ev.config.houseEdge,
         maxMultiplier: ev.config.maxMultiplier,

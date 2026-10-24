@@ -464,7 +464,7 @@ export default function AndarBahar() {
           </div>
         </div>
         <div
-          className="relative flex min-h-[6.5rem] sm:min-h-[8rem] items-center gap-2 overflow-x-auto overscroll-x-contain pb-2 pr-1 scrollbar-thin"
+          className="andar-card-strip relative flex min-h-[6.5rem] sm:min-h-[8rem] items-center gap-2 overflow-x-auto overscroll-x-contain pb-2 pr-1 scrollbar-thin"
           aria-live="polite"
         >
           {showOutcome && visibleCards.length > 0 ? (
@@ -492,7 +492,7 @@ export default function AndarBahar() {
             </div>
           )}
         </div>
-        <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2 text-[10px] uppercase tracking-wider">
+        <div className="andar-lane-footer mt-2 flex items-center justify-between border-t border-white/10 pt-2 text-[10px] uppercase tracking-wider">
           <span className="text-white/35">
             {showOutcome && outcome!.firstSide === side ? "First lane" : "Matching lane"}
           </span>
@@ -724,7 +724,7 @@ export default function AndarBahar() {
       <GameInformationSection>{liveBetsPanel}{recentResultsPanel}{myBetsPanel}</GameInformationSection>
       <div className="game-shell w-full max-w-7xl flex flex-col">
         {/* Top bar */}
-        <div className="sticky top-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 bg-[#090d1e]/90 backdrop-blur-md border-b border-amber-200/10 safe-pt">
+        <div className="andar-page-header sticky top-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 bg-[#090d1e]/90 backdrop-blur-md border-b border-amber-200/10 safe-pt">
           <div className="flex items-center gap-2 min-w-0">
             <Link href="/">
               <Button
@@ -778,7 +778,7 @@ export default function AndarBahar() {
 
         <div data-game-screen="andar-bahar" className="flex-1 flex flex-col lg:flex-row gap-3 p-3 min-h-0 pb-44 lg:pb-3">
           {/* Table */}
-          <div className="flex-1 flex flex-col gap-3 min-w-0">
+          <div className="andar-main-column flex-1 flex flex-col gap-3 min-w-0">
             {/* A CSS-built digital dealer alcove and layered felt: visual theatre,
                 not a claim of a live dealer or video feed. */}
             <div
@@ -856,7 +856,7 @@ export default function AndarBahar() {
             </div>
 
             {/* Main betting spots */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="andar-main-bets grid grid-cols-2 gap-2">
               {(["andar", "bahar"] as MainBet[]).map((spot) => {
                 const amount = bets.get(spot) ?? 0;
                 const won = showOutcome && outcome!.winner === spot;
@@ -895,7 +895,7 @@ export default function AndarBahar() {
             </div>
 
             {/* Range side bets */}
-            <div className="rounded-xl bg-[linear-gradient(145deg,#103d48,#082b38)] border border-amber-100/20 p-3 flex flex-col gap-2 shadow-[inset_0_1px_rgba(255,255,255,.1)]">
+            <div className="andar-range-panel rounded-xl bg-[linear-gradient(145deg,#103d48,#082b38)] border border-amber-100/20 p-3 flex flex-col gap-2 shadow-[inset_0_1px_rgba(255,255,255,.1)]">
               <div className="text-[11px] uppercase font-bold text-white/50">
                 Side Bets — total cards dealt
               </div>
