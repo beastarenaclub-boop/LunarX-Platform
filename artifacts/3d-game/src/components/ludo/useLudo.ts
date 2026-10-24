@@ -9,7 +9,7 @@ import {
   getListWalletTransactionsQueryKey,
 } from "@workspace/api-client-react";
 import type { LudoTable } from "@workspace/api-zod/ludo";
-type Pending = { url: string; body: object };
+type Pending = { url: string; body: object; forfeit?: boolean };
 export function useLudo(userId: string) {
   const [data, setData] = useState<LudoTable | null>(null),
     [error, setError] = useState(""),
@@ -79,14 +79,53 @@ export function useLudo(userId: string) {
       setError("");
       remember(request);
       try {
-        const next = await customFetch<LudoTable>(request.url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(request.body),
-          signal: AbortSignal.timeout(10000),
-        });
-        remember(null);
-        accept(next);
+        let current = request;
+        for (let attempt = 0; ; attempt++) {
+          try {
+            const next = await customFetch<LudoTable>(current.url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(current.body),
+              signal: AbortSignal.timeout(10000),
+            });
+            remember(null);
+            accept(next);
+            break;
+          } catch (e) {
+            // A confirmed forfeit still means leave if a bot moved meanwhile.
+            // Never retry a move, roll or pre-start cancellation with a new version.
+            if (
+              !current.forfeit ||
+              !(e instanceof ApiError) ||
+              e.status !== 409 ||
+              attempt >= 2
+            )
+              throw e;
+            const next = await customFetch<LudoTable>("/api/ludo/state", {
+              signal: AbortSignal.timeout(8000),
+            });
+            accept(next);
+            const match = next.match;
+            if (
+              !match ||
+              current.url !== `/api/ludo/${match.id}/action` ||
+              match.status !== "playing" ||
+              match.state.players[match.you]?.forfeited
+            ) {
+              remember(null);
+              break;
+            }
+            current = {
+              ...current,
+              body: {
+                ...current.body,
+                version: match.version,
+                requestId: crypto.randomUUID(),
+              },
+            };
+            remember(current);
+          }
+        }
       } catch (e) {
         if (alive.current) {
           setError(
@@ -149,12 +188,23 @@ export function useLudo(userId: string) {
       body: { capacity, entryPaise, requestId: crypto.randomUUID() },
     });
   };
-  const act = (type: "roll" | "move" | "leave", token?: number) => {
+  const act = (
+    type: "roll" | "move" | "leave",
+    token?: number,
+    forfeit = false,
+  ) => {
     const m = latest.current?.match;
     if (!m || pending.current) return;
+    if (type === "leave" && !forfeit && m.status !== "waiting") {
+      setError(
+        "The match has started. Use Leave match to confirm forfeiting your entry.",
+      );
+      return;
+    }
     void send({
       url: `/api/ludo/${m.id}/action`,
       body: { type, token, version: m.version, requestId: crypto.randomUUID() },
+      forfeit: type === "leave" && forfeit,
     });
   };
   return {

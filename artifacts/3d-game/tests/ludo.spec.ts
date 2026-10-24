@@ -186,6 +186,20 @@ test("four separate accounts join one table with four human seats", async ({
       path: "tmp/ludo-ui-checks/four-players.png",
       fullPage: true,
     });
+    await players[3].page
+      .getByRole("button", { name: "Leave match", exact: true })
+      .click();
+    await players[3].page
+      .getByRole("button", { name: "Forfeit & leave" })
+      .click();
+    await expect(
+      players[3].page.getByRole("heading", { name: "You left the match" }),
+    ).toBeVisible();
+    expect((await state(players[0].context)).match!.status).toBe("playing");
+    await players[3].page.getByRole("button", { name: "Play again" }).click();
+    await expect(
+      players[3].page.getByRole("button", { name: "Find a match" }),
+    ).toBeEnabled();
     await finish(players[0].context, players[0].page);
     expect((await state(players[0].context)).balancePaise).toBe("102600");
   } finally {
@@ -229,6 +243,18 @@ test("empty 4-player table fills with three labelled computers after the real co
     await p.context.setOffline(false);
     await expect(p.page.getByText("LIVE TABLE", { exact: true })).toBeVisible();
     expect((await state(p.context)).match!.id).toBe(t.match!.id);
+    let conflict = true;
+    await p.page.route("**/api/ludo/*/action", async (route) => {
+      if (route.request().postDataJSON()?.type === "leave" && conflict) {
+        conflict = false;
+        await route.fulfill({
+          status: 409,
+          json: {
+            error: "The board changed. Please try again on the updated board.",
+          },
+        });
+      } else await route.continue();
+    });
     await p.page
       .getByRole("button", { name: "Leave match", exact: true })
       .click();
@@ -237,6 +263,7 @@ test("empty 4-player table fills with three labelled computers after the real co
       .poll(async () => (await state(p.context)).match!.status)
       .toBe("finished");
     expect((await state(p.context)).balancePaise).toBe("99000");
+    expect(conflict).toBe(false);
   } finally {
     await p.context.setOffline(false);
     await p.context.close();

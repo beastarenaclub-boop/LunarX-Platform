@@ -246,7 +246,8 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
     ),
   };
   const waiting = show && m.status === "waiting",
-    playing = show && m.status === "playing",
+    forfeited = !!show && !!m.state.players[m.you]?.forfeited,
+    playing = show && m.status === "playing" && !forfeited,
     ended = show && !waiting && !playing;
   const yours =
     !!playing && m.state.turn === m.you && !m.state.players[m.you]?.forfeited;
@@ -292,11 +293,13 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
     : ended
       ? m.status === "cancelled"
         ? "Entry refunded"
-        : winner?.seat === m.you
-          ? "You take the crown!"
-          : winner
-            ? `${winner.name} wins!`
-            : "Match ended"
+        : forfeited
+          ? "You left the match"
+          : winner?.seat === m.you
+            ? "You take the crown!"
+            : winner
+              ? `${winner.name} wins!`
+              : "Match ended"
       : playing
         ? yours
           ? "Your turn"
@@ -562,9 +565,11 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
               <span>
                 {waiting
                   ? "MATCHMAKING"
-                  : ended
-                    ? "MATCH COMPLETE"
-                    : "CLASSIC LUDO"}
+                  : forfeited && m.status === "playing"
+                    ? "YOU LEFT"
+                    : ended
+                      ? "MATCH COMPLETE"
+                      : "CLASSIC LUDO"}
               </span>
             </div>
             <div className="ld-board-layout">
@@ -605,7 +610,9 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
                     {waiting
                       ? "Looking for live players. Empty seats fill automatically."
                       : ended
-                        ? m.reason ||
+                        ? (forfeited
+                            ? "Entry forfeited. You can join a new table."
+                            : m.reason) ||
                           (winner?.seat === m.you
                             ? money(m.prizePaise) + " credited to your wallet"
                             : "Ready for another game?")
@@ -819,7 +826,7 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
                 disabled={busy || game.retry}
                 onClick={() => {
                   setDialog(null);
-                  game.act("leave");
+                  game.act("leave", undefined, true);
                 }}
               >
                 Forfeit & leave
