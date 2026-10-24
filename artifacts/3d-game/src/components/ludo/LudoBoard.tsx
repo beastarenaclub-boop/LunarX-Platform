@@ -6,11 +6,12 @@ import {
   type LudoState,
   type LudoColor,
 } from "@workspace/api-zod/ludo";
+import { LudoPin } from "./LudoPin";
 export const COLORS: Record<LudoColor, string> = {
-  red: "#f05b6c",
-  green: "#20ba89",
-  yellow: "#f6c44e",
-  blue: "#568df4",
+  red: "#ed253b",
+  green: "#1aa83b",
+  yellow: "#ffda17",
+  blue: "#159be3",
 };
 const homes = [
   [0, 0],
@@ -44,25 +45,25 @@ export function LudoBoard({
   return (
     <div className="ld-board" role="group" aria-label="Ludo board">
       <svg viewBox="0 0 600 600" aria-hidden="true" className="ld-grid">
-        <rect width="600" height="600" rx="20" fill="#f9f5eb" />
+        <rect width="600" height="600" fill="#fff" />
         {homes.map(([r, c], idx) => (
           <g key={idx}>
             <rect
-              x={c * 40 + 5}
-              y={r * 40 + 5}
-              width="230"
-              height="230"
-              rx="15"
+              x={c * 40}
+              y={r * 40}
+              width="240"
+              height="240"
               fill={COLORS[LUDO_COLORS[idx]]}
             />
             <rect
-              x={c * 40 + 35}
-              y={r * 40 + 35}
-              width="170"
-              height="170"
-              rx="24"
+              x={c * 40 + 40}
+              y={r * 40 + 40}
+              width="160"
+              height="160"
+              rx="2"
               fill="#fff"
-              opacity=".96"
+              stroke="#16334f"
+              strokeWidth="1.2"
             />
             {[0, 1, 2, 3].map((i) => {
               const [tr, tc] = ludoPosition(LUDO_COLORS[idx], -1, i);
@@ -73,7 +74,8 @@ export function LudoBoard({
                   cy={tr * 40 + 20}
                   r="18"
                   fill={COLORS[LUDO_COLORS[idx]]}
-                  opacity=".18"
+                  stroke="#18344d"
+                  strokeWidth="1.2"
                 />
               );
             })}
@@ -82,27 +84,24 @@ export function LudoBoard({
         {LUDO_PATH.map(([r, c], i) => (
           <g key={i}>
             <rect
-              x={c * 40 + 0.8}
-              y={r * 40 + 0.8}
-              width="38.4"
-              height="38.4"
-              rx="3"
+              x={c * 40}
+              y={r * 40}
+              width="40"
+              height="40"
               fill={
                 i % 13 === 0 ? COLORS[LUDO_COLORS[Math.floor(i / 13)]] : "#fff"
               }
-              stroke="#d7d9dc"
+              stroke="#20384e"
               strokeWidth="1"
             />
             {LUDO_SAFE.includes(i) && (
-              <text
-                x={c * 40 + 20}
-                y={r * 40 + 28}
-                textAnchor="middle"
-                fontSize="27"
-                fill={i % 13 === 0 ? "#fff" : "#b6bdc4"}
-              >
-                ★
-              </text>
+              <path
+                transform={`translate(${c * 40 + 20} ${r * 40 + 20})`}
+                d="m0-15 4.5 10 11 1.5-8 7.5 2 11L0 10l-9.5 5 2-11-8-7.5 11-1.5Z"
+                fill="none"
+                stroke={i % 13 === 0 ? "#fff" : "#20384e"}
+                strokeWidth="1.3"
+              />
             )}
           </g>
         ))}
@@ -112,13 +111,13 @@ export function LudoBoard({
             return (
               <rect
                 key={`${color}${i}`}
-                x={c * 40 + 1}
-                y={r * 40 + 1}
-                width="38"
-                height="38"
-                rx="3"
+                x={c * 40}
+                y={r * 40}
+                width="40"
+                height="40"
                 fill={COLORS[color]}
-                opacity=".85"
+                stroke="#20384e"
+                strokeWidth="1"
               />
             );
           }),
@@ -127,8 +126,22 @@ export function LudoBoard({
         <path d="M240 240 L360 240 L300 300Z" fill={COLORS.green} />
         <path d="M360 240 L360 360 L300 300Z" fill={COLORS.yellow} />
         <path d="M240 360 L300 300 L360 360Z" fill={COLORS.blue} />
-        <circle cx="300" cy="300" r="24" fill="#fff" />
-        <path d="m283 291 8 5 9-12 9 12 8-5-5 20h-24z" fill="#bd8d33" />
+        <path
+          d="M240 240H360V360H240ZM240 240 360 360M360 240 240 360"
+          fill="none"
+          stroke="#20384e"
+          strokeWidth="1.4"
+        />
+        {LUDO_COLORS.map((color, index) => (
+          <path
+            key={color}
+            transform={`rotate(${index * 90} 300 300)`}
+            d="M8 300h24m-9-9 9 9-9 9"
+            fill="none"
+            stroke={COLORS[color]}
+            strokeWidth="2.5"
+          />
+        ))}
       </svg>
       {tokens.map(({ p, i, pos, xy }) => {
         if (pos === 56) return null;
@@ -156,13 +169,12 @@ export function LudoBoard({
             style={{
               left: `${(x / 15) * 100}%`,
               top: `${(y / 15) * 100}%`,
-              background: COLORS[p.color],
             }}
             disabled={!playable}
             aria-label={`${p.color} token ${i + 1}${playable ? ", move" : ""}`}
             onClick={() => onMove?.(i)}
           >
-            <span>{i + 1}</span>
+            <LudoPin color={COLORS[p.color]} number={i + 1} />
           </button>
         );
       })}

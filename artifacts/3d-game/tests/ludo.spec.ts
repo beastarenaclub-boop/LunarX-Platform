@@ -27,7 +27,12 @@ async function player(
 }
 const state = async (context: BrowserContext) =>
   (await (await context.request.get("/api/ludo/state")).json()) as LudoTable;
-async function finish(context: BrowserContext, page: Page, seat = 0) {
+async function finish(
+  context: BrowserContext,
+  page: Page,
+  seat = 0,
+  color?: string,
+) {
   const t = await state(context);
   await context.request.post("/api/test/ludo/winning-move", {
     data: { id: t.match!.id, seat },
@@ -35,7 +40,12 @@ async function finish(context: BrowserContext, page: Page, seat = 0) {
   await expect(
     page.getByRole("button", { name: "Move 4", exact: true }),
   ).toBeEnabled();
-  await page.getByRole("button", { name: "Move 4", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: color ? `${color} token 4, move` : "Move 4",
+      exact: true,
+    })
+    .click();
   await expect(
     page.getByRole("heading", { name: "You take the crown!" }),
   ).toBeVisible();
@@ -51,6 +61,12 @@ test("two accounts play the same real board, receive private WS events and resum
   );
   await a.page.reload();
   try {
+    await a.page
+      .getByRole("button", { name: "green tokens", exact: true })
+      .click();
+    await b.page
+      .getByRole("button", { name: "red tokens", exact: true })
+      .click();
     await a.page.getByRole("button", { name: "Find a match" }).click();
     await expect(
       a.page.getByRole("heading", { name: "Finding your opponents" }),
@@ -67,6 +83,12 @@ test("two accounts play the same real board, receive private WS events and resum
     expect(one.match!.you).toBe(0);
     expect(two.match!.you).toBe(1);
     expect(one.balancePaise).toBe("99000");
+    expect(one.match!.state.players.map((p) => p?.color)).toEqual([
+      "red",
+      "yellow",
+    ]);
+    await expect(a.page.locator(".ld-seat-green[data-you]")).toBeVisible();
+    await expect(b.page.locator(".ld-seat-red[data-you]")).toBeVisible();
     await a.page
       .getByRole("button", { name: "Roll dice", exact: true })
       .click();
@@ -78,6 +100,7 @@ test("two accounts play the same real board, receive private WS events and resum
       one.match!.id.slice(0, 8).toUpperCase(),
     );
     expect((await state(a.context)).balancePaise).toBe("99000");
+    await expect(a.page.locator(".ld-seat-green[data-you]")).toBeVisible();
     await expect
       .poll(() =>
         events.some(
@@ -104,13 +127,25 @@ test("two accounts play the same real board, receive private WS events and resum
       b.id,
     );
     expect(denied).toBe("forbidden");
-    await finish(a.context, a.page);
+    await finish(a.context, a.page, 0, "green");
     await expect(
       b.page.getByRole("heading", { name: "Aarav wins!" }),
     ).toBeVisible();
     expect((await state(a.context)).balancePaise).toBe("100800");
+    if (await a.page.evaluate(() => document.fullscreenEnabled)) {
+      await a.page
+        .getByRole("button", { name: "Fullscreen", exact: true })
+        .click();
+      await expect(
+        a.page.getByRole("button", { name: "Exit fullscreen" }),
+      ).toBeVisible();
+      await a.page.getByRole("button", { name: "How to play" }).click();
+      await expect(a.page.getByRole("dialog")).toBeVisible();
+      await a.page.getByRole("button", { name: "Close", exact: true }).click();
+      await a.page.getByRole("button", { name: "Exit fullscreen" }).click();
+    }
     await a.page.screenshot({
-      path: "../../test-results/ludo/desktop-result.png",
+      path: "tmp/ludo-ui-checks/desktop-result.png",
       fullPage: true,
     });
   } finally {
@@ -148,7 +183,7 @@ test("four separate accounts join one table with four human seats", async ({
       await expect(p.page.locator(".ld-player")).toHaveCount(4);
     }
     await players[0].page.screenshot({
-      path: "../../test-results/ludo/four-players.png",
+      path: "tmp/ludo-ui-checks/four-players.png",
       fullPage: true,
     });
     await finish(players[0].context, players[0].page);
@@ -176,13 +211,15 @@ test("empty 4-player table fills with three labelled computers after the real co
     await expect(
       p.page.locator(".ld-player").filter({ hasText: "Computer" }),
     ).toHaveCount(3);
-    const roll = p.page.getByRole("button",{name:"Roll dice",exact:true});
+    const roll = p.page.getByRole("button", { name: "Roll dice", exact: true });
     const rollBox = await roll.boundingBox();
     expect(rollBox!.y + rollBox!.height).toBeLessThanOrEqual(844);
     await roll.click();
-    await expect.poll(async()=>(await state(p.context)).match!.state.rollNonce).toBeGreaterThan(0);
+    await expect
+      .poll(async () => (await state(p.context)).match!.state.rollNonce)
+      .toBeGreaterThan(0);
     await p.page.screenshot({
-      path: "../../test-results/ludo/mobile-match.png",
+      path: "tmp/ludo-ui-checks/mobile-match.png",
       fullPage: true,
     });
     await p.context.setOffline(true);
@@ -258,13 +295,21 @@ for (const viewport of [
       const box = await button.boundingBox();
       expect(box!.width).toBeGreaterThan(150);
       expect(box!.height).toBeGreaterThanOrEqual(44);
+      await p.page.getByRole("button", { name: "Higher entry fee" }).click();
+      await expect(p.page.locator(".ld-prize b")).toHaveText("₹90");
+      await p.page
+        .getByRole("button", { name: "4 players Classic battle" })
+        .click();
+      await expect(p.page.locator(".ld-prize b")).toHaveText("₹180");
+      await p.page.getByRole("button", { name: "Lower entry fee" }).click();
+      await expect(p.page.locator(".ld-prize b")).toHaveText("₹36");
       await p.page.getByRole("button", { name: "How to play" }).click();
       await expect(p.page.getByRole("dialog")).toContainText("10%");
       await expect(p.page.getByRole("dialog")).toContainText("platform funds");
       expect(errors).toEqual([]);
       await p.page.getByRole("button", { name: "Close", exact: true }).click();
       await p.page.screenshot({
-        path: `../../test-results/ludo/preview-${viewport.width}.png`,
+        path: `tmp/ludo-ui-checks/preview-${viewport.width}.png`,
         fullPage: true,
       });
     } finally {

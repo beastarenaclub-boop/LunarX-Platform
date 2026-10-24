@@ -1,5 +1,7 @@
 # Ludo Live
 
+The UI uses an original blue-and-gold arcade lobby, a full-width classic board, vector pin tokens, and dice beside each player. Colour selection is a personal board view stored per account in the browser: a cyclic palette rotates all four colours together while preserving server seat IDs, token progress, legal moves, and turn order. The default shows your tokens as blue. Two players always occupy opposite corners. Player cards follow their displayed home colour, and Computer seats remain explicitly labelled. Entry presets and +/- controls show the prize after the 10% fee before joining.
+
 `/ludo` is an authenticated, server-controlled multiplayer game. Two seats use red/yellow; four seats use all colours. Players are matched by seat count, entry and account channel (B2B rooms also share the same agent). A full room starts immediately. After 20 seconds, remaining seats become visibly labelled Computer players.
 
 Entries are ₹10, ₹50, ₹100 or ₹500. Joining reserves the entry in the existing shared wallet and creates a normal bet/report record. The first player to take four tokens home receives 90% of `entry × seats`; 10% is the platform commission. Computer seats are house-funded. A Computer win does not credit any human account. Waiting-room cancellation refunds the entry; leaving a started game forfeits it. Unsettled entries are refunded if a match reaches two hours.

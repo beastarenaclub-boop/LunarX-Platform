@@ -1,29 +1,35 @@
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "wouter";
 import {
   ArrowLeft,
   ArrowRight,
   Bot,
   Check,
-  ChevronRight,
+  Coins,
   Crown,
   History,
   Info,
   ShieldCheck,
   Trophy,
   Users,
-  Wallet,
+  Minus,
+  Plus,
+  Maximize,
+  Minimize,
 } from "lucide-react";
 import { customFetch } from "@workspace/api-client-react";
 import {
   LUDO,
   ludoColors,
+  LUDO_COLORS,
+  type LudoColor,
   type LudoState,
   type LudoPlayer,
 } from "@workspace/api-zod/ludo";
 import { useAuth } from "@/lib/auth";
 import { useLudo } from "@/components/ludo/useLudo";
 import { LudoBoard, COLORS } from "@/components/ludo/LudoBoard";
+import { LudoPin } from "@/components/ludo/LudoPin";
 import {
   Dialog,
   DialogContent,
@@ -84,26 +90,92 @@ function Dice({
 }
 function Player({
   p,
+  color,
   active,
   you,
+  dice,
+  remaining,
+  disabled,
+  rolling,
+  onRoll,
 }: {
   p: LudoPlayer | null;
+  color: LudoColor;
   active: boolean;
   you: boolean;
+  dice?: number;
+  remaining: number;
+  disabled: boolean;
+  rolling: boolean;
+  onRoll: () => void;
 }) {
   return (
     <div
-      className={`ld-player${active ? " ld-player-active" : ""}${p?.forfeited ? " ld-left" : ""}`}
-      style={{ "--seat": p ? COLORS[p.color] : "#79879c" } as CSSProperties}
+      className={`ld-player ld-seat-${color}${active ? " ld-player-active" : ""}${p?.forfeited ? " ld-left" : ""}`}
+      data-you={you || undefined}
+      style={
+        {
+          "--seat": COLORS[color],
+          "--turn": `${active ? Math.min(100, (remaining / (p?.kind === "computer" ? 1 : 25)) * 100) : 0}%`,
+        } as CSSProperties
+      }
     >
-      <span className="ld-avatar">
-        {p?.kind === "computer" ? (
-          <Bot size={20} />
+      <div className="ld-player-controls">
+        <span className="ld-avatar">
+          {p?.kind === "computer" ? (
+            <Bot size={20} />
+          ) : (
+            p?.name.slice(0, 1).toUpperCase() || <Users size={19} />
+          )}
+        </span>
+        {you ? (
+          <button
+            className="ld-roll"
+            disabled={disabled}
+            onClick={onRoll}
+            aria-label="Roll dice"
+          >
+            <Dice value={dice} rolling={rolling} />
+            <span>
+              {active && !disabled ? "ROLL" : active ? `${remaining}s` : "DICE"}
+            </span>
+          </button>
         ) : (
-          p?.name.slice(0, 1).toUpperCase() || <Users size={19} />
+          <div
+            className="ld-other-dice"
+            aria-label={
+              active
+                ? `Opponent turn, ${remaining} seconds`
+                : "Waiting for turn"
+            }
+          >
+            {dice ? (
+              <Dice value={dice} />
+            ) : (
+              <span className="ld-dice-blank">
+                {p ? <Crown size={22} /> : <Users size={22} />}
+              </span>
+            )}
+            {active && <small>{remaining}s</small>}
+          </div>
         )}
-      </span>
-      <div>
+        <span
+          className="ld-progress"
+          aria-label={`${p?.tokens.filter((t) => t === 56).length ?? 0} of 4 tokens home`}
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <i
+              key={i}
+              className={
+                i < (p?.tokens.filter((t) => t === 56).length ?? 0)
+                  ? "ld-home"
+                  : ""
+              }
+            />
+          ))}
+        </span>
+      </div>
+      <div className="ld-player-name">
         <strong>
           {p?.name || "Finding player…"}
           {you && <em>YOU</em>}
@@ -120,12 +192,6 @@ function Player({
                   : "Player"}
         </small>
       </div>
-      {p && (
-        <span className="ld-home-count">
-          {p.tokens.filter((t) => t === 56).length}
-          <small>/4</small>
-        </span>
-      )}
     </div>
   );
 }
@@ -138,6 +204,21 @@ export default function Ludo() {
 function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
   const game = useLudo(userId),
     { data, busy, offline } = game;
+  const app = useRef<HTMLElement>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [colour, setColour] = useState<LudoColor>(() => {
+    try {
+      const saved = localStorage.getItem(`ludo-colour:${userId}`);
+      if (LUDO_COLORS.includes(saved as LudoColor)) return saved as LudoColor;
+    } catch {}
+    return "blue";
+  });
+  useEffect(() => {
+    const change = () =>
+      setFullscreen(document.fullscreenElement === document.documentElement);
+    document.addEventListener("fullscreenchange", change);
+    return () => document.removeEventListener("fullscreenchange", change);
+  }, []);
   const [capacity, setCapacity] = useState<2 | 4>(2),
     [entry, setEntry] = useState(1000),
     [dialog, setDialog] = useState<"rules" | "history" | "leave" | null>(null),
@@ -149,7 +230,21 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
       (m.status === "waiting" || m.status === "playing") &&
       !m.state.players[m.you]?.forfeited;
   const show = m && (live || dismissed !== m.id),
-    s = show ? m.state : preview;
+    canonical = show ? m.state : preview;
+  // Presentation-only cyclic palette: seat IDs, dice, progress and moves stay canonical.
+  const shift =
+    (LUDO_COLORS.indexOf(colour) -
+      LUDO_COLORS.indexOf(show ? ludoColors(m.capacity)[m.you] : "red") +
+      4) %
+    4;
+  const displayColour = (color: LudoColor) =>
+    LUDO_COLORS[(LUDO_COLORS.indexOf(color) + shift) % 4];
+  const s: LudoState = {
+    ...canonical,
+    players: canonical.players.map((p) =>
+      p ? { ...p, color: displayColour(p.color) } : null,
+    ),
+  };
   const waiting = show && m.status === "waiting",
     playing = show && m.status === "playing",
     ended = show && !waiting && !playing;
@@ -162,6 +257,36 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
     show && m.state.winner !== null ? m.state.players[m.state.winner] : null;
   const seats = show ? m.capacity : capacity,
     chosenPrize = entry * capacity * 0.9;
+  const entries = data?.entries ?? [...LUDO.entries];
+  const entryIndex = entries.indexOf(entry);
+  const locked = busy || offline || game.retry || !playing || remaining === 0;
+  const renderPlayer = (color: LudoColor) => {
+    const i = ludoColors(seats).findIndex((c) => displayColour(c) === color);
+    if (i < 0)
+      return <div className="ld-empty-seat" key={color} aria-hidden="true" />;
+    const p = s.players[i];
+    const active = !!playing && s.turn === i;
+    return (
+      <Player
+        key={color}
+        color={color}
+        p={p}
+        active={active}
+        you={!!show && m.you === i}
+        dice={
+          active && s.dice
+            ? s.dice
+            : s.last?.seat === i
+              ? s.last.dice
+              : undefined
+        }
+        remaining={remaining}
+        disabled={locked || !yours || s.phase !== "roll"}
+        rolling={busy && active && s.phase === "roll"}
+        onRoll={() => game.act("roll")}
+      />
+    );
+  };
   const heading = waiting
     ? "Finding your opponents"
     : ended
@@ -208,22 +333,22 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
     }
   };
   return (
-    <main className="ld-app">
+    <main
+      ref={app}
+      className={"ld-app " + (show ? "ld-in-match" : "ld-in-lobby")}
+    >
       <header className="ld-header">
         <Link href="/" className="ld-back" aria-label="Back to lobby">
-          <ArrowLeft size={19} />
+          <ArrowLeft size={21} />
         </Link>
         <Link href="/ludo" className="ld-brand">
+          <Crown size={25} />
           <span>
-            <Crown size={25} />
-          </span>
-          <div>
             LUDO <b>LIVE</b>
-            <small>THE CLASSIC. TOGETHER.</small>
-          </div>
+          </span>
         </Link>
         <div className="ld-wallet">
-          <Wallet size={17} />
+          <Coins size={22} />
           <span>
             <small>{demo ? "Demo wallet" : "Your wallet"}</small>
             <b>{data ? money(data.balancePaise) : "—"}</b>
@@ -234,70 +359,53 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
           aria-label="Game rules"
           onClick={() => setDialog("rules")}
         >
-          <Info size={21} />
+          <Info size={20} />
         </button>
       </header>
       <div className="ld-main">
-        <aside className="ld-sidebar">
-          <div className="ld-eyebrow">
-            <span /> REAL PLAYERS. REAL MATCHES.
-          </div>
-          <h1>
-            Four colours.
-            <br />
-            <span>One champion.</span>
-          </h1>
-          <p className="ld-intro">
-            Race your tokens home. Make your move. Own the board.
-          </p>
-          <section className="ld-room-card">
-            <div className="ld-section-label">
-              <Users size={16} />
-              {live ? "YOUR MATCH" : "CHOOSE YOUR TABLE"}
+        {!show ? (
+          <section className="ld-lobby">
+            <div className="ld-lobby-hero">
+              <span className="ld-hero-crown">
+                <Crown size={36} />
+              </span>
+              <h1>
+                LUDO <span>LIVE</span>
+              </h1>
+              <p>A classic game. A new champion.</p>
             </div>
-            {live ? (
-              <>
-                <div className="ld-match-id">
-                  MATCH {m.id.slice(0, 8).toUpperCase()}
-                  <span>{m.capacity} PLAYERS</span>
-                </div>
-                <dl className="ld-breakdown">
-                  <div>
-                    <dt>Your entry</dt>
-                    <dd>{money(m.entryPaise)}</dd>
-                  </div>
-                  <div>
-                    <dt>Total seat pool</dt>
-                    <dd>{money(Number(m.entryPaise) * m.capacity)}</dd>
-                  </div>
-                  <div>
-                    <dt>Platform fee · 10%</dt>
-                    <dd>{money(m.commissionPaise)}</dd>
-                  </div>
-                </dl>
-                <div className="ld-prize">
-                  <Trophy />
-                  <span>
-                    WINNER TAKES<b>{money(m.prizePaise)}</b>
-                  </span>
-                </div>
-                <button
-                  className="ld-secondary ld-full"
-                  disabled={busy || game.retry}
-                  onClick={() =>
-                    waiting ? game.act("leave") : setDialog("leave")
-                  }
+            <div className="ld-room-card">
+              <section className="ld-setup-section">
+                <h2>SELECT YOUR COLOUR</h2>
+                <div
+                  className="ld-colours"
+                  role="group"
+                  aria-label="Your token colour"
                 >
-                  {waiting ? "Cancel & refund entry" : "Leave match"}
-                </button>
-                <p className="ld-note">
-                  {waiting
-                    ? "Full refund when you cancel before the match starts."
-                    : "Your match stays open when you refresh or leave this page."}
-                </p>
-              </>
-            ) : (
-              <>
+                  {(["blue", "red", "green", "yellow"] as const).map((c) => (
+                    <button
+                      key={c}
+                      aria-label={c + " tokens"}
+                      aria-pressed={colour === c}
+                      style={{ "--seat": COLORS[c] } as CSSProperties}
+                      onClick={() => {
+                        setColour(c);
+                        try {
+                          localStorage.setItem(`ludo-colour:${userId}`, c);
+                        } catch {}
+                      }}
+                    >
+                      <LudoPin color={COLORS[c]} />
+                      <span>
+                        {colour === c && <Check size={17} strokeWidth={3} />}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <p className="ld-colour-note">Your personal board view</p>
+              </section>
+              <section className="ld-setup-section">
+                <h2>SELECT PLAYERS</h2>
                 <div
                   className="ld-mode"
                   role="group"
@@ -309,18 +417,50 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
                       aria-pressed={capacity === n}
                       onClick={() => setCapacity(n)}
                     >
-                      <Users size={20} />
-                      <strong>{n} players</strong>
-                      <small>
-                        {n === 2 ? "Head to head" : "Classic battle"}
-                      </small>
-                      {capacity === n && <Check size={13} />}
+                      <span className="ld-radio">
+                        {capacity === n && <Check size={18} strokeWidth={3} />}
+                      </span>
+                      <span>
+                        <strong>{n} players</strong>
+                        <small>
+                          {n === 2 ? "Head to head" : "Classic battle"}
+                        </small>
+                      </span>
                     </button>
                   ))}
                 </div>
-                <label className="ld-label">ENTRY FEE</label>
-                <div className="ld-entries">
-                  {(data?.entries ?? LUDO.entries).map((amount) => (
+              </section>
+              <section className="ld-setup-section ld-select-game">
+                <h2>SELECT YOUR GAME</h2>
+                <div className="ld-stakes">
+                  <button
+                    className="ld-step"
+                    aria-label="Lower entry fee"
+                    disabled={entryIndex <= 0}
+                    onClick={() => setEntry(entries[entryIndex - 1])}
+                  >
+                    <Minus />
+                  </button>
+                  <div className="ld-prize">
+                    <span>
+                      <Trophy size={22} /> WIN
+                    </span>
+                    <b>{money(chosenPrize)}</b>
+                    <small>Entry: {money(entry)}</small>
+                  </div>
+                  <button
+                    className="ld-step"
+                    aria-label="Higher entry fee"
+                    disabled={
+                      entryIndex < 0 || entryIndex >= entries.length - 1
+                    }
+                    onClick={() => setEntry(entries[entryIndex + 1])}
+                  >
+                    <Plus />
+                  </button>
+                </div>
+                <div className="ld-entries" role="group" aria-label="Entry fee">
+                  {entries.map((amount) => (
                     <button
                       key={amount}
                       aria-pressed={entry === amount}
@@ -330,19 +470,14 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
                     </button>
                   ))}
                 </div>
-                <div className="ld-prize">
-                  <Trophy />
-                  <span>
-                    WINNER TAKES<b>{money(chosenPrize)}</b>
-                  </span>
-                  <small>
-                    After 10%
-                    <br />
-                    platform fee
-                  </small>
-                </div>
+                <p className="ld-fee">Prize after 10% platform commission</p>
                 <button
-                  className="ld-primary ld-full"
+                  className="ld-primary ld-play"
+                  aria-label={
+                    data && data.enabled && Number(data.balancePaise) >= entry
+                      ? "Find a match"
+                      : undefined
+                  }
                   disabled={
                     !data ||
                     busy ||
@@ -358,212 +493,220 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
                     game.join(capacity, entry);
                   }}
                 >
-                  {" "}
-                  {busy
-                    ? "Joining…"
-                    : !data
-                      ? "Connecting…"
-                      : !data.enabled
-                        ? "Tables paused"
-                        : Number(data.balancePaise) < entry
-                          ? "Insufficient balance"
-                          : "Find a match"}
-                  <ArrowRight size={18} />
+                  {busy ? (
+                    "Joining…"
+                  ) : !data ? (
+                    "Connecting…"
+                  ) : !data.enabled ? (
+                    "Tables paused"
+                  ) : Number(data.balancePaise) < entry ? (
+                    "Insufficient balance"
+                  ) : (
+                    <>
+                      PLAY <ArrowRight size={22} />
+                    </>
+                  )}
                 </button>
                 <p className="ld-note">
-                  Entry is debited when you join.
+                  Entry debited on joining. Empty seats get
                   <br />
-                  No opponents? Computer joins in 20 seconds.
+                  Computer players after 20 seconds.
                 </p>
-              </>
-            )}
-          </section>
-          <div className="ld-trust">
-            <ShieldCheck size={22} />
-            <div>
-              <strong>Same dice. Fair play.</strong>
-              <small>Every roll is verifiable after the match.</small>
+              </section>
             </div>
-          </div>
-          <button
-            className="ld-history-link"
-            onClick={() => setDialog("history")}
-          >
-            <History size={17} /> My matches <ChevronRight size={15} />
-          </button>
-        </aside>
-        <section className="ld-arena">
-          <div className="ld-arena-top">
-            <span className={`ld-connection${offline ? " ld-offline" : ""}`}>
-              <i />
-              {offline ? "Reconnecting…" : demo ? "DEMO TABLE" : "LIVE TABLE"}
-            </span>
-            <span>
-              {show ? m.capacity : capacity} PLAYERS{" "}
-              <span className="ld-dot">·</span> CLASSIC LUDO
-            </span>
-          </div>
-          <div className="ld-board-layout">
-            <div className="ld-players ld-players-top">
-              {show ? (
-                [0, ...(seats === 4 ? [1] : [])].map((i) => (
-                  <Player
-                    key={i}
-                    p={s.players[i]}
-                    active={!!playing && s.turn === i}
-                    you={m.you === i}
-                  />
-                ))
-              ) : (
-                <>
-                  <Player
-                    p={{ ...preview.players[0]!, kind: "human", name: "You", auto:false }}
-                    active={false}
-                    you
-                  />
-                  <Player p={null} active={false} you={false} />
-                </>
+            <div className="ld-lobby-links">
+              <button onClick={() => setDialog("history")}>
+                <History size={16} /> My matches
+              </button>
+              <button onClick={() => setDialog("rules")}>
+                <Info size={16} /> How to play
+              </button>
+            </div>
+          </section>
+        ) : (
+          <section className="ld-arena">
+            <div className="ld-match-bar">
+              <div className="ld-match-id">
+                MATCH {m.id.slice(0, 8).toUpperCase()}
+                <small>
+                  {m.capacity} players · Entry {money(m.entryPaise)}
+                </small>
+              </div>
+              <div className="ld-match-prize">
+                <Trophy size={18} />
+                <span>
+                  WIN<b>{money(m.prizePaise)}</b>
+                </span>
+              </div>
+              {live && (
+                <button
+                  className="ld-leave"
+                  disabled={busy || game.retry}
+                  onClick={() =>
+                    waiting ? game.act("leave") : setDialog("leave")
+                  }
+                >
+                  {waiting ? "Cancel & refund entry" : "Leave match"}
+                </button>
               )}
             </div>
-            <LudoBoard
-              state={s}
-              you={show ? m.you : undefined}
-              legal={show ? m.legalTokens : []}
-              disabled={
-                busy || offline || game.retry || !playing || remaining === 0
-              }
-              onMove={(token) => game.act("move", token)}
-            />
-            {yours && s.phase === "move" && (
-              <div className="ld-moves" aria-label="Choose a token">
-                {m.legalTokens.map((token) => (
-                  <button
-                    key={token}
-                    disabled={busy || offline || game.retry || remaining === 0}
-                    onClick={() => game.act("move", token)}
-                  >
-                    Move {token + 1}
-                  </button>
-                ))}
+            <div className="ld-arena-top">
+              <span
+                className={"ld-connection" + (offline ? " ld-offline" : "")}
+              >
+                <i />
+                {offline ? "Reconnecting…" : demo ? "DEMO TABLE" : "LIVE TABLE"}
+              </span>
+              <span>
+                {waiting
+                  ? "MATCHMAKING"
+                  : ended
+                    ? "MATCH COMPLETE"
+                    : "CLASSIC LUDO"}
+              </span>
+            </div>
+            <div className="ld-board-layout">
+              <div className="ld-players ld-players-top">
+                {(["red", "green"] as const).map(renderPlayer)}
               </div>
-            )}
-            {show && (
+              <div className="ld-board-wrap">
+                <LudoBoard
+                  state={s}
+                  you={m.you}
+                  legal={m.legalTokens}
+                  disabled={locked}
+                  onMove={(token) => game.act("move", token)}
+                />
+                {waiting && (
+                  <div className="ld-search-overlay">
+                    <span className="ld-search-spinner">
+                      <Users size={22} />
+                    </span>
+                    <strong>
+                      {s.players.filter(Boolean).length} / {m.capacity} joined
+                    </strong>
+                    <span>Computer joins in {remaining}s</span>
+                  </div>
+                )}
+              </div>
               <div className="ld-players ld-players-bottom">
-                {(seats === 4 ? [3, 2] : [1]).map((i) => (
-                  <Player
-                    key={i}
-                    p={s.players[i]}
-                    active={!!playing && s.turn === i}
-                    you={m.you === i}
-                  />
-                ))}
+                {(["blue", "yellow"] as const).map(renderPlayer)}
               </div>
-            )}
-            <div className="ld-turn" role="status" aria-live="polite">
-              <div>
-                <h2>{heading}</h2>
-                <p>
-                  {waiting
-                    ? `${s.players.filter(Boolean).length}/${m.capacity} joined · Computer fills empty seats in ${remaining}s`
-                    : ended
-                      ? m.reason ||
-                        (winner?.seat === m.you
-                          ? `${money(m.prizePaise)} credited to your wallet`
-                          : "Play another match for a fresh start.")
-                      : playing
-                        ? yours
+              <div
+                className={"ld-turn" + (yours ? " ld-your-turn" : "")}
+                role="status"
+                aria-live="polite"
+              >
+                <div>
+                  <h2>{heading}</h2>
+                  <p>
+                    {waiting
+                      ? "Looking for live players. Empty seats fill automatically."
+                      : ended
+                        ? m.reason ||
+                          (winner?.seat === m.you
+                            ? money(m.prizePaise) + " credited to your wallet"
+                            : "Ready for another game?")
+                        : yours
                           ? s.phase === "move"
-                            ? "Tap a glowing token to move"
-                            : "Roll the dice to make your move"
+                            ? "Tap a glowing token or choose below"
+                            : "Tap the dice beside your name"
                           : s.players[s.turn]?.kind === "computer"
                             ? "Computer is making a move…"
-                            : "Waiting for their move…"
-                        : "Choose 2 or 4 players and find a match."}
-                </p>
-              </div>
-              {waiting ? (
-                <div className="ld-countdown">
-                  {remaining}
-                  <small>SEC</small>
+                            : "Waiting for their move…"}
+                  </p>
                 </div>
-              ) : playing ? (
-                <button
-                  className="ld-roll"
-                  disabled={
-                    !yours ||
-                    s.phase !== "roll" ||
-                    busy ||
-                    offline ||
-                    game.retry ||
-                    remaining === 0
-                  }
-                  onClick={() => game.act("roll")}
-                  aria-label="Roll dice"
-                >
-                  <Dice value={s.dice ?? s.last?.dice ?? 6} rolling={busy} />
-                  <span>
-                    {yours && s.phase === "roll"
-                      ? "ROLL DICE"
-                      : `${remaining}s`}
+                {waiting ? (
+                  <div className="ld-countdown">
+                    {remaining}
+                    <small>SEC</small>
+                  </div>
+                ) : ended ? (
+                  <button
+                    className="ld-primary"
+                    onClick={() => setDismissed(m.id)}
+                  >
+                    Play again <ArrowRight size={16} />
+                  </button>
+                ) : (
+                  <span className="ld-turn-clock">
+                    {remaining}
+                    <small>SEC</small>
                   </span>
+                )}
+              </div>
+              {yours && s.phase === "move" && (
+                <div className="ld-moves" aria-label="Choose a token">
+                  {m.legalTokens.map((token) => (
+                    <button
+                      key={token}
+                      disabled={locked}
+                      onClick={() => game.act("move", token)}
+                    >
+                      <span style={{ background: COLORS[colour] }} />
+                      Move {token + 1}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="ld-last">
+                {s.last?.text === "Match started · Red rolls first"
+                  ? "Match started · " +
+                    (s.players[0]?.name || "First seat") +
+                    " rolls first"
+                  : s.last?.text ||
+                    "Roll a six to bring your tokens into play."}
+              </div>
+              {ended && m.seed && (
+                <button className="ld-proof" onClick={() => void verify()}>
+                  <ShieldCheck size={15} />
+                  {proof || "Verify dice & download match record"}
                 </button>
-              ) : ended ? (
-                <button
-                  className="ld-primary"
-                  onClick={() => setDismissed(m.id)}
-                >
-                  Play again
-                  <ArrowRight size={17} />
-                </button>
-              ) : (
-                <Dice />
               )}
             </div>
-            {playing && (
-              <div className="ld-timer">
-                <span
-                  style={{
-                    width: `${Math.min(100, (remaining / (s.players[s.turn]?.kind === "computer" ? 1 : 25)) * 100)}%`,
-                    background: COLORS[s.players[s.turn]!.color],
-                  }}
-                />
-              </div>
-            )}
-            <div className="ld-last">
-              {show
-                ? s.last?.text || "Ready when you are"
-                : "Roll a 6 to start · Capture opponents · Get all 4 tokens home"}
-            </div>
-            {ended && m.seed && (
-              <button className="ld-proof" onClick={() => void verify()}>
-                <ShieldCheck size={15} />
-                {proof || "Verify dice & download match record"}
+            <footer className="ld-arena-footer">
+              <button
+                onClick={() => setDialog("history")}
+                aria-label="My matches"
+              >
+                <History size={18} />
               </button>
-            )}
+              <button onClick={() => setDialog("rules")}>
+                How to play <Info size={14} />
+              </button>
+              <button
+                className="ld-fullscreen"
+                aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}
+                onClick={async () => {
+                  try {
+                    if (document.fullscreenElement)
+                      await document.exitFullscreen();
+                    else await document.documentElement.requestFullscreen();
+                  } catch {
+                    /* Browser may not support element fullscreen. */
+                  }
+                }}
+              >
+                {fullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+              </button>
+            </footer>
+          </section>
+        )}
+        {!busy && (game.error || offline || game.retry) && (
+          <div className="ld-error" role="alert">
+            {game.error ||
+              "Connection interrupted. Your match and wallet are saved."}
+            {game.retry ? (
+              <button disabled={busy} onClick={game.retryAction}>
+                Retry last action
+              </button>
+            ) : offline ? (
+              <button onClick={() => void game.sync()}>Reconnect</button>
+            ) : null}
           </div>
-          {!busy && (game.error || offline || game.retry) && (
-            <div className="ld-error" role="alert">
-              {game.error ||
-                "Connection interrupted. Your match and wallet are saved."}
-              {game.retry ? (
-                <button disabled={busy} onClick={game.retryAction}>
-                  Retry last action
-                </button>
-              ) : offline ? (
-                <button onClick={() => void game.sync()}>Reconnect</button>
-              ) : null}
-            </div>
-          )}
-          <footer className="ld-arena-footer">
-            <span>
-              <Bot size={15} /> Computer players are always labelled
-            </span>
-            <button onClick={() => setDialog("rules")}>
-              How to play <Info size={14} />
-            </button>
-          </footer>
-        </section>
+        )}
       </div>
+
       <Dialog
         open={dialog !== null}
         onOpenChange={(open) => !open && setDialog(null)}
@@ -587,8 +730,10 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
             <div className="ld-rules">
               <ol>
                 <li>
-                  Roll a 6 to move a token out of its yard. Red starts; turns
-                  move clockwise. Two-player games use red and yellow.
+                  Roll a 6 to move a token out of its yard. The first seat
+                  starts; turns move clockwise. Two-player games use opposite
+                  corners. Your chosen colour changes only your personal board
+                  view.
                 </li>
                 <li>
                   Roll, then tap a highlighted token. A 6, capture or token
