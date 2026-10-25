@@ -757,6 +757,111 @@ test("all six server results animate for both players, retain their value and so
   }
 });
 
+test("two-player dice starts from its resting face, keeps spinning through a delayed reply and never overlaps the other die", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Smooth Dice A", { width: 392, height: 850 });
+  const b = await player(browser, "Smooth Dice B", { width: 392, height: 850 });
+  let release = () => {};
+  try {
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await b.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    const id = (await state(a.context)).match!.id;
+    const own = a.page.locator(".ld-player[data-you] .ld-die");
+    const observed = b.page.locator(".ld-player:not([data-you]) .ld-die");
+    const visibleDice = (page: Page) => page.locator(".ld-die:visible");
+    await readyRoll(a.context, a.page, id, 0, 1, [0, 4, -1, -1]);
+    await a.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect(own).toHaveAttribute("data-value", "1");
+    await expect(observed).toHaveAttribute("data-value", "1");
+    await readyRoll(a.context, a.page, id, 0, 6, [0, 4, -1, -1]);
+    const resting = await own
+      .locator(".ld-die-cube")
+      .evaluate((el) =>
+        Array.from(
+          new DOMMatrix(getComputedStyle(el).transform).toFloat64Array(),
+        ),
+      );
+    const pending = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await a.page.route("**/api/ludo/*/action", async (route) => {
+      if (route.request().postDataJSON().type === "roll") await pending;
+      await route.continue();
+    });
+    await a.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect(own).toHaveAttribute("data-phase", "rolling");
+    const motion = await own.locator(".ld-die-cube").evaluate(async (el) => {
+      const animation = el.getAnimations()[0];
+      const first = (animation.effect as KeyframeEffect).getKeyframes()[0]
+        .transform as string;
+      const times: number[] = [];
+      const transforms = new Set<string>();
+      const end = performance.now() + 1100;
+      while (performance.now() < end) {
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => resolve()),
+        );
+        times.push(Number(animation.currentTime));
+        transforms.add(getComputedStyle(el).transform);
+      }
+      return {
+        from: Array.from(new DOMMatrix(first).toFloat64Array()),
+        continuous: times.every((time, i) => i === 0 || time >= times[i - 1]),
+        frames: transforms.size,
+        running: animation.playState,
+        time: Number(animation.currentTime),
+        sameAnimation: el.getAnimations()[0] === animation,
+      };
+    });
+    expect(motion.from).toEqual(resting);
+    expect(motion.continuous).toBe(true);
+    expect(motion.frames).toBeGreaterThan(20);
+    expect(motion.running).toBe("running");
+    expect(motion.time).toBeGreaterThan(1000);
+    expect(motion.sameAnimation).toBe(true);
+    await expect(visibleDice(a.page)).toHaveCount(1);
+    await expect(visibleDice(b.page)).toHaveCount(1);
+    release();
+    await expect(own).toHaveAttribute("data-value", "6");
+    await expect(observed).toHaveAttribute("data-value", "6");
+    await expect(visibleDice(b.page)).toHaveCount(1);
+    // A non-six with every token inside changes turns immediately on the server.
+    // The previous player's die must stay alone in the tray until it finishes.
+    await readyRoll(b.context, b.page, id, 1, 2, [-1, -1, -1, -1]);
+    await b.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect(
+      a.page.locator(".ld-player:not([data-you]) .ld-die"),
+    ).toHaveAttribute("data-phase", "rolling");
+    await expect(visibleDice(a.page)).toHaveCount(1);
+    await expect(visibleDice(b.page)).toHaveCount(1);
+    await expect(
+      b.page.locator(".ld-player[data-you] .ld-die"),
+    ).toHaveAttribute("data-value", "2");
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    await expect(visibleDice(a.page)).toHaveCount(1);
+    await expect(visibleDice(b.page)).toHaveCount(1);
+    await b.page.setViewportSize({ width: 844, height: 390 });
+    await expect(visibleDice(b.page)).toHaveCount(2);
+    await finish(a.context, a.page);
+  } finally {
+    release();
+    await a.context.close();
+    await b.context.close();
+  }
+});
+
 test("failed dice requests stop cleanly, retry once and respect reduced motion", async ({
   browser,
 }) => {

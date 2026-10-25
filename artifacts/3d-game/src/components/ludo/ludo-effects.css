@@ -16,6 +16,7 @@
 }
 .ld-die-cube {
   transform: var(--die-result);
+  will-change: transform;
 }
 .ld-die-face {
   position: absolute;

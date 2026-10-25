@@ -574,6 +574,10 @@
 .ld-match-2 .ld-player:not(.ld-player-active) .ld-other-dice {
   visibility: hidden;
 }
+/* The portrait tray is shared: an idle cube must not sit behind the rolling one. */
+.ld-match-2:has(.ld-player-active .ld-other-dice) .ld-roll {
+  visibility: hidden;
+}
 .ld-match-2 .ld-player-active .ld-other-dice {
   z-index: 5;
 }
@@ -829,6 +833,11 @@
   }
   .ld-in-match .ld-die {
     --die-size: 30px;
+  }
+  /* Landscape gives each player a separate tray. */
+  .ld-match-2:has(.ld-player-active .ld-other-dice) .ld-roll,
+  .ld-match-2 .ld-player:not(.ld-player-active) .ld-other-dice {
+    visibility: visible;
   }
   .ld-in-match .ld-player-kind {
     inset: 0 auto auto 7px;

@@ -27,18 +27,30 @@ export function LudoDice({
   const cube = useRef<HTMLSpanElement>(null);
   const animation = useRef<Animation | null>(null);
   const face = roll?.value ?? value ?? 6;
+  const restingFace = useRef(face);
+  useLayoutEffect(() => {
+    if (!roll) restingFace.current = face;
+  }, [face, roll]);
   useLayoutEffect(() => {
     const node = cube.current;
     if (!node) return;
     const from = getComputedStyle(node).transform;
+    // The server can deliver a new result before an observer starts the roll.
+    // Start at the face they were seeing, or continue an interrupted animation.
+    const start = animation.current ? from : rotations[restingFace.current];
     animation.current?.cancel();
+    animation.current = null;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (roll?.phase === "rolling") {
       animation.current = node.animate(
         [
-          { transform: "rotateX(-20deg) rotateY(20deg) rotateZ(0deg)" },
-          { transform: "rotateX(160deg) rotateY(200deg) rotateZ(35deg)" },
-          { transform: "rotateX(340deg) rotateY(380deg) rotateZ(0deg)" },
+          { transform: `${start} rotateX(0deg) rotateY(0deg) rotateZ(0deg)` },
+          {
+            transform: `${start} rotateX(180deg) rotateY(180deg) rotateZ(35deg)`,
+          },
+          {
+            transform: `${start} rotateX(360deg) rotateY(360deg) rotateZ(0deg)`,
+          },
         ],
         { duration: 560, iterations: Infinity, easing: "linear" },
       );
