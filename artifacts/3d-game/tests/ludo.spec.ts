@@ -779,6 +779,9 @@ test("two-player dice starts from its resting face, keeps spinning through a del
       .click();
     await expect(own).toHaveAttribute("data-value", "1");
     await expect(observed).toHaveAttribute("data-value", "1");
+    await expect(
+      b.page.locator(".ld-player[data-you] .ld-die-face i:visible"),
+    ).toHaveCount(0);
     await readyRoll(a.context, a.page, id, 0, 6, [0, 4, -1, -1]);
     const resting = await own
       .locator(".ld-die-cube")
@@ -852,6 +855,9 @@ test("two-player dice starts from its resting face, keeps spinning through a del
     ).toBeEnabled();
     await expect(visibleDice(a.page)).toHaveCount(1);
     await expect(visibleDice(b.page)).toHaveCount(1);
+    await a.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click({ trial: true });
     await b.page.setViewportSize({ width: 844, height: 390 });
     await expect(visibleDice(b.page)).toHaveCount(2);
     await finish(a.context, a.page);

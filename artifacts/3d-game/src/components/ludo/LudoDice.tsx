@@ -86,7 +86,9 @@ export function LudoDice({
                 <i
                   key={i}
                   style={{
-                    visibility: dots[n].includes(i) ? "visible" : "hidden",
+                    // Inherit tray visibility so an inactive die cannot expose
+                    // its pips over the active die or intercept a roll tap.
+                    opacity: dots[n].includes(i) ? 1 : 0,
                   }}
                 />
               ))}
