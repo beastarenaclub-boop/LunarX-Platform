@@ -185,6 +185,20 @@ test("search, category and provider filters return matching games and recover fr
   await expect(page.getByTestId("card-game-chicken-road")).toBeVisible();
 });
 
+test("New Games exposes Ludo first and supports board game tag search", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const errors = await setupLobby(page);
+  await page.getByTestId("btn-category-new").click();
+  const cards = page.locator("[data-game-id]");
+  await expect(cards.first()).toHaveAttribute("data-game-id", "ludo");
+  expect(await cards.evaluateAll(elements => elements.every(e => e.classList.contains("new-game-card")))).toBe(true);
+  const search = page.getByRole("searchbox");
+  await search.fill("board game");
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toHaveAttribute("data-game-id", "ludo");
+  expect(errors).toEqual([]);
+});
+
 test("category strip supports mouse dragging and touch swiping without changing the filter", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const errors = await setupLobby(page);

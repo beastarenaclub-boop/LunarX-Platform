@@ -54,6 +54,7 @@ import { formatRupees } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
+  isNewGame,
   resolveCatalog,
   type Category,
   type LobbyGame,
@@ -130,7 +131,7 @@ function GameCard({
   eager?: boolean;
 }) {
   const [imageFailed, setImageFailed] = useState(false);
-  const isNew = game.enabled && game.label === "NEW";
+  const isNew = isNewGame(game);
   const content = (
     <>
       <div className="lobby-game-art">
@@ -406,7 +407,7 @@ export default function Home() {
       matchesGameCategory(game, category) &&
       (!provider || game.provider === provider) &&
       (!search ||
-        `${game.name} ${game.provider}`.toLocaleLowerCase().includes(search)),
+        `${game.name} ${game.provider} ${game.tags?.join(" ") ?? ""}`.toLocaleLowerCase().includes(search)),
   );
   const filtering = category !== "all" || !!provider || !!search;
   const visibleGames = filtering || showAll ? filtered : filtered.slice(0, 20);

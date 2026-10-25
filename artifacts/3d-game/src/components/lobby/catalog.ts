@@ -21,6 +21,7 @@ export type PrimaryCategory =
   | "racing"
   | "lottery";
 export type GameFamily =
+  | "ludo"
   | "roulette"
   | "poker"
   | "teen-patti"
@@ -34,7 +35,7 @@ export type GameFamily =
   | "chicken-road"
   | "dice-games"
   | "racing-games";
-export type Category = "all" | PrimaryCategory | GameFamily;
+export type Category = "all" | "new" | PrimaryCategory | GameFamily;
 export interface LobbyGame {
   id: string;
   name: string;
@@ -59,6 +60,7 @@ export interface RegistryEntry {
 
 // Share the storefront's curated trending order across both lobbies.
 export const TOP_GAME_IDS = [
+  "ludo",
   "roulette",
   "teen-patti-live",
   "lucky-7-live",
@@ -68,12 +70,16 @@ export const TOP_GAME_IDS = [
   "dragon-tiger-one-day",
 ];
 
+export function isNewGame(game: LobbyGame): boolean {
+  return game.enabled && game.label === "NEW";
+}
+
 export function compareTopGames(a: LobbyGame, b: LobbyGame): number {
   const rank = (item: LobbyGame) => {
     const index = item.enabled ? TOP_GAME_IDS.indexOf(item.id) : -1;
     return index < 0 ? TOP_GAME_IDS.length : index;
   };
-  return rank(a) - rank(b);
+  return Number(isNewGame(b)) - Number(isNewGame(a)) || rank(a) - rank(b);
 }
 
 const posters = import.meta.glob("../../assets/lobby/game-*.jpg", {
@@ -139,8 +145,8 @@ export const LOBBY_GAMES: LobbyGame[] = [
     artwork: `${import.meta.env.BASE_URL}media/ludo/lobby-casino-v2.jpg`,
     artworkHasTitle: true,
     artworkFit: "cover",
-    label: "LIVE",
-    tags: ["ludo", "multiplayer", "2 players", "4 players", "computer"],
+    label: "NEW",
+    tags: ["ludo", "board game", "multiplayer", "2 players", "4 players", "computer"],
   }),
   game("poker-one-day", "Poker 1-Day", "table", "#f3ce41", { artwork: POKER_ART["poker-one-day"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "1 day", "holdem"] }),
   game("poker-20-20", "20-20 Poker", "table", "#84c5ee", { artwork: POKER_ART["poker-20-20"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "20-20", "holdem"] }),
@@ -213,6 +219,7 @@ export const LOBBY_GAMES: LobbyGame[] = [
 for (const game of LOBBY_GAMES) {
   if (game.category === "instant" || game.category === "crash") game.tags = [...new Set([...(game.tags ?? []), "instant"])];
   if (REQUESTED_INSTANT_CODES.includes(game.id)) game.label = "INSTANT";
+  if (game.label === "NEW") game.tags = [...new Set([...(game.tags ?? []), "new"])];
 }
 LOBBY_GAMES.sort((a, b) => {
   const rank = (id: string) => { const i = REQUESTED_INSTANT_CODES.indexOf(id); return i < 0 ? 100 : i; };

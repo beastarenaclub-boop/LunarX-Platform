@@ -230,6 +230,7 @@ export function LudoMatchmaking({
         >
           <ArrowLeft />
         </button>
+        <strong className="ld-landscape-title">LUDO LIVE</strong>
         <LudoSoundControls audio={audio} />
       </div>
       <LudoEmblem compact />

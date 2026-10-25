@@ -69,7 +69,11 @@ export function B2CScrollNav({ children, activeCategory }: { children: ReactNode
         <ChevronLeft size={18} />
       </button>
       <nav ref={navRef} aria-label="Casino game types"
-        onClick={event => reveal(event.target)} onFocus={event => reveal(event.target)}>
+        onClick={event => reveal(event.target)}
+        onFocus={event => {
+          // Pointer focus must not move the pressed button before its click finishes.
+          if (event.target.matches(":focus-visible")) reveal(event.target);
+        }}>
         {children}
       </nav>
       <button type="button" className="b2c-category-arrow" aria-label="Next game categories"

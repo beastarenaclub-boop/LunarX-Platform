@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   compareTopGames,
+  isNewGame,
   resolveCatalog,
   TOP_GAME_IDS,
   type Category,
@@ -102,7 +103,7 @@ function GameTile({
   duplicate?: boolean;
 }) {
   const art = b2cArtwork(game.id);
-  const isNew = game.enabled && game.label === "NEW";
+  const isNew = isNewGame(game);
   return (
     <button
       className={`b2c-game${isNew ? " new-game-card" : ""}${!game.enabled ? " is-unavailable" : ""}`}
@@ -230,16 +231,15 @@ export default function B2C({
   const providers = [...new Set(games.map((game) => game.provider))];
   const categories = getLobbyCategories(games);
   const casinoCategories = getCasinoCategories(games);
-  const trending = TOP_GAME_IDS.flatMap((id) => {
-    const game = games.find((g) => g.id === id);
-    return game?.enabled ? [game] : [];
-  });
+  const trending = games.filter(
+    (game) => game.enabled && (isNewGame(game) || TOP_GAME_IDS.includes(game.id)),
+  );
   const filtered = games.filter(
     (game) =>
       matchesGameCategory(game, category) &&
       (!provider || game.provider === provider) &&
       (!query.trim() ||
-        `${game.name} ${game.provider}`
+        `${game.name} ${game.provider} ${game.tags?.join(" ") ?? ""}`
           .toLowerCase()
           .includes(query.trim().toLowerCase())),
   );

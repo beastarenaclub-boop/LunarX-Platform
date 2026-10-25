@@ -1,8 +1,8 @@
 import {
   Bird, CircleDot, Club, Crown, Dice5, Flag, Grid2X2,
-  Plane, Play, Rocket, Spade, Ticket, Trophy, type LucideIcon,
+  Plane, Play, Rocket, Sparkles, Spade, Ticket, Trophy, type LucideIcon,
 } from "lucide-react";
-import type { Category, GameFamily, LobbyGame } from "./catalog";
+import { isNewGame, type Category, type GameFamily, type LobbyGame } from "./catalog";
 
 export interface LobbyCategory {
   id: Category;
@@ -10,8 +10,11 @@ export interface LobbyCategory {
   icon: LucideIcon;
 }
 
+const NEW_GAMES_CATEGORY: LobbyCategory = { id: "new", name: "New Games", icon: Sparkles };
+
 const PRIMARY_CATEGORIES: LobbyCategory[] = [
   { id: "all", name: "All Games", icon: Grid2X2 },
+  NEW_GAMES_CATEGORY,
   { id: "instant", name: "Instant Games", icon: Rocket },
   { id: "crash", name: "Crash Games", icon: Plane },
   { id: "live", name: "Live Casino", icon: Play },
@@ -27,6 +30,7 @@ const GAME_FAMILIES: (LobbyCategory & {
   gameIds: string[];
   minimumGames: number;
 })[] = [
+  { id: "ludo", name: "Ludo", icon: Dice5, gameIds: ["ludo"], minimumGames: 1 },
   { id: "roulette", name: "Roulette", icon: CircleDot, gameIds: ["roulette"], minimumGames: 1 },
   { id: "poker", name: "Poker", icon: Spade, gameIds: ["poker-one-day", "poker-20-20", "poker-six-players"], minimumGames: 3 },
   { id: "teen-patti", name: "Teen Patti", icon: Spade, gameIds: ["teen-patti", "teen-patti-live", "teen-patti-joker"], minimumGames: 1 },
@@ -43,6 +47,7 @@ const GAME_FAMILIES: (LobbyCategory & {
 ];
 
 export function matchesGameCategory(game: LobbyGame, category: Category): boolean {
+  if (category === "new") return isNewGame(game);
   if (category === "all" || game.category === category) return true;
   if (category === "instant" && game.tags?.includes("instant")) return true;
   return GAME_FAMILIES.find((family) => family.id === category)?.gameIds.includes(game.id) ?? false;
@@ -63,6 +68,7 @@ export function getLobbyCategories(games: LobbyGame[]): LobbyCategory[] {
 export function getCasinoCategories(games: LobbyGame[]): LobbyCategory[] {
   return [
     { id: "all", name: "All Casino", icon: Grid2X2 },
+    NEW_GAMES_CATEGORY,
     ...GAME_FAMILIES.filter((family) => familyCount(games, family) >= family.minimumGames),
     ...PRIMARY_CATEGORIES.filter(({ id }) => ["racing", "lottery", "instant"].includes(id)),
   ];

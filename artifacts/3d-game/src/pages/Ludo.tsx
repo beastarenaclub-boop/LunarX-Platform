@@ -56,6 +56,7 @@ import "@/components/ludo/ludo-lobby.css";
 import "@/components/ludo/ludo-home.css";
 import "@/components/ludo/ludo-effects.css";
 import "@/components/ludo/ludo-mobile.css";
+import "@/components/ludo/ludo-landscape.css";
 const money = (v: string | number) =>
   `₹${(Number(v) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const preview: LudoState = {
@@ -683,6 +684,9 @@ function LudoGame({
                   <b>Win {money(m.prizePaise)}</b>
                 </small>
               </div>
+              <div className="ld-landscape-sound">
+                <LudoSoundControls audio={audio} />
+              </div>
               <button
                 className="ld-menu-icon"
                 aria-label="Game settings"
@@ -938,6 +942,9 @@ function LudoGame({
               <div className="ld-settings-links">
                 <button onClick={() => setDialog("rules")}>How to play</button>
                 <button onClick={() => setDialog("history")}>My matches</button>
+                <button onClick={() => void toggleFullscreen()}>
+                  {fullscreen ? "Exit fullscreen" : "Fullscreen"}
+                </button>
               </div>
             </div>
           ) : dialog === "rules" ? (

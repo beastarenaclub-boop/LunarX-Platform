@@ -644,18 +644,24 @@ for (const capacity of [2, 4] as const)
         { width: 390, height: 802 },
         { width: 430, height: 890 },
         { width: 844, height: 340 },
+        { width: 568, height: 270 },
+        { width: 640, height: 230 },
+        { width: 844, height: 250 },
+        { width: 390, height: 802 },
       ]) {
         await p.page.setViewportSize(viewport);
         await expect
           .poll(async () =>
             p.page
-              .locator(".ld-arena-footer")
+              .locator(".ld-arena")
               .evaluate((e) => e.getBoundingClientRect().bottom),
           )
           .toBeLessThanOrEqual(viewport.height);
         const board = await p.page.locator(".ld-board-wrap").boundingBox();
         expect(Math.abs(board!.width - board!.height)).toBeLessThan(1);
-        expect(board!.width).toBeGreaterThanOrEqual(192);
+        expect(board!.width).toBeGreaterThanOrEqual(168);
+        expect(board!.y).toBeGreaterThanOrEqual(0);
+        expect(board!.y + board!.height).toBeLessThanOrEqual(viewport.height);
         for (const control of [
           roll,
           p.page.getByRole("button", { name: "Move 4", exact: true }),
@@ -710,6 +716,88 @@ for (const capacity of [2, 4] as const)
         .poll(async () => (await state(p.context)).match!.status)
         .toBe("finished");
       expect(errors).toEqual([]);
+    } finally {
+      await p.context.close();
+    }
+  });
+
+for (const capacity of [2, 4] as const)
+  test(`${capacity}-player menus and matchmaking survive short landscape and portrait rotation`, async ({
+    browser,
+  }) => {
+    const p = await player(
+      browser,
+      "Rotation player",
+      { width: 390, height: 802 },
+      "home",
+    );
+    const views = [
+      { width: 568, height: 270 },
+      { width: 640, height: 230 },
+      { width: 844, height: 340 },
+      { width: 390, height: 802 },
+    ];
+    const visibleControl = async (name: string) => {
+      const button = p.page.getByRole("button", { name, exact: true });
+      await expect(button).toBeInViewport({ ratio: 1 });
+      const box = await button.boundingBox();
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      await button.click({ trial: true });
+    };
+    const rotate = async (viewport: { width: number; height: number }) => {
+      await p.page.setViewportSize(viewport);
+      await expect
+        .poll(() =>
+          p.page
+            .locator('[data-game-viewport="ludo"]')
+            .evaluate((e) => e.getBoundingClientRect().bottom),
+        )
+        .toBeLessThanOrEqual(viewport.height);
+      expect(
+        await p.page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+    };
+    try {
+      for (const viewport of views) {
+        await rotate(viewport);
+        await visibleControl("Online multiplayer");
+        await visibleControl("Play against Computer");
+        await visibleControl("Game settings");
+      }
+      await p.page
+        .getByRole("button", { name: "Online multiplayer", exact: true })
+        .click();
+      for (const viewport of views) {
+        await rotate(viewport);
+        await visibleControl("blue tokens");
+        await visibleControl("4 players Classic battle");
+        await visibleControl("Find a match");
+      }
+      if (capacity === 4)
+        await p.page
+          .getByRole("button", { name: "4 players Classic battle" })
+          .click();
+      await p.page
+        .getByRole("button", { name: "Find a match", exact: true })
+        .click();
+      await expect(p.page.locator(".ld-search-screen")).toBeVisible();
+      for (const viewport of views) {
+        await rotate(viewport);
+        await visibleControl("Cancel & refund entry");
+        await visibleControl("Mute sound");
+        const seats = await p.page.locator(".ld-versus-grid").boundingBox();
+        expect(seats!.y + seats!.height).toBeLessThanOrEqual(viewport.height);
+      }
+      await p.page
+        .getByRole("button", { name: "Cancel & refund entry", exact: true })
+        .click();
+      await expect(
+        p.page.getByRole("heading", { name: "Entry refunded" }),
+      ).toBeVisible();
+      expect((await state(p.context)).balancePaise).toBe("100000");
     } finally {
       await p.context.close();
     }
@@ -783,7 +871,7 @@ for (const viewport of [
       await expect(p.page.locator(".ld-prize b")).toHaveText("₹180");
       await p.page.getByRole("button", { name: "Lower entry fee" }).click();
       await expect(p.page.locator(".ld-prize b")).toHaveText("₹36");
-      await p.page.getByRole("button", { name: "How to play" }).click();
+      await p.page.getByRole("button", { name: "Game rules", exact: true }).click();
       await expect(p.page.getByRole("dialog")).toContainText("10%");
       await expect(p.page.getByRole("dialog")).toContainText("platform funds");
       expect(errors).toEqual([]);

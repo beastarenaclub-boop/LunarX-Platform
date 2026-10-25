@@ -241,6 +241,24 @@ test("search, categories, disabled games and empty results", async ({
   ).toHaveCount(0);
 });
 
+test("New Games and Ludo filters work from phone taps and tag search", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const { errors } = await setup(page, { loggedIn: true });
+  const navigation = page.getByRole("navigation", { name: "Casino game types" });
+  await navigation.getByRole("button", { name: "Ludo", exact: true }).click();
+  await expect(page.locator("#b2c-games [data-game-id]")).toHaveCount(1);
+  await expect(page.locator("#b2c-games [data-game-id='ludo']")).toHaveClass(/new-game-card/);
+  await navigation.getByRole("button", { name: "New Games", exact: true }).click();
+  const cards = page.locator("#b2c-games [data-game-id]");
+  await expect(cards.first()).toHaveAttribute("data-game-id", "ludo");
+  expect(await cards.evaluateAll(elements => elements.every(e => e.classList.contains("new-game-card")))).toBe(true);
+  await page.getByRole("button", { name: "Search games", exact: true }).click();
+  await page.getByRole("searchbox", { name: "Search games", exact: true }).fill("board game");
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first()).toHaveAttribute("data-game-id", "ludo");
+  expect(errors).toEqual([]);
+});
+
 test("category strips support mouse dragging and touch swiping without selecting games", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   const { errors } = await setup(page, { loggedIn: true });
