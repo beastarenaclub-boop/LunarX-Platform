@@ -350,7 +350,7 @@
     transform: scale(0.5) rotate(50deg);
   }
 }
-@media (max-width: 360px) {
+@container ludo (max-width: 360px) {
   .ld-arena-footer {
     gap: 4px;
   }

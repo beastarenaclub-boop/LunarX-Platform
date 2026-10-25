@@ -186,7 +186,7 @@
   filter: drop-shadow(0 6px 0 #041947);
 }
 .ld-emblem-word > span {
-  font-size: clamp(58px, 6vw, 88px);
+  font-size: clamp(58px, 6cqw, 88px);
   letter-spacing: -4px;
   -webkit-text-stroke: 1.5px #fff5ce;
   text-shadow:
@@ -438,7 +438,7 @@
   height: 140px;
 }
 
-@media (max-width: 760px) {
+@container ludo (max-width: 760px) {
   .ld-in-home .ld-main {
     max-width: 480px;
     padding: 0 16px;
@@ -544,7 +544,7 @@
     padding-top: 12px;
   }
 }
-@media (max-width: 360px) {
+@container ludo (max-width: 360px) {
   .ld-in-home .ld-main {
     padding: 0 12px;
   }
@@ -597,7 +597,7 @@
     width: 36px;
   }
 }
-@media (max-height: 600px) and (min-width: 761px) {
+@container ludo (max-height: 600px) and (min-width: 761px) {
   .ld-home-screen {
     min-height: 100dvh;
     padding-top: 12px;

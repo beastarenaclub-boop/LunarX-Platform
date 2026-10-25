@@ -383,7 +383,7 @@
     opacity: 0.25;
   }
 }
-@media (max-width: 400px) {
+@container ludo (max-width: 400px) {
   .ld-in-search .ld-main {
     padding: 10px 16px;
   }
@@ -420,7 +420,7 @@
     padding-top: 14px;
   }
 }
-@media (max-width: 340px) {
+@container ludo (max-width: 340px) {
   .ld-versus-grid {
     gap: 16px 34px;
   }
@@ -443,7 +443,7 @@
     font-size: 8px;
   }
 }
-@media (max-height: 600px) and (min-width: 600px) {
+@container ludo (max-height: 600px) and (min-width: 600px) {
   .ld-search-screen {
     min-height: 0;
   }

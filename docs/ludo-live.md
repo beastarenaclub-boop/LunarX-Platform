@@ -1,5 +1,7 @@
 # Ludo Live
 
+Desktop browsers open Ludo in a centred 440 px phone frame, including fullscreen. Size breakpoints follow that frame so the home menu, setup, matchmaking and live board use the same portrait UI as a phone. Small desktop windows scroll within the frame. Touch phones retain the compact landscape arrangement when rotated.
+
 On phones the match uses the available visual viewport, including space taken by the demo banner and safe-area insets. A compact match header shows entry and prize, player dice remain 44 px, and a reserved action row keeps the board steady when legal moves appear. Portrait screens from 320 px are supported; short landscape screens put the board beside the player cards and controls. The menu and matchmaking also compact on short screens. The back arrow confirms forfeiting a live game before leaving, and settings, sound and music remain available.
 
 Landscape has dedicated layouts for the home menu, colour/player/stake selection, opponent search and live matches. The match toolbar contains sound and music controls; rules, history and fullscreen are available through Settings. The board stays square and move buttons remain 44 px when the visible game area is as short as 230 px, including browser/session chrome. Rotation does not create a new match or change its entry, turn or legal moves.

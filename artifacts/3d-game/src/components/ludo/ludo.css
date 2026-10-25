@@ -1,3 +1,21 @@
+/* The game uses the same phone UI on desktop, including fullscreen. */
+.game-viewport[data-game-viewport="ludo"] {
+  width: min(100%, 440px);
+  margin-inline: auto;
+  container: ludo / size;
+  box-shadow: 0 0 60px #020a2680;
+}
+@media (hover: hover) and (pointer: fine) {
+  .game-viewport[data-game-viewport="ludo"] {
+    max-height: 900px;
+  }
+}
+/* Keep the compact, usable landscape layout when a phone is rotated. */
+@media (hover: none) and (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
+  .game-viewport[data-game-viewport="ludo"] {
+    width: min(100%, 940px);
+  }
+}
 .ld-app {
   --ld-gold: #ffda62;
   color: #fff;
@@ -1024,7 +1042,7 @@
     transform: translateX(3px);
   }
 }
-@media (min-width: 900px) {
+@container ludo (min-width: 900px) {
   .ld-in-match .ld-main {
     max-width: 570px;
   }
@@ -1032,7 +1050,7 @@
     padding-top: 5px;
   }
 }
-@media (max-width: 600px) {
+@container ludo (max-width: 600px) {
   .ld-header {
     height: 56px;
     padding: 0 10px;
@@ -1216,7 +1234,7 @@
     inset: 35% 19%;
   }
 }
-@media (max-width: 360px) {
+@container ludo (max-width: 360px) {
   .ld-header {
     gap: 6px;
     padding: 0 7px;
@@ -1281,7 +1299,7 @@
     padding-bottom: 7px;
   }
 }
-@media (max-height: 500px) and (min-width: 601px) {
+@container ludo (max-height: 500px) and (min-width: 601px) {
   .ld-in-match .ld-main {
     max-width: 440px;
   }

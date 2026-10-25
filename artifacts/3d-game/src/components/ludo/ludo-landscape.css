@@ -7,7 +7,7 @@
 }
 
 /* Keep the refund action visible when rotating back to a portrait phone. */
-@media (max-width: 760px) {
+@container ludo (max-width: 760px) {
   .ld-search-bottom h2,
   .ld-search-bottom > p {
     display: none;
@@ -17,7 +17,7 @@
   }
 }
 
-@media (orientation: landscape) and (max-height: 600px) and (min-width: 560px) {
+@container ludo (orientation: landscape) and (max-height: 600px) and (min-width: 560px) {
   /* A single toolbar leaves the remaining height for the two mode cards. */
   .ld-in-home .ld-main {
     max-width: 940px;
@@ -408,7 +408,7 @@
     width: auto;
     height: 100%;
     max-width: 100%;
-    max-height: min(440px, calc((100vw - 28px) / 2));
+    max-height: min(440px, calc((100cqw - 28px) / 2));
   }
   .ld-players {
     padding: 0 4px;

@@ -13,7 +13,12 @@ async function player(
   viewport = { width: 1440, height: 1000 },
   screen: "home" | "online" = "online",
 ) {
-  const context = await browser.newContext({ baseURL: base, viewport });
+  const context = await browser.newContext({
+    baseURL: base,
+    viewport,
+    isMobile: viewport.width < 1024,
+    hasTouch: viewport.width < 1024,
+  });
   const login = await context.request.post("/api/test/ludo/login", {
     data: { name },
   });
@@ -802,6 +807,65 @@ for (const capacity of [2, 4] as const)
       await p.context.close();
     }
   });
+
+test("desktop and fullscreen use the phone layout through menus and live play", async ({ browser }) => {
+  const p = await player(browser, "Desktop phone player", { width: 1440, height: 900 }, "home");
+  const frame = p.page.locator('[data-game-viewport="ludo"]');
+  const centeredPhone = async () => {
+    await expect.poll(() => frame.evaluate(e => Math.round(e.getBoundingClientRect().width))).toBe(440);
+    const box = (await frame.boundingBox())!;
+    expect(Math.abs(box.x - (p.page.viewportSize()!.width - box.width) / 2)).toBeLessThan(1);
+    expect(await frame.evaluate(e => e.scrollWidth <= e.clientWidth)).toBe(true);
+  };
+  try {
+    for (const viewport of [{ width: 1920, height: 1080 }, { width: 1366, height: 768 }, { width: 1024, height: 600 }]) {
+      await p.page.setViewportSize(viewport);
+      await centeredPhone();
+      await expect(p.page.locator(".ld-home-content")).toHaveCSS("flex-direction", "column");
+      await expect(p.page.getByRole("button", { name: "Online multiplayer", exact: true })).toBeInViewport({ ratio: 1 });
+    }
+    await p.page.setViewportSize({ width: 1440, height: 900 });
+    await expect.poll(() => frame.evaluate(e => e.clientHeight)).toBe(900);
+    await p.page.screenshot({ path: "tmp/ludo-desktop-phone-home.png" });
+    await p.page.getByRole("button", { name: "Online multiplayer", exact: true }).click();
+    await expect(p.page.locator(".ld-room-card")).toHaveCSS("display", "block");
+    await p.page.getByRole("button", { name: "4 players Classic battle" }).click();
+    await p.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(p.page.locator(".ld-search-screen")).toBeVisible();
+    await centeredPhone();
+    await expect(p.page.getByRole("button", { name: "Cancel & refund entry", exact: true })).toBeInViewport({ ratio: 1 });
+    await p.page.getByRole("button", { name: "Cancel & refund entry", exact: true }).click();
+    await p.page.getByRole("button", { name: "Back to main menu", exact: true }).click();
+    await p.page.getByRole("button", { name: "Play against Computer", exact: true }).click();
+    await p.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(p.page.locator(".ld-board")).toBeVisible();
+    const matchId = (await state(p.context)).match!.id;
+    for (const viewport of [{ width: 1920, height: 1080 }, { width: 1366, height: 768 }, { width: 1024, height: 600 }]) {
+      await p.page.setViewportSize(viewport);
+      await centeredPhone();
+      await expect(p.page.locator(".ld-mobile-match-header")).toBeVisible();
+      await expect(p.page.locator(".ld-in-match > .ld-header")).toBeHidden();
+      await expect(p.page.locator(".ld-board-layout")).toHaveCSS("flex-direction", "column");
+      const board = (await p.page.locator(".ld-board-wrap").boundingBox())!;
+      expect(Math.abs(board.width - board.height)).toBeLessThan(1);
+      const dock = (await p.page.locator(".ld-action-dock").boundingBox())!;
+      expect(dock.y).toBeGreaterThanOrEqual(board.y + board.height);
+      await expect(p.page.getByRole("button", { name: "Roll dice", exact: true })).toBeInViewport({ ratio: 1 });
+      expect((await state(p.context)).match!.id).toBe(matchId);
+    }
+    await p.page.screenshot({ path: "tmp/ludo-desktop-phone-match.png" });
+    await p.page.getByRole("button", { name: "Game settings", exact: true }).click();
+    await p.page.getByRole("button", { name: "Fullscreen", exact: true }).click();
+    await expect.poll(() => p.page.evaluate(() => !!document.fullscreenElement)).toBe(true);
+    await centeredPhone();
+    await p.page.getByRole("button", { name: "Exit fullscreen", exact: true }).click();
+    await p.page.getByRole("button", { name: "Close", exact: true }).click();
+    await p.page.getByRole("button", { name: "Roll dice", exact: true }).click();
+    await expect.poll(async () => (await state(p.context)).match!.state.rollNonce).toBeGreaterThan(0);
+  } finally {
+    await p.context.close();
+  }
+});
 
 for (const viewport of [
   { width: 320, height: 740 },
