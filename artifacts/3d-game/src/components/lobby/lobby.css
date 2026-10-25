@@ -517,6 +517,23 @@
 .lobby-game:hover .lobby-game-art > img {
   transform: scale(1.06);
 }
+.lobby-game[data-game-id="ludo"] .lobby-game-art {
+  background: radial-gradient(ellipse at 50% 30%, #2869bd, #102d6b 75%);
+}
+.lobby-game[data-game-id="ludo"] .lobby-game-art > img {
+  padding: 6% 4% 21%;
+}
+.lobby-game[data-game-id="ludo"] .lobby-game-lettering {
+  background: linear-gradient(transparent 55%, #071b4cbb);
+}
+.lobby-game[data-game-id="ludo"] .lobby-game-lettering > span {
+  display: none;
+}
+.lobby-game[data-game-id="ludo"] .lobby-game-lettering > strong {
+  font-size: 14cqw;
+  white-space: nowrap;
+  letter-spacing: -.5px;
+}
 .lobby-art-fallback {
   position: absolute;
   left: 50%;

@@ -131,6 +131,13 @@ function GameTile({
           loading="lazy"
         />
       )}
+      {game.id === "ludo" && (
+        <span className="b2c-ludo-title" aria-hidden="true">
+          <strong>LUDO</strong>
+          <b>LIVE</b>
+          <small>ROLL. RACE. WIN.</small>
+        </span>
+      )}
       <span className="b2c-game-hover">
         <Play fill="currentColor" size={28} />
         <span>{game.name}</span>
