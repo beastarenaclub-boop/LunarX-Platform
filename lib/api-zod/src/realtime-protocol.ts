@@ -369,6 +369,7 @@ export type TableRoundsEvent =
 
 export type AnyServerEvent =
   | { topic: `ludo:${string}`; type: "changed"; matchId: string; version: number; ts: number }
+  | { topic: `ludo-chat:${string}`; type: "changed"; matchId: string; ts: number }
   | BetsGlobalEvent
   | RoundsLunarEvent
   | RoundsRouletteEvent

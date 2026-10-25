@@ -89,3 +89,30 @@ export const ludoActions = pgTable(
     uniqueIndex("ludo_action_version").on(t.matchId, t.version),
   ],
 );
+export const ludoMessages = pgTable(
+  "ludo_messages",
+  {
+    id: text("id").primaryKey(),
+    matchId: text("match_id")
+      .notNull()
+      .references(() => ludoMatches.id),
+    userId: text("user_id")
+      .notNull()
+      .references(() => usersTable.id),
+    requestId: text("request_id").notNull(),
+    seat: integer("seat").notNull(),
+    name: text("name").notNull(),
+    kind: text("kind").notNull(),
+    text: text("text").notNull(),
+    emojiId: text("emoji_id"),
+    costPaise: bigint("cost_paise", { mode: "bigint" }).notNull().default(0n),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("ludo_message_request").on(t.userId, t.requestId),
+    index("ludo_messages_match_time").on(t.matchId, t.createdAt),
+    index("ludo_messages_user_time").on(t.userId, t.createdAt),
+  ],
+);

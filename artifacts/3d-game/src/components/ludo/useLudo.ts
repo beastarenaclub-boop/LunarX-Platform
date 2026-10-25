@@ -201,9 +201,12 @@ export function useLudo(userId: string) {
     type: "roll" | "move" | "leave",
     token?: number,
     forfeit = false,
+    expected?: { id: string; version: number },
   ) => {
     const m = latest.current?.match;
     if (!m || pending.current) return;
+    if (expected && (m.id !== expected.id || m.version !== expected.version))
+      return;
     if (type === "leave" && !forfeit && m.status !== "waiting") {
       setError(
         "The match has started. Use Leave match to confirm forfeiting your entry.",

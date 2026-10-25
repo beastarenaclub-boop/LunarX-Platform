@@ -52,6 +52,7 @@ function send(ws: WebSocket, msg: ServerToClient) {
 
 function topicAllowed(topic: string, ctx: ClientCtx): boolean {
   if (topic.startsWith("ludo:")) return topic.slice(5) === ctx.userId;
+  if (topic.startsWith("ludo-chat:")) return topic.slice(10) === ctx.userId;
   // Per-user topics: only the owner (or admin) may subscribe.
   if (topic.startsWith("wallet:")) {
     const uid = topic.slice("wallet:".length);

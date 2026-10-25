@@ -46,9 +46,11 @@ async function readyRoll(
   id: string,
   seat: number,
   face: number,
+  tokens?: number[],
+  opponentTokens?: number[],
 ) {
   const response = await context.request.post("/api/test/ludo/roll-ready", {
-    data: { id, seat, face },
+    data: { id, seat, face, tokens, opponentTokens },
   });
   expect(response.ok()).toBeTruthy();
   const { version } = await response.json();
@@ -65,6 +67,571 @@ async function readyRoll(
       ),
   );
 }
+
+async function watchToken(page: Page, seat = 0, token = 0) {
+  await page.evaluate(
+    ({ seat, token }) => {
+      const target = document.querySelector(
+        `[data-seat="${seat}"][data-token="${token}"]`,
+      )!;
+      const samples: {
+        position: number;
+        moving: boolean;
+        rollDisabled: boolean;
+        opponent: number | null;
+      }[] = [];
+      (window as any).__tokenSamples = samples;
+      (window as any).__tokenObserver?.disconnect();
+      const record = () =>
+        samples.push({
+          position: Number(target.getAttribute("data-position")),
+          moving: target.classList.contains("ld-token-moving"),
+          rollDisabled: (
+            document.querySelector(
+              '[aria-label="Roll dice"]',
+            ) as HTMLButtonElement
+          ).disabled,
+          opponent: Number(
+            document
+              .querySelector('[data-seat="1"][data-token="0"]')
+              ?.getAttribute("data-position"),
+          ),
+        });
+      const observer = new MutationObserver(record);
+      observer.observe(target, {
+        attributes: true,
+        attributeFilter: ["data-position"],
+      });
+      (window as any).__tokenObserver = observer;
+    },
+    { seat, token },
+  );
+}
+const tokenPositions = (page: Page) =>
+  page.evaluate(
+    () =>
+      (window as any).__tokenSamples.map(
+        (s: { position: number }) => s.position,
+      ) as number[],
+  );
+
+test("single outside token automatically walks every square after rolls 1–5, on both boards", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Auto Walker", { width: 390, height: 844 });
+  const b = await player(browser, "Watching Walker");
+  try {
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await b.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    const id = (await state(a.context)).match!.id;
+    const requests: { type: string; token?: number }[] = [];
+    a.page.on("request", (r) => {
+      if (r.url().endsWith("/action")) requests.push(r.postDataJSON());
+    });
+    for (const face of [1, 2, 3, 4, 5]) {
+      // Progress 4 crosses a board corner, so a direct diagonal jump cannot pass.
+      await readyRoll(a.context, a.page, id, 0, face, [4, -1, -1, -1]);
+      await expect(
+        b.page.locator('[data-seat="0"][data-token="0"]'),
+      ).toHaveAttribute("data-position", "4");
+      await watchToken(a.page);
+      await watchToken(b.page);
+      const before = requests.length;
+      await a.page
+        .getByRole("button", { name: "Roll dice", exact: true })
+        .click();
+      await expect(
+        a.page.locator(".ld-player[data-you] .ld-die"),
+      ).toHaveAttribute("data-phase", "rolling");
+      expect(
+        requests.slice(before).filter((r) => r.type === "move"),
+      ).toHaveLength(0);
+      const path = Array.from({ length: face }, (_, i) => 5 + i);
+      await expect.poll(() => tokenPositions(a.page)).toEqual(path);
+      await expect.poll(() => tokenPositions(b.page)).toEqual(path);
+      const samples = await a.page.evaluate(
+        () => (window as any).__tokenSamples,
+      );
+      expect(
+        samples.every((s: any) => s.moving && s.rollDisabled),
+      ).toBeTruthy();
+      await expect(a.page.locator(".ld-board")).toHaveAttribute(
+        "aria-busy",
+        "false",
+      );
+      const moves = requests.slice(before).filter((r) => r.type === "move");
+      expect(moves).toHaveLength(1);
+      expect(moves[0].token).toBe(0);
+      expect((await state(a.context)).match!.state.players[0]!.tokens).toEqual([
+        4 + face,
+        -1,
+        -1,
+        -1,
+      ]);
+    }
+    await a.page.reload();
+    await expect(
+      a.page.locator('[data-seat="0"][data-token="0"]'),
+    ).toHaveAttribute("data-position", "9");
+    await expect(a.page.locator(".ld-token-moving")).toHaveCount(0);
+    await a.page.screenshot({
+      path: "tmp/ludo-token-checks/mobile-after-move.png",
+    });
+    await finish(a.context, a.page);
+  } finally {
+    await a.context.close();
+    await b.context.close();
+  }
+});
+
+test("six and multiple outside tokens stay manual; blocked home rolls never auto move", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Manual Choices");
+  const b = await player(browser, "Manual Opponent");
+  try {
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await b.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    const id = (await state(a.context)).match!.id;
+    const moves: unknown[] = [];
+    a.page.on("request", (r) => {
+      if (r.url().endsWith("/action") && r.postDataJSON().type === "move")
+        moves.push(r.postDataJSON());
+    });
+    for (const [face, tokens, chosen] of [
+      [6, [4, -1, -1, -1], 0],
+      [3, [4, 12, -1, -1], 0],
+      [2, [55, 4, -1, -1], 1],
+    ] as const) {
+      await readyRoll(a.context, a.page, id, 0, face, [...tokens]);
+      await a.page
+        .getByRole("button", { name: "Roll dice", exact: true })
+        .click();
+      await expect(
+        a.page.locator(".ld-player[data-you] .ld-die"),
+      ).toHaveAttribute("data-phase", "idle");
+      const before = moves.length;
+      // Longer than dice landing + auto-move delay: these cases must await a choice.
+      await a.page.waitForTimeout(1200);
+      expect(moves).toHaveLength(before);
+      expect((await state(a.context)).match!.state.players[0]!.tokens).toEqual([
+        ...tokens,
+      ]);
+      await a.page
+        .getByRole("button", { name: `Move ${chosen + 1}`, exact: true })
+        .click();
+      await expect(a.page.locator(".ld-board")).toHaveAttribute(
+        "aria-busy",
+        "true",
+      );
+      await expect(a.page.locator(".ld-board")).toHaveAttribute(
+        "aria-busy",
+        "false",
+      );
+    }
+    await readyRoll(a.context, a.page, id, 0, 2, [55, -1, -1, -1]);
+    const before = moves.length;
+    await a.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect(
+      a.page.locator(".ld-player[data-you] .ld-die"),
+    ).toHaveAttribute("data-phase", "idle");
+    await a.page.waitForTimeout(1200);
+    expect(moves).toHaveLength(before);
+    expect((await state(a.context)).match!.state.players[0]!.tokens[0]).toBe(
+      55,
+    );
+    await finish(a.context, a.page);
+  } finally {
+    await a.context.close();
+    await b.context.close();
+  }
+});
+
+test("automatic capture lands before sending the opponent home and lost responses retry the same move", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Capture Walker", {
+    width: 390,
+    height: 844,
+  });
+  const b = await player(browser, "Capture Opponent");
+  try {
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await b.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    const id = (await state(a.context)).match!.id;
+    // Red 9 and yellow 35 share an unsafe square.
+    await readyRoll(
+      a.context,
+      a.page,
+      id,
+      0,
+      5,
+      [4, -1, -1, -1],
+      [35, -1, -1, -1],
+    );
+    await watchToken(a.page);
+    const requests: { requestId: string; type: string }[] = [];
+    let dropped = false;
+    await a.page.route("**/api/ludo/*/action", async (route) => {
+      const body = route.request().postDataJSON();
+      if (body.type === "move") {
+        requests.push(body);
+        if (!dropped) {
+          dropped = true;
+          await route.fetch(); // Commit first, lose only the response.
+          await route.fulfill({
+            status: 503,
+            json: { error: "Lost response" },
+          });
+          return;
+        }
+      }
+      await route.continue();
+    });
+    await a.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect.poll(() => tokenPositions(a.page)).toEqual([5, 6, 7, 8, 9]);
+    const samples = await a.page.evaluate(() => (window as any).__tokenSamples);
+    expect(
+      samples.every((s: any) => s.moving && s.opponent === 35),
+    ).toBeTruthy();
+    await expect(
+      a.page.locator('[data-seat="1"][data-token="0"]'),
+    ).toHaveAttribute("data-position", "-1");
+    await expect(
+      a.page.getByRole("button", { name: "Retry last action", exact: true }),
+    ).toBeVisible();
+    await a.page.waitForTimeout(2800); // A state poll must not issue a second move.
+    expect(requests).toHaveLength(1);
+    await a.page
+      .getByRole("button", { name: "Retry last action", exact: true })
+      .click();
+    await expect(
+      a.page.getByRole("button", { name: "Retry last action", exact: true }),
+    ).toHaveCount(0);
+    expect(requests).toHaveLength(2);
+    expect(requests[0].requestId).toBe(requests[1].requestId);
+    expect((await state(a.context)).match!.state.players[0]!.tokens[0]).toBe(9);
+    expect(await tokenPositions(a.page)).toEqual([5, 6, 7, 8, 9]);
+    await a.page.emulateMedia({ reducedMotion: "reduce" });
+    await readyRoll(a.context, a.page, id, 0, 3, [48, -1, -1, -1]);
+    await watchToken(a.page);
+    await a.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect(
+      a.page.locator('[data-seat="0"][data-token="0"]'),
+    ).toHaveAttribute("data-position", "51");
+    expect(await tokenPositions(a.page)).toEqual([51]);
+    await finish(a.context, a.page);
+  } finally {
+    await a.page.unrouteAll({ behavior: "ignoreErrors" });
+    await a.context.close();
+    await b.context.close();
+  }
+});
+
+test("Computer tokens and exact home rolls walk square by square in a four-player game", async ({
+  browser,
+}) => {
+  const a = await player(
+    browser,
+    "Home Walker",
+    { width: 390, height: 844 },
+    "home",
+  );
+  try {
+    await a.page
+      .getByRole("button", { name: "Play against Computer", exact: true })
+      .click();
+    await a.page
+      .getByRole("button", { name: "4 players Classic battle" })
+      .click();
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    const id = (await state(a.context)).match!.id;
+    await readyRoll(a.context, a.page, id, 1, 5, [4, -1, -1, -1]);
+    await watchToken(a.page, 1);
+    await a.context.request.post("/api/test/ludo/advance", { data: { id } });
+    await expect.poll(() => tokenPositions(a.page)).toEqual([5, 6, 7, 8, 9]);
+    await expect(a.page.locator(".ld-board")).toHaveAttribute(
+      "aria-busy",
+      "false",
+    );
+    await readyRoll(a.context, a.page, id, 0, 5, [51, 56, 56, 56]);
+    await watchToken(a.page);
+    await a.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect
+      .poll(() => tokenPositions(a.page))
+      .toEqual([52, 53, 54, 55, 56]);
+    await expect(
+      a.page
+        .getByRole("dialog")
+        .getByRole("heading", { name: "You take the crown!" }),
+    ).toBeVisible();
+    await expect(a.page.getByRole("dialog")).toContainText("₹36");
+    await a.page
+      .getByRole("button", { name: "View board", exact: true })
+      .click();
+    await expect(a.page.locator('[data-seat="0"].ld-token-home')).toHaveCount(
+      4,
+    );
+    await expect(
+      a.page.locator('[data-seat="0"][data-token="0"]'),
+    ).toHaveAttribute("data-position", "56");
+    expect((await state(a.context)).balancePaise).toBe("102600");
+  } finally {
+    await a.context.close();
+  }
+});
+
+test("match chat delivers free text and ₹5 emojis live, survives a lost reply and denies outsiders", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Chat A", { width: 390, height: 844 });
+  const b = await player(browser, "Chat B", { width: 390, height: 844 });
+  const outsider = await player(browser, "Outsider");
+  const chatEvents: string[] = [];
+  b.page.on("websocket", (ws) =>
+    ws.on("framereceived", (frame) => chatEvents.push(String(frame.payload))),
+  );
+  await b.page.reload();
+  try {
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await b.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    const start = await state(a.context),
+      id = start.match!.id;
+    expect(start.match!.endsAt! - start.match!.startedAt!).toBe(600000);
+    expect(start.match!.deadline - start.serverNow).toBeLessThanOrEqual(10000);
+    expect(
+      (await outsider.context.request.get(`/api/ludo/${id}/chat`)).status(),
+    ).toBe(403);
+    const denied = await outsider.page.evaluate(
+      (userId) =>
+        new Promise<string>((resolve) => {
+          const ws = new WebSocket(`ws://${location.host}/ws`);
+          ws.onopen = () =>
+            ws.send(
+              JSON.stringify({ op: "subscribe", topic: `ludo-chat:${userId}` }),
+            );
+          ws.onmessage = ({ data }) => {
+            const m = JSON.parse(data);
+            if (m.op === "denied") {
+              ws.close();
+              resolve(m.reason);
+            }
+          };
+        }),
+      a.id,
+    );
+    expect(denied).toBe("forbidden");
+    await a.page
+      .getByRole("button", { name: "Open match emojis · Chat B", exact: true })
+      .click();
+    await expect(
+      a.page.getByRole("button", { name: "Paid emojis", exact: true }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect((await state(a.context)).balancePaise).toBe(start.balancePaise);
+    await a.page
+      .getByRole("button", { name: "Paid emojis", exact: true })
+      .click();
+    await b.page
+      .getByRole("button", { name: "Match chat", exact: true })
+      .click();
+    await a.page
+      .getByRole("textbox", { name: "Chat message" })
+      .fill("Good luck, table! <b>hello</b>");
+    await a.page
+      .getByRole("button", { name: "Send message", exact: true })
+      .click();
+    await expect(b.page.getByRole("log")).toContainText(
+      "Good luck, table! <b>hello</b>",
+    );
+    await expect
+      .poll(() =>
+        chatEvents.some(
+          (event) =>
+            event.includes(`ludo-chat:${b.id}`) &&
+            event.includes('"op":"event"'),
+        ),
+      )
+      .toBeTruthy();
+    expect((await state(a.context)).balancePaise).toBe("99000");
+    const requests: any[] = [];
+    let dropped = false;
+    await b.page.route("**/api/ludo/*/chat", async (route) => {
+      if (route.request().method() !== "POST") {
+        await route.continue();
+        return;
+      }
+      requests.push(route.request().postDataJSON());
+      if (!dropped) {
+        dropped = true;
+        await route.fetch();
+        await route.fulfill({
+          status: 503,
+          json: { error: "Lost message response" },
+        });
+      } else await route.continue();
+    });
+    await b.page.getByRole("button", { name: "Paid emojis" }).click();
+    await expect(b.page.getByLabel("Paid emoji shop")).toContainText("₹5 each");
+    await b.page
+      .getByRole("button", { name: "Send Fire for ₹5", exact: true })
+      .click();
+    await expect(a.page.getByRole("log")).toContainText("🔥");
+    await expect(
+      b.page.getByRole("button", {
+        name: "Retry message · no duplicate charge",
+      }),
+    ).toBeVisible();
+    expect((await state(b.context)).balancePaise).toBe("98500");
+    await b.page
+      .getByRole("button", { name: "Retry message · no duplicate charge" })
+      .click();
+    await expect(
+      b.page.getByRole("button", {
+        name: "Retry message · no duplicate charge",
+      }),
+    ).toHaveCount(0);
+    expect(requests).toHaveLength(2);
+    expect(requests[0].requestId).toBe(requests[1].requestId);
+    expect((await state(b.context)).balancePaise).toBe("98500");
+    await b.page.screenshot({ path: "tmp/ludo-social-checks/chat-emojis.png" });
+    await b.page.reload();
+    await b.page
+      .getByRole("button", { name: "Match chat", exact: true })
+      .click();
+    await expect(b.page.locator(".ld-chat-emoji")).toHaveCount(1);
+    await b.page.setViewportSize({ width: 844, height: 390 });
+    const modal = await b.page.getByRole("dialog").boundingBox();
+    expect(modal!.y).toBeGreaterThanOrEqual(0);
+    expect(modal!.y + modal!.height).toBeLessThanOrEqual(390);
+  } finally {
+    await b.page.unrouteAll({ behavior: "ignoreErrors" });
+    await a.context.close();
+    await b.context.close();
+    await outsider.context.close();
+  }
+});
+
+test("ten-minute tie shows both winners, split payouts and visible home tokens", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Tie A", { width: 390, height: 844 });
+  const b = await player(browser, "Tie B");
+  try {
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await b.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    const id = (await state(a.context)).match!.id;
+    await a.context.request.post("/api/test/ludo/time-limit", {
+      data: {
+        id,
+        tokens: [
+          [56, 55, 55, 55],
+          [56, -1, -1, -1],
+        ],
+      },
+    });
+    for (const p of [a, b]) {
+      await expect(p.page.getByRole("dialog")).toContainText(
+        "You share the prize!",
+      );
+      await expect(
+        p.page.getByRole("dialog").locator(".ld-result-prize"),
+      ).toHaveText("₹9");
+      await expect(
+        p.page.getByRole("dialog").locator(".ld-result-winner"),
+      ).toHaveCount(2);
+      expect((await state(p.context)).balancePaise).toBe("99900");
+    }
+    await a.page.screenshot({ path: "tmp/ludo-social-checks/tied-winner.png" });
+    await a.page
+      .getByRole("button", { name: "View board", exact: true })
+      .click();
+    await expect(a.page.locator(".ld-token-home")).toHaveCount(2);
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeDisabled();
+    await a.page.screenshot({
+      path: "tmp/ludo-social-checks/finished-tokens.png",
+    });
+  } finally {
+    await a.context.close();
+    await b.context.close();
+  }
+});
+
+test("sixth missed dice roll removes the player and displays the forfeited entry", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Inactive Player", {
+    width: 320,
+    height: 740,
+  });
+  const b = await player(browser, "Still playing");
+  try {
+    for (const p of [a, b]) {
+      await p.page
+        .getByRole("button", { name: "4 players Classic battle" })
+        .click();
+      await p.page.getByRole("button", { name: "Find a match" }).click();
+      await expect(p.page.locator(".ld-search-screen")).toBeVisible();
+    }
+    const id = (await state(a.context)).match!.id;
+    await a.context.request.post("/api/test/ludo/advance", { data: { id } });
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    await a.page
+      .getByRole("button", { name: "Match chat", exact: true })
+      .click();
+    await expect(a.page.getByRole("dialog")).toContainText("Match chat");
+    await a.context.request.post("/api/test/ludo/inactive", {
+      data: { id, seat: 0 },
+    });
+    await expect(a.page.getByRole("dialog")).toContainText(
+      "Removed for inactivity",
+    );
+    await expect(a.page.getByRole("dialog")).toContainText(
+      "entry was forfeited",
+    );
+    await expect(a.page.getByRole("dialog")).toHaveCount(1);
+    expect((await state(b.context)).match!.status).toBe("playing");
+    expect((await state(a.context)).balancePaise).toBe("99000");
+    await a.page
+      .getByRole("button", { name: "View board", exact: true })
+      .click();
+    await expect(
+      a.page.getByRole("button", { name: "Play again" }),
+    ).toBeVisible();
+  } finally {
+    await a.context.close();
+    await b.context.close();
+  }
+});
 
 test("all six server results animate for both players, retain their value and sound can be muted", async ({
   browser,
@@ -312,24 +879,19 @@ async function finish(
   context: BrowserContext,
   page: Page,
   seat = 0,
-  color?: string,
+  _color?: string,
 ) {
   const t = await state(context);
   await context.request.post("/api/test/ludo/winning-move", {
     data: { id: t.match!.id, seat },
   });
+  // Only the fourth token remains outside; its exact home roll now moves automatically.
   await expect(
-    page.getByRole("button", { name: "Move 4", exact: true }),
-  ).toBeEnabled();
-  await page
-    .getByRole("button", {
-      name: color ? `${color} token 4, move` : "Move 4",
-      exact: true,
-    })
-    .click();
-  await expect(
-    page.getByRole("heading", { name: "You take the crown!" }),
+    page
+      .getByRole("dialog")
+      .getByRole("heading", { name: "You take the crown!" }),
   ).toBeVisible();
+  await page.getByRole("button", { name: "View board", exact: true }).click();
 }
 test("two accounts play the same real board, receive private WS events and resume after refresh", async ({
   browser,
@@ -349,9 +911,7 @@ test("two accounts play the same real board, receive private WS events and resum
       .getByRole("button", { name: "red tokens", exact: true })
       .click();
     await a.page.getByRole("button", { name: "Find a match" }).click();
-    await expect(
-      a.page.getByRole("heading", { name: "Finding your opponents" }),
-    ).toBeVisible();
+    await expect(a.page.locator(".ld-search-screen")).toBeVisible();
     await expect(a.page.locator(".ld-versus-seat")).toHaveCount(2);
     await expect(a.page.getByRole("group", { name: "Ludo board" })).toHaveCount(
       0,
@@ -418,7 +978,7 @@ test("two accounts play the same real board, receive private WS events and resum
     expect(denied).toBe("forbidden");
     await finish(a.context, a.page, 0, "green");
     await expect(
-      b.page.getByRole("heading", { name: "Aarav wins!" }),
+      b.page.getByRole("dialog").getByRole("heading", { name: "Aarav wins!" }),
     ).toBeVisible();
     expect((await state(a.context)).balancePaise).toBe("100800");
     if (await a.page.evaluate(() => document.fullscreenEnabled)) {
@@ -459,7 +1019,10 @@ test("four separate accounts join one table with four human seats", async ({
         .getByRole("button", { name: "4 players Classic battle" })
         .click();
       await p.page.getByRole("button", { name: "Find a match" }).click();
-      await expect(p.page.locator(".ld-match-id")).toBeVisible();
+      // The compact phone frame hides the optional match ID during matchmaking.
+      await expect(
+        p.page.locator(".ld-search-screen, .ld-board"),
+      ).toBeVisible();
       if (p === players[0]) {
         await expect(p.page.locator(".ld-versus-seat")).toHaveCount(4);
         await p.page.screenshot({
@@ -492,6 +1055,9 @@ test("four separate accounts join one table with four human seats", async ({
       players[3].page.getByRole("heading", { name: "You left the match" }),
     ).toBeVisible();
     expect((await state(players[0].context)).match!.status).toBe("playing");
+    await players[3].page
+      .getByRole("button", { name: "View board", exact: true })
+      .click();
     await players[3].page.getByRole("button", { name: "Play again" }).click();
     await expect(
       players[3].page.getByRole("button", { name: "Find a match" }),
@@ -667,6 +1233,34 @@ for (const capacity of [2, 4] as const)
         expect(board!.width).toBeGreaterThanOrEqual(168);
         expect(board!.y).toBeGreaterThanOrEqual(0);
         expect(board!.y + board!.height).toBeLessThanOrEqual(viewport.height);
+        if (viewport.width >= 390 && viewport.width < viewport.height) {
+          const cards = await p.page
+            .locator(".ld-player")
+            .evaluateAll((nodes) =>
+              nodes.map((n) => n.getBoundingClientRect().toJSON()),
+            );
+          expect(cards).toHaveLength(capacity);
+          for (const card of cards) {
+            expect(card.width).toBeGreaterThanOrEqual(100);
+            expect(card.x).toBeGreaterThanOrEqual(0);
+            expect(card.right).toBeLessThanOrEqual(viewport.width);
+          }
+          if (capacity === 2) {
+            expect(cards.every((c) => c.top >= board!.y + board!.height)).toBe(
+              true,
+            );
+            expect(cards[0].right).toBeLessThanOrEqual(cards[1].left);
+          } else {
+            expect(
+              cards.slice(0, 2).every((c) => c.bottom <= board!.y + 1),
+            ).toBe(true);
+            expect(
+              cards
+                .slice(2)
+                .every((c) => c.top >= board!.y + board!.height - 1),
+            ).toBe(true);
+          }
+        }
         for (const control of [
           roll,
           p.page.getByRole("button", { name: "Move 4", exact: true }),
@@ -808,60 +1402,120 @@ for (const capacity of [2, 4] as const)
     }
   });
 
-test("desktop and fullscreen use the phone layout through menus and live play", async ({ browser }) => {
-  const p = await player(browser, "Desktop phone player", { width: 1440, height: 900 }, "home");
+test("desktop and fullscreen use the phone layout through menus and live play", async ({
+  browser,
+}) => {
+  const p = await player(
+    browser,
+    "Desktop phone player",
+    { width: 1440, height: 900 },
+    "home",
+  );
   const frame = p.page.locator('[data-game-viewport="ludo"]');
   const centeredPhone = async () => {
-    await expect.poll(() => frame.evaluate(e => Math.round(e.getBoundingClientRect().width))).toBe(440);
+    await expect
+      .poll(() =>
+        frame.evaluate((e) => Math.round(e.getBoundingClientRect().width)),
+      )
+      .toBe(440);
     const box = (await frame.boundingBox())!;
-    expect(Math.abs(box.x - (p.page.viewportSize()!.width - box.width) / 2)).toBeLessThan(1);
-    expect(await frame.evaluate(e => e.scrollWidth <= e.clientWidth)).toBe(true);
+    expect(
+      Math.abs(box.x - (p.page.viewportSize()!.width - box.width) / 2),
+    ).toBeLessThan(1);
+    expect(await frame.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(
+      true,
+    );
   };
   try {
-    for (const viewport of [{ width: 1920, height: 1080 }, { width: 1366, height: 768 }, { width: 1024, height: 600 }]) {
+    for (const viewport of [
+      { width: 1920, height: 1080 },
+      { width: 1366, height: 768 },
+      { width: 1024, height: 600 },
+    ]) {
       await p.page.setViewportSize(viewport);
       await centeredPhone();
-      await expect(p.page.locator(".ld-home-content")).toHaveCSS("flex-direction", "column");
-      await expect(p.page.getByRole("button", { name: "Online multiplayer", exact: true })).toBeInViewport({ ratio: 1 });
+      await expect(p.page.locator(".ld-home-content")).toHaveCSS(
+        "flex-direction",
+        "column",
+      );
+      await expect(
+        p.page.getByRole("button", { name: "Online multiplayer", exact: true }),
+      ).toBeInViewport({ ratio: 1 });
     }
     await p.page.setViewportSize({ width: 1440, height: 900 });
-    await expect.poll(() => frame.evaluate(e => e.clientHeight)).toBe(900);
+    await expect.poll(() => frame.evaluate((e) => e.clientHeight)).toBe(900);
     await p.page.screenshot({ path: "tmp/ludo-desktop-phone-home.png" });
-    await p.page.getByRole("button", { name: "Online multiplayer", exact: true }).click();
+    await p.page
+      .getByRole("button", { name: "Online multiplayer", exact: true })
+      .click();
     await expect(p.page.locator(".ld-room-card")).toHaveCSS("display", "block");
-    await p.page.getByRole("button", { name: "4 players Classic battle" }).click();
+    await p.page
+      .getByRole("button", { name: "4 players Classic battle" })
+      .click();
     await p.page.getByRole("button", { name: "Find a match" }).click();
     await expect(p.page.locator(".ld-search-screen")).toBeVisible();
     await centeredPhone();
-    await expect(p.page.getByRole("button", { name: "Cancel & refund entry", exact: true })).toBeInViewport({ ratio: 1 });
-    await p.page.getByRole("button", { name: "Cancel & refund entry", exact: true }).click();
-    await p.page.getByRole("button", { name: "Back to main menu", exact: true }).click();
-    await p.page.getByRole("button", { name: "Play against Computer", exact: true }).click();
+    await expect(
+      p.page.getByRole("button", {
+        name: "Cancel & refund entry",
+        exact: true,
+      }),
+    ).toBeInViewport({ ratio: 1 });
+    await p.page
+      .getByRole("button", { name: "Cancel & refund entry", exact: true })
+      .click();
+    await p.page
+      .getByRole("button", { name: "Back to main menu", exact: true })
+      .click();
+    await p.page
+      .getByRole("button", { name: "Play against Computer", exact: true })
+      .click();
     await p.page.getByRole("button", { name: "Find a match" }).click();
     await expect(p.page.locator(".ld-board")).toBeVisible();
     const matchId = (await state(p.context)).match!.id;
-    for (const viewport of [{ width: 1920, height: 1080 }, { width: 1366, height: 768 }, { width: 1024, height: 600 }]) {
+    for (const viewport of [
+      { width: 1920, height: 1080 },
+      { width: 1366, height: 768 },
+      { width: 1024, height: 600 },
+    ]) {
       await p.page.setViewportSize(viewport);
       await centeredPhone();
       await expect(p.page.locator(".ld-mobile-match-header")).toBeVisible();
       await expect(p.page.locator(".ld-in-match > .ld-header")).toBeHidden();
-      await expect(p.page.locator(".ld-board-layout")).toHaveCSS("flex-direction", "column");
+      await expect(p.page.locator(".ld-board-layout")).toHaveCSS(
+        "flex-direction",
+        "column",
+      );
       const board = (await p.page.locator(".ld-board-wrap").boundingBox())!;
       expect(Math.abs(board.width - board.height)).toBeLessThan(1);
       const dock = (await p.page.locator(".ld-action-dock").boundingBox())!;
       expect(dock.y).toBeGreaterThanOrEqual(board.y + board.height);
-      await expect(p.page.getByRole("button", { name: "Roll dice", exact: true })).toBeInViewport({ ratio: 1 });
+      await expect(
+        p.page.getByRole("button", { name: "Roll dice", exact: true }),
+      ).toBeInViewport({ ratio: 1 });
       expect((await state(p.context)).match!.id).toBe(matchId);
     }
     await p.page.screenshot({ path: "tmp/ludo-desktop-phone-match.png" });
-    await p.page.getByRole("button", { name: "Game settings", exact: true }).click();
-    await p.page.getByRole("button", { name: "Fullscreen", exact: true }).click();
-    await expect.poll(() => p.page.evaluate(() => !!document.fullscreenElement)).toBe(true);
+    await p.page
+      .getByRole("button", { name: "Game settings", exact: true })
+      .click();
+    await p.page
+      .getByRole("button", { name: "Fullscreen", exact: true })
+      .click();
+    await expect
+      .poll(() => p.page.evaluate(() => !!document.fullscreenElement))
+      .toBe(true);
     await centeredPhone();
-    await p.page.getByRole("button", { name: "Exit fullscreen", exact: true }).click();
+    await p.page
+      .getByRole("button", { name: "Exit fullscreen", exact: true })
+      .click();
     await p.page.getByRole("button", { name: "Close", exact: true }).click();
-    await p.page.getByRole("button", { name: "Roll dice", exact: true }).click();
-    await expect.poll(async () => (await state(p.context)).match!.state.rollNonce).toBeGreaterThan(0);
+    await p.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect
+      .poll(async () => (await state(p.context)).match!.state.rollNonce)
+      .toBeGreaterThan(0);
   } finally {
     await p.context.close();
   }
@@ -935,7 +1589,9 @@ for (const viewport of [
       await expect(p.page.locator(".ld-prize b")).toHaveText("₹180");
       await p.page.getByRole("button", { name: "Lower entry fee" }).click();
       await expect(p.page.locator(".ld-prize b")).toHaveText("₹36");
-      await p.page.getByRole("button", { name: "Game rules", exact: true }).click();
+      await p.page
+        .getByRole("button", { name: "Game rules", exact: true })
+        .click();
       await expect(p.page.getByRole("dialog")).toContainText("10%");
       await expect(p.page.getByRole("dialog")).toContainText("platform funds");
       expect(errors).toEqual([]);

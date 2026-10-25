@@ -143,6 +143,26 @@ export function useLudoAudio(
     },
     [tap, tone],
   );
+  const step = useCallback(
+    (index: number) => {
+      if (!preferences.current.sound) return;
+      tap(0, 1200, 0.22);
+      tone(420 + index * 35, 0.055, 0.13, 0, false, "triangle");
+    },
+    [tap, tone],
+  );
+  const moveEnd = useCallback(
+    (captured: number, home: boolean) => {
+      if (!preferences.current.sound) return;
+      if (captured) {
+        tone(190, 0.28, 0.22, 0, false, "triangle");
+        tone(125, 0.3, 0.2, 0.1);
+      } else if (home) {
+        [660, 880, 1320].forEach((n, i) => tone(n, 0.25, 0.16, i * 0.1));
+      }
+    },
+    [tone],
+  );
   useEffect(() => {
     try {
       localStorage.setItem(key, JSON.stringify(settings));
@@ -219,28 +239,13 @@ export function useLudoAudio(
       document.hidden
     )
       return;
-    const last = match.state.last;
-    if (old.state.winner === null && match.state.winner === match.you) {
+    if (
+      old.status !== "finished" &&
+      match.status === "finished" &&
+      (match.state.winners ?? [match.state.winner]).includes(match.you)
+    ) {
       [523, 659, 784, 1047].forEach((n, i) => tone(n, 0.45, 0.22, i * 0.13));
       return;
-    }
-    if (last?.token !== undefined) {
-      const before = old.state.players[last.seat]?.tokens[last.token],
-        after = match.state.players[last.seat]?.tokens[last.token];
-      if (before !== undefined && after !== undefined && before !== after) {
-        const steps = Math.min(6, before < 0 ? 1 : Math.max(1, after - before));
-        for (let i = 0; i < steps; i++) {
-          tap(i * 0.085, 1200, 0.22);
-          tone(420 + i * 35, 0.055, 0.13, i * 0.085, false, "triangle");
-        }
-        if (last.captured) {
-          tone(190, 0.28, 0.22, 0.12, false, "triangle");
-          tone(125, 0.3, 0.2, 0.22);
-        } else if (after === 56)
-          [660, 880, 1320].forEach((n, i) =>
-            tone(n, 0.25, 0.16, 0.14 + i * 0.1),
-          );
-      }
     }
     if (
       match.status === "playing" &&
@@ -268,6 +273,8 @@ export function useLudoAudio(
     ...settings,
     roll,
     land,
+    step,
+    moveEnd,
     unlock: () => {
       if (settings.sound || settings.music) ensure();
     },

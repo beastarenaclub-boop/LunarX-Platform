@@ -8,6 +8,7 @@ import {
 } from "../middlewares/rateLimit";
 import { actLudo, joinLudo, ludoProof, ludoTable } from "../services/ludo";
 import { forbidden } from "../lib/errors";
+import { ludoChat, sendLudoChat } from "../services/ludoChat";
 const router = Router();
 const moveLimiter = rateLimit({
   windowMs: 60000,
@@ -77,6 +78,57 @@ router.post("/:id/action", moveLimiter, async (req, res, next) => {
       .parse(req.body);
     res.json(
       await actLudo(
+        req.user!.id,
+        z.string().uuid().parse(req.params.id),
+        input,
+      ),
+    );
+  } catch (e) {
+    next(e);
+  }
+});
+router.get("/:id/chat", async (req, res, next) => {
+  try {
+    res.json(
+      await ludoChat(req.user!.id, z.string().uuid().parse(req.params.id)),
+    );
+  } catch (e) {
+    next(e);
+  }
+});
+const chatLimiter = rateLimit({
+  windowMs: 60000,
+  limit: 40,
+  keyGenerator: (req) => req.user?.id ?? "anon",
+  validate: { xForwardedForHeader: false, ip: false },
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: {
+    error: { message: "Please slow down before sending more messages" },
+  },
+});
+router.post("/:id/chat", chatLimiter, async (req, res, next) => {
+  try {
+    const input = z
+      .discriminatedUnion("kind", [
+        z
+          .object({
+            kind: z.literal("text"),
+            text: z.string().min(1).max(200),
+            requestId: z.string().uuid(),
+          })
+          .strict(),
+        z
+          .object({
+            kind: z.literal("emoji"),
+            emojiId: z.string().min(1).max(32),
+            requestId: z.string().uuid(),
+          })
+          .strict(),
+      ])
+      .parse(req.body);
+    res.json(
+      await sendLudoChat(
         req.user!.id,
         z.string().uuid().parse(req.params.id),
         input,

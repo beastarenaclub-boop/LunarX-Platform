@@ -3,9 +3,11 @@ export const LUDO = {
   entries: [1000, 5000, 10000, 50000],
   commissionBps: 1000,
   queueMs: 20000,
-  turnMs: 25000,
+  turnMs: 10000,
   botMs: 1000,
-  maxMatchMs: 7200000,
+  maxMatchMs: 600000,
+  maxAutoRolls: 5,
+  emojiPaise: 500,
 } as const;
 export const LUDO_COLORS = ["red", "green", "yellow", "blue"] as const;
 export type LudoColor = (typeof LUDO_COLORS)[number];
@@ -17,6 +19,8 @@ export type LudoPlayer = {
   tokens: number[];
   forfeited: boolean;
   auto: boolean;
+  missedRolls?: number;
+  exitReason?: "left" | "inactive";
 };
 export type LudoState = {
   players: (LudoPlayer | null)[];
@@ -25,6 +29,7 @@ export type LudoState = {
   dice: number | null;
   sixes: number;
   winner: number | null;
+  winners?: number[];
   rollNonce: number;
   last: {
     text: string;
@@ -46,6 +51,8 @@ export type LudoMatch = {
   you: number;
   deadline: number;
   startedAt: number | null;
+  endsAt: number | null;
+  payoutPaise: string;
   state: LudoState;
   legalTokens: number[];
   commitment: string;
@@ -72,6 +79,52 @@ export type LudoAction = {
   version: number;
   type: "roll" | "move" | "leave";
   token?: number;
+};
+export const LUDO_EMOJIS = [
+  { id: "smile", glyph: "😄", name: "Smile" },
+  { id: "laugh", glyph: "😂", name: "Laugh" },
+  { id: "wink", glyph: "😉", name: "Wink" },
+  { id: "cool", glyph: "😎", name: "Cool" },
+  { id: "wow", glyph: "😮", name: "Wow" },
+  { id: "cry", glyph: "😭", name: "Cry" },
+  { id: "angry", glyph: "😤", name: "Angry" },
+  { id: "heart", glyph: "❤️", name: "Heart" },
+  { id: "fire", glyph: "🔥", name: "Fire" },
+  { id: "clap", glyph: "👏", name: "Clap" },
+  { id: "thumbs", glyph: "👍", name: "Thumbs up" },
+  { id: "pray", glyph: "🙏", name: "Good luck" },
+  { id: "crown", glyph: "👑", name: "Crown" },
+  { id: "trophy", glyph: "🏆", name: "Trophy" },
+  { id: "party", glyph: "🎉", name: "Celebrate" },
+  { id: "dice", glyph: "🎲", name: "Dice" },
+  { id: "rocket", glyph: "🚀", name: "Rocket" },
+  { id: "eyes", glyph: "👀", name: "Watching" },
+  { id: "handshake", glyph: "🤝", name: "Good game" },
+  { id: "sleep", glyph: "😴", name: "Sleepy" },
+  { id: "wave", glyph: "👋", name: "Hello" },
+  { id: "star", glyph: "🌟", name: "Star" },
+  { id: "hundred", glyph: "💯", name: "Perfect" },
+  { id: "broken", glyph: "💔", name: "Heartbreak" },
+] as const;
+export type LudoChatInput = { requestId: string } & (
+  | { kind: "text"; text: string }
+  | { kind: "emoji"; emojiId: string }
+);
+export type LudoChatMessage = {
+  id: string;
+  seat: number;
+  name: string;
+  kind: "text" | "emoji";
+  text: string;
+  emojiId: string | null;
+  costPaise: string;
+  at: number;
+};
+export type LudoChat = {
+  messages: LudoChatMessage[];
+  emojiPaise: number;
+  canSend: boolean;
+  balancePaise: string;
 };
 export const ludoColors = (capacity: number): LudoColor[] =>
   capacity === 2 ? ["red", "yellow"] : [...LUDO_COLORS];

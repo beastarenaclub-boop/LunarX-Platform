@@ -558,9 +558,23 @@
   border: 0;
   transform: translate(-50%, -78%);
   z-index: 3;
-  transition:
-    top 0.24s ease,
-    left 0.24s ease;
+}
+.ld-token-moving {
+  z-index: 6;
+  transition-property: top, left;
+  transition-timing-function: linear;
+}
+.ld-token-moving .ld-pin {
+  animation: ld-token-hop 180ms ease-out;
+}
+@keyframes ld-token-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-22%);
+  }
 }
 .ld-token:disabled {
   opacity: 1;

@@ -29,6 +29,7 @@ import {
   moveToken,
   computerToken,
   nextTurn,
+  timedWinners,
 } from "./ludoRules";
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 type Room = typeof matches.$inferSelect;
@@ -95,10 +96,15 @@ async function settleMember(
   m: Member,
   result: "won" | "lost" | "voided",
   at: number,
+  winnings?: bigint,
 ) {
   // Room lock serializes settlement. The conditional update also makes every ledger effect exactly once.
   const payout =
-    result === "won" ? prize(r) : result === "voided" ? r.entryPaise : 0n;
+    result === "won"
+      ? (winnings ?? prize(r))
+      : result === "voided"
+        ? r.entryPaise
+        : 0n;
   const changed = await tx
     .update(betsTable)
     .set({
@@ -131,19 +137,92 @@ async function finish(tx: Tx, r: Room, at: number, refund = false) {
   r.status = refund ? "cancelled" : "finished";
   r.endedAt = new Date(at);
   const s = stateOf(r);
+  s.winners = refund
+    ? []
+    : (s.winners ?? (s.winner === null ? [] : [s.winner]));
+  const winners = s.winners.slice().sort((a, b) => a - b);
   for (const m of await participants(tx, r.id))
     await settleMember(
       tx,
       r,
       m,
-      refund ? "voided" : m.seat === s.winner && !m.endedAt ? "won" : "lost",
+      refund
+        ? "voided"
+        : winners.includes(m.seat) && !m.endedAt
+          ? "won"
+          : "lost",
       at,
+      winners.length
+        ? prize(r) / BigInt(winners.length) +
+            (winners.indexOf(m.seat) >= 0 &&
+            BigInt(winners.indexOf(m.seat)) < prize(r) % BigInt(winners.length)
+              ? 1n
+              : 0n)
+        : 0n,
     );
+}
+async function finishOnTime(tx: Tx, r: Room, at: number) {
+  if (
+    r.status !== "playing" ||
+    !r.startedAt ||
+    at < r.startedAt.getTime() + LUDO.maxMatchMs
+  )
+    return false;
+  const s = stateOf(r);
+  s.winners = timedWinners(s);
+  s.winner = s.winners.length === 1 ? s.winners[0] : null;
+  r.reason =
+    "10-minute limit reached. Most tokens home wins; tied players share the prize.";
+  s.last = {
+    seat: s.winners[0] ?? s.turn,
+    text:
+      s.winners.length > 1
+        ? "Time up · prize shared"
+        : `${s.players[s.winner!]?.name} wins on tokens home!`,
+  };
+  await finish(tx, r, at);
+  return true;
+}
+async function forfeit(
+  tx: Tx,
+  r: Room,
+  seat: number,
+  at: number,
+  inactive = false,
+) {
+  const s = stateOf(r),
+    p = s.players[seat]!;
+  p.forfeited = true;
+  p.exitReason = inactive ? "inactive" : "left";
+  s.last = {
+    seat,
+    text: inactive
+      ? `${p.name} removed after 5 automatic rolls · entry lost`
+      : `${p.name} left the match`,
+  };
+  const member = (await participants(tx, r.id)).find(
+    (m) => m.seat === seat && !m.endedAt,
+  );
+  if (member) await settleMember(tx, r, member, "lost", at);
+  const alive = s.players.filter((p) => p && !p.forfeited);
+  if (alive.length === 1) {
+    s.winner = alive[0]!.seat;
+    await finish(tx, r, at);
+  } else if (alive.every((p) => p!.kind === "computer")) {
+    r.reason = "All human players left";
+    await finish(tx, r, at);
+  } else if (s.turn === seat) {
+    nextTurn(s);
+    schedule(r, at);
+  }
 }
 function schedule(r: Room, at: number) {
   const p = stateOf(r).players[stateOf(r).turn];
   r.deadline = new Date(
-    at + (p?.kind === "computer" ? LUDO.botMs : LUDO.turnMs),
+    Math.min(
+      at + (p?.kind === "computer" ? LUDO.botMs : LUDO.turnMs),
+      r.startedAt ? r.startedAt.getTime() + LUDO.maxMatchMs : Infinity,
+    ),
   );
 }
 function start(r: Room, at: number) {
@@ -413,11 +492,15 @@ export async function actLudo(
     }
     if (m.endedAt || !["waiting", "playing"].includes(r.status))
       throw conflict("Your match has ended");
+    const at = await now(tx);
+    if (await finishOnTime(tx, r, at)) {
+      await save(tx, r, { type: "time_limit", result: s.last });
+      return;
+    }
     if (r.version !== input.version)
       throw conflict(
         "The board changed. Please try again on the updated board.",
       );
-    const at = await now(tx);
     if (input.type === "leave") {
       if (r.status === "waiting") {
         // An elapsed waiting deadline is not a refund loophole: tick must start it first.
@@ -431,23 +514,7 @@ export async function actLudo(
           r.reason = "Queue cancelled; entry refunded";
         }
       } else {
-        s.players[m.seat]!.forfeited = true;
-        s.last = {
-          seat: m.seat,
-          text: `${s.players[m.seat]!.name} left the match`,
-        };
-        await settleMember(tx, r, m, "lost", at);
-        const alive = s.players.filter((p) => p && !p.forfeited);
-        if (alive.length === 1) {
-          s.winner = alive[0]!.seat;
-          await finish(tx, r, at);
-        } else if (alive.every((p) => p!.kind === "computer")) {
-          r.reason = "All players left";
-          await finish(tx, r, at);
-        } else if (s.turn === m.seat) {
-          nextTurn(s);
-          schedule(r, at);
-        }
+        await forfeit(tx, r, m.seat, at);
       }
     } else {
       if (r.status !== "playing" || s.turn !== m.seat)
@@ -458,6 +525,7 @@ export async function actLudo(
       if (input.type === "roll") {
         if (s.phase !== "roll")
           throw conflict("Move a token before rolling again");
+        s.players[m.seat]!.missedRolls = 0;
         rollDie(s, ludoDie(r.seed, r.id, s.rollNonce));
       } else {
         if (!legalTokens(s).includes(input.token ?? -1))
@@ -487,7 +555,10 @@ export async function tickLudo() {
         inArray(matches.status, ["waiting", "playing"]),
         or(
           lte(matches.deadline, sql`clock_timestamp()`),
-          lte(matches.startedAt, sql`clock_timestamp() - interval '2 hours'`),
+          lte(
+            matches.startedAt,
+            sql`clock_timestamp() - ${LUDO.maxMatchMs} * interval '1 millisecond'`,
+          ),
         ),
       ),
     )
@@ -509,8 +580,7 @@ export async function tickLudo() {
       const s = stateOf(r);
       if (r.status === "waiting") start(r, at);
       else if (overLimit) {
-        r.reason = "Time limit reached; entries refunded";
-        await finish(tx, r, at, true);
+        await finishOnTime(tx, r, at);
       } else if (at - r.deadline.getTime() > 120000) {
         s.last = {
           seat: s.turn,
@@ -520,10 +590,20 @@ export async function tickLudo() {
       } else {
         const p = s.players[s.turn]!;
         p.auto = true;
-        if (s.phase === "roll") rollDie(s, ludoDie(r.seed, r.id, s.rollNonce));
-        else moveToken(s, computerToken(s));
-        if (s.winner !== null) await finish(tx, r, at);
-        else schedule(r, at);
+        if (
+          s.phase === "roll" &&
+          p.kind === "human" &&
+          (p.missedRolls ?? 0) >= LUDO.maxAutoRolls
+        ) {
+          await forfeit(tx, r, p.seat, at, true);
+        } else {
+          if (s.phase === "roll") {
+            if (p.kind === "human") p.missedRolls = (p.missedRolls ?? 0) + 1;
+            rollDie(s, ludoDie(r.seed, r.id, s.rollNonce));
+          } else moveToken(s, computerToken(s));
+          if (s.winner !== null) await finish(tx, r, at);
+          else schedule(r, at);
+        }
       }
       await save(tx, r, {
         type: "automatic",
@@ -535,7 +615,7 @@ export async function tickLudo() {
     if (changed) await notify(id);
   }
 }
-function publicMatch(r: Room, m: Member): LudoMatch {
+function publicMatch(r: Room, m: Member, payout = 0n): LudoMatch {
   const s = stateOf(r);
   return {
     id: r.id,
@@ -549,6 +629,8 @@ function publicMatch(r: Room, m: Member): LudoMatch {
     you: m.seat,
     deadline: r.deadline.getTime(),
     startedAt: r.startedAt?.getTime() ?? null,
+    endsAt: r.startedAt ? r.startedAt.getTime() + LUDO.maxMatchMs : null,
+    payoutPaise: String(payout),
     state: s,
     legalTokens:
       r.status === "playing" && s.turn === m.seat && !m.endedAt
@@ -602,7 +684,9 @@ export async function ludoTable(
           (BigInt(n) >= config.minStakePaise &&
             BigInt(n) <= config.maxStakePaise),
       ),
-      match: selected ? publicMatch(selected.r, selected.m) : null,
+      match: selected
+        ? publicMatch(selected.r, selected.m, selected.b.payoutAmount ?? 0n)
+        : null,
       recent: rows
         .filter((row) => row.m.endedAt)
         .slice(0, 10)

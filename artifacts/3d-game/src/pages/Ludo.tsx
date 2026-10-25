@@ -9,7 +9,6 @@ import { Link } from "wouter";
 import {
   ArrowLeft,
   ArrowRight,
-  Bot,
   Check,
   Coins,
   Crown,
@@ -31,7 +30,6 @@ import {
   LUDO_COLORS,
   type LudoColor,
   type LudoState,
-  type LudoPlayer,
 } from "@workspace/api-zod/ludo";
 import { useAuth } from "@/lib/auth";
 import { useLudo } from "@/components/ludo/useLudo";
@@ -44,7 +42,12 @@ import {
 } from "@/components/ludo/LudoLobby";
 import { useLudoAudio } from "@/components/ludo/useLudoAudio";
 import { useLudoRoll, type LudoRoll } from "@/components/ludo/useLudoRoll";
-import { LudoDice } from "@/components/ludo/LudoDice";
+import { LudoMatchPlayer } from "@/components/ludo/LudoMatchPlayer";
+import { LudoChat } from "@/components/ludo/LudoChat";
+import {
+  useLudoAutoMove,
+  useLudoMovement,
+} from "@/components/ludo/useLudoMovement";
 import {
   Dialog,
   DialogContent,
@@ -58,6 +61,8 @@ import "@/components/ludo/ludo-effects.css";
 import "@/components/ludo/ludo-mobile.css";
 import "@/components/ludo/ludo-landscape.css";
 import "@/components/ludo/ludo-classic-home.css";
+import "@/components/ludo/ludo-social.css";
+import "@/components/ludo/ludo-reference-match.css";
 const money = (v: string | number) =>
   `₹${(Number(v) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const preview: LudoState = {
@@ -78,119 +83,6 @@ const preview: LudoState = {
   rollNonce: 0,
   last: null,
 };
-function Player({
-  p,
-  color,
-  active,
-  you,
-  dice,
-  remaining,
-  disabled,
-  roll,
-  onRoll,
-}: {
-  p: LudoPlayer | null;
-  color: LudoColor;
-  active: boolean;
-  you: boolean;
-  dice?: number;
-  remaining: number;
-  disabled: boolean;
-  roll?: LudoRoll | null;
-  onRoll: () => void;
-}) {
-  return (
-    <div
-      className={`ld-player ld-seat-${color}${active ? " ld-player-active" : ""}${p?.forfeited ? " ld-left" : ""}`}
-      data-you={you || undefined}
-      style={
-        {
-          "--seat": COLORS[color],
-          "--turn": `${active ? Math.min(100, (remaining / (p?.kind === "computer" ? 1 : 25)) * 100) : 0}%`,
-        } as CSSProperties
-      }
-    >
-      <div className="ld-player-controls">
-        <span className="ld-avatar">
-          {p?.kind === "computer" ? (
-            <Bot size={20} />
-          ) : (
-            p?.name.slice(0, 1).toUpperCase() || <Users size={19} />
-          )}
-        </span>
-        {you ? (
-          <button
-            className="ld-roll"
-            disabled={disabled}
-            onClick={onRoll}
-            aria-label="Roll dice"
-          >
-            <LudoDice value={dice} roll={roll} />
-            <span>
-              {roll
-                ? "ROLLING"
-                : active && !disabled
-                  ? "ROLL"
-                  : active
-                    ? `${remaining}s`
-                    : "DICE"}
-            </span>
-          </button>
-        ) : (
-          <div
-            className="ld-other-dice"
-            aria-label={
-              active
-                ? `Opponent turn, ${remaining} seconds`
-                : "Waiting for turn"
-            }
-          >
-            {dice || roll ? (
-              <LudoDice value={dice} roll={roll} />
-            ) : (
-              <span className="ld-dice-blank">
-                {p ? <Crown size={22} /> : <Users size={22} />}
-              </span>
-            )}
-            {active && <small>{remaining}s</small>}
-          </div>
-        )}
-        <span
-          className="ld-progress"
-          aria-label={`${p?.tokens.filter((t) => t === 56).length ?? 0} of 4 tokens home`}
-        >
-          {[0, 1, 2, 3].map((i) => (
-            <i
-              key={i}
-              className={
-                i < (p?.tokens.filter((t) => t === 56).length ?? 0)
-                  ? "ld-home"
-                  : ""
-              }
-            />
-          ))}
-        </span>
-      </div>
-      <div className="ld-player-name">
-        <strong title={p?.name}>
-          {p?.name || "Finding player…"}
-          {you && <em>YOU</em>}
-        </strong>
-        <small>
-          {!p
-            ? "Waiting for a real player"
-            : p.forfeited
-              ? "Left match"
-              : p.kind === "computer"
-                ? "Computer"
-                : p.auto
-                  ? "Player · auto move"
-                  : "Player"}
-        </small>
-      </div>
-    </div>
-  );
-}
 export default function Ludo() {
   const { user } = useAuth();
   return user ? (
@@ -219,6 +111,12 @@ function LudoGame({
     !busy && !!(game.error || offline),
     audio.roll,
     audio.land,
+  );
+  const movement = useLudoMovement(
+    data?.match,
+    !!diceRoll.roll,
+    audio.step,
+    audio.moveEnd,
   );
   const [menu, setMenu] = useState<{
     screen: "home" | "setup";
@@ -264,6 +162,8 @@ function LudoGame({
     >(null),
     [dismissed, setDismissed] = useState<string | null>(null),
     [proof, setProof] = useState("");
+  const [chatRequest, setChatRequest] = useState(0);
+  const [closedResult, setClosedResult] = useState<string | null>(null);
   const m = data?.match,
     live =
       m &&
@@ -274,7 +174,7 @@ function LudoGame({
   }, [live, m?.id]);
   const show =
       m && (live || (seenActive.current === m.id && dismissed !== m.id)),
-    canonical = show ? m.state : preview;
+    canonical = show ? (movement?.state ?? m.state) : preview;
   // Presentation-only cyclic palette: seat IDs, dice, progress and moves stay canonical.
   const shift =
     (LUDO_COLORS.indexOf(colour) -
@@ -292,7 +192,7 @@ function LudoGame({
   const waiting = show && m.status === "waiting",
     forfeited = !!show && !!m.state.players[m.you]?.forfeited,
     playing = show && m.status === "playing" && !forfeited,
-    ended = show && !waiting && !playing;
+    ended = show && !waiting && !playing && !movement?.busy;
   const home = !show && menu.screen === "home";
   const view = home ? "home" : !show ? "setup" : waiting ? "search" : "board";
   useLayoutEffect(() => {
@@ -312,6 +212,25 @@ function LudoGame({
   const remaining = m
     ? Math.max(0, Math.ceil((m.deadline - game.time) / 1000))
     : 0;
+  const matchSeconds = m?.startedAt
+    ? Math.max(
+        0,
+        Math.ceil(
+          ((m.endsAt ?? m.startedAt + LUDO.maxMatchMs) - game.time) / 1000,
+        ),
+      )
+    : 600;
+  const matchClock = `${Math.floor(matchSeconds / 60)}:${String(matchSeconds % 60).padStart(2, "0")}`;
+  const winners =
+    m?.state.winners ?? (m?.state.winner != null ? [m.state.winner] : []);
+  const youWon = !!m && winners.includes(m.you) && !forfeited;
+  const shared = winners.length > 1;
+  const payout = m?.payoutPaise ?? (youWon ? (m?.prizePaise ?? "0") : "0");
+  const resultOpen =
+    !!ended && m?.status !== "cancelled" && closedResult !== m?.id;
+  useEffect(() => {
+    if (resultOpen) setDialog(null);
+  }, [resultOpen]);
   const winner =
     show && m.state.winner !== null ? m.state.players[m.state.winner] : null;
   const seats = show ? m.capacity : capacity,
@@ -323,19 +242,30 @@ function LudoGame({
     offline ||
     game.retry ||
     !!diceRoll.roll ||
+    !!movement?.busy ||
     !playing ||
     remaining === 0;
-  const renderPlayer = (color: LudoColor) => {
+  const autoToken = useLudoAutoMove(
+    m,
+    locked || !!game.error,
+    (token, expected) => game.act("move", token, false, expected),
+  );
+  const renderPlayer = (color: LudoColor, dockSide?: "left" | "right") => {
     const i = ludoColors(seats).findIndex((c) => displayColour(c) === color);
     if (i < 0)
       return <div className="ld-empty-seat" key={color} aria-hidden="true" />;
     const p = s.players[i];
     const active =
-      !!playing && (diceRoll.roll ? diceRoll.roll.seat === i : s.turn === i);
+      !!playing &&
+      (diceRoll.roll
+        ? diceRoll.roll.seat === i
+        : (movement?.moving?.seat ?? s.turn) === i);
     return (
-      <Player
+      <LudoMatchPlayer
         key={color}
         color={color}
+        dockSide={dockSide}
+        onEmojis={() => setChatRequest((v) => v + 1)}
         p={p}
         active={active}
         you={!!show && m.you === i}
@@ -359,20 +289,26 @@ function LudoGame({
         ? "Entry refunded"
         : forfeited
           ? "You left the match"
-          : winner?.seat === m.you
-            ? "You take the crown!"
-            : winner
-              ? `${winner.name} wins!`
-              : "Match ended"
-      : playing
-        ? diceRoll.roll
-          ? diceRoll.roll.seat === m.you
-            ? "Rolling your dice…"
-            : `${s.players[diceRoll.roll.seat]?.name} is rolling…`
-          : yours
-            ? "Your turn"
-            : `${s.players[s.turn]?.name}'s turn`
-        : "Your next win starts here.";
+          : youWon
+            ? shared
+              ? "You share the prize!"
+              : "You take the crown!"
+            : shared
+              ? "Match tied · prize shared"
+              : winner
+                ? `${winner.name} wins!`
+                : "Match ended"
+      : movement?.busy
+        ? "Moving token…"
+        : playing
+          ? diceRoll.roll
+            ? diceRoll.roll.seat === m.you
+              ? "Rolling your dice…"
+              : `${s.players[diceRoll.roll.seat]?.name} is rolling…`
+            : yours
+              ? "Your turn"
+              : `${s.players[s.turn]?.name}'s turn`
+          : "Your next win starts here.";
   const verify = async () => {
     if (!m) return;
     try {
@@ -415,7 +351,7 @@ function LudoGame({
           : waiting
             ? "ld-in-search"
             : show
-              ? "ld-in-match"
+              ? `ld-in-match ld-match-${m.capacity}`
               : "ld-in-lobby")
       }
     >
@@ -458,7 +394,7 @@ function LudoGame({
           </button>
         </header>
       )}
-      <div className="ld-main">
+      <div className="ld-main" aria-hidden={resultOpen || undefined}>
         {home ? (
           <LudoHome
             name={name}
@@ -676,6 +612,13 @@ function LudoGame({
               <div className="ld-mobile-match-info">
                 <div>
                   <strong>{offline ? "Reconnecting…" : "LUDO LIVE"}</strong>
+                  <b
+                    className="ld-match-timer"
+                    role="timer"
+                    aria-label={`Match time remaining ${matchClock}`}
+                  >
+                    {matchClock}
+                  </b>
                   <span title={data ? money(data.balancePaise) : undefined}>
                     <Coins size={13} />{" "}
                     {demo ? "∞" : data ? money(data.balancePaise) : "—"}
@@ -742,7 +685,8 @@ function LudoGame({
             <div className="ld-board-layout">
               <div className="ld-playfield">
                 <div className="ld-players ld-players-top">
-                  {(["red", "green"] as const).map(renderPlayer)}
+                  {m.capacity === 4 &&
+                    (["red", "green"] as const).map((c) => renderPlayer(c))}
                 </div>
                 <div className="ld-board-wrap">
                   <LudoBoard
@@ -751,6 +695,7 @@ function LudoGame({
                     you={m.you}
                     legal={m.legalTokens}
                     disabled={locked}
+                    moving={movement?.moving}
                     onMove={(token) => game.act("move", token)}
                   />
                   {waiting && (
@@ -766,7 +711,14 @@ function LudoGame({
                   )}
                 </div>
                 <div className="ld-players ld-players-bottom">
-                  {(["blue", "yellow"] as const).map(renderPlayer)}
+                  {m.capacity === 2
+                    ? [m.you, (m.you + 1) % 2].map((seat, i) =>
+                        renderPlayer(
+                            displayColour(ludoColors(m.capacity)[seat]),
+                          i === 0 ? "left" : "right",
+                        ),
+                      )
+                    : (["blue", "yellow"] as const).map((c) => renderPlayer(c))}
                 </div>
               </div>
               <div className="ld-action-dock">
@@ -784,18 +736,24 @@ function LudoGame({
                           ? (forfeited
                               ? "Entry forfeited. You can join a new table."
                               : m.reason) ||
-                            (winner?.seat === m.you
-                              ? money(m.prizePaise) + " credited to your wallet"
+                            (youWon
+                              ? money(payout) + " credited to your wallet"
                               : "Ready for another game?")
                           : diceRoll.roll
                             ? "Let the dice land…"
-                            : yours
-                              ? s.phase === "move"
-                                ? "Tap a glowing token or choose below"
-                                : "Tap the dice beside your name"
-                              : s.players[s.turn]?.kind === "computer"
-                                ? "Computer is making a move…"
-                                : "Waiting for their move…"}
+                            : movement?.busy
+                              ? "Moving token…"
+                              : yours
+                                ? s.phase === "move"
+                                  ? autoToken !== null && !game.error
+                                    ? "Moving your only token automatically…"
+                                    : "Tap a glowing token or choose below"
+                                  : m.capacity === 2
+                                    ? "Tap the dice in the centre"
+                                    : "Tap the dice beside your name"
+                                : s.players[s.turn]?.kind === "computer"
+                                  ? "Computer is making a move…"
+                                  : "Waiting for their move…"}
                     </p>
                   </div>
                   {waiting ? (
@@ -820,20 +778,23 @@ function LudoGame({
                     </span>
                   )}
                 </div>
-                {yours && s.phase === "move" && !diceRoll.roll && (
-                  <div className="ld-moves" aria-label="Choose a token">
-                    {m.legalTokens.map((token) => (
-                      <button
-                        key={token}
-                        disabled={locked}
-                        onClick={() => game.act("move", token)}
-                      >
-                        <span style={{ background: COLORS[colour] }} />
-                        Move {token + 1}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {yours &&
+                  s.phase === "move" &&
+                  !diceRoll.roll &&
+                  !movement?.busy && (
+                    <div className="ld-moves" aria-label="Choose a token">
+                      {m.legalTokens.map((token) => (
+                        <button
+                          key={token}
+                          disabled={locked}
+                          onClick={() => game.act("move", token)}
+                        >
+                          <span style={{ background: COLORS[colour] }} />
+                          Move {token + 1}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 <div className="ld-last">
                   {diceRoll.roll
                     ? "Dice in motion…"
@@ -853,12 +814,13 @@ function LudoGame({
               </div>
             </div>
             <footer className="ld-arena-footer">
-              <button
-                onClick={() => setDialog("history")}
-                aria-label="My matches"
-              >
-                <History size={18} />
-              </button>
+              <LudoChat
+                key={m.id}
+                match={m}
+                userId={userId}
+                openRequest={chatRequest}
+                onWalletChange={() => void game.sync()}
+              />
               <button onClick={() => setDialog("rules")}>
                 How to play <Info size={14} />
               </button>
@@ -896,6 +858,66 @@ function LudoGame({
         )}
       </div>
 
+      <Dialog
+        open={resultOpen}
+        onOpenChange={(open) => !open && m && setClosedResult(m.id)}
+      >
+        <DialogContent className="ld-modal ld-result-modal">
+          <Crown className="ld-result-crown" aria-hidden="true" />
+          <DialogTitle>
+            {forfeited && m?.state.players[m.you]?.exitReason === "inactive"
+              ? "Removed for inactivity"
+              : heading}
+          </DialogTitle>
+          <DialogDescription>
+            {youWon
+              ? shared
+                ? "A tied finish! Your share is credited to your wallet."
+                : "Your prize is credited to your wallet."
+              : forfeited
+                ? "Your entry was forfeited. Join a new table when you are ready."
+                : "The final table result is in."}
+          </DialogDescription>
+          {youWon && (
+            <strong className="ld-result-prize">{money(payout)}</strong>
+          )}
+          <div className="ld-result-players">
+            {m?.state.players.filter(Boolean).map(
+              (p) =>
+                p && (
+                  <div
+                    key={p.seat}
+                    className={
+                      winners.includes(p.seat) ? "ld-result-winner" : ""
+                    }
+                  >
+                    <span>
+                      {winners.includes(p.seat) ? "🏆 " : ""}
+                      {p.name}
+                      {p.seat === m.you ? " (YOU)" : ""}
+                    </span>
+                    <b>
+                      {p.forfeited
+                        ? "Left"
+                        : `${p.tokens.filter((t) => t === 56).length}/4 home`}
+                    </b>
+                  </div>
+                ),
+            )}
+          </div>
+          <p>
+            {forfeited && m?.state.players[m.you]?.exitReason === "inactive"
+              ? "Five automatic dice rolls were used. Roll manually before the next timeout to stay in a match."
+              : m?.reason || "First player with four tokens home wins."}
+          </p>
+          <button
+            className="ld-primary"
+            onClick={() => m && setClosedResult(m.id)}
+          >
+            View board
+          </button>
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={dialog !== null}
         onOpenChange={(open) => !open && setDialog(null)}
@@ -973,9 +995,11 @@ function LudoGame({
                   home wins the match.
                 </li>
                 <li>
-                  Each roll or move has 25 seconds. On timeout the computer
-                  makes that action for your seat. You can resume on your next
-                  action.
+                  Each roll or move has 10 seconds. Five consecutive automatic
+                  dice rolls are allowed. If you miss the next roll too, you
+                  leave the match and lose your entry. Rolling manually resets
+                  this count; moving your only token automatically does not
+                  count as a missed roll.
                 </li>
               </ol>
               <h3>Entry & prize</h3>
@@ -997,13 +1021,20 @@ function LudoGame({
               </p>
               <p>
                 Cancel before the match starts for a full refund. Leaving after
-                start forfeits your entry. Matches exceeding two hours are
-                cancelled and unsettled entries refunded. A server restart
-                preserves your match; a long interruption resets the turn timer.
+                start forfeits your entry. Matches end within 10 minutes. The
+                player with the most tokens home wins; tied players split the
+                prize after the 10% commission. Distance travelled does not
+                break a tie. A server restart preserves your match; a long
+                interruption resets the turn timer.
               </p>
               <p>
                 Each match commits to a secret seed before the first roll. After
                 completion you can download the seed, rolls and action record.
+              </p>
+              <p>
+                Match chat is private to this table. Text messages are free.
+                Sending any emoji from the tray costs ₹5 from your wallet,
+                separately from the entry and prize.
               </p>
             </div>
           ) : dialog === "history" ? (

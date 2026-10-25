@@ -21,19 +21,27 @@ app.use(cookieParser());
 app.use(loadSession);
 app.get("/api/healthz", (_req, res) => res.json({ ok: true }));
 app.get("/api/network/website", (_req, res) => res.json(null));
-app.post("/api/test/ludo/login", async (req, res) => {
+async function previewPlayer(name: string, res: express.Response) {
   const id = randomUUID();
   await db.insert(usersTable).values({
     id,
     email: `${id}@test.invalid`,
     emailNormalized: `${id}@test.invalid`,
     passwordHash: "fixture-no-password",
-    displayName: String(req.body.name || "Player").slice(0, 24),
+    displayName: name.slice(0, 24),
   });
   await postEntry({ userId: id, type: "adjustment", amount: 100000n });
   const s = await createSession(id, null, "ludo-test");
   res.cookie("sid", s.id, { httpOnly: true, sameSite: "lax" });
-  res.json({ id });
+  return id;
+}
+app.post("/api/test/ludo/login", async (req, res) => {
+  res.json({ id: await previewPlayer(String(req.body.name || "Player"), res) });
+});
+// Manual review uses only disposable local test funds and loopback listeners.
+app.get("/api/test/ludo/preview", async (_req, res) => {
+  await previewPlayer("Local preview player", res);
+  res.redirect("/ludo");
 });
 app.get("/api/auth/me", (req, res) => {
   if (!req.user) {
@@ -69,6 +77,39 @@ app.post("/api/test/ludo/advance", async (req, res) => {
   await tickLudo();
   res.json({ ok: true });
 });
+app.post("/api/test/ludo/time-limit", async (req, res) => {
+  const id = String(req.body.id),
+    [r] = await db.select().from(ludoMatches).where(eq(ludoMatches.id, id));
+  const s = r.state as LudoState;
+  s.players.forEach((p, i) => {
+    if (p) p.tokens = req.body.tokens[i];
+  });
+  await db
+    .update(ludoMatches)
+    .set({
+      state: s,
+      startedAt: sql`clock_timestamp() - interval '10 minutes'`,
+      deadline: sql`clock_timestamp() + interval '10 seconds'`,
+    })
+    .where(eq(ludoMatches.id, id));
+  await tickLudo();
+  res.json({ ok: true });
+});
+app.post("/api/test/ludo/inactive", async (req, res) => {
+  const id = String(req.body.id),
+    [r] = await db.select().from(ludoMatches).where(eq(ludoMatches.id, id));
+  const s = r.state as LudoState;
+  s.turn = Number(req.body.seat);
+  s.phase = "roll";
+  s.dice = null;
+  s.players[s.turn]!.missedRolls = 5;
+  await db
+    .update(ludoMatches)
+    .set({ state: s, deadline: sql`clock_timestamp() - interval '1 second'` })
+    .where(eq(ludoMatches.id, id));
+  await tickLudo();
+  res.json({ ok: true });
+});
 app.post("/api/test/ludo/winning-move", async (req, res) => {
   const id = String(req.body.id),
     [r] = await db.select().from(ludoMatches).where(eq(ludoMatches.id, id));
@@ -76,6 +117,8 @@ app.post("/api/test/ludo/winning-move", async (req, res) => {
   s.turn = Number(req.body.seat);
   s.phase = "move";
   s.dice = 1;
+  s.rollNonce++;
+  s.last = { seat: s.turn, dice: 1, text: "Rolled 1" };
   s.players[s.turn]!.tokens = [56, 56, 56, 55];
   await db
     .update(ludoMatches)
@@ -108,7 +151,9 @@ app.post("/api/test/ludo/roll-ready", async (req, res) => {
   s.dice = null;
   s.sixes = 0;
   s.last = null;
-  s.players[seat]!.tokens = [0, -1, -1, -1];
+  s.players[seat]!.tokens = req.body.tokens ?? [0, -1, -1, -1];
+  if (req.body.opponentTokens)
+    s.players[(seat + 1) % r.capacity]!.tokens = req.body.opponentTokens;
   let seed: string;
   do {
     seed = randomUUID();
@@ -127,8 +172,9 @@ app.post("/api/test/ludo/roll-ready", async (req, res) => {
 });
 app.use("/api/ludo", ludoRouter);
 app.use(errorHandler);
-const server = app.listen(5214, "127.0.0.1", () =>
-  console.log("Ludo isolated browser server ready on 5214"),
+const port = process.env.LUDO_PREVIEW_PORT === "5216" ? 5216 : 5214;
+const server = app.listen(port, "127.0.0.1", () =>
+  console.log(`Ludo isolated browser server ready on ${port}`),
 );
 attachRealtime(server);
 startLudoEngine();

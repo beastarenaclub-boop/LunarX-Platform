@@ -47,6 +47,16 @@ export function nextTurn(s: LudoState) {
     }
   }
 }
+/** Only finished tokens count at the ten-minute cutoff; progress never breaks a tie. */
+export function timedWinners(s: LudoState): number[] {
+  const active = s.players.filter((p): p is LudoPlayer => !!p && !p.forfeited);
+  const best = Math.max(
+    ...active.map((p) => p.tokens.filter((t) => t === 56).length),
+  );
+  return active
+    .filter((p) => p.tokens.filter((t) => t === 56).length === best)
+    .map((p) => p.seat);
+}
 export function rollDie(s: LudoState, dice: number) {
   if (s.phase !== "roll" || s.winner !== null || dice < 1 || dice > 6)
     throw new Error("Cannot roll now");

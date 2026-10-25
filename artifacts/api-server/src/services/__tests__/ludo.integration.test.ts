@@ -8,6 +8,7 @@ import {
   ludoMatches,
   ludoMembers,
   ludoActions,
+  ludoMessages,
   walletLedgerTable,
   betsTable,
   gameConfigTable,
@@ -16,6 +17,8 @@ import {
 import { ready, memory } from "../../demo/database";
 import { joinLudo, actLudo, ludoTable, tickLudo, ludoProof } from "../ludo";
 import { postEntry, getBalanceByUser } from "../wallet";
+import { ludoChat, sendLudoChat } from "../ludoChat";
+import { LUDO } from "@workspace/api-zod/ludo";
 import type { LudoState, LudoTable } from "@workspace/api-zod/ludo";
 import express from "express";
 import router from "../../routes/ludo";
@@ -321,23 +324,213 @@ test("forfeit loses entry; a Computer win has no phantom user payout", async () 
   assert.equal(await balance(u), 99000n);
   assert.equal(end.recent[0].result, "lost");
 });
-test("two-hour safety cancellation refunds all unsettled players once", async () => {
+test("ten-minute cutoff splits equal home scores once, regardless of progress or future turn deadline", async () => {
   const a = await user(),
     b = await user();
   const t = await joinLudo(a, input(4));
   await joinLudo(b, input(4));
   await expire(t.match!.id);
+  const s = (await ludoTable(a)).match!.state;
+  s.players[0]!.tokens = [56, 50, 40, 30];
+  s.players[1]!.tokens = [56, -1, -1, -1];
   await db
     .update(ludoMatches)
     .set({
       deadline: sql`clock_timestamp() + interval '25 seconds'`,
       startedAt: new Date(0),
+      state: s,
     })
     .where(eq(ludoMatches.id, t.match!.id));
   await Promise.all([tickLudo(), tickLudo()]);
-  assert.equal(await balance(a), 100000n);
-  assert.equal(await balance(b), 100000n);
-  assert.equal((await ludoTable(a)).match!.status, "cancelled");
+  assert.equal(await balance(a), 100800n);
+  assert.equal(await balance(b), 100800n);
+  const ended = (await ludoTable(a)).match!;
+  assert.equal(ended.status, "finished");
+  assert.deepEqual(ended.state.winners, [0, 1]);
+  assert.equal(ended.payoutPaise, "1800");
+  await tickLudo();
+  assert.equal(await balance(a), 100800n);
+});
+
+test("ten seconds per action, fixed ten-minute match clock, and a late action settles the best home count", async () => {
+  const a = await user(),
+    b = await user();
+  await joinLudo(a, input());
+  await joinLudo(b, input());
+  const t = await ludoTable(a),
+    m = t.match!;
+  assert.equal(m.endsAt! - m.startedAt!, 600000);
+  assert.ok(
+    m.deadline - t.serverNow <= 10000 && m.deadline - t.serverNow > 8000,
+  );
+  const s = m.state;
+  s.players[0]!.tokens = [56, 56, -1, -1];
+  s.players[1]!.tokens = [56, 55, 55, 55];
+  await db
+    .update(ludoMatches)
+    .set({
+      state: s,
+      startedAt: new Date(Date.now() - LUDO.maxMatchMs - 10),
+      deadline: new Date(Date.now() + 10000),
+    })
+    .where(eq(ludoMatches.id, m.id));
+  const finished = await actLudo(b, m.id, action(t, "roll"));
+  assert.equal(finished.match!.status, "finished");
+  assert.deepEqual(finished.match!.state.winners, [0]);
+  assert.equal(finished.match!.state.rollNonce, 0);
+  assert.equal(await balance(a), 100800n);
+  assert.equal(await balance(b), 99000n);
+});
+
+test("five missed rolls are allowed, manual dice resets the count, moves do not reset it and sixth miss forfeits once", async () => {
+  const a = await user(),
+    b = await user();
+  await joinLudo(a, input());
+  await joinLudo(b, input());
+  let t = await ludoTable(a),
+    s = t.match!.state;
+  const id = t.match!.id;
+  for (let count = 1; count <= 5; count++) {
+    s = (await ludoTable(a)).match!.state;
+    s.turn = 0;
+    s.phase = "roll";
+    s.dice = null;
+    await db
+      .update(ludoMatches)
+      .set({ state: s })
+      .where(eq(ludoMatches.id, id));
+    await expire(id);
+    const p = (await ludoTable(a)).match!.state.players[0]!;
+    assert.equal(p.missedRolls, count);
+    assert.equal(p.forfeited, false);
+  }
+  s = (await ludoTable(a)).match!.state;
+  s.turn = 0;
+  s.phase = "move";
+  s.dice = 1;
+  s.players[0]!.tokens = [0, -1, -1, -1];
+  await db
+    .update(ludoMatches)
+    .set({ state: s, deadline: new Date(Date.now() + 10000) })
+    .where(eq(ludoMatches.id, id));
+  t = await ludoTable(a);
+  await actLudo(a, id, action(t, "move", 0));
+  assert.equal((await ludoTable(a)).match!.state.players[0]!.missedRolls, 5);
+  s = (await ludoTable(a)).match!.state;
+  s.turn = 0;
+  s.phase = "roll";
+  s.dice = null;
+  await db
+    .update(ludoMatches)
+    .set({ state: s, deadline: new Date(Date.now() + 10000) })
+    .where(eq(ludoMatches.id, id));
+  t = await ludoTable(a);
+  await actLudo(a, id, action(t, "roll"));
+  assert.equal((await ludoTable(a)).match!.state.players[0]!.missedRolls, 0);
+  s = (await ludoTable(a)).match!.state;
+  s.turn = 0;
+  s.phase = "roll";
+  s.dice = null;
+  s.players[0]!.missedRolls = 5;
+  await db.update(ludoMatches).set({ state: s }).where(eq(ludoMatches.id, id));
+  await Promise.all([expire(id), expire(id)]);
+  const ended = (await ludoTable(a)).match!;
+  assert.equal(ended.state.players[0]!.exitReason, "inactive");
+  assert.equal(ended.status, "finished");
+  assert.equal(ended.state.winner, 1);
+  assert.equal(await balance(a), 99000n);
+  assert.equal(await balance(b), 100800n);
+});
+
+test("chat is private, free text stays free, and concurrent emoji retries charge exactly ₹5 without changing the turn", async () => {
+  const a = await user(),
+    b = await user(),
+    outsider = await user();
+  await joinLudo(a, input());
+  await joinLudo(b, input());
+  const t = await ludoTable(a),
+    id = t.match!.id;
+  await assert.rejects(ludoChat(outsider, id), /Only players/);
+  await assert.rejects(
+    sendLudoChat(outsider, id, {
+      requestId: randomUUID(),
+      kind: "text",
+      text: "Intruder",
+    }),
+    /Only players/,
+  );
+  await sendLudoChat(a, id, {
+    requestId: randomUUID(),
+    kind: "text",
+    text: "Good game <script>alert(1)</script>",
+  });
+  assert.equal(await balance(a), 99000n);
+  const cmd = {
+    requestId: randomUUID(),
+    kind: "emoji" as const,
+    emojiId: "fire",
+  };
+  const replies = await Promise.all([
+    sendLudoChat(b, id, cmd),
+    sendLudoChat(b, id, cmd),
+  ]);
+  assert.equal(await balance(b), 98500n);
+  assert.equal(
+    replies[0].messages.filter((m) => m.emojiId === "fire").length,
+    1,
+  );
+  const after = (await ludoTable(a)).match!;
+  assert.equal(after.version, t.match!.version);
+  assert.equal(after.deadline, t.match!.deadline);
+  await assert.rejects(
+    sendLudoChat(b, id, { ...cmd, emojiId: "crown" }),
+    /different message/,
+  );
+  await assert.rejects(
+    sendLudoChat(a, id, { requestId: randomUUID(), kind: "text", text: "😎" }),
+    /tray/,
+  );
+  const ledger = await db
+    .select()
+    .from(walletLedgerTable)
+    .where(
+      and(
+        eq(walletLedgerTable.userId, b),
+        eq(walletLedgerTable.refType, "ludo_emoji"),
+      ),
+    );
+  assert.equal(ledger.length, 1);
+  assert.equal(ledger[0].amount, -500n);
+  const left = await actLudo(a, id, action(await ludoTable(a), "leave"));
+  assert.equal(left.match!.status, "finished");
+  assert.equal((await ludoChat(a, id)).canSend, false);
+  await assert.rejects(
+    sendLudoChat(a, id, {
+      requestId: randomUUID(),
+      kind: "text",
+      text: "After leaving",
+    }),
+    /closed/,
+  );
+  await sendLudoChat(b, id, cmd); // A completed match still confirms the original paid request.
+  assert.equal((await ludoChat(b, id)).messages.length, 2);
+});
+
+test("insufficient emoji balance rolls back the message and debit", async () => {
+  const a = await user(1000n),
+    b = await user();
+  await joinLudo(a, input());
+  const t = await joinLudo(b, input());
+  await assert.rejects(
+    sendLudoChat(a, t.match!.id, {
+      requestId: randomUUID(),
+      kind: "emoji",
+      emojiId: "trophy",
+    }),
+    /INSUFFICIENT_FUNDS/,
+  );
+  assert.equal(await balance(a), 0n);
+  assert.equal((await ludoChat(a, t.match!.id)).messages.length, 0);
 });
 test("committed state publishes private invalidations to both account IDs", async () => {
   const a = await user(),

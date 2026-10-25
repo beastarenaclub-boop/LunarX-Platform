@@ -1,0 +1,966 @@
+/* Match layouts from the supplied 2-seat and 4-seat portrait recordings. */
+.ld-in-match {
+  --match-card-height: clamp(76px, calc(25cqh - 95px), 108px);
+  --match-board: min(
+    calc(100cqw - 24px),
+    calc(100cqh - 2 * var(--match-card-height) - 174px)
+  );
+  background:
+    radial-gradient(ellipse at 50% 18%, #55a2ff35, transparent 45%),
+    radial-gradient(ellipse at 50% 82%, #55a2ff40, transparent 44%),
+    radial-gradient(ellipse at 50% 44%, transparent 30%, #01182f8c 100%),
+    url("/media/ludo/classic-dice-pattern.svg") center / 410px 410px,
+    radial-gradient(ellipse at 48% 50%, #247dcc, #185c9c 55%, #0b344e 100%);
+  font-family: "Ludo Profile", "Trebuchet MS", sans-serif;
+}
+.ld-in-match .ld-main {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+.ld-in-match .ld-arena {
+  position: relative;
+  width: 100%;
+  height: var(--fit-height, 100dvh);
+  min-height: 0;
+  padding: 0;
+  gap: 0;
+}
+.ld-in-match .ld-mobile-match-header {
+  position: absolute;
+  inset: 4px 8px auto;
+  grid-template-columns: 44px minmax(0, 1fr) auto 44px;
+  gap: 4px;
+  z-index: 12;
+}
+.ld-in-match .ld-mobile-match-info {
+  max-width: none;
+}
+.ld-in-match .ld-mobile-match-info > div {
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.ld-in-match .ld-mobile-match-info strong {
+  font-size: 10px;
+}
+.ld-in-match .ld-mobile-match-info span {
+  font-size: 10px;
+}
+.ld-in-match .ld-mobile-match-info small {
+  font-size: 9px;
+  margin-top: 1px;
+}
+.ld-in-match .ld-match-timer {
+  font-size: 14px;
+}
+.ld-in-match .ld-landscape-sound {
+  display: block;
+}
+.ld-in-match .ld-sound-controls {
+  gap: 0;
+}
+.ld-in-match .ld-menu-icon,
+.ld-in-match .ld-sound-controls button {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+  color: #ffe58a;
+}
+.ld-in-match .ld-menu-icon svg,
+.ld-in-match .ld-sound-controls svg {
+  width: 20px;
+  height: 20px;
+  filter: drop-shadow(0 1px 1px #092949);
+}
+.ld-in-match .ld-board-layout {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 0;
+}
+.ld-in-match .ld-playfield {
+  display: grid;
+  grid-template-rows: var(--match-card-height) var(--match-board) var(
+      --match-card-height
+    );
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--match-board);
+  height: calc(var(--match-board) + 2 * var(--match-card-height));
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+}
+.ld-in-match .ld-board-wrap {
+  grid-area: 2 / 1;
+  width: var(--match-board);
+  height: var(--match-board);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px #142b4666,
+    0 2px 5px #02182d33;
+  align-self: center;
+  justify-self: center;
+}
+.ld-in-match .ld-board {
+  border-radius: 0;
+  box-shadow: none;
+}
+.ld-in-match .ld-token {
+  width: 6.2%;
+}
+.ld-in-match .ld-token.ld-stacked {
+  width: 4.7%;
+}
+.ld-in-match .ld-token.ld-token-home {
+  width: 3.7%;
+}
+.ld-in-match .ld-players {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  justify-self: center;
+  width: calc(100cqw - 24px);
+  height: var(--match-card-height);
+  padding: 0;
+  gap: 8px;
+  position: relative;
+  z-index: 7;
+}
+.ld-in-match .ld-players-top {
+  grid-area: 1 / 1;
+}
+.ld-in-match .ld-players-bottom {
+  grid-area: 3 / 1;
+}
+.ld-in-match .ld-player {
+  position: relative;
+  width: min(132px, 34cqw);
+  height: var(--match-card-height);
+  flex: none;
+  display: block;
+  text-align: left;
+}
+.ld-player-plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ld-in-match .ld-player-kind {
+  position: absolute;
+  top: 4%;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  color: #fff1ac;
+  line-height: 14px;
+}
+.ld-player-kind svg {
+  width: 13px;
+  height: 13px;
+  color: #9ee3ff;
+}
+.ld-in-match .ld-player-controls {
+  position: absolute;
+  left: 7px;
+  right: 6px;
+  top: 25%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0;
+}
+.ld-in-match .ld-avatar {
+  width: min(58px, calc(var(--match-card-height) * 0.53));
+  height: min(58px, calc(var(--match-card-height) * 0.53));
+  border: 2px solid #ffdf70;
+  border-radius: 0;
+  background: #0c81b3;
+  box-shadow:
+    0 0 0 1px #083451,
+    inset 0 0 0 1px #fff;
+  flex-shrink: 0;
+}
+.ld-in-match .ld-avatar > svg {
+  width: 100%;
+  height: 100%;
+}
+.ld-in-match .ld-player-active .ld-avatar::after {
+  inset: -4px;
+  border-radius: 0;
+  padding: 3px;
+  background: conic-gradient(#6eff25 var(--turn), #c7a626 var(--turn));
+}
+.ld-in-match .ld-roll,
+.ld-in-match .ld-other-dice {
+  width: 44px;
+  height: 44px;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ffe18b;
+  background: linear-gradient(#fff2e7, #e8bfbd);
+  box-shadow:
+    0 0 0 1px #8f6c34,
+    inset 0 0 0 2px #fff5;
+  opacity: 1;
+  filter: none;
+}
+.ld-in-match .ld-roll:not(:disabled)::after {
+  display: none;
+}
+.ld-in-match .ld-roll > span:last-child:not(.ld-die),
+.ld-in-match .ld-other-dice > small {
+  display: none;
+}
+.ld-in-match .ld-die {
+  --die-size: 30px;
+}
+.ld-in-match .ld-die-face {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--seat), white 20%),
+    var(--seat) 70%,
+    color-mix(in srgb, var(--seat), black 18%)
+  );
+  border-color: color-mix(in srgb, var(--seat), black 20%);
+  box-shadow:
+    inset 1px 1px 2px #ffffff88,
+    inset -1px -1px 2px #001d4a44;
+}
+.ld-in-match .ld-die-face i {
+  background: #fff;
+  box-shadow: inset 0 1px 1px #6895ab;
+}
+.ld-in-match .ld-progress {
+  position: absolute;
+  left: auto;
+  right: 2px;
+  bottom: -9px;
+  gap: 3px;
+}
+.ld-in-match .ld-progress i {
+  width: 6px;
+  height: 6px;
+  border-color: #365b23;
+  background: #69c720;
+}
+.ld-in-match .ld-progress i.ld-home {
+  background: #ffe631;
+  box-shadow: 0 0 3px #fff4a7;
+}
+.ld-in-match .ld-player-name {
+  position: absolute;
+  bottom: 4px;
+  left: 7px;
+  width: calc(100% - 14px);
+  padding: 0;
+}
+.ld-in-match .ld-player-name strong {
+  font-size: 12px;
+  line-height: 14px;
+  color: #fff;
+}
+.ld-in-match .ld-player-name strong em {
+  display: none;
+}
+.ld-in-match .ld-player-name > small {
+  display: none;
+}
+.ld-in-match .ld-player-name > .ld-auto-warning {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  display: block;
+  width: max-content;
+  max-width: 170px;
+  padding: 2px 4px;
+  background: #092e51e8;
+  border-radius: 3px;
+  color: #ffec7d;
+  font-size: 10px;
+  z-index: 2;
+}
+.ld-in-match .ld-seat-green,
+.ld-in-match .ld-seat-yellow {
+  text-align: right;
+}
+.ld-in-match .ld-seat-green .ld-player-plate,
+.ld-in-match .ld-seat-yellow .ld-player-plate {
+  transform: scaleX(-1);
+}
+.ld-in-match .ld-seat-green .ld-player-kind,
+.ld-in-match .ld-seat-yellow .ld-player-kind {
+  left: auto;
+  right: 8px;
+  flex-direction: row-reverse;
+}
+.ld-in-match .ld-seat-green .ld-progress,
+.ld-in-match .ld-seat-yellow .ld-progress {
+  right: auto;
+  left: 2px;
+}
+.ld-in-match .ld-seat-pin {
+  display: none;
+}
+.ld-active-arrow {
+  display: none;
+  position: absolute;
+  right: -44px;
+  top: 31%;
+  color: #d97810;
+}
+.ld-active-arrow svg {
+  width: 34px;
+  height: 34px;
+  stroke-width: 1.7px;
+  filter: drop-shadow(0 2px 1px #073766);
+}
+.ld-player-active .ld-active-arrow {
+  display: block;
+  animation: ld-reference-arrow 0.8s ease-in-out infinite alternate;
+}
+.ld-seat-green .ld-active-arrow,
+.ld-seat-yellow .ld-active-arrow {
+  right: auto;
+  left: -44px;
+  rotate: 180deg;
+}
+.ld-in-match .ld-player-gift {
+  position: absolute;
+  bottom: -15px;
+  right: 4px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  background: none;
+  z-index: 2;
+}
+.ld-in-match .ld-player-gift svg {
+  width: 23px;
+  height: 23px;
+  padding: 2px;
+  color: #ffec70;
+  fill: #ff7f1c;
+  background: #108dd3;
+  border: 1.5px solid #ffe84b;
+  border-radius: 50%;
+}
+.ld-in-match .ld-seat-green .ld-player-gift,
+.ld-in-match .ld-seat-yellow .ld-player-gift {
+  left: 4px;
+  right: auto;
+}
+.ld-in-match .ld-action-dock {
+  position: absolute;
+  top: calc(50% + var(--match-board) / 2 + var(--match-card-height) + 15px);
+  left: 12px;
+  right: 12px;
+  min-height: 0;
+  z-index: 8;
+}
+.ld-in-match .ld-turn {
+  padding: 3px 8px;
+  min-height: 34px;
+  background: #06356599;
+  border: 1px solid #4ea6d74d;
+  border-radius: 5px;
+  box-shadow: none;
+}
+.ld-in-match .ld-turn h2 {
+  font-size: 13px;
+  line-height: 15px;
+  margin: 0;
+}
+.ld-in-match .ld-turn p {
+  font-family: "Trebuchet MS", sans-serif;
+  font-size: 9px;
+  line-height: 12px;
+}
+.ld-in-match .ld-turn-clock {
+  font-size: 20px;
+}
+.ld-in-match .ld-turn-clock small {
+  font-size: 6px;
+}
+.ld-in-match .ld-moves {
+  margin-top: 3px;
+  gap: 4px;
+}
+.ld-in-match .ld-moves button {
+  font-size: 12px;
+}
+.ld-in-match .ld-proof {
+  min-height: 30px;
+  font-size: 9px !important;
+}
+.ld-in-match .ld-arena-footer {
+  display: contents;
+}
+.ld-in-match .ld-arena-footer > .ld-sound-controls {
+  display: none;
+}
+.ld-in-match .ld-arena-footer > button {
+  position: absolute;
+  top: 52px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  z-index: 10;
+}
+.ld-in-match .ld-arena-footer > button:nth-child(2) {
+  left: 8px;
+  width: 100px;
+  font-size: 11px;
+  padding: 0;
+}
+.ld-in-match .ld-arena-footer > button:last-child {
+  right: 8px;
+}
+.ld-in-match .ld-arena-footer > .ld-chat-toggle {
+  top: calc(50% + var(--match-board) / 2 - 24px);
+  left: 3px;
+  color: #fff;
+  filter: drop-shadow(0 1px 1px #002e4f);
+}
+.ld-in-match .ld-chat-toggle > svg {
+  width: 28px;
+  height: 28px;
+  fill: #fff;
+  color: #15384c;
+}
+.ld-in-match .ld-error {
+  bottom: 170px;
+  left: 8px;
+  right: 8px;
+  z-index: 20;
+}
+
+/* Two players share the central dice tray; both profiles live below the board. */
+.ld-match-2 {
+  --match-board: min(calc(100cqw - 22px), calc(100cqh - 282px));
+}
+.ld-match-2 .ld-playfield {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform: none;
+}
+.ld-match-2 .ld-players-top {
+  display: none;
+}
+.ld-match-2 .ld-board-wrap {
+  position: absolute;
+  top: clamp(98px, 20cqh, 180px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.ld-match-2 .ld-players-bottom {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: max(8px, env(safe-area-inset-bottom));
+  width: calc(100% - 16px);
+  height: 140px;
+  gap: 0;
+  align-items: stretch;
+}
+.ld-match-2 .ld-player {
+  position: static;
+  width: 50%;
+  height: 100%;
+  text-align: left;
+}
+.ld-match-2 .ld-player-plate {
+  display: none;
+}
+.ld-match-2 .ld-player-controls {
+  position: static;
+  display: contents;
+}
+.ld-match-2 .ld-avatar {
+  position: absolute;
+  top: 0;
+  left: 6px;
+  width: 68px;
+  height: 68px;
+}
+.ld-match-2 .ld-player[data-dock-side="right"] .ld-avatar {
+  left: auto;
+  right: 6px;
+}
+.ld-match-2 .ld-player-kind {
+  top: 47px;
+  left: 82px;
+  font-size: 10px;
+  flex-direction: row;
+}
+.ld-match-2 .ld-player[data-dock-side="right"] .ld-player-kind {
+  right: 82px;
+  left: auto;
+  flex-direction: row-reverse;
+}
+.ld-match-2 .ld-player-kind svg {
+  width: 19px;
+  height: 19px;
+}
+.ld-match-2 .ld-player-name {
+  left: 0;
+  bottom: 0;
+  width: 50%;
+  height: 56px;
+  padding: 6px 40px 4px 40px;
+  border: 2px solid #f7d858;
+  border-radius: 5px 0 0 5px;
+  background: linear-gradient(#1677c7, #073b87);
+  box-shadow: inset 0 0 0 2px #72bde9;
+}
+.ld-match-2 .ld-player[data-dock-side="right"] .ld-player-name {
+  left: auto;
+  right: 0;
+  padding: 6px 38px 4px 42px;
+  border-radius: 0 5px 5px 0;
+  text-align: left;
+}
+.ld-match-2 .ld-player-name strong {
+  font-size: 13px;
+  line-height: 16px;
+}
+.ld-match-2 .ld-player-name > small {
+  display: block;
+  font-size: 10px;
+  line-height: 12px;
+  margin-top: 2px;
+}
+.ld-match-2 .ld-player-name > .ld-auto-warning {
+  top: auto;
+  bottom: 64px;
+  left: 0;
+}
+.ld-match-2 .ld-roll,
+.ld-match-2 .ld-other-dice {
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  transform: translateX(-50%);
+  width: 76px;
+  height: 66px;
+  border: 2px solid #ffdf75;
+  border-radius: 9px;
+  z-index: 4;
+}
+.ld-match-2 .ld-player:not(.ld-player-active) .ld-other-dice {
+  visibility: hidden;
+}
+.ld-match-2 .ld-player-active .ld-other-dice {
+  z-index: 5;
+}
+.ld-match-2 .ld-die {
+  --die-size: 37px;
+}
+.ld-match-2 .ld-seat-pin {
+  display: block;
+  position: absolute;
+  left: 7px;
+  bottom: 12px;
+  width: 28px;
+  height: 37px;
+  z-index: 2;
+}
+.ld-match-2 .ld-player[data-dock-side="right"] .ld-seat-pin {
+  left: auto;
+  right: 7px;
+}
+.ld-match-2 .ld-progress {
+  left: 7px;
+  right: auto;
+  bottom: 4px;
+  z-index: 2;
+}
+.ld-match-2 .ld-player[data-dock-side="right"] .ld-progress {
+  left: auto;
+  right: 7px;
+}
+.ld-match-2 .ld-active-arrow {
+  left: 50%;
+  right: auto;
+  top: 6px;
+  translate: -50% 0;
+  rotate: -90deg;
+}
+.ld-match-2 .ld-player-gift,
+.ld-match-2 .ld-seat-green .ld-player-gift,
+.ld-match-2 .ld-seat-yellow .ld-player-gift {
+  bottom: auto;
+  top: -42px;
+  right: 2px;
+  left: auto;
+}
+.ld-match-2 .ld-action-dock {
+  top: auto;
+  bottom: 156px;
+  left: 12px;
+  right: 12px;
+}
+.ld-match-2 .ld-arena-footer > .ld-chat-toggle {
+  top: auto;
+  bottom: 146px;
+  left: 3px;
+}
+.ld-match-2 .ld-action-dock {
+  left: 48px;
+  right: 48px;
+}
+.ld-match-2 .ld-moves {
+  margin-inline: -36px;
+}
+@keyframes ld-reference-arrow {
+  to {
+    transform: translateX(-5px);
+  }
+}
+
+@container ludo (max-height: 650px) and (max-width: 559px) {
+  .ld-match-2 {
+    --match-board: min(calc(100cqw - 22px), calc(100cqh - 306px));
+  }
+  .ld-in-match .ld-mobile-match-info small {
+    display: none;
+  }
+  .ld-in-match .ld-arena-footer > button:nth-child(2),
+  .ld-in-match .ld-arena-footer > button:last-child {
+    top: 48px;
+    height: 44px;
+  }
+  .ld-in-match .ld-action-dock {
+    top: calc(50% + var(--match-board) / 2 + var(--match-card-height) + 2px);
+  }
+  .ld-in-match .ld-player-kind {
+    top: 1px;
+    font-size: 8px;
+  }
+  .ld-in-match .ld-player-controls {
+    top: 18px;
+  }
+  .ld-in-match .ld-player-name {
+    bottom: 1px;
+  }
+  .ld-in-match .ld-player-name strong {
+    font-size: 10px;
+    line-height: 12px;
+  }
+  .ld-in-match .ld-progress {
+    bottom: -5px;
+  }
+  .ld-in-match .ld-player-gift {
+    display: none;
+  }
+  .ld-match-2 .ld-board-wrap {
+    top: 96px;
+  }
+  .ld-match-2 .ld-players-bottom {
+    height: 106px;
+  }
+  .ld-match-2 .ld-avatar {
+    width: 46px;
+    height: 46px;
+    top: 0;
+  }
+  .ld-match-2 .ld-player-kind {
+    top: 25px;
+    left: 60px;
+  }
+  .ld-match-2 .ld-player[data-dock-side="right"] .ld-player-kind {
+    right: 60px;
+  }
+  .ld-match-2 .ld-player-name {
+    bottom: 0;
+    height: 50px;
+    padding-top: 7px;
+    padding-left: 33px;
+    padding-right: 34px;
+  }
+  .ld-match-2 .ld-player[data-dock-side="right"] .ld-player-name {
+    padding-left: 36px;
+    padding-right: 30px;
+  }
+  .ld-match-2 .ld-player-name strong {
+    font-size: 11px;
+  }
+  .ld-match-2 .ld-player-name > small {
+    font-size: 9px;
+  }
+  .ld-match-2 .ld-roll,
+  .ld-match-2 .ld-other-dice {
+    width: 64px;
+    height: 58px;
+  }
+  .ld-match-2 .ld-seat-pin {
+    width: 23px;
+    height: 31px;
+    bottom: 12px;
+  }
+  .ld-match-2 .ld-progress {
+    bottom: 5px;
+  }
+  .ld-match-2 .ld-active-arrow {
+    top: -1px;
+  }
+  .ld-match-2 .ld-action-dock {
+    top: auto;
+    bottom: 122px;
+  }
+  .ld-match-2 .ld-arena-footer > .ld-chat-toggle {
+    top: 48px;
+    bottom: auto;
+    left: 112px;
+  }
+}
+
+/* Rotation retains full-size touch controls and keeps the board square. */
+@container ludo (orientation: landscape) and (max-height: 600px) and (min-width: 560px) {
+  .ld-in-match {
+    --match-board: min(calc(100cqh - 56px), calc(50cqw - 24px));
+    --match-card-height: 76px;
+  }
+  .ld-in-match .ld-mobile-match-header {
+    inset: 2px 8px auto;
+  }
+  .ld-in-match .ld-mobile-match-info > div {
+    justify-content: center;
+  }
+  .ld-in-match .ld-mobile-match-info small {
+    text-align: center;
+  }
+  .ld-in-match .ld-board-layout {
+    top: 50px;
+    bottom: 4px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+    gap: 12px;
+    padding: 0 8px;
+  }
+  .ld-in-match .ld-playfield {
+    position: static;
+    display: contents;
+    transform: none;
+    width: auto;
+    height: auto;
+  }
+  .ld-in-match .ld-board-wrap {
+    position: static;
+    grid-area: 1 / 1;
+    transform: none;
+    width: var(--match-board);
+    height: var(--match-board);
+    max-height: none;
+  }
+  .ld-in-match .ld-players {
+    position: absolute;
+    grid-area: auto;
+    left: calc(50% + 8px);
+    right: 12px;
+    top: 0;
+    bottom: auto;
+    width: calc(50% - 20px);
+    height: 76px;
+    gap: 6px;
+  }
+  .ld-in-match .ld-players-bottom {
+    top: 78px;
+  }
+  .ld-in-match .ld-player {
+    position: relative;
+    width: 108px;
+    height: 76px;
+    text-align: left;
+  }
+  .ld-in-match .ld-player-plate {
+    display: block;
+  }
+  .ld-in-match .ld-player-controls {
+    display: flex;
+    position: absolute;
+    left: 6px;
+    right: 5px;
+    top: 18px;
+    padding: 0;
+    gap: 5px;
+  }
+  .ld-in-match .ld-avatar {
+    position: relative;
+    inset: auto;
+    width: 40px;
+    height: 40px;
+  }
+  .ld-in-match .ld-roll,
+  .ld-in-match .ld-other-dice {
+    position: relative;
+    inset: auto;
+    transform: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    border-width: 1px;
+    visibility: visible;
+  }
+  .ld-in-match .ld-die {
+    --die-size: 30px;
+  }
+  .ld-in-match .ld-player-kind {
+    inset: 0 auto auto 7px;
+    font-size: 8px;
+    line-height: 14px;
+  }
+  .ld-in-match .ld-player-kind svg {
+    width: 12px;
+    height: 12px;
+  }
+  .ld-in-match .ld-player-name,
+  .ld-match-2 .ld-player[data-dock-side="right"] .ld-player-name {
+    inset: auto 6px 1px;
+    width: auto;
+    height: auto;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    text-align: left;
+  }
+  .ld-in-match .ld-player-name strong {
+    font-size: 10px;
+    line-height: 12px;
+  }
+  .ld-in-match .ld-player-name > small {
+    display: none;
+  }
+  .ld-in-match .ld-player-name > .ld-auto-warning {
+    display: block;
+    font-size: 8px;
+    top: auto;
+    bottom: 72px;
+  }
+  .ld-in-match .ld-progress {
+    left: auto;
+    right: 2px;
+    bottom: -5px;
+  }
+  .ld-in-match .ld-seat-green .ld-progress,
+  .ld-in-match .ld-seat-yellow .ld-progress {
+    left: 2px;
+    right: auto;
+  }
+  .ld-in-match .ld-seat-pin,
+  .ld-in-match .ld-player-gift,
+  .ld-in-match .ld-active-arrow {
+    display: none;
+  }
+  .ld-in-match .ld-action-dock {
+    grid-area: auto;
+    inset: auto 12px 0 calc(50% + 8px);
+    height: auto;
+    max-height: calc(100% - 156px);
+    overflow-y: auto;
+    align-content: end;
+  }
+  .ld-in-match .ld-turn {
+    min-height: 30px;
+  }
+  .ld-in-match .ld-turn p {
+    display: none;
+  }
+  .ld-in-match .ld-moves {
+    margin: 2px 0 0;
+  }
+  .ld-in-match .ld-arena-footer > button {
+    top: auto;
+    bottom: 5px;
+  }
+  .ld-in-match .ld-arena-footer > button:nth-child(2),
+  .ld-in-match .ld-arena-footer > button:last-child {
+    display: none;
+  }
+  .ld-in-match .ld-arena-footer > .ld-chat-toggle {
+    top: 2px;
+    bottom: auto;
+    left: 52px;
+  }
+  .ld-match-2 .ld-players-top {
+    display: none;
+  }
+  .ld-match-2 .ld-players-bottom {
+    top: 0;
+  }
+  .ld-match-2 .ld-player[data-dock-side="right"] .ld-avatar {
+    inset: auto;
+  }
+  .ld-match-2 .ld-player[data-dock-side="right"] .ld-player-kind {
+    inset: 0 7px auto auto;
+  }
+  .ld-match-2 .ld-action-dock {
+    max-height: calc(100% - 78px);
+  }
+  .ld-in-match .ld-error {
+    left: calc(50% + 8px);
+    right: 8px;
+    bottom: 8px;
+  }
+}
+@container ludo (min-width: 560px) and (max-height: 320px) {
+  .ld-match-4 .ld-players {
+    height: 44px;
+  }
+  .ld-match-4 .ld-players-bottom {
+    top: 46px;
+  }
+  .ld-match-4 .ld-player {
+    height: 44px;
+  }
+  .ld-match-4 .ld-player-plate,
+  .ld-match-4 .ld-player-kind,
+  .ld-match-4 .ld-progress {
+    display: none;
+  }
+  .ld-match-4 .ld-player-controls {
+    top: 0;
+  }
+  .ld-match-4 .ld-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  .ld-match-4 .ld-player-name,
+  .ld-match-4 .ld-player-name > .ld-auto-warning {
+    display: none;
+  }
+  .ld-match-4 .ld-action-dock {
+    max-height: calc(100% - 92px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ld-player-active .ld-active-arrow {
+    animation: none;
+  }
+}

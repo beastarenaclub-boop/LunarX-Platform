@@ -1,0 +1,221 @@
+.ld-token.ld-token-home {
+  width: 3.7%;
+  z-index: 4;
+  filter: drop-shadow(0 0 2px #fff3a2);
+}
+.ld-match-timer {
+  font-size: 13px;
+  color: #ffedaa;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ld-player-name .ld-auto-warning {
+  color: #ffe493;
+  font-size: 9px;
+}
+.ld-chat-toggle {
+  position: relative;
+}
+.ld-chat-toggle > i {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  background: #ffce40;
+  border-radius: 50%;
+}
+.ld-chat-modal {
+  width: min(420px, calc(100vw - 20px));
+  max-height: calc(100dvh - 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+.ld-chat-log {
+  min-height: 80px;
+  height: min(34dvh, 300px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 12px;
+  background: #061d41;
+}
+.ld-chat-message {
+  background: #194b80;
+  border-radius: 12px 12px 12px 2px;
+  padding: 7px 10px;
+  width: fit-content;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.ld-chat-message small {
+  color: #f9d986;
+  font-size: 10px;
+}
+.ld-chat-message > span {
+  font-size: 14px;
+  color: #fff;
+}
+.ld-chat-message.ld-chat-own {
+  align-self: flex-end;
+  background: #23634d;
+  border-radius: 12px 12px 2px 12px;
+}
+.ld-chat-message .ld-chat-emoji {
+  font-size: 38px;
+  line-height: 1.25;
+}
+.ld-chat-message em {
+  font-size: 9px;
+  font-style: normal;
+  color: #c4dfef;
+}
+.ld-chat-empty {
+  font-size: 12px;
+  color: #c5d8ee;
+  text-align: center;
+  padding: 12px;
+}
+.ld-chat-compose,
+.ld-chat-compose form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.ld-chat-compose form {
+  flex: 1;
+}
+.ld-chat-compose button {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: #ffe69e;
+  background: #1b5188;
+  border-radius: 10px;
+  border: 1px solid #719bc4;
+}
+.ld-chat-compose input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 8px;
+  color: #fff;
+  background: #061c3d;
+  border: 1px solid #658bb6;
+  border-radius: 10px;
+  font-size: 16px;
+}
+.ld-emoji-tray {
+  background: #092548;
+  border: 1px solid #51789d;
+  border-radius: 12px;
+  padding: 8px;
+}
+.ld-emoji-tray p {
+  color: #ffe69e;
+  font-size: 11px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+.ld-emoji-tray > div {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  max-height: 148px;
+  overflow-y: auto;
+}
+.ld-emoji-tray button {
+  min-width: 0;
+  min-height: 50px;
+  background: #19416d;
+  border-radius: 8px;
+  display: grid;
+  justify-items: center;
+  padding: 4px;
+}
+.ld-emoji-tray button span {
+  font-size: 25px;
+}
+.ld-emoji-tray button small {
+  font-size: 9px;
+  color: #ffe69e;
+}
+.ld-emoji-tray button:disabled,
+.ld-chat-compose button:disabled {
+  opacity: 0.45;
+}
+.ld-chat-error {
+  color: #ffd6bd;
+  font-size: 12px;
+}
+.ld-result-modal {
+  text-align: center;
+  width: min(400px, calc(100vw - 24px));
+  overflow: hidden auto;
+  background: radial-gradient(ellipse at top, #335f91, #0a2147 65%);
+  border: 2px solid #e3be62;
+}
+.ld-result-crown {
+  color: #ffda68;
+  width: 74px;
+  height: 74px;
+  margin: 4px auto;
+  filter: drop-shadow(0 0 14px #ffc95b70);
+}
+.ld-result-prize {
+  display: block;
+  font-size: 40px;
+  font-weight: 900;
+  color: #ffdf86;
+  line-height: 1.2;
+}
+.ld-result-players {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  margin: 8px 0;
+}
+.ld-result-players > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  background: #ffffff0c;
+  border-radius: 9px;
+  font-size: 13px;
+}
+.ld-result-players .ld-result-winner {
+  background: #d9ae4329;
+  color: #ffe8a4;
+  border: 1px solid #cfaa57;
+}
+.ld-result-modal > p {
+  font-size: 12px;
+  color: #d3e1f2;
+}
+@media (max-height: 480px) {
+  .ld-chat-modal {
+    gap: 6px;
+  }
+  .ld-chat-log {
+    height: 100px;
+    flex-shrink: 0;
+  }
+  .ld-result-crown {
+    width: 40px;
+    height: 40px;
+  }
+}

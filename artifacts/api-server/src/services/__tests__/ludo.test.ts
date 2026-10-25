@@ -13,6 +13,7 @@ import {
   rollDie,
   moveToken,
   computerToken,
+  timedWinners,
 } from "../ludoRules";
 const initial = (n = 2): LudoState => ({
   players: ludoColors(n).map((color, seat) => ({
@@ -31,6 +32,18 @@ const initial = (n = 2): LudoState => ({
   winner: null,
   rollNonce: 0,
   last: null,
+});
+test("timed ranking counts only home tokens, splits equal scores and excludes forfeited seats", () => {
+  const s = initial(4);
+  s.players[0]!.tokens = [56, 55, 55, 55];
+  s.players[1]!.tokens = [56, -1, -1, -1];
+  s.players[2]!.tokens = [55, 55, 55, 55];
+  s.players[3]!.tokens = [56, 56, 56, 56];
+  s.players[3]!.forfeited = true;
+  assert.deepEqual(timedWinners(s), [0, 1]);
+  s.players[1]!.tokens[1] = 56;
+  assert.deepEqual(timedWinners(s), [1]);
+  assert.deepEqual(timedWinners(initial(4)), [0, 1, 2, 3]);
 });
 test("board has 52 unique cells, opposite two-player homes and isolated home lanes", () => {
   assert.equal(new Set(LUDO_PATH.map((p) => p.join(","))).size, 52);
