@@ -1,5 +1,9 @@
 # Ludo Live
 
+Dice use six actual 3D faces. A local click starts the roll immediately, keeps it visible for at least 640 ms, then lands over 260 ms on the server's result. Opponent and Computer rolls animate on new roll nonces too. Each seat retains its last result; reloading or catching up multiple rolls does not replay old animations. Token actions stay disabled until the dice lands, and failed requests stop without inventing a result. Reduced-motion mode uses a short result reveal.
+
+The lobby artwork and storefront Ludo cards have gentle light sweeps; reduced-motion preferences disable these effects. Original Web Audio effects provide dice rattle/landing, a six chime, token taps, captures, home/win tones and a final-five-second tick. Sound and optional background music have separate mute controls in the match and settings, persisted per player. Leaving the page disposes audio; switching tabs stops pending sounds. No third-party sound recordings are used.
+
 The opening screen shows the player's profile, wallet, Online Multiplayer and Computer modes, plus working sound/music preferences. Online play opens table selection, then a red VS matchmaking screen using the actual room participants and server deadline. A waiting-room cancellation refunds the entry. No placeholder portrait is presented as a connected player, and no invented online-player count is displayed.
 
 `POST /api/ludo/join` accepts optional `mode: "computer"` (omitted means online). Computer mode creates an isolated room and starts with 1 or 3 labelled Computer opponents immediately, using the same wallet entry, 90% winner prize and 10% platform commission. It never consumes seats from the public waiting queue. The pool suffix records the mode without a schema migration, and a join UUID cannot be reused with a different mode.

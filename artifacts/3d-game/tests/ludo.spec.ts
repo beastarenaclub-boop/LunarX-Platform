@@ -35,6 +35,221 @@ async function player(
 }
 const state = async (context: BrowserContext) =>
   (await (await context.request.get("/api/ludo/state")).json()) as LudoTable;
+async function readyRoll(
+  context: BrowserContext,
+  page: Page,
+  id: string,
+  seat: number,
+  face: number,
+) {
+  const response = await context.request.post("/api/test/ludo/roll-ready", {
+    data: { id, seat, face },
+  });
+  expect(response.ok()).toBeTruthy();
+  const { version } = await response.json();
+  await page.waitForResponse(
+    async (r) =>
+      r.url().endsWith("/api/ludo/state") &&
+      r.ok() &&
+      (await r.json()).match?.version >= version,
+  );
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+}
+
+test("all six server results animate for both players, retain their value and sound can be muted", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Dice Player", { width: 390, height: 844 }),
+    b = await player(browser, "Other Player", { width: 390, height: 844 });
+  try {
+    // Measure actual Web Audio samples at the output, rather than a sound callback.
+    await a.page.addInitScript(() => {
+      const probe = { peak: 0, contexts: [] as AudioContext[] };
+      (window as any).__ludoAudioProbe = probe;
+      const original = AudioNode.prototype.connect;
+      (AudioNode.prototype as any).connect = function (...args: any[]) {
+        if (args[0] instanceof AudioDestinationNode) {
+          const analyser = this.context.createAnalyser();
+          analyser.fftSize = 512;
+          original.call(this, analyser);
+          original.call(analyser, args[0]);
+          probe.contexts.push(this.context);
+          const buffer = new Float32Array(512);
+          setInterval(() => {
+            analyser.getFloatTimeDomainData(buffer);
+            for (const n of buffer)
+              probe.peak = Math.max(probe.peak, Math.abs(n));
+          }, 10);
+          return args[0];
+        }
+        return original.apply(this, args as any);
+      };
+    });
+    await a.page.reload();
+    await a.page
+      .getByRole("button", { name: "Find a match", exact: true })
+      .click();
+    await b.page
+      .getByRole("button", { name: "Find a match", exact: true })
+      .click();
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    const id = (await state(a.context)).match!.id;
+    const own = a.page.locator(".ld-player[data-you] .ld-die"),
+      opponent = b.page.locator(".ld-player:not([data-you]) .ld-die");
+    for (const face of [1, 2, 3, 4, 5, 6]) {
+      await readyRoll(a.context, a.page, id, 0, face);
+      await expect(
+        a.page.getByRole("button", { name: "Roll dice", exact: true }),
+      ).toBeEnabled();
+      const before = (await state(a.context)).match!.state.rollNonce;
+      await a.page.evaluate(() => {
+        (window as any).__ludoAudioProbe.peak = 0;
+      });
+      await a.page
+        .getByRole("button", { name: "Roll dice", exact: true })
+        .click();
+      await expect(own).toHaveAttribute("data-phase", "rolling");
+      await expect(opponent).toHaveAttribute("data-phase", "rolling");
+      await expect(
+        a.page.getByRole("button", { name: "Move 1", exact: true }),
+      ).toHaveCount(0);
+      const motion = await own
+        .locator(".ld-die-cube")
+        .evaluate(async (element) => {
+          const first = getComputedStyle(element).transform;
+          await new Promise((r) => setTimeout(r, 80));
+          return {
+            first,
+            second: getComputedStyle(element).transform,
+            animations: element.getAnimations().length,
+          };
+        });
+      expect(motion.first).not.toBe(motion.second);
+      expect(motion.animations).toBeGreaterThan(0);
+      if (face === 6)
+        await a.page.screenshot({
+          path: "tmp/ludo-dice-checks/rolling.png",
+          fullPage: true,
+        });
+      await expect(own).toHaveAttribute("data-phase", "idle");
+      await expect(own).toHaveAttribute("data-value", String(face));
+      const facing = await own.evaluate((die, result) => {
+        const cube = die.querySelector(".ld-die-cube")!;
+        const face = die.querySelector(`.ld-die-face-${result}`)!;
+        const world = new DOMMatrix(getComputedStyle(cube).transform).multiply(
+          new DOMMatrix(getComputedStyle(face).transform),
+        );
+        return new DOMPoint(0, 0, 1, 0).matrixTransform(world).z;
+      }, face);
+      expect(facing).toBeGreaterThan(0.99);
+      await expect(opponent).toHaveAttribute("data-value", String(face));
+      expect((await state(a.context)).match!.state.rollNonce).toBe(before + 1);
+      expect(
+        await a.page.evaluate(() => (window as any).__ludoAudioProbe.peak),
+      ).toBeGreaterThan(0.005);
+    }
+    await a.page.screenshot({
+      path: "tmp/ludo-dice-checks/landed-six.png",
+      fullPage: true,
+    });
+    await a.page
+      .getByRole("button", { name: "Mute sound", exact: true })
+      .click();
+    await readyRoll(a.context, b.page, id, 1, 2);
+    await expect(
+      b.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    await a.page.evaluate(() => {
+      (window as any).__ludoAudioProbe.peak = 0;
+    });
+    await b.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect(
+      a.page.locator(".ld-player:not([data-you]) .ld-die"),
+    ).toHaveAttribute("data-value", "2");
+    await expect(own).toHaveAttribute("data-value", "6");
+    expect(
+      await a.page.evaluate(() => (window as any).__ludoAudioProbe.peak),
+    ).toBeLessThan(0.00001);
+  } finally {
+    await a.context.close();
+    await b.context.close();
+  }
+});
+
+test("failed dice requests stop cleanly, retry once and respect reduced motion", async ({
+  browser,
+}) => {
+  const p = await player(
+    browser,
+    "Retry Dice",
+    { width: 320, height: 740 },
+    "home",
+  );
+  try {
+    await p.page
+      .getByRole("button", { name: "Play against Computer", exact: true })
+      .click();
+    await p.page
+      .getByRole("button", { name: "Find a match", exact: true })
+      .click();
+    await expect(
+      p.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
+    const initial = await state(p.context);
+    await readyRoll(p.context, p.page, initial.match!.id, 0, 6);
+    await p.page.route("**/api/ludo/*/action", (route) =>
+      route.fulfill({ status: 503, json: { error: "Temporary test outage" } }),
+    );
+    await p.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect(
+      p.page.getByRole("button", { name: "Retry last action", exact: true }),
+    ).toBeVisible();
+    await expect(
+      p.page.locator(".ld-player[data-you] .ld-die"),
+    ).toHaveAttribute("data-phase", "idle");
+    expect((await state(p.context)).match!.state.rollNonce).toBe(0);
+    await p.page.unroute("**/api/ludo/*/action");
+    await p.page.emulateMedia({ reducedMotion: "reduce" });
+    await p.page
+      .getByRole("button", { name: "Retry last action", exact: true })
+      .click();
+    await expect(
+      p.page.locator(".ld-player[data-you] .ld-die"),
+    ).toHaveAttribute("data-value", "6");
+    expect((await state(p.context)).match!.state.rollNonce).toBe(1);
+    expect(
+      await p.page
+        .locator(".ld-die-cube")
+        .first()
+        .evaluate((el) => el.getAnimations().length),
+    ).toBe(0);
+    for (const name of ["Mute sound", "Enable music"]) {
+      const control = p.page.getByRole("button", { name, exact: true });
+      await control.scrollIntoViewIfNeeded();
+      const box = await control.boundingBox();
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(320);
+    }
+    await expect(
+      p.page.getByRole("button", { name: "Move 1", exact: true }),
+    ).toBeEnabled();
+  } finally {
+    await p.context.close();
+  }
+});
 
 for (const capacity of [2, 4] as const)
   test(`Computer menu starts ${capacity} seats immediately, resumes and settles through the wallet`, async ({

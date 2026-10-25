@@ -11,6 +11,7 @@ import { loadSession } from "../../middlewares/auth";
 import { errorHandler } from "../../middlewares/error";
 import { attachRealtime } from "../../realtime/gateway";
 import { startLudoEngine, tickLudo } from "../ludo";
+import { commitment, ludoDie } from "../ludoRules";
 import ludoRouter from "../../routes/ludo";
 import type { LudoState } from "@workspace/api-zod/ludo";
 await ready;
@@ -85,6 +86,44 @@ app.post("/api/test/ludo/winning-move", async (req, res) => {
     })
     .where(eq(ludoMatches.id, id));
   res.json({ ok: true });
+});
+// Isolated fixture only: exercise all six real server outcomes through /action.
+app.post("/api/test/ludo/roll-ready", async (req, res) => {
+  const id = String(req.body.id),
+    seat = Number(req.body.seat),
+    face = Number(req.body.face);
+  const [r] = await db.select().from(ludoMatches).where(eq(ludoMatches.id, id));
+  if (
+    !r ||
+    ![1, 2, 3, 4, 5, 6].includes(face) ||
+    seat < 0 ||
+    seat >= r.capacity
+  ) {
+    res.sendStatus(400);
+    return;
+  }
+  const s = r.state as LudoState;
+  s.turn = seat;
+  s.phase = "roll";
+  s.dice = null;
+  s.sixes = 0;
+  s.last = null;
+  s.players[seat]!.tokens = [0, -1, -1, -1];
+  let seed: string;
+  do {
+    seed = randomUUID();
+  } while (ludoDie(seed, id, s.rollNonce) !== face);
+  await db
+    .update(ludoMatches)
+    .set({
+      state: s,
+      seed,
+      commitment: commitment(seed),
+      version: r.version + 1,
+      deadline: sql`clock_timestamp() + interval '25 seconds'`,
+    })
+    .where(eq(ludoMatches.id, id));
+  res.json({ ok: true, version: r.version + 1 });
 });
 app.use("/api/ludo", ludoRouter);
 app.use(errorHandler);

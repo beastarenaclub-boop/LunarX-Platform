@@ -520,6 +520,16 @@
 .lobby-game[data-game-id="ludo"] .lobby-game-art {
   background: radial-gradient(ellipse at 50% 30%, #2869bd, #102d6b 75%);
 }
+.lobby-game[data-game-id="ludo"] .lobby-game-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg,transparent 38%,#ffebac26 48%,#fff6d842 50%,transparent 62%) 150% 0 / 300% 100%;
+  animation: lobby-ludo-shine 8s ease-in-out infinite;
+}
+@keyframes lobby-ludo-shine { 0%,15% { background-position:150% 0; } 55%,100% { background-position:-50% 0; } }
+@media (prefers-reduced-motion:reduce) { .lobby-game[data-game-id="ludo"] .lobby-game-art::after { display:none; } }
 .lobby-game[data-game-id="ludo"] .lobby-game-art > img {
   padding: 6% 4% 21%;
 }

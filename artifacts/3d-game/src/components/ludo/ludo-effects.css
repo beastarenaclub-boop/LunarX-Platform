@@ -1,0 +1,373 @@
+/* Native-size 3D dice: every face remains readable when the roll lands. */
+.ld-die {
+  --die-size: 31px;
+  position: relative;
+  display: block;
+  width: var(--die-size);
+  height: var(--die-size);
+  perspective: 240px;
+  isolation: isolate;
+}
+.ld-die-lift,
+.ld-die-cube {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.ld-die-cube {
+  transform: var(--die-result);
+}
+.ld-die-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  gap: 3px;
+  padding: 5px;
+  border: 1px solid #e2d5b9;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #fffef4 15%, #f7efd9 58%, #d7c5a4);
+  box-shadow:
+    inset 1px 1px 2px #fff,
+    inset -1px -1px 2px #b5a58a66;
+  backface-visibility: hidden;
+}
+.ld-die-face i {
+  border-radius: 50%;
+  background: radial-gradient(circle at 65% 70%, #26374c, #071224 70%);
+  box-shadow:
+    inset 0 1px 2px #000,
+    0 1px #fff;
+}
+.ld-die-face-1 {
+  transform: translateZ(calc(var(--die-size) / 2));
+}
+.ld-die-face-2 {
+  transform: rotateY(90deg) translateZ(calc(var(--die-size) / 2));
+}
+.ld-die-face-3 {
+  transform: rotateX(90deg) translateZ(calc(var(--die-size) / 2));
+}
+.ld-die-face-4 {
+  transform: rotateX(-90deg) translateZ(calc(var(--die-size) / 2));
+}
+.ld-die-face-5 {
+  transform: rotateY(-90deg) translateZ(calc(var(--die-size) / 2));
+}
+.ld-die-face-6 {
+  transform: rotateY(180deg) translateZ(calc(var(--die-size) / 2));
+}
+.ld-die-shadow {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: -5px;
+  height: 9px;
+  border-radius: 50%;
+  background: #07142a65;
+  filter: blur(2px);
+}
+.ld-die[data-phase="rolling"] .ld-die-lift {
+  animation: ld-dice-hop 0.28s ease-in-out infinite alternate;
+}
+.ld-die[data-phase="rolling"] .ld-die-shadow {
+  animation: ld-dice-shadow 0.28s ease-in-out infinite alternate;
+}
+.ld-die[data-phase="landing"] .ld-die-lift {
+  animation: ld-dice-land 0.26s ease-out both;
+}
+.ld-roll:has(.ld-die[data-phase="rolling"]),
+.ld-other-dice:has(.ld-die[data-phase="rolling"]) {
+  filter: none;
+  opacity: 1;
+  border-color: #fff1b3;
+  box-shadow:
+    0 0 0 3px #fdd16f30,
+    0 0 20px #ffbd5866;
+}
+.ld-roll > span:last-child:not(.ld-die) {
+  position: absolute;
+  bottom: -10px;
+  font-size: 7px;
+  line-height: 12px;
+  font-weight: 900;
+  color: #103662;
+  background: #ffe07a;
+  padding: 0 4px;
+  border-radius: 4px;
+  z-index: 2;
+}
+.ld-roll,
+.ld-other-dice {
+  background: radial-gradient(ellipse at 50% 35%, #345482, #102445 80%);
+  border-color: #e5c16f;
+  box-shadow:
+    inset 0 0 0 2px #fff2,
+    0 3px 0 #06142e;
+}
+.ld-roll:disabled {
+  filter: none;
+}
+.ld-other-dice {
+  opacity: 0.9;
+}
+.ld-dice-blank {
+  color: #a3bde166;
+}
+@keyframes ld-dice-hop {
+  from {
+    transform: translateY(1px) scale(0.94);
+  }
+  to {
+    transform: translateY(-7px) scale(1.06);
+  }
+}
+@keyframes ld-dice-shadow {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(0.65);
+    opacity: 0.25;
+  }
+}
+@keyframes ld-dice-land {
+  0% {
+    transform: translateY(-5px) scale(1.03);
+  }
+  48% {
+    transform: translateY(2px) scale(1.06, 0.92);
+  }
+  75% {
+    transform: translateY(-1px);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* Light moves across the existing transparent artwork, preserving its silhouette. */
+.ld-emblem-scene {
+  position: relative;
+  isolation: isolate;
+}
+.ld-emblem-scene::before {
+  content: "";
+  position: absolute;
+  inset: 5% 8% 2%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #58b7ff33, transparent 67%);
+  z-index: -1;
+}
+.ld-home-content .ld-emblem-scene {
+  animation: ld-art-float 6s ease-in-out infinite;
+}
+.ld-art-lustre {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+      115deg,
+      transparent 40%,
+      #fff9db00 44%,
+      #fff9db70 49%,
+      #ffffffa8 50%,
+      #fff9db00 56%,
+      transparent 65%
+    )
+    140% 0 / 300% 100%;
+  mask: url("/media/ludo/royal-board.png") center / contain no-repeat;
+  -webkit-mask: url("/media/ludo/royal-board.png") center / contain no-repeat;
+  animation: ld-art-sheen 7s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+.ld-art-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.ld-art-stars i {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: #fff3bb;
+  clip-path: polygon(
+    50% 0,
+    60% 40%,
+    100% 50%,
+    60% 60%,
+    50% 100%,
+    40% 60%,
+    0 50%,
+    40% 40%
+  );
+  animation: ld-star-glow 5s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px #ffda71);
+}
+.ld-art-stars i:nth-child(1) {
+  left: 53%;
+  top: 14%;
+}
+.ld-art-stars i:nth-child(2) {
+  left: 14%;
+  top: 76%;
+  width: 11px;
+  height: 11px;
+  animation-delay: -1.8s;
+}
+.ld-art-stars i:nth-child(3) {
+  right: 11%;
+  top: 59%;
+  width: 13px;
+  height: 13px;
+  animation-delay: -3.4s;
+}
+.ld-home-content .ld-emblem-word > b {
+  box-shadow:
+    0 3px #9f6e22,
+    0 0 22px #ffc84c25;
+}
+.ld-mode-tile {
+  overflow: hidden;
+}
+.ld-mode-tile::before {
+  content: "";
+  position: absolute;
+  inset: -70% -100%;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 45%,
+    #c9edff20 50%,
+    transparent 55%
+  );
+  transform: translateX(-38%);
+  animation: ld-card-sheen 8s ease-in-out infinite;
+}
+.ld-computer-tile::before {
+  animation-delay: -4s;
+}
+.ld-mode-tile > * {
+  position: relative;
+}
+.ld-tile-action {
+  border-top: 1px solid #fff7d8;
+  box-shadow:
+    inset 0 2px #fff6,
+    0 3px #a67b2c,
+    0 0 18px #eab63818;
+}
+.ld-profile-header {
+  background: linear-gradient(115deg, #2767b3e8, #112c66f5 65%);
+  box-shadow:
+    inset 0 1px #ffffff38,
+    0 8px 24px #020f3638;
+}
+.ld-board-wrap {
+  background: linear-gradient(
+    135deg,
+    #fff5c0,
+    #c48b24 22%,
+    #ffe699 48%,
+    #b8811b 73%,
+    #ffe8a6
+  );
+  box-shadow:
+    inset 0 0 0 2px #b1873c,
+    0 6px #071b45,
+    0 12px 28px #020d3759,
+    0 0 28px #ffc45312;
+}
+.ld-player-active .ld-avatar {
+  border-color: #fff3b3;
+  box-shadow:
+    inset 0 1px 2px #ffffff66,
+    0 0 0 2px #f2d47d55,
+    0 0 18px #f6d46566;
+}
+.ld-your-turn {
+  background: linear-gradient(110deg, #2865a7, #132d60);
+}
+.ld-arena-footer {
+  gap: 8px;
+}
+.ld-arena-footer .ld-sound-controls {
+  gap: 6px;
+}
+.ld-arena-footer .ld-sound-controls button {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  border-radius: 10px;
+}
+.ld-arena-footer .ld-sound-controls svg {
+  width: 18px;
+  height: 18px;
+}
+@keyframes ld-art-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes ld-art-sheen {
+  0%,
+  15% {
+    background-position: 140% 0;
+  }
+  50%,
+  100% {
+    background-position: -40% 0;
+  }
+}
+@keyframes ld-card-sheen {
+  0%,
+  20% {
+    transform: translateX(-38%);
+  }
+  55%,
+  100% {
+    transform: translateX(38%);
+  }
+}
+@keyframes ld-star-glow {
+  0%,
+  30%,
+  100% {
+    opacity: 0;
+    transform: scale(0.35) rotate(0);
+  }
+  55% {
+    opacity: 0.85;
+    transform: scale(1) rotate(25deg);
+  }
+  75% {
+    opacity: 0;
+    transform: scale(0.5) rotate(50deg);
+  }
+}
+@media (max-width: 360px) {
+  .ld-arena-footer {
+    gap: 4px;
+  }
+  .ld-arena-footer > button:nth-child(2) {
+    font-size: 10px;
+    gap: 3px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ld-app *,
+  .ld-app *::before,
+  .ld-app *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .ld-art-lustre,
+  .ld-art-stars {
+    display: none;
+  }
+}

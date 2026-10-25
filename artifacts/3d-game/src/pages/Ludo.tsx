@@ -36,8 +36,14 @@ import { useAuth } from "@/lib/auth";
 import { useLudo } from "@/components/ludo/useLudo";
 import { LudoBoard, COLORS } from "@/components/ludo/LudoBoard";
 import { LudoPin } from "@/components/ludo/LudoPin";
-import { LudoHome, LudoMatchmaking } from "@/components/ludo/LudoLobby";
+import {
+  LudoHome,
+  LudoMatchmaking,
+  LudoSoundControls,
+} from "@/components/ludo/LudoLobby";
 import { useLudoAudio } from "@/components/ludo/useLudoAudio";
+import { useLudoRoll, type LudoRoll } from "@/components/ludo/useLudoRoll";
+import { LudoDice } from "@/components/ludo/LudoDice";
 import {
   Dialog,
   DialogContent,
@@ -47,6 +53,7 @@ import {
 import "@/components/ludo/ludo.css";
 import "@/components/ludo/ludo-lobby.css";
 import "@/components/ludo/ludo-home.css";
+import "@/components/ludo/ludo-effects.css";
 const money = (v: string | number) =>
   `₹${(Number(v) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const preview: LudoState = {
@@ -67,37 +74,6 @@ const preview: LudoState = {
   rollNonce: 0,
   last: null,
 };
-function Dice({
-  value = 6,
-  rolling = false,
-}: {
-  value?: number;
-  rolling?: boolean;
-}) {
-  const dots: Record<number, number[]> = {
-    1: [4],
-    2: [0, 8],
-    3: [0, 4, 8],
-    4: [0, 2, 6, 8],
-    5: [0, 2, 4, 6, 8],
-    6: [0, 2, 3, 5, 6, 8],
-  };
-  return (
-    <span
-      className={`ld-dice${rolling ? " ld-dice-roll" : ""}`}
-      aria-label={`Dice ${value}`}
-    >
-      {Array.from({ length: 9 }, (_, i) => (
-        <i
-          key={i}
-          style={{
-            visibility: dots[value]?.includes(i) ? "visible" : "hidden",
-          }}
-        />
-      ))}
-    </span>
-  );
-}
 function Player({
   p,
   color,
@@ -106,7 +82,7 @@ function Player({
   dice,
   remaining,
   disabled,
-  rolling,
+  roll,
   onRoll,
 }: {
   p: LudoPlayer | null;
@@ -116,7 +92,7 @@ function Player({
   dice?: number;
   remaining: number;
   disabled: boolean;
-  rolling: boolean;
+  roll?: LudoRoll | null;
   onRoll: () => void;
 }) {
   return (
@@ -145,9 +121,15 @@ function Player({
             onClick={onRoll}
             aria-label="Roll dice"
           >
-            <Dice value={dice} rolling={rolling} />
+            <LudoDice value={dice} roll={roll} />
             <span>
-              {active && !disabled ? "ROLL" : active ? `${remaining}s` : "DICE"}
+              {roll
+                ? "ROLLING"
+                : active && !disabled
+                  ? "ROLL"
+                  : active
+                    ? `${remaining}s`
+                    : "DICE"}
             </span>
           </button>
         ) : (
@@ -159,8 +141,8 @@ function Player({
                 : "Waiting for turn"
             }
           >
-            {dice ? (
-              <Dice value={dice} />
+            {dice || roll ? (
+              <LudoDice value={dice} roll={roll} />
             ) : (
               <span className="ld-dice-blank">
                 {p ? <Crown size={22} /> : <Users size={22} />}
@@ -227,7 +209,13 @@ function LudoGame({
 }) {
   const game = useLudo(userId),
     { data, busy, offline } = game;
-  const audio = useLudoAudio(userId, data?.match);
+  const audio = useLudoAudio(userId, data?.match, game.time);
+  const diceRoll = useLudoRoll(
+    data?.match,
+    !busy && !!(game.error || offline),
+    audio.roll,
+    audio.land,
+  );
   const [menu, setMenu] = useState<{
     screen: "home" | "setup";
     mode: "online" | "computer";
@@ -326,13 +314,20 @@ function LudoGame({
     chosenPrize = entry * capacity * 0.9;
   const entries = data?.entries ?? [...LUDO.entries];
   const entryIndex = entries.indexOf(entry);
-  const locked = busy || offline || game.retry || !playing || remaining === 0;
+  const locked =
+    busy ||
+    offline ||
+    game.retry ||
+    !!diceRoll.roll ||
+    !playing ||
+    remaining === 0;
   const renderPlayer = (color: LudoColor) => {
     const i = ludoColors(seats).findIndex((c) => displayColour(c) === color);
     if (i < 0)
       return <div className="ld-empty-seat" key={color} aria-hidden="true" />;
     const p = s.players[i];
-    const active = !!playing && s.turn === i;
+    const active =
+      !!playing && (diceRoll.roll ? diceRoll.roll.seat === i : s.turn === i);
     return (
       <Player
         key={color}
@@ -341,16 +336,15 @@ function LudoGame({
         active={active}
         you={!!show && m.you === i}
         dice={
-          active && s.dice
-            ? s.dice
-            : s.last?.seat === i
-              ? s.last.dice
-              : undefined
+          diceRoll.values[i] ?? (s.last?.seat === i ? s.last.dice : undefined)
         }
         remaining={remaining}
         disabled={locked || !yours || s.phase !== "roll"}
-        rolling={busy && active && s.phase === "roll"}
-        onRoll={() => game.act("roll")}
+        roll={diceRoll.roll?.seat === i ? diceRoll.roll : null}
+        onRoll={() => {
+          if (!locked && yours && s.phase === "roll" && diceRoll.begin())
+            game.act("roll");
+        }}
       />
     );
   };
@@ -367,9 +361,13 @@ function LudoGame({
               ? `${winner.name} wins!`
               : "Match ended"
       : playing
-        ? yours
-          ? "Your turn"
-          : `${s.players[s.turn]?.name}'s turn`
+        ? diceRoll.roll
+          ? diceRoll.roll.seat === m.you
+            ? "Rolling your dice…"
+            : `${s.players[diceRoll.roll.seat]?.name} is rolling…`
+          : yours
+            ? "Your turn"
+            : `${s.players[s.turn]?.name}'s turn`
         : "Your next win starts here.";
   const verify = async () => {
     if (!m) return;
@@ -405,6 +403,7 @@ function LudoGame({
     <main
       ref={app}
       onPointerDownCapture={audio.unlock}
+      onKeyDownCapture={audio.unlock}
       className={
         "ld-app " +
         (home
@@ -702,6 +701,7 @@ function LudoGame({
               </div>
               <div className="ld-board-wrap">
                 <LudoBoard
+                  key={m.id}
                   state={s}
                   you={m.you}
                   legal={m.legalTokens}
@@ -740,13 +740,15 @@ function LudoGame({
                           (winner?.seat === m.you
                             ? money(m.prizePaise) + " credited to your wallet"
                             : "Ready for another game?")
-                        : yours
-                          ? s.phase === "move"
-                            ? "Tap a glowing token or choose below"
-                            : "Tap the dice beside your name"
-                          : s.players[s.turn]?.kind === "computer"
-                            ? "Computer is making a move…"
-                            : "Waiting for their move…"}
+                        : diceRoll.roll
+                          ? "Let the dice land…"
+                          : yours
+                            ? s.phase === "move"
+                              ? "Tap a glowing token or choose below"
+                              : "Tap the dice beside your name"
+                            : s.players[s.turn]?.kind === "computer"
+                              ? "Computer is making a move…"
+                              : "Waiting for their move…"}
                   </p>
                 </div>
                 {waiting ? (
@@ -771,7 +773,7 @@ function LudoGame({
                   </span>
                 )}
               </div>
-              {yours && s.phase === "move" && (
+              {yours && s.phase === "move" && !diceRoll.roll && (
                 <div className="ld-moves" aria-label="Choose a token">
                   {m.legalTokens.map((token) => (
                     <button
@@ -786,12 +788,14 @@ function LudoGame({
                 </div>
               )}
               <div className="ld-last">
-                {s.last?.text === "Match started · Red rolls first"
-                  ? "Match started · " +
-                    (s.players[0]?.name || "First seat") +
-                    " rolls first"
-                  : s.last?.text ||
-                    "Roll a six to bring your tokens into play."}
+                {diceRoll.roll
+                  ? "Dice in motion…"
+                  : s.last?.text === "Match started · Red rolls first"
+                    ? "Match started · " +
+                      (s.players[0]?.name || "First seat") +
+                      " rolls first"
+                    : s.last?.text ||
+                      "Roll a six to bring your tokens into play."}
               </div>
               {ended && m.seed && (
                 <button className="ld-proof" onClick={() => void verify()}>
@@ -810,6 +814,7 @@ function LudoGame({
               <button onClick={() => setDialog("rules")}>
                 How to play <Info size={14} />
               </button>
+              <LudoSoundControls audio={audio} />
               <button
                 className="ld-fullscreen"
                 aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}

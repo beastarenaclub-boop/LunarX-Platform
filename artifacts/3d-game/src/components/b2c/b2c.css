@@ -305,7 +305,19 @@
   margin-left: 37%;
   object-fit: contain;
   padding: 3% 2% 2% 0;
+  filter: drop-shadow(0 7px 7px #04163888);
 }
+.b2c-game[data-game-id="ludo"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg,transparent 35%,#ffebac26 48%,#fff6d842 50%,transparent 63%) 150% 0 / 300% 100%;
+  animation: b2c-ludo-shine 8s ease-in-out infinite;
+  border-radius: inherit;
+}
+@keyframes b2c-ludo-shine { 0%,15% { background-position:150% 0; } 55%,100% { background-position:-50% 0; } }
+@media (prefers-reduced-motion:reduce) { .b2c-game[data-game-id="ludo"]::after { display:none; } }
 .b2c-ludo-title {
   position: absolute;
   left: 6%;
