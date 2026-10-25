@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   LUDO_COLORS,
   LUDO_PATH,
@@ -30,7 +31,7 @@ function finishedPosition(color: LudoColor, token: number): [number, number] {
   for (let i = 0; i < LUDO_COLORS.indexOf(color); i++) [r, c] = [c, 15 - r];
   return [r - 0.5, c - 0.5];
 }
-export function LudoBoard({
+export const LudoBoard = memo(function LudoBoard({
   state,
   you,
   legal = [],
@@ -208,4 +209,4 @@ export function LudoBoard({
       })}
     </div>
   );
-}
+});

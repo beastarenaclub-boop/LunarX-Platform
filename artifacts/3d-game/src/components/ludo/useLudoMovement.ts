@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { LudoMatch, LudoState } from "@workspace/api-zod/ludo";
 
-export const LUDO_STEP_MS = 180;
+export const LUDO_STEP_MS = 120;
 export type MovingToken = { seat: number; token: number };
 type Move = MovingToken & {
   before: LudoState;

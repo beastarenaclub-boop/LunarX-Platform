@@ -12,6 +12,7 @@ async function player(
   name: string,
   viewport = { width: 1440, height: 1000 },
   screen: "home" | "online" = "online",
+  realtime = true,
 ) {
   const context = await browser.newContext({
     baseURL: base,
@@ -19,6 +20,10 @@ async function player(
     isMobile: viewport.width < 1024,
     hasTouch: viewport.width < 1024,
   });
+  if (!realtime)
+    await context.routeWebSocket(/\/(?:api\/)?ws(?:\?|$)/, (socket) =>
+      socket.close(),
+    );
   const login = await context.request.post("/api/test/ludo/login", {
     data: { name },
   });
@@ -54,12 +59,15 @@ async function readyRoll(
   });
   expect(response.ok()).toBeTruthy();
   const { version } = await response.json();
-  await page.waitForResponse(
+  const synced = page.waitForResponse(
     async (r) =>
       r.url().endsWith("/api/ludo/state") &&
       r.ok() &&
       (await r.json()).match?.version >= version,
   );
+  // The test fixture changes the database directly, outside the live event path.
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await synced;
   await page.evaluate(
     () =>
       new Promise<void>((resolve) =>
@@ -114,6 +122,38 @@ const tokenPositions = (page: Page) =>
         (s: { position: number }) => s.position,
       ) as number[],
   );
+
+async function watchDice(page: Page, selector: string) {
+  await page.evaluate((selector) => {
+    cancelAnimationFrame((window as any).__diceFrame);
+    const die = document.querySelector(selector)!;
+    const cube = die.querySelector(".ld-die-cube")!;
+    const samples: {
+      phase: string | null;
+      transform: string;
+      animations: number;
+      moveEnabled: boolean;
+    }[] = [];
+    (window as any).__diceSamples = samples;
+    let rolled = false;
+    const end = performance.now() + 10000;
+    const record = () => {
+      const phase = die.getAttribute("data-phase");
+      samples.push({
+        phase,
+        transform: getComputedStyle(cube).transform,
+        animations: cube.getAnimations().length,
+        moveEnabled: !!document.querySelector(
+          ".ld-moves button:not(:disabled)",
+        ),
+      });
+      rolled ||= phase === "rolling";
+      if (!(rolled && phase === "idle") && performance.now() < end)
+        (window as any).__diceFrame = requestAnimationFrame(record);
+    };
+    record();
+  }, selector);
+}
 
 test("single outside token automatically walks every square after rolls 1–5, on both boards", async ({
   browser,
@@ -255,7 +295,7 @@ test("six and multiple outside tokens stay manual; blocked home rolls never auto
   }
 });
 
-test("automatic capture lands before sending the opponent home and lost responses retry the same move", async ({
+test("automatic capture lands before sending the opponent home and committed moves recover through the private acknowledgement", async ({
   browser,
 }) => {
   const a = await player(browser, "Capture Walker", {
@@ -290,10 +330,12 @@ test("automatic capture lands before sending the opponent home and lost response
         if (!dropped) {
           dropped = true;
           await route.fetch(); // Commit first, lose only the response.
-          await route.fulfill({
-            status: 503,
-            json: { error: "Lost response" },
-          });
+          await route
+            .fulfill({
+              status: 503,
+              json: { error: "Lost response" },
+            })
+            .catch(() => {}); // The private commit acknowledgement can abort this request.
           return;
         }
       }
@@ -312,17 +354,9 @@ test("automatic capture lands before sending the opponent home and lost response
     ).toHaveAttribute("data-position", "-1");
     await expect(
       a.page.getByRole("button", { name: "Retry last action", exact: true }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await a.page.waitForTimeout(2800); // A state poll must not issue a second move.
     expect(requests).toHaveLength(1);
-    await a.page
-      .getByRole("button", { name: "Retry last action", exact: true })
-      .click();
-    await expect(
-      a.page.getByRole("button", { name: "Retry last action", exact: true }),
-    ).toHaveCount(0);
-    expect(requests).toHaveLength(2);
-    expect(requests[0].requestId).toBe(requests[1].requestId);
     expect((await state(a.context)).match!.state.players[0]!.tokens[0]).toBe(9);
     expect(await tokenPositions(a.page)).toEqual([5, 6, 7, 8, 9]);
     await a.page.emulateMedia({ reducedMotion: "reduce" });
@@ -684,32 +718,38 @@ test("all six server results animate for both players, retain their value and so
       await a.page.evaluate(() => {
         (window as any).__ludoAudioProbe.peak = 0;
       });
+      // Sample in the browser before the tap. Cross-page assertions must not
+      // depend on reaching a short animation before its last frame.
+      await Promise.all([
+        watchDice(a.page, ".ld-player[data-you] .ld-die"),
+        watchDice(b.page, ".ld-player:not([data-you]) .ld-die"),
+      ]);
       await a.page
         .getByRole("button", { name: "Roll dice", exact: true })
         .click();
-      await expect(own).toHaveAttribute("data-phase", "rolling");
-      await expect(opponent).toHaveAttribute("data-phase", "rolling");
-      await expect(
-        a.page.getByRole("button", { name: "Move 1", exact: true }),
-      ).toHaveCount(0);
-      const motion = await own
-        .locator(".ld-die-cube")
-        .evaluate(async (element) => {
-          const first = getComputedStyle(element).transform;
-          await new Promise((r) => setTimeout(r, 80));
-          return {
-            first,
-            second: getComputedStyle(element).transform,
-            animations: element.getAnimations().length,
-          };
-        });
-      expect(motion.first).not.toBe(motion.second);
-      expect(motion.animations).toBeGreaterThan(0);
-      if (face === 6)
-        await a.page.screenshot({
-          path: "tmp/ludo-dice-checks/rolling.png",
-          fullPage: true,
-        });
+      for (const page of [a.page, b.page]) {
+        await expect
+          .poll(() =>
+            page.evaluate(() => {
+              const samples = (window as any).__diceSamples;
+              const rolling = samples.filter((s: any) => s.phase === "rolling");
+              return {
+                moving: new Set(rolling.map((s: any) => s.transform)).size > 1,
+                animated: rolling.some((s: any) => s.animations > 0),
+                finished: rolling.length > 0 && samples.at(-1).phase === "idle",
+                prematureMove: samples.some(
+                  (s: any) => s.phase !== "idle" && s.moveEnabled,
+                ),
+              };
+            }),
+          )
+          .toEqual({
+            moving: true,
+            animated: true,
+            finished: true,
+            prematureMove: false,
+          });
+      }
       await expect(own).toHaveAttribute("data-phase", "idle");
       await expect(own).toHaveAttribute("data-value", String(face));
       const facing = await own.evaluate((die, result) => {
@@ -863,6 +903,164 @@ test("two-player dice starts from its resting face, keeps spinning through a del
     await finish(a.context, a.page);
   } finally {
     release();
+    await a.context.close();
+    await b.context.close();
+  }
+});
+
+test("late state replies cannot rewind a confirmed six or block the player's legal move", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Version A", { width: 390, height: 844 });
+  const b = await player(browser, "Version B");
+  let release = () => {};
+  try {
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await b.page.getByRole("button", { name: "Find a match" }).click();
+    const id = (await state(a.context)).match!.id;
+    await readyRoll(a.context, a.page, id, 0, 6, [-1, -1, -1, -1]);
+    let intercepted = () => {};
+    const waiting = new Promise<void>((resolve) => {
+      intercepted = resolve;
+    });
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await a.page.route(
+      "**/api/ludo/state",
+      async (route) => {
+        const response = await route.fetch(),
+          old = await response.json();
+        intercepted();
+        await held;
+        await route
+          .fulfill({ json: { ...old, serverNow: Date.now() + 60000 } })
+          .catch(() => {});
+      },
+      { times: 1 },
+    );
+    await a.page.evaluate(() => window.dispatchEvent(new Event("online")));
+    await waiting;
+    await a.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect(
+      a.page.getByRole("button", { name: "Move 1", exact: true }),
+    ).toBeEnabled();
+    release();
+    await a.page.waitForTimeout(300);
+    await expect(
+      a.page.getByRole("button", { name: "Move 1", exact: true }),
+    ).toBeEnabled();
+    await a.page.getByRole("button", { name: "Move 1", exact: true }).click();
+    await expect(
+      a.page.locator('[data-seat="0"][data-token="0"]'),
+    ).toHaveAttribute("data-position", "0");
+    expect((await state(a.context)).match!.state.rollNonce).toBe(1);
+    await expect(a.page.locator(".ld-active-arrow")).toHaveCount(0);
+  } finally {
+    release();
+    await a.page.unrouteAll({ behavior: "ignoreErrors" });
+    await a.context.close();
+    await b.context.close();
+  }
+});
+
+test("a private commit acknowledgement unlocks the next move while the roll HTTP reply is lost", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Ack A", { width: 390, height: 844 });
+  const b = await player(browser, "Ack B");
+  let release = () => {};
+  try {
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await b.page.getByRole("button", { name: "Find a match" }).click();
+    const id = (await state(a.context)).match!.id;
+    await readyRoll(a.context, a.page, id, 0, 6, [-1, -1, -1, -1]);
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await a.page.route("**/api/ludo/*/action", async (route) => {
+      if (route.request().postDataJSON().type !== "roll")
+        return route.continue();
+      await route.fetch();
+      await held;
+      await route.abort().catch(() => {});
+    });
+    await a.page
+      .getByRole("button", { name: "Roll dice", exact: true })
+      .click();
+    await expect(
+      a.page.getByRole("button", { name: "Move 1", exact: true }),
+    ).toBeEnabled({ timeout: 3000 });
+    await a.page.getByRole("button", { name: "Move 1", exact: true }).click();
+    await expect(
+      a.page.locator('[data-seat="0"][data-token="0"]'),
+    ).toHaveAttribute("data-position", "0");
+    await expect(
+      a.page.getByRole("button", { name: "Retry last action" }),
+    ).toHaveCount(0);
+    expect((await state(a.context)).match!.state.rollNonce).toBe(1);
+  } finally {
+    release();
+    await a.page.unrouteAll({ behavior: "ignoreErrors" });
+    await a.context.close();
+    await b.context.close();
+  }
+});
+
+test("rapid six, yard exit and next roll are shown in order on the other player's two-seat board", async ({
+  browser,
+}) => {
+  const a = await player(browser, "Sequence A", { width: 390, height: 844 });
+  const b = await player(browser, "Sequence B");
+  try {
+    await a.page.getByRole("button", { name: "Find a match" }).click();
+    await b.page.getByRole("button", { name: "Find a match" }).click();
+    const id = (await state(a.context)).match!.id;
+    await readyRoll(b.context, a.page, id, 1, 6, [-1, -1, -1, -1]);
+    await a.page.evaluate(() => {
+      const token = document.querySelector('[data-seat="1"][data-token="0"]')!;
+      (window as any).__yardExits = [];
+      new MutationObserver(() => {
+        if (token.getAttribute("data-position") === "0") {
+          const die = document.querySelector(
+            ".ld-player:not([data-you]) .ld-die",
+          )!;
+          (window as any).__yardExits.push({
+            face: die.getAttribute("data-value"),
+            phase: die.getAttribute("data-phase"),
+          });
+        }
+      }).observe(token, {
+        attributes: true,
+        attributeFilter: ["data-position"],
+      });
+    });
+    for (const type of ["roll", "move", "roll"] as const) {
+      const m = (await state(b.context)).match!;
+      const response = await b.context.request.post(`/api/ludo/${id}/action`, {
+        data: {
+          type,
+          token: type === "move" ? 0 : undefined,
+          version: m.version,
+          requestId: crypto.randomUUID(),
+        },
+      });
+      expect(response.ok()).toBeTruthy();
+    }
+    await expect
+      .poll(() => a.page.evaluate(() => (window as any).__yardExits))
+      .toEqual([{ face: "6", phase: "idle" }]);
+    await expect(
+      a.page.locator(".ld-player:not([data-you]) .ld-die"),
+    ).toHaveAttribute("data-phase", "idle");
+    await expect(a.page.locator(".ld-board")).toHaveAttribute(
+      "aria-busy",
+      "false",
+    );
+    await expect(a.page.locator(".ld-active-arrow")).toHaveCount(0);
+  } finally {
     await a.context.close();
     await b.context.close();
   }
@@ -1257,7 +1455,7 @@ test("empty 4-player table fills with three labelled computers after the real co
 test("lost join response can be retried without double debit; cancellation refunds once", async ({
   browser,
 }) => {
-  const p = await player(browser, "Retry Player");
+  const p = await player(browser, "Retry Player", undefined, "online", false);
   try {
     await p.page.route(
       "**/api/ludo/join",

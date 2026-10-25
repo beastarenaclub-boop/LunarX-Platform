@@ -1,5 +1,5 @@
 import { useId, type CSSProperties } from "react";
-import { ArrowLeft, Bot, Gift, Globe2 } from "lucide-react";
+import { Bot, Gift, Globe2 } from "lucide-react";
 import { LUDO, type LudoColor, type LudoPlayer } from "@workspace/api-zod/ludo";
 import { COLORS } from "./LudoBoard";
 import { LudoDice } from "./LudoDice";
@@ -247,9 +247,6 @@ export function LudoMatchPlayer({
       </div>
       <span className="ld-seat-pin">
         <LudoPin color={COLORS[color]} />
-      </span>
-      <span className="ld-active-arrow" aria-hidden="true">
-        <ArrowLeft fill="#ffd323" />
       </span>
       {!you && !p?.forfeited && (
         <button

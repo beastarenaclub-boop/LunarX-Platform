@@ -244,25 +244,38 @@ function start(r: Room, at: number) {
   s.last = { seat: 0, text: "Match started · Red rolls first" };
   schedule(r, at);
 }
-async function notify(id: string) {
-  // Notifications are hints; clients always recover the durable snapshot after reconnect.
+async function notify(
+  id: string,
+  command?: { userId: string; requestId: string; wallet?: boolean },
+) {
+  // Send the committed, member-specific board directly. A GET remains the reconnect fallback.
   try {
-    const [r] = await db
-      .select({ version: matches.version })
-      .from(matches)
-      .where(eq(matches.id, id));
+    const [r] = await db.select().from(matches).where(eq(matches.id, id));
     const list = await db
-      .select({ userId: members.userId })
+      .select({ member: members, payout: betsTable.payoutAmount })
       .from(members)
-      .where(eq(members.matchId, id));
-    for (const userId of new Set(list.map((m) => m.userId))) {
+      .innerJoin(betsTable, eq(betsTable.id, members.betId))
+      .where(eq(members.matchId, id))
+      .orderBy(desc(members.joinedAt));
+    if (!r) return;
+    const sent = new Set<string>();
+    for (const { member: m, payout } of list) {
+      const userId = m.userId;
+      if (sent.has(userId)) continue;
+      sent.add(userId);
       bus.publish({
         topic: `ludo:${userId}`,
         type: "changed",
         matchId: id,
-        version: r?.version ?? 0,
+        version: r.version,
         ts: Date.now(),
+        match: publicMatch(r, m, payout ?? 0n),
+        requestId: command?.userId === userId ? command.requestId : undefined,
       });
+      // Rolling/moving does not change a wallet. Avoid ledger reads and wallet
+      // refreshes for every seat on every move when many rooms are playing.
+      if (!command?.wallet && !["finished", "cancelled"].includes(r.status))
+        continue;
       const { balance } = await getBalanceByUser(userId);
       publishWalletBalance({
         userId,
@@ -450,7 +463,7 @@ export async function joinLudo(
     );
     return r.id;
   });
-  await notify(id);
+  await notify(id, { userId, requestId: input.requestId, wallet: true });
   return ludoTable(userId, id);
 }
 export async function actLudo(
@@ -543,7 +556,11 @@ export async function actLudo(
       input.requestId,
     );
   });
-  await notify(matchId);
+  await notify(matchId, {
+    userId,
+    requestId: input.requestId,
+    wallet: input.type === "leave",
+  });
   return ludoTable(userId, matchId);
 }
 export async function tickLudo() {
@@ -564,7 +581,7 @@ export async function tickLudo() {
     )
     .orderBy(matches.deadline)
     .limit(50);
-  for (const { id } of due) {
+  const processRoom = async ({ id }: { id: string }) => {
     const changed = await db.transaction(async (tx) => {
       const rows = await tx
         .select()
@@ -613,7 +630,16 @@ export async function tickLudo() {
       return true;
     });
     if (changed) await notify(id);
-  }
+  };
+  // Bounded workers keep one slow room from delaying every other room's turn.
+  let cursor = 0;
+  const workers = await Promise.allSettled(
+    Array.from({ length: Math.min(4, due.length) }, async () => {
+      while (cursor < due.length) await processRoom(due[cursor++]);
+    }),
+  );
+  const failure = workers.find((worker) => worker.status === "rejected");
+  if (failure?.status === "rejected") throw failure.reason;
 }
 function publicMatch(r: Room, m: Member, payout = 0n): LudoMatch {
   const s = stateOf(r);

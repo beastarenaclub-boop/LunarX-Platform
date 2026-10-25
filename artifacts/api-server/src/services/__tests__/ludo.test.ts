@@ -72,6 +72,28 @@ test("six enters yard, earns extra turn, third six forfeits without moving", () 
   assert.equal(s.players[1]!.tokens[0], 6);
   assert.match(s.last!.text, /third six/);
 });
+
+test("no token can leave its yard on any non-six for any seat in two- or four-player games", () => {
+  for (const capacity of [2, 4])
+    for (let seat = 0; seat < capacity; seat++) {
+      for (let dice = 1; dice <= 6; dice++) {
+        const s = initial(capacity);
+        s.turn = seat;
+        rollDie(s, dice);
+        if (dice === 6) {
+          moveToken(s, 0);
+          assert.deepEqual(s.players[seat]!.tokens, [0, -1, -1, -1]);
+        } else {
+          assert.deepEqual(legalTokens(s), []);
+          for (let token = 0; token < 4; token++)
+            assert.throws(() => moveToken(s, token));
+          assert.ok(
+            s.players.every((p) => p!.tokens.every((pos) => pos === -1)),
+          );
+        }
+      }
+    }
+});
 test("exact home roll, no finished-token movement, win only after four homes", () => {
   const s = initial();
   s.players[0]!.tokens = [56, 56, 56, 55];

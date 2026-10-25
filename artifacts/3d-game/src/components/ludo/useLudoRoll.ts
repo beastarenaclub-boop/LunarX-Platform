@@ -97,7 +97,7 @@ export function useLudoRoll(
             ),
           );
         },
-        Math.max(0, (reduced() ? 120 : 640) - (performance.now() - next.at)),
+        Math.max(0, (reduced() ? 120 : 400) - (performance.now() - next.at)),
       ),
     );
   }, [match?.id, match?.version, match?.state.rollNonce, match?.status]);

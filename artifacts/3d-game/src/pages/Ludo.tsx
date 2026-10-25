@@ -1,5 +1,7 @@
 import {
   useEffect,
+  useMemo,
+  useCallback,
   useLayoutEffect,
   useRef,
   useState,
@@ -41,13 +43,10 @@ import {
   LudoSoundControls,
 } from "@/components/ludo/LudoLobby";
 import { useLudoAudio } from "@/components/ludo/useLudoAudio";
-import { useLudoRoll, type LudoRoll } from "@/components/ludo/useLudoRoll";
+import { useLudoPresentation } from "@/components/ludo/useLudoPresentation";
 import { LudoMatchPlayer } from "@/components/ludo/LudoMatchPlayer";
 import { LudoChat } from "@/components/ludo/LudoChat";
-import {
-  useLudoAutoMove,
-  useLudoMovement,
-} from "@/components/ludo/useLudoMovement";
+import { useLudoAutoMove } from "@/components/ludo/useLudoMovement";
 import {
   Dialog,
   DialogContent,
@@ -106,17 +105,16 @@ function LudoGame({
   const game = useLudo(userId),
     { data, busy, offline } = game;
   const audio = useLudoAudio(userId, data?.match, game.time);
-  const diceRoll = useLudoRoll(
+  const presentation = useLudoPresentation(
     data?.match,
+    game.updates,
     !busy && !!(game.error || offline),
-    audio.roll,
-    audio.land,
+    audio,
   );
-  const movement = useLudoMovement(
-    data?.match,
-    !!diceRoll.roll,
-    audio.step,
-    audio.moveEnd,
+  const { dice: diceRoll, movement } = presentation;
+  const onMove = useCallback(
+    (token: number) => game.act("move", token),
+    [game.act],
   );
   const [menu, setMenu] = useState<{
     screen: "home" | "setup";
@@ -174,7 +172,9 @@ function LudoGame({
   }, [live, m?.id]);
   const show =
       m && (live || (seenActive.current === m.id && dismissed !== m.id)),
-    canonical = show ? (movement?.state ?? m.state) : preview;
+    canonical = show
+      ? (movement?.state ?? presentation.match?.state ?? m.state)
+      : preview;
   // Presentation-only cyclic palette: seat IDs, dice, progress and moves stay canonical.
   const shift =
     (LUDO_COLORS.indexOf(colour) -
@@ -183,16 +183,24 @@ function LudoGame({
     4;
   const displayColour = (color: LudoColor) =>
     LUDO_COLORS[(LUDO_COLORS.indexOf(color) + shift) % 4];
-  const s: LudoState = {
-    ...canonical,
-    players: canonical.players.map((p) =>
-      p ? { ...p, color: displayColour(p.color) } : null,
-    ),
-  };
+  const s: LudoState = useMemo(
+    () => ({
+      ...canonical,
+      players: canonical.players.map((p) =>
+        p ? { ...p, color: displayColour(p.color) } : null,
+      ),
+    }),
+    [canonical, shift],
+  );
   const waiting = show && m.status === "waiting",
     forfeited = !!show && !!m.state.players[m.you]?.forfeited,
     playing = show && m.status === "playing" && !forfeited,
-    ended = show && !waiting && !playing && !movement?.busy;
+    ended =
+      show &&
+      !waiting &&
+      !playing &&
+      !movement?.busy &&
+      !presentation.catchingUp;
   const home = !show && menu.screen === "home";
   const view = home ? "home" : !show ? "setup" : waiting ? "search" : "board";
   useLayoutEffect(() => {
@@ -243,6 +251,7 @@ function LudoGame({
     game.retry ||
     !!diceRoll.roll ||
     !!movement?.busy ||
+    presentation.catchingUp ||
     !playing ||
     remaining === 0;
   const autoToken = useLudoAutoMove(
@@ -696,7 +705,7 @@ function LudoGame({
                     legal={m.legalTokens}
                     disabled={locked}
                     moving={movement?.moving}
-                    onMove={(token) => game.act("move", token)}
+                    onMove={onMove}
                   />
                   {waiting && (
                     <div className="ld-search-overlay">
@@ -714,7 +723,7 @@ function LudoGame({
                   {m.capacity === 2
                     ? [m.you, (m.you + 1) % 2].map((seat, i) =>
                         renderPlayer(
-                            displayColour(ludoColors(m.capacity)[seat]),
+                          displayColour(ludoColors(m.capacity)[seat]),
                           i === 0 ? "left" : "right",
                         ),
                       )

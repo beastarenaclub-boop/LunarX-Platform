@@ -90,6 +90,98 @@ const action = (
   token?: number,
 ) => ({ type, token, version: t.match!.version, requestId: randomUUID() });
 const balance = async (id: string) => (await getBalanceByUser(id)).balance;
+
+test("48 players in 24 rooms receive private committed snapshots and cannot move each other's tokens", async (t) => {
+  const rooms: { a: string; b: string; table: LudoTable }[] = [];
+  for (let i = 0; i < 24; i++) {
+    const a = await user(),
+      b = await user();
+    await joinLudo(a, input());
+    const table = await joinLudo(b, input());
+    rooms.push({ a, b, table });
+  }
+  const loadStarted = performance.now();
+  const results = await Promise.all(
+    rooms.map(async ({ a, b, table }) => {
+      const own = await ludoTable(a);
+      const request = action(own, "roll");
+      const events: any[] = [];
+      const stop = bus.subscribe(`ludo:${a}`, (event) => events.push(event));
+      try {
+        const [first, repeat] = await Promise.all([
+          actLudo(a, table.match!.id, request),
+          actLudo(a, table.match!.id, request),
+        ]);
+        assert.equal(first.match!.state.rollNonce, 1);
+        assert.equal(repeat.match!.state.rollNonce, 1);
+        assert.ok(events.length >= 1);
+        assert.ok(
+          events.every(
+            (event) =>
+              event.match.id === table.match!.id &&
+              event.match.you === 0 &&
+              event.match.seed === null,
+          ),
+        );
+        assert.ok(
+          events.some((event) => event.requestId === request.requestId),
+        );
+        assert.ok(
+          first.match!.state.players.every((p) =>
+            p!.tokens.every((pos) => pos === -1),
+          ),
+        );
+        if (first.match!.state.dice !== 6)
+          assert.deepEqual(first.match!.legalTokens, []);
+        await assert.rejects(
+          actLudo(
+            b,
+            rooms[(rooms.findIndex((room) => room.a === a) + 1) % rooms.length]
+              .table.match!.id,
+            action(first, "move", 0),
+          ),
+        );
+        return table.match!.id;
+      } finally {
+        stop();
+      }
+    }),
+  );
+  assert.equal(new Set(results).size, 24);
+  t.diagnostic(
+    `24 concurrent rooms / 48 players: roll and idempotent replay checks completed in ${Math.round(performance.now() - loadStarted)} ms`,
+  );
+  await db
+    .update(ludoMatches)
+    .set({ deadline: sql`clock_timestamp() - interval '1 second'` })
+    .where(eq(ludoMatches.status, "playing"));
+  await tickLudo();
+  for (const { a, b } of rooms) {
+    assert.equal(await balance(a), 99000n);
+    assert.equal(await balance(b), 99000n);
+  }
+});
+test("rejoining a waiting room sends only the user's current seat in private snapshots", async () => {
+  const [a, b, c, d] = await Promise.all([user(), user(), user(), user()]);
+  await joinLudo(a, input(4));
+  await joinLudo(b, input(4));
+  let table = await ludoTable(a);
+  const id = table.match!.id;
+  await actLudo(a, id, action(table, "leave"));
+  await joinLudo(c, input(4));
+  table = await joinLudo(a, input(4));
+  assert.equal(table.match!.you, 2);
+  const events: any[] = [];
+  const stop = bus.subscribe(`ludo:${a}`, (event) => events.push(event));
+  try {
+    await joinLudo(d, input(4));
+    assert.equal(events.length, 1);
+    assert.equal(events[0].match.you, 2);
+    assert.equal(events[0].match.state.players[2].kind, "human");
+  } finally {
+    stop();
+  }
+});
 async function expire(id: string) {
   await db
     .update(ludoMatches)
