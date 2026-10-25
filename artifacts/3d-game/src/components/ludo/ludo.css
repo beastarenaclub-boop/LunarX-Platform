@@ -6,8 +6,9 @@
   min-height: var(--fit-height, 100dvh);
   overflow: hidden;
   background:
-    url("/media/ludo/board-pattern.svg") center top / 360px 360px,
-    radial-gradient(ellipse at 50% 20%, #2568a7, #0b2e62 75%);
+    radial-gradient(ellipse at 50% 35%, #237ae624, transparent 65%),
+    url("/media/ludo/board-pattern.svg") center top / 480px 480px,
+    radial-gradient(ellipse at 50% 15%, #184c9b, #0b245e 65%, #071a47);
 }
 .ld-app:fullscreen {
   overflow-y: auto;
@@ -498,21 +499,37 @@
 }
 .ld-board-wrap {
   position: relative;
+  padding: 7px;
+  border: 1px solid #ffe6a1;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    #fff0b3,
+    #c6932c 25%,
+    #f6d16a 52%,
+    #ac721a 78%,
+    #fbe49c
+  );
+  box-shadow:
+    inset 0 0 0 2px #b1873c,
+    0 6px 0 #071b45,
+    0 12px 28px #020d3759;
 }
 .ld-board {
   aspect-ratio: 1;
   position: relative;
   width: 100%;
   background: #fff;
+  border-radius: 9px;
   box-shadow:
-    0 0 0 2px #d1e7ff,
-    0 0 0 4px #082c58,
-    0 6px 18px #01132e55;
+    0 0 0 2px #7d5e24,
+    0 0 0 3px #ffe7a266;
 }
 .ld-grid {
   width: 100%;
   height: 100%;
   display: block;
+  border-radius: inherit;
 }
 .ld-token {
   position: absolute;
@@ -645,7 +662,9 @@
   pointer-events: none;
 }
 .ld-player-active .ld-avatar {
-  box-shadow: 0 0 12px #b7ffb56b;
+  box-shadow:
+    inset 0 1px 2px #ffffff66,
+    0 0 18px #b7ffb580;
 }
 .ld-player-name {
   min-width: 0;
@@ -745,13 +764,15 @@
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 3px;
-  background: linear-gradient(135deg, #fff, #e7e8e5);
+  background: linear-gradient(145deg, #fffef8 30%, #e6dcca 85%, #c4b7a1);
   box-shadow:
-    inset -1px -2px 2px #8d9da555,
-    0 1px 2px #26354577;
+    inset 1px 1px 1px #fff,
+    inset -2px -3px 2px #a3978055,
+    0 2px 0 #b5a98b,
+    0 4px 5px #26354555;
 }
 .ld-dice i {
-  background: #182a3c;
+  background: radial-gradient(circle at 65% 70%, #314561, #0a1730);
   border-radius: 50%;
   box-shadow: inset 0 1px 1px #000;
 }
@@ -810,6 +831,10 @@
 }
 .ld-your-turn {
   border-color: #ebcd6b9c;
+  background: linear-gradient(110deg, #214f91, #112c60);
+  box-shadow:
+    inset 3px 0 #f5d27c,
+    0 4px 12px #03163740;
 }
 .ld-turn-clock,
 .ld-countdown {

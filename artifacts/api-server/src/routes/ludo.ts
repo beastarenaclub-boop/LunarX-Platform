@@ -54,6 +54,7 @@ router.post(
           capacity: z.union([z.literal(2), z.literal(4)]),
           entryPaise: z.number().int().positive(),
           requestId: z.string().uuid(),
+          mode: z.enum(["online", "computer"]).optional(),
         })
         .strict()
         .parse(req.body);

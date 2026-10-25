@@ -198,7 +198,12 @@ async function notify(id: string) {
 }
 export async function joinLudo(
   userId: string,
-  input: { capacity: 2 | 4; entryPaise: number; requestId: string },
+  input: {
+    capacity: 2 | 4;
+    entryPaise: number;
+    requestId: string;
+    mode?: "online" | "computer";
+  },
 ) {
   if (!LUDO.entries.includes(input.entryPaise as (typeof LUDO.entries)[number]))
     throw badRequest("Choose an available entry fee");
@@ -217,7 +222,8 @@ export async function joinLudo(
         .where(eq(matches.id, repeat.matchId));
       if (
         r.capacity !== input.capacity ||
-        r.entryPaise !== BigInt(input.entryPaise)
+        r.entryPaise !== BigInt(input.entryPaise) ||
+        r.pool.endsWith(":computer") !== (input.mode === "computer")
       )
         throw conflict("This request already joined a different match");
       return r.id;
@@ -249,21 +255,25 @@ export async function joinLudo(
     )
       throw conflict("This entry fee is currently unavailable");
     const pool =
-      user.channel === "b2b" ? `b2b:${user.b2bAgentId ?? "house"}` : "b2c";
+      (user.channel === "b2b" ? `b2b:${user.b2bAgentId ?? "house"}` : "b2c") +
+      (input.mode === "computer" ? ":computer" : "");
     const at = await now(tx);
-    const candidates = await tx
-      .select()
-      .from(matches)
-      .where(
-        and(
-          eq(matches.pool, pool),
-          eq(matches.status, "waiting"),
-          eq(matches.capacity, input.capacity),
-          eq(matches.entryPaise, BigInt(input.entryPaise)),
-        ),
-      )
-      .orderBy(matches.createdAt)
-      .for("update");
+    const candidates =
+      input.mode === "computer"
+        ? []
+        : await tx
+            .select()
+            .from(matches)
+            .where(
+              and(
+                eq(matches.pool, pool),
+                eq(matches.status, "waiting"),
+                eq(matches.capacity, input.capacity),
+                eq(matches.entryPaise, BigInt(input.entryPaise)),
+              ),
+            )
+            .orderBy(matches.createdAt)
+            .for("update");
     let r = candidates.find(
       (r) => r.deadline.getTime() > at && stateOf(r).players.some((p) => !p),
     );
@@ -345,12 +355,14 @@ export async function joinLudo(
       forfeited: false,
       auto: false,
     };
-    if (s.players.every(Boolean)) start(r, await now(tx));
+    if (input.mode === "computer" || s.players.every(Boolean))
+      start(r, await now(tx));
     await save(
       tx,
       r,
       {
         type: "join",
+        mode: input.mode ?? "online",
         seat,
         capacity: r.capacity,
         entryPaise: String(r.entryPaise),

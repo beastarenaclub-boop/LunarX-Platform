@@ -163,6 +163,41 @@ test("empty seats automatically become labelled computers at the queue deadline"
   const next = await joinLudo(v, input(4));
   assert.notEqual(next.match!.id, started.match!.id);
 });
+
+test("Computer mode starts private 2/4-seat games immediately and retries cannot debit twice or change mode", async () => {
+  for (const capacity of [2, 4] as const) {
+    const waitingUser = await user(),
+      owner = await user(),
+      other = await user();
+    const waiting = await joinLudo(waitingUser, input(capacity));
+    const request = { ...input(capacity), mode: "computer" as const };
+    const first = await joinLudo(owner, request);
+    assert.equal(first.match!.status, "playing");
+    assert.equal(first.match!.you, 0);
+    assert.equal(
+      first.match!.state.players.filter((p) => p?.kind === "computer").length,
+      capacity - 1,
+    );
+    assert.notEqual(first.match!.id, waiting.match!.id);
+    assert.equal((await ludoTable(waitingUser)).match!.status, "waiting");
+    const separate = await joinLudo(other, {
+      ...input(capacity),
+      mode: "computer",
+    });
+    assert.notEqual(first.match!.id, separate.match!.id);
+    assert.equal((await joinLudo(owner, request)).match!.id, first.match!.id);
+    assert.equal(await balance(owner), 99000n);
+    await assert.rejects(
+      joinLudo(owner, { ...request, mode: "online" }),
+      /different match/,
+    );
+    assert.equal(first.match!.prizePaise, String(capacity * 900));
+    assert.equal(first.match!.commissionPaise, String(capacity * 100));
+    await actLudo(owner, first.match!.id, action(first, "leave"));
+    assert.equal((await ludoTable(owner)).match!.status, "finished");
+    assert.equal(await balance(owner), 99000n);
+  }
+});
 test("queue cancellation refunds exactly once even after retry or joining a new room", async () => {
   const u = await user(),
     t = await joinLudo(u, input()),

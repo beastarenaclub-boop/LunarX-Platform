@@ -1,5 +1,9 @@
 # Ludo Live
 
+The opening screen shows the player's profile, wallet, Online Multiplayer and Computer modes, plus working sound/music preferences. Online play opens table selection, then a red VS matchmaking screen using the actual room participants and server deadline. A waiting-room cancellation refunds the entry. No placeholder portrait is presented as a connected player, and no invented online-player count is displayed.
+
+`POST /api/ludo/join` accepts optional `mode: "computer"` (omitted means online). Computer mode creates an isolated room and starts with 1 or 3 labelled Computer opponents immediately, using the same wallet entry, 90% winner prize and 10% platform commission. It never consumes seats from the public waiting queue. The pool suffix records the mode without a schema migration, and a join UUID cannot be reused with a different mode.
+
 The UI uses an original blue-and-gold arcade lobby, a full-width classic board, vector pin tokens, and dice beside each player. Colour selection is a personal board view stored per account in the browser: a cyclic palette rotates all four colours together while preserving server seat IDs, token progress, legal moves, and turn order. The default shows your tokens as blue. Two players always occupy opposite corners. Player cards follow their displayed home colour, and Computer seats remain explicitly labelled. Entry presets and +/- controls show the prize after the 10% fee before joining.
 
 `/ludo` is an authenticated, server-controlled multiplayer game. Two seats use red/yellow; four seats use all colours. Players are matched by seat count, entry and account channel (B2B rooms also share the same agent). A full room starts immediately. After 20 seconds, remaining seats become visibly labelled Computer players.

@@ -181,11 +181,20 @@ export function useLudo(userId: string) {
   }, [key, remember, send, sync]);
   useRealtimeTopic(`ludo:${userId}`, () => void sync());
   useRealtimeResync(() => void sync());
-  const join = (capacity: 2 | 4, entryPaise: number) => {
+  const join = (
+    capacity: 2 | 4,
+    entryPaise: number,
+    mode: "online" | "computer" = "online",
+  ) => {
     if (pending.current) return;
     void send({
       url: "/api/ludo/join",
-      body: { capacity, entryPaise, requestId: crypto.randomUUID() },
+      body: {
+        capacity,
+        entryPaise,
+        ...(mode === "computer" ? { mode } : {}),
+        requestId: crypto.randomUUID(),
+      },
     });
   };
   const act = (

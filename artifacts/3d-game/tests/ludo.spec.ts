@@ -11,6 +11,7 @@ async function player(
   browser: Browser,
   name: string,
   viewport = { width: 1440, height: 1000 },
+  screen: "home" | "online" = "online",
 ) {
   const context = await browser.newContext({ baseURL: base, viewport });
   const login = await context.request.post("/api/test/ludo/login", {
@@ -21,12 +22,65 @@ async function player(
   const page = await context.newPage();
   await page.goto("/ludo");
   await expect(
+    page.getByRole("button", { name: "Online multiplayer", exact: true }),
+  ).toBeVisible();
+  if (screen === "home") return { context, page, id };
+  await page
+    .getByRole("button", { name: "Online multiplayer", exact: true })
+    .click();
+  await expect(
     page.getByRole("button", { name: "Find a match" }),
   ).toBeEnabled();
   return { context, page, id };
 }
 const state = async (context: BrowserContext) =>
   (await (await context.request.get("/api/ludo/state")).json()) as LudoTable;
+
+for (const capacity of [2, 4] as const)
+  test(`Computer menu starts ${capacity} seats immediately, resumes and settles through the wallet`, async ({
+    browser,
+  }) => {
+    const p = await player(
+      browser,
+      "Computer Mode Player",
+      { width: 390, height: 844 },
+      "home",
+    );
+    try {
+      await p.page
+        .getByRole("button", { name: "Play against Computer", exact: true })
+        .click();
+      await expect(
+        p.page.getByText("PLAY AGAINST COMPUTER", { exact: true }),
+      ).toBeVisible();
+      if (capacity === 4)
+        await p.page
+          .getByRole("button", { name: "4 players Classic battle" })
+          .click();
+      await p.page.getByRole("button", { name: "Find a match" }).click();
+      await expect(
+        p.page.getByRole("heading", { name: "Your turn", exact: true }),
+      ).toBeVisible();
+      await expect(p.page.locator(".ld-search-screen")).toHaveCount(0);
+      const before = await state(p.context);
+      expect(before.match!.capacity).toBe(capacity);
+      expect(
+        before.match!.state.players.filter((x) => x?.kind === "computer"),
+      ).toHaveLength(capacity - 1);
+      expect(before.balancePaise).toBe("99000");
+      await p.page.reload();
+      await expect(p.page.locator(".ld-match-id")).toContainText(
+        before.match!.id.slice(0, 8).toUpperCase(),
+      );
+      expect((await state(p.context)).balancePaise).toBe("99000");
+      await finish(p.context, p.page);
+      expect((await state(p.context)).balancePaise).toBe(
+        String(99000 + capacity * 900),
+      );
+    } finally {
+      await p.context.close();
+    }
+  });
 async function finish(
   context: BrowserContext,
   page: Page,
@@ -71,6 +125,14 @@ test("two accounts play the same real board, receive private WS events and resum
     await expect(
       a.page.getByRole("heading", { name: "Finding your opponents" }),
     ).toBeVisible();
+    await expect(a.page.locator(".ld-versus-seat")).toHaveCount(2);
+    await expect(a.page.getByRole("group", { name: "Ludo board" })).toHaveCount(
+      0,
+    );
+    await a.page.screenshot({
+      path: "tmp/ludo-start-checks/search-two.png",
+      fullPage: true,
+    });
     await b.page.getByRole("button", { name: "Find a match" }).click();
     await expect(
       a.page.getByRole("heading", { name: "Your turn", exact: true }),
@@ -171,6 +233,13 @@ test("four separate accounts join one table with four human seats", async ({
         .click();
       await p.page.getByRole("button", { name: "Find a match" }).click();
       await expect(p.page.locator(".ld-match-id")).toBeVisible();
+      if (p === players[0]) {
+        await expect(p.page.locator(".ld-versus-seat")).toHaveCount(4);
+        await p.page.screenshot({
+          path: "tmp/ludo-start-checks/search-four.png",
+          fullPage: true,
+        });
+      }
     }
     const t = await state(players[0].context);
     expect(t.match!.capacity).toBe(4);
@@ -215,6 +284,15 @@ test("empty 4-player table fills with three labelled computers after the real co
       .getByRole("button", { name: "4 players Classic battle" })
       .click();
     await p.page.getByRole("button", { name: "Find a match" }).click();
+    const searchBack = p.page.getByRole("button", {
+      name: "Cancel search and refund entry",
+    });
+    await expect(searchBack).toBeVisible();
+    const searchBackBox = await searchBack.boundingBox();
+    const viewportBox = await p.page
+      .locator('[data-game-viewport="ludo"]')
+      .boundingBox();
+    expect(searchBackBox!.y).toBeGreaterThanOrEqual(viewportBox!.y);
     await expect(
       p.page.getByRole("heading", { name: "Your turn", exact: true }),
     ).toBeVisible({ timeout: 30000 });
@@ -308,10 +386,48 @@ for (const viewport of [
   test(`lobby, controls and rules fit ${viewport.width}x${viewport.height}`, async ({
     browser,
   }) => {
-    const p = await player(browser, "Mobile Player", viewport);
+    const p = await player(browser, "Mobile Player", viewport, "home");
     const errors: string[] = [];
     p.page.on("pageerror", (e) => errors.push(e.message));
     try {
+      for (const name of ["Online multiplayer", "Play against Computer"]) {
+        const tile = p.page.getByRole("button", { name, exact: true });
+        const box = await tile.boundingBox();
+        expect(box!.x).toBeGreaterThanOrEqual(0);
+        expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width);
+        expect(box!.height).toBeGreaterThanOrEqual(44);
+      }
+      await p.page.screenshot({
+        path: `tmp/ludo-start-checks/home-${viewport.width}.png`,
+        fullPage: true,
+      });
+      await p.page
+        .getByRole("button", { name: "Game settings", exact: true })
+        .click();
+      await p.page.getByRole("button", { name: "Sound", exact: true }).click();
+      await expect(
+        p.page.getByRole("button", { name: "Sound", exact: true }),
+      ).toHaveAttribute("aria-pressed", "false");
+      await p.page.getByRole("button", { name: "Music", exact: true }).click();
+      await expect(
+        p.page.getByRole("button", { name: "Music", exact: true }),
+      ).toHaveAttribute("aria-pressed", "true");
+      await p.page.getByRole("button", { name: "Close", exact: true }).click();
+      await p.page.reload();
+      await p.page
+        .getByRole("button", { name: "Game settings", exact: true })
+        .click();
+      await expect(
+        p.page.getByRole("button", { name: "Sound", exact: true }),
+      ).toHaveAttribute("aria-pressed", "false");
+      await expect(
+        p.page.getByRole("button", { name: "Music", exact: true }),
+      ).toHaveAttribute("aria-pressed", "true");
+      await p.page.getByRole("button", { name: "Music", exact: true }).click();
+      await p.page.getByRole("button", { name: "Close", exact: true }).click();
+      await p.page
+        .getByRole("button", { name: "Online multiplayer", exact: true })
+        .click();
       expect(
         await p.page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth,

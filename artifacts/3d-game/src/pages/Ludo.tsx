@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { Link } from "wouter";
 import {
   ArrowLeft,
@@ -30,6 +36,8 @@ import { useAuth } from "@/lib/auth";
 import { useLudo } from "@/components/ludo/useLudo";
 import { LudoBoard, COLORS } from "@/components/ludo/LudoBoard";
 import { LudoPin } from "@/components/ludo/LudoPin";
+import { LudoHome, LudoMatchmaking } from "@/components/ludo/LudoLobby";
+import { useLudoAudio } from "@/components/ludo/useLudoAudio";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +45,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import "@/components/ludo/ludo.css";
+import "@/components/ludo/ludo-lobby.css";
+import "@/components/ludo/ludo-home.css";
 const money = (v: string | number) =>
   `₹${(Number(v) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const preview: LudoState = {
@@ -198,12 +208,48 @@ function Player({
 export default function Ludo() {
   const { user } = useAuth();
   return user ? (
-    <LudoGame key={user.id} userId={user.id} demo={!!user.isDemo} />
+    <LudoGame
+      key={user.id}
+      userId={user.id}
+      name={user.displayName || "Player"}
+      demo={!!user.isDemo}
+    />
   ) : null;
 }
-function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
+function LudoGame({
+  userId,
+  name,
+  demo,
+}: {
+  userId: string;
+  name: string;
+  demo: boolean;
+}) {
   const game = useLudo(userId),
     { data, busy, offline } = game;
+  const audio = useLudoAudio(userId, data?.match);
+  const [menu, setMenu] = useState<{
+    screen: "home" | "setup";
+    mode: "online" | "computer";
+  }>(() => {
+    try {
+      const saved = JSON.parse(
+        sessionStorage.getItem(`ludo-menu:${userId}`) || "null",
+      );
+      return {
+        screen: saved?.screen === "setup" ? "setup" : "home",
+        mode: saved?.mode === "computer" ? "computer" : "online",
+      };
+    } catch {
+      return { screen: "home", mode: "online" };
+    }
+  });
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(`ludo-menu:${userId}`, JSON.stringify(menu));
+    } catch {}
+  }, [menu, userId]);
+  const seenActive = useRef<string | null>(null);
   const app = useRef<HTMLElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [colour, setColour] = useState<LudoColor>(() => {
@@ -221,7 +267,9 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
   }, []);
   const [capacity, setCapacity] = useState<2 | 4>(2),
     [entry, setEntry] = useState(1000),
-    [dialog, setDialog] = useState<"rules" | "history" | "leave" | null>(null),
+    [dialog, setDialog] = useState<
+      "rules" | "history" | "leave" | "settings" | null
+    >(null),
     [dismissed, setDismissed] = useState<string | null>(null),
     [proof, setProof] = useState("");
   const m = data?.match,
@@ -229,7 +277,11 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
       m &&
       (m.status === "waiting" || m.status === "playing") &&
       !m.state.players[m.you]?.forfeited;
-  const show = m && (live || dismissed !== m.id),
+  useEffect(() => {
+    if (live && m) seenActive.current = m.id;
+  }, [live, m?.id]);
+  const show =
+      m && (live || (seenActive.current === m.id && dismissed !== m.id)),
     canonical = show ? m.state : preview;
   // Presentation-only cyclic palette: seat IDs, dice, progress and moves stay canonical.
   const shift =
@@ -249,6 +301,20 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
     forfeited = !!show && !!m.state.players[m.you]?.forfeited,
     playing = show && m.status === "playing" && !forfeited,
     ended = show && !waiting && !playing;
+  const home = !show && menu.screen === "home";
+  const view = home ? "home" : !show ? "setup" : waiting ? "search" : "board";
+  useLayoutEffect(() => {
+    const viewport = app.current?.closest<HTMLElement>(
+      '[data-game-viewport="ludo"]',
+    );
+    if (viewport) viewport.scrollTop = 0;
+  }, [view, m?.id]);
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch {}
+  };
   const yours =
     !!playing && m.state.turn === m.you && !m.state.players[m.you]?.forfeited;
   const remaining = m
@@ -338,37 +404,71 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
   return (
     <main
       ref={app}
-      className={"ld-app " + (show ? "ld-in-match" : "ld-in-lobby")}
+      onPointerDownCapture={audio.unlock}
+      className={
+        "ld-app " +
+        (home
+          ? "ld-in-home"
+          : waiting
+            ? "ld-in-search"
+            : show
+              ? "ld-in-match"
+              : "ld-in-lobby")
+      }
     >
-      <header className="ld-header">
-        <Link href="/" className="ld-back" aria-label="Back to lobby">
-          <ArrowLeft size={21} />
-        </Link>
-        <Link href="/ludo" className="ld-brand">
-          <Crown size={25} />
-          <span>
-            LUDO <b>LIVE</b>
-          </span>
-        </Link>
-        <div className="ld-wallet">
-          <Coins size={22} />
-          <span>
-            <small>{demo ? "Demo wallet" : "Your wallet"}</small>
-            <b title={data ? money(data.balancePaise) : undefined}>
-              {data ? money(data.balancePaise) : "—"}
-            </b>
-          </span>
-        </div>
-        <button
-          className="ld-icon"
-          aria-label="Game rules"
-          onClick={() => setDialog("rules")}
-        >
-          <Info size={20} />
-        </button>
-      </header>
+      {!home && !waiting && (
+        <header className="ld-header">
+          {!show ? (
+            <button
+              className="ld-back"
+              aria-label="Back to main menu"
+              onClick={() => setMenu((v) => ({ ...v, screen: "home" }))}
+            >
+              <ArrowLeft size={21} />
+            </button>
+          ) : (
+            <Link href="/" className="ld-back" aria-label="Back to lobby">
+              <ArrowLeft size={21} />
+            </Link>
+          )}
+          <Link href="/ludo" className="ld-brand">
+            <Crown size={25} />
+            <span>
+              LUDO <b>LIVE</b>
+            </span>
+          </Link>
+          <div className="ld-wallet">
+            <Coins size={22} />
+            <span>
+              <small>{demo ? "Demo wallet" : "Your wallet"}</small>
+              <b title={data ? money(data.balancePaise) : undefined}>
+                {data ? money(data.balancePaise) : "—"}
+              </b>
+            </span>
+          </div>
+          <button
+            className="ld-icon"
+            aria-label="Game rules"
+            onClick={() => setDialog("rules")}
+          >
+            <Info size={20} />
+          </button>
+        </header>
+      )}
       <div className="ld-main">
-        {!show ? (
+        {home ? (
+          <LudoHome
+            name={name}
+            balance={data?.balancePaise}
+            demo={demo}
+            offline={offline}
+            onChoose={(mode) => setMenu({ screen: "setup", mode })}
+            onSettings={() => setDialog("settings")}
+            onHistory={() => setDialog("history")}
+            fullscreen={fullscreen}
+            onFullscreen={() => void toggleFullscreen()}
+          />
+        ) : !show ? (
           <section className="ld-lobby">
             <div className="ld-lobby-hero">
               <span className="ld-hero-crown">
@@ -377,7 +477,11 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
               <h1>
                 LUDO <span>LIVE</span>
               </h1>
-              <p>A classic game. A new champion.</p>
+              <p>
+                {menu.mode === "computer"
+                  ? "PLAY AGAINST COMPUTER"
+                  : "ONLINE MULTIPLAYER"}
+              </p>
             </div>
             <div className="ld-room-card">
               <section className="ld-setup-section">
@@ -495,7 +599,7 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
                   onClick={() => {
                     setDismissed(null);
                     setProof("");
-                    game.join(capacity, entry);
+                    game.join(capacity, entry, menu.mode);
                   }}
                 >
                   {busy ? (
@@ -513,9 +617,19 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
                   )}
                 </button>
                 <p className="ld-note">
-                  Entry debited on joining. Empty seats get
-                  <br />
-                  Computer players after 20 seconds.
+                  {menu.mode === "computer" ? (
+                    <>
+                      Entry debited on joining.
+                      <br />
+                      Computer opponents connect instantly.
+                    </>
+                  ) : (
+                    <>
+                      Entry debited on joining. Empty seats get
+                      <br />
+                      Computer players after 20 seconds.
+                    </>
+                  )}
                 </p>
               </section>
             </div>
@@ -528,6 +642,16 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
               </button>
             </div>
           </section>
+        ) : waiting ? (
+          <LudoMatchmaking
+            match={m}
+            state={s}
+            remaining={Math.min(20, remaining)}
+            offline={offline}
+            busy={busy || game.retry}
+            audio={audio}
+            onCancel={() => game.act("leave")}
+          />
         ) : (
           <section className="ld-arena">
             <div className="ld-match-bar">
@@ -633,7 +757,10 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
                 ) : ended ? (
                   <button
                     className="ld-primary"
-                    onClick={() => setDismissed(m.id)}
+                    onClick={() => {
+                      setDismissed(m.id);
+                      setMenu((v) => ({ ...v, screen: "setup" }));
+                    }}
                   >
                     Play again <ArrowRight size={16} />
                   </button>
@@ -724,18 +851,49 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
           <DialogTitle>
             {dialog === "rules"
               ? "How to play Ludo Live"
-              : dialog === "history"
-                ? "Your recent matches"
-                : "Leave this match?"}
+              : dialog === "settings"
+                ? "Game settings"
+                : dialog === "history"
+                  ? "Your recent matches"
+                  : "Leave this match?"}
           </DialogTitle>
           <DialogDescription>
             {dialog === "rules"
               ? "Classic rules for every human and Computer player."
-              : dialog === "history"
-                ? "Entries, results and wallet payouts."
-                : "Leaving after a match starts forfeits your entry fee. Refreshing or closing this page keeps your seat."}
+              : dialog === "settings"
+                ? "Make the table feel like yours."
+                : dialog === "history"
+                  ? "Entries, results and wallet payouts."
+                  : "Leaving after a match starts forfeits your entry fee. Refreshing or closing this page keeps your seat."}
           </DialogDescription>
-          {dialog === "rules" ? (
+          {dialog === "settings" ? (
+            <div className="ld-settings">
+              <div>
+                <strong>Sound</strong>
+                <button
+                  aria-label="Sound"
+                  aria-pressed={audio.sound}
+                  onClick={audio.toggleSound}
+                >
+                  {audio.sound ? "ON" : "OFF"}
+                </button>
+              </div>
+              <div>
+                <strong>Music</strong>
+                <button
+                  aria-label="Music"
+                  aria-pressed={audio.music}
+                  onClick={audio.toggleMusic}
+                >
+                  {audio.music ? "ON" : "OFF"}
+                </button>
+              </div>
+              <div className="ld-settings-links">
+                <button onClick={() => setDialog("rules")}>How to play</button>
+                <button onClick={() => setDialog("history")}>My matches</button>
+              </div>
+            </div>
+          ) : dialog === "rules" ? (
             <div className="ld-rules">
               <ol>
                 <li>
@@ -775,6 +933,11 @@ function LudoGame({ userId, demo }: { userId: string; demo: boolean }) {
                 seconds. The platform funds their share of the advertised pool.
                 If Computer wins, no human player receives the prize. Computer
                 uses the same dice and rules.
+              </p>
+              <p>
+                Choose Computer from the main menu to start immediately against
+                Computer opponents. The same entry fees, prize pool and rules
+                apply.
               </p>
               <p>
                 Cancel before the match starts for a full refund. Leaving after
