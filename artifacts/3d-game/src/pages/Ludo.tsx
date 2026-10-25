@@ -16,6 +16,7 @@ import {
   History,
   Info,
   ShieldCheck,
+  Settings,
   Trophy,
   Users,
   Minus,
@@ -54,6 +55,7 @@ import "@/components/ludo/ludo.css";
 import "@/components/ludo/ludo-lobby.css";
 import "@/components/ludo/ludo-home.css";
 import "@/components/ludo/ludo-effects.css";
+import "@/components/ludo/ludo-mobile.css";
 const money = (v: string | number) =>
   `₹${(Number(v) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const preview: LudoState = {
@@ -168,7 +170,7 @@ function Player({
         </span>
       </div>
       <div className="ld-player-name">
-        <strong>
+        <strong title={p?.name}>
           {p?.name || "Finding player…"}
           {you && <em>YOU</em>}
         </strong>
@@ -441,7 +443,7 @@ function LudoGame({
             <span>
               <small>{demo ? "Demo wallet" : "Your wallet"}</small>
               <b title={data ? money(data.balancePaise) : undefined}>
-                {data ? money(data.balancePaise) : "—"}
+                {demo ? "∞" : data ? money(data.balancePaise) : "—"}
               </b>
             </span>
           </div>
@@ -653,6 +655,42 @@ function LudoGame({
           />
         ) : (
           <section className="ld-arena">
+            <header className="ld-mobile-match-header">
+              <button
+                className="ld-menu-icon"
+                aria-label={playing ? "Leave match" : "Back to main menu"}
+                disabled={busy || game.retry}
+                onClick={() => {
+                  if (playing) setDialog("leave");
+                  else {
+                    setDismissed(m.id);
+                    setMenu((v) => ({ ...v, screen: "home" }));
+                  }
+                }}
+              >
+                <ArrowLeft />
+              </button>
+              <div className="ld-mobile-match-info">
+                <div>
+                  <strong>{offline ? "Reconnecting…" : "LUDO LIVE"}</strong>
+                  <span title={data ? money(data.balancePaise) : undefined}>
+                    <Coins size={13} />{" "}
+                    {demo ? "∞" : data ? money(data.balancePaise) : "—"}
+                  </span>
+                </div>
+                <small>
+                  {m.capacity} players · Entry {money(m.entryPaise)} ·{" "}
+                  <b>Win {money(m.prizePaise)}</b>
+                </small>
+              </div>
+              <button
+                className="ld-menu-icon"
+                aria-label="Game settings"
+                onClick={() => setDialog("settings")}
+              >
+                <Settings />
+              </button>
+            </header>
             <div className="ld-match-bar">
               <div className="ld-match-id">
                 MATCH {m.id.slice(0, 8).toUpperCase()}
@@ -696,113 +734,117 @@ function LudoGame({
               </span>
             </div>
             <div className="ld-board-layout">
-              <div className="ld-players ld-players-top">
-                {(["red", "green"] as const).map(renderPlayer)}
-              </div>
-              <div className="ld-board-wrap">
-                <LudoBoard
-                  key={m.id}
-                  state={s}
-                  you={m.you}
-                  legal={m.legalTokens}
-                  disabled={locked}
-                  onMove={(token) => game.act("move", token)}
-                />
-                {waiting && (
-                  <div className="ld-search-overlay">
-                    <span className="ld-search-spinner">
-                      <Users size={22} />
-                    </span>
-                    <strong>
-                      {s.players.filter(Boolean).length} / {m.capacity} joined
-                    </strong>
-                    <span>Computer joins in {remaining}s</span>
-                  </div>
-                )}
-              </div>
-              <div className="ld-players ld-players-bottom">
-                {(["blue", "yellow"] as const).map(renderPlayer)}
-              </div>
-              <div
-                className={"ld-turn" + (yours ? " ld-your-turn" : "")}
-                role="status"
-                aria-live="polite"
-              >
-                <div>
-                  <h2>{heading}</h2>
-                  <p>
-                    {waiting
-                      ? "Looking for live players. Empty seats fill automatically."
-                      : ended
-                        ? (forfeited
-                            ? "Entry forfeited. You can join a new table."
-                            : m.reason) ||
-                          (winner?.seat === m.you
-                            ? money(m.prizePaise) + " credited to your wallet"
-                            : "Ready for another game?")
-                        : diceRoll.roll
-                          ? "Let the dice land…"
-                          : yours
-                            ? s.phase === "move"
-                              ? "Tap a glowing token or choose below"
-                              : "Tap the dice beside your name"
-                            : s.players[s.turn]?.kind === "computer"
-                              ? "Computer is making a move…"
-                              : "Waiting for their move…"}
-                  </p>
+              <div className="ld-playfield">
+                <div className="ld-players ld-players-top">
+                  {(["red", "green"] as const).map(renderPlayer)}
                 </div>
-                {waiting ? (
-                  <div className="ld-countdown">
-                    {remaining}
-                    <small>SEC</small>
-                  </div>
-                ) : ended ? (
-                  <button
-                    className="ld-primary"
-                    onClick={() => {
-                      setDismissed(m.id);
-                      setMenu((v) => ({ ...v, screen: "setup" }));
-                    }}
-                  >
-                    Play again <ArrowRight size={16} />
-                  </button>
-                ) : (
-                  <span className="ld-turn-clock">
-                    {remaining}
-                    <small>SEC</small>
-                  </span>
-                )}
+                <div className="ld-board-wrap">
+                  <LudoBoard
+                    key={m.id}
+                    state={s}
+                    you={m.you}
+                    legal={m.legalTokens}
+                    disabled={locked}
+                    onMove={(token) => game.act("move", token)}
+                  />
+                  {waiting && (
+                    <div className="ld-search-overlay">
+                      <span className="ld-search-spinner">
+                        <Users size={22} />
+                      </span>
+                      <strong>
+                        {s.players.filter(Boolean).length} / {m.capacity} joined
+                      </strong>
+                      <span>Computer joins in {remaining}s</span>
+                    </div>
+                  )}
+                </div>
+                <div className="ld-players ld-players-bottom">
+                  {(["blue", "yellow"] as const).map(renderPlayer)}
+                </div>
               </div>
-              {yours && s.phase === "move" && !diceRoll.roll && (
-                <div className="ld-moves" aria-label="Choose a token">
-                  {m.legalTokens.map((token) => (
+              <div className="ld-action-dock">
+                <div
+                  className={"ld-turn" + (yours ? " ld-your-turn" : "")}
+                  role="status"
+                  aria-live="polite"
+                >
+                  <div>
+                    <h2>{heading}</h2>
+                    <p>
+                      {waiting
+                        ? "Looking for live players. Empty seats fill automatically."
+                        : ended
+                          ? (forfeited
+                              ? "Entry forfeited. You can join a new table."
+                              : m.reason) ||
+                            (winner?.seat === m.you
+                              ? money(m.prizePaise) + " credited to your wallet"
+                              : "Ready for another game?")
+                          : diceRoll.roll
+                            ? "Let the dice land…"
+                            : yours
+                              ? s.phase === "move"
+                                ? "Tap a glowing token or choose below"
+                                : "Tap the dice beside your name"
+                              : s.players[s.turn]?.kind === "computer"
+                                ? "Computer is making a move…"
+                                : "Waiting for their move…"}
+                    </p>
+                  </div>
+                  {waiting ? (
+                    <div className="ld-countdown">
+                      {remaining}
+                      <small>SEC</small>
+                    </div>
+                  ) : ended ? (
                     <button
-                      key={token}
-                      disabled={locked}
-                      onClick={() => game.act("move", token)}
+                      className="ld-primary"
+                      onClick={() => {
+                        setDismissed(m.id);
+                        setMenu((v) => ({ ...v, screen: "setup" }));
+                      }}
                     >
-                      <span style={{ background: COLORS[colour] }} />
-                      Move {token + 1}
+                      Play again <ArrowRight size={16} />
                     </button>
-                  ))}
+                  ) : (
+                    <span className="ld-turn-clock">
+                      {remaining}
+                      <small>SEC</small>
+                    </span>
+                  )}
                 </div>
-              )}
-              <div className="ld-last">
-                {diceRoll.roll
-                  ? "Dice in motion…"
-                  : s.last?.text === "Match started · Red rolls first"
-                    ? "Match started · " +
-                      (s.players[0]?.name || "First seat") +
-                      " rolls first"
-                    : s.last?.text ||
-                      "Roll a six to bring your tokens into play."}
+                {yours && s.phase === "move" && !diceRoll.roll && (
+                  <div className="ld-moves" aria-label="Choose a token">
+                    {m.legalTokens.map((token) => (
+                      <button
+                        key={token}
+                        disabled={locked}
+                        onClick={() => game.act("move", token)}
+                      >
+                        <span style={{ background: COLORS[colour] }} />
+                        Move {token + 1}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <div className="ld-last">
+                  {diceRoll.roll
+                    ? "Dice in motion…"
+                    : s.last?.text === "Match started · Red rolls first"
+                      ? "Match started · " +
+                        (s.players[0]?.name || "First seat") +
+                        " rolls first"
+                      : s.last?.text ||
+                        "Roll a six to bring your tokens into play."}
+                </div>
+                {ended && m.seed && (
+                  <button className="ld-proof" onClick={() => void verify()}>
+                    <ShieldCheck size={15} />
+                    {proof || "Verify dice & download match record"}
+                  </button>
+                )}
               </div>
-              {ended && m.seed && (
-                <button className="ld-proof" onClick={() => void verify()}>
-                  <ShieldCheck size={15} />
-                  {proof || "Verify dice & download match record"}
-                </button>
-              )}
             </div>
             <footer className="ld-arena-footer">
               <button

@@ -215,6 +215,13 @@ test("failed dice requests stop cleanly, retry once and respect reduced motion",
     await expect(
       p.page.getByRole("button", { name: "Retry last action", exact: true }),
     ).toBeVisible();
+    const retryBox = await p.page
+      .getByRole("button", { name: "Retry last action", exact: true })
+      .boundingBox();
+    expect(retryBox!.y).toBeGreaterThanOrEqual(0);
+    expect(retryBox!.y + retryBox!.height).toBeLessThanOrEqual(
+      p.page.viewportSize()!.height,
+    );
     await expect(
       p.page.locator(".ld-player[data-you] .ld-die"),
     ).toHaveAttribute("data-phase", "idle");
@@ -530,11 +537,14 @@ test("empty 4-player table fills with three labelled computers after the real co
       fullPage: true,
     });
     await p.context.setOffline(true);
-    await expect(
-      p.page.getByText("Reconnecting…", { exact: true }),
-    ).toBeVisible({ timeout: 15000 });
+    await expect(p.page.locator(".ld-mobile-match-info strong")).toHaveText(
+      "Reconnecting…",
+      { timeout: 15000 },
+    );
     await p.context.setOffline(false);
-    await expect(p.page.getByText("LIVE TABLE", { exact: true })).toBeVisible();
+    await expect(p.page.locator(".ld-mobile-match-info strong")).toHaveText(
+      "LUDO LIVE",
+    );
     expect((await state(p.context)).match!.id).toBe(t.match!.id);
     let conflict = true;
     await p.page.route("**/api/ludo/*/action", async (route) => {
@@ -593,6 +603,117 @@ test("lost join response can be retried without double debit; cancellation refun
     await p.context.close();
   }
 });
+for (const capacity of [2, 4] as const)
+  test(`${capacity}-player mobile match keeps dice and legal moves reachable through rotation`, async ({
+    browser,
+  }) => {
+    const p = await player(
+      browser,
+      "Mobile touch player",
+      { width: 320, height: 526 },
+      "home",
+    );
+    const errors: string[] = [];
+    p.page.on("pageerror", (e) => errors.push(e.message));
+    try {
+      await p.page
+        .getByRole("button", { name: "Play against Computer", exact: true })
+        .click();
+      if (capacity === 4)
+        await p.page
+          .getByRole("button", { name: "4 players Classic battle" })
+          .click();
+      await p.page
+        .getByRole("button", { name: "Find a match", exact: true })
+        .click();
+      await expect(p.page.locator(".ld-board")).toBeVisible();
+      const id = (await state(p.context)).match!.id;
+      await readyRoll(p.context, p.page, id, 0, 6);
+      const roll = p.page.getByRole("button", {
+        name: "Roll dice",
+        exact: true,
+      });
+      await roll.click();
+      await expect(
+        p.page.getByRole("button", { name: "Move 4", exact: true }),
+      ).toBeEnabled();
+      for (const viewport of [
+        { width: 320, height: 526 },
+        { width: 360, height: 598 },
+        { width: 390, height: 802 },
+        { width: 430, height: 890 },
+        { width: 844, height: 340 },
+      ]) {
+        await p.page.setViewportSize(viewport);
+        await expect
+          .poll(async () =>
+            p.page
+              .locator(".ld-arena-footer")
+              .evaluate((e) => e.getBoundingClientRect().bottom),
+          )
+          .toBeLessThanOrEqual(viewport.height);
+        const board = await p.page.locator(".ld-board-wrap").boundingBox();
+        expect(Math.abs(board!.width - board!.height)).toBeLessThan(1);
+        expect(board!.width).toBeGreaterThan(200);
+        for (const control of [
+          roll,
+          p.page.getByRole("button", { name: "Move 4", exact: true }),
+          p.page.getByRole("button", { name: "Mute sound", exact: true }),
+          p.page.getByRole("button", { name: "Game settings", exact: true }),
+        ]) {
+          const box = await control.boundingBox();
+          expect(box!.width).toBeGreaterThanOrEqual(44);
+          expect(box!.height).toBeGreaterThanOrEqual(44);
+          expect(box!.x).toBeGreaterThanOrEqual(0);
+          expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width);
+          expect(box!.y).toBeGreaterThanOrEqual(0);
+          expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
+          expect(
+            await control.evaluate((e) => {
+              const r = e.getBoundingClientRect();
+              return e.contains(
+                document.elementFromPoint(
+                  r.x + r.width / 2,
+                  r.y + r.height / 2,
+                ),
+              );
+            }),
+          ).toBe(true);
+        }
+        expect(
+          await p.page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth,
+          ),
+        ).toBe(true);
+        await p.page.screenshot({
+          path: `tmp/ludo-mobile-checks/fixture-${capacity}-${viewport.width}.png`,
+        });
+      }
+      expect((await state(p.context)).match!.id).toBe(id);
+      await p.page.getByRole("button", { name: "Move 4", exact: true }).click();
+      await expect
+        .poll(
+          async () =>
+            (await state(p.context)).match!.state.players[0]!.tokens[3],
+        )
+        .toBe(0);
+      await p.page
+        .getByRole("button", { name: "Leave match", exact: true })
+        .click();
+      await expect(
+        p.page.getByRole("button", { name: "Forfeit & leave" }),
+      ).toBeVisible();
+      expect((await state(p.context)).match!.status).toBe("playing");
+      await p.page.getByRole("button", { name: "Forfeit & leave" }).click();
+      await expect
+        .poll(async () => (await state(p.context)).match!.status)
+        .toBe("finished");
+      expect(errors).toEqual([]);
+    } finally {
+      await p.context.close();
+    }
+  });
+
 for (const viewport of [
   { width: 320, height: 740 },
   { width: 390, height: 844 },

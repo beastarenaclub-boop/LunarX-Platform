@@ -91,13 +91,24 @@ export function LudoHome({
                 : "LUDO LIVE PLAYER"}
           </small>
         </div>
-        <div className="ld-profile-wallet">
+        <Link
+          className="ld-profile-wallet"
+          href="/wallet"
+          aria-label="Your wallet"
+        >
           <Coins />
           <strong title={balance ? money(balance) : undefined}>
             {demo ? "∞" : balance ? money(balance) : "—"}
           </strong>
           <small>{demo ? "Practice coins" : "Your wallet"}</small>
-        </div>
+        </Link>
+        <button
+          className="ld-menu-icon ld-mobile-settings"
+          aria-label="Game settings"
+          onClick={onSettings}
+        >
+          <Settings />
+        </button>
       </header>
       <div className="ld-home-tools">
         <button
