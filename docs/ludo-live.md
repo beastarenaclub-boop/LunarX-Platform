@@ -1,5 +1,7 @@
 # Ludo Live
 
+The opening menu follows the user-supplied `Screen Recording 2026-10-25 190601.mp4`: shaped blue/gold account bar, illustrated crown/board logo, diagonal dice background, vertically stacked golden Online Multiplayer and Computer cards, More Coins, settings, rules and fullscreen. The account name and wallet remain live values. The star below the avatar opens match history; the lower-left play icon opens the game instructions. The reference's external ad/loading overlay is not part of the game UI. Hero artwork and its built-in imagegen prompt are saved in `public/media/ludo/classic-ludo-hero-v1.png` and the adjacent `.source.json`; local Barlow fonts include their OFL licences.
+
 Desktop browsers open Ludo in a centred 440 px phone frame, including fullscreen. Size breakpoints follow that frame so the home menu, setup, matchmaking and live board use the same portrait UI as a phone. Small desktop windows scroll within the frame. Touch phones retain the compact landscape arrangement when rotated.
 
 On phones the match uses the available visual viewport, including space taken by the demo banner and safe-area insets. A compact match header shows entry and prize, player dice remain 44 px, and a reserved action row keeps the board steady when legal moves appear. Portrait screens from 320 px are supported; short landscape screens put the board beside the player cards and controls. The menu and matchmaking also compact on short screens. The back arrow confirms forfeiting a live game before leaving, and settings, sound and music remain available.

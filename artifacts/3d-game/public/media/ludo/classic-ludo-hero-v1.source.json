@@ -1,0 +1,7 @@
+{
+  "asset": "classic-ludo-hero-v1.png",
+  "tool": "Built-in image_gen, transparent background-extraction edit",
+  "reference": "User-provided Screen Recording 2026-10-25 190601.mp4, opening frame",
+  "scope": "Ludo opening screen hero; all account information and menu controls are rendered as interactive UI",
+  "prompt": "Use case: background-extraction. Edit target: the supplied screenshot of the user's Ludo app. Produce ONLY a clean, high-resolution transparent cutout of the central logo-and-board illustration, the artwork between roughly x=58..466 and y=145..405 in the reference. Preserve its composition and design faithfully: exact text LUDO in white letters inside blue, red, green and yellow circular medallions; a gold crown above the L; small gold KING above the O; below that a flat white four-colour Ludo board in shallow perspective, a tilted white die with black pips at its centre, a large shiny blue pawn at lower left and a large shiny yellow pawn at lower right, smaller red and green pawns behind them. Match the reference's classic glossy 3D mobile-game icon style and the positions, proportions, colours and white outlines. Remove the blue patterned background entirely and exclude all surrounding interface: no profile, no balance, no buttons, no frames, no settings gear, no extra text. Preserve the central artwork, with crisp edges and genuine transparent alpha. Wide landscape composition tightly framing this single illustration with a small even transparent margin. Do not redesign the illustration or replace it with a wooden board."
+}

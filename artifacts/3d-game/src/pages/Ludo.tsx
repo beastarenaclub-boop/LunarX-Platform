@@ -57,6 +57,7 @@ import "@/components/ludo/ludo-home.css";
 import "@/components/ludo/ludo-effects.css";
 import "@/components/ludo/ludo-mobile.css";
 import "@/components/ludo/ludo-landscape.css";
+import "@/components/ludo/ludo-classic-home.css";
 const money = (v: string | number) =>
   `₹${(Number(v) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const preview: LudoState = {
@@ -467,6 +468,7 @@ function LudoGame({
             onChoose={(mode) => setMenu({ screen: "setup", mode })}
             onSettings={() => setDialog("settings")}
             onHistory={() => setDialog("history")}
+            onRules={() => setDialog("rules")}
             fullscreen={fullscreen}
             onFullscreen={() => void toggleFullscreen()}
           />

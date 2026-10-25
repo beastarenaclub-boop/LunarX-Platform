@@ -1,17 +1,12 @@
 import { Link } from "wouter";
 import {
   ArrowLeft,
-  ArrowRight,
   Bot,
-  Coins,
-  Crown,
-  Globe2,
-  History,
   Maximize,
   Minimize,
   Music,
   Settings,
-  Smartphone,
+  Star,
   Timer,
   Users,
   UserRound,
@@ -20,6 +15,7 @@ import {
 } from "lucide-react";
 import type { LudoMatch, LudoState } from "@workspace/api-zod/ludo";
 import { LudoEmblem } from "./LudoEmblem";
+import { LudoProfilePlate, LudoPlayerPortrait, LudoMenuIllustration, LudoCoinStack } from "./LudoMenuArt";
 import { COLORS } from "./LudoBoard";
 
 type SoundControls = {
@@ -54,15 +50,8 @@ const money = (value: string | number) =>
   `₹${(Number(value) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 
 export function LudoHome({
-  name,
-  balance,
-  demo,
-  offline,
-  onChoose,
-  onSettings,
-  onHistory,
-  fullscreen,
-  onFullscreen,
+  name, balance, demo, offline, onChoose, onSettings, onHistory, onRules,
+  fullscreen, onFullscreen,
 }: {
   name: string;
   balance?: string;
@@ -71,129 +60,55 @@ export function LudoHome({
   onChoose: (mode: "online" | "computer") => void;
   onSettings: () => void;
   onHistory: () => void;
+  onRules: () => void;
   fullscreen: boolean;
   onFullscreen: () => void;
 }) {
   return (
-    <section className="ld-home-screen" aria-label="Ludo main menu">
+    <section className="ld-home-screen ld-classic-home" aria-label="Ludo main menu">
       <header className="ld-profile-header">
-        <span className="ld-profile-avatar">
-          {name.slice(0, 1).toUpperCase()}
-          <i className={offline ? "ld-profile-offline" : ""} />
-        </span>
-        <div className="ld-profile-name">
-          <strong title={name}>{name}</strong>
-          <small>
-            {offline
-              ? "Reconnecting…"
-              : demo
-                ? "DEMO PLAYER"
-                : "LUDO LIVE PLAYER"}
-          </small>
-        </div>
-        <Link
-          className="ld-profile-wallet"
-          href="/wallet"
-          aria-label="Your wallet"
-        >
-          <Coins />
-          <strong title={balance ? money(balance) : undefined}>
-            {demo ? "∞" : balance ? money(balance) : "—"}
-          </strong>
-          <small>{demo ? "Practice coins" : "Your wallet"}</small>
+        <LudoProfilePlate />
+        <span className="ld-profile-avatar"><LudoPlayerPortrait /><i className={offline ? "ld-profile-offline" : ""} /></span>
+        <div className="ld-profile-name"><strong title={name}>{name}</strong>{offline && <small>Reconnecting…</small>}</div>
+        <Link className="ld-profile-wallet" href="/wallet" aria-label="Your wallet">
+          <LudoCoinStack /><strong title={balance ? money(balance) : undefined}>{demo ? "∞" : balance ? money(balance) : "—"}</strong>
         </Link>
-        <button
-          className="ld-menu-icon ld-mobile-settings"
-          aria-label="Game settings"
-          onClick={onSettings}
-        >
-          <Settings />
-        </button>
+        <button className="ld-profile-matches" aria-label="My matches" onClick={onHistory}><Star fill="currentColor" /><span /></button>
+        <Link className="ld-add-money" href="/wallet">MORE COINS</Link>
+        <button className="ld-menu-icon ld-mobile-settings" aria-label="Game settings" onClick={onSettings}><Settings /><Settings /></button>
       </header>
-      <div className="ld-home-tools">
-        <button
-          className="ld-menu-icon"
-          aria-label="Game settings"
-          onClick={onSettings}
-        >
-          <Settings />
-        </button>
-        <Link className="ld-add-money" href="/wallet">
-          <Coins size={18} />
-          {demo ? "YOUR WALLET" : "ADD MONEY"}
-        </Link>
-      </div>
       <div className="ld-home-content">
-        <LudoEmblem />
+        <div className="ld-emblem ld-classic-emblem" aria-label="Ludo King">
+          <div className="ld-emblem-scene">
+            <img className="ld-emblem-art" src={`${import.meta.env.BASE_URL}media/ludo/classic-ludo-hero-v1.png`} alt="Ludo King crown, four coloured pawns, dice and board" width="1587" height="991" fetchPriority="high" draggable={false} />
+            <span className="ld-art-lustre" aria-hidden="true" />
+          </div>
+        </div>
         <div className="ld-home-play">
-          <div className="ld-play-heading">
-            <span>LET'S PLAY</span>
-            <h1>Your board. Your crown.</h1>
-            <p>Pick a mode and make your next move.</p>
-          </div>
           <div className="ld-mode-tiles">
-            <button
-              className="ld-mode-tile"
-              aria-label="Online multiplayer"
-              onClick={() => onChoose("online")}
-            >
-              <span className="ld-mode-badge">
-                <i /> MULTIPLAYER
-              </span>
-              <span className="ld-tile-art ld-online-art" aria-hidden="true">
-                <Smartphone />
-                <i />
-                <Globe2 />
-                <i />
-                <Smartphone />
-              </span>
-              <strong>Play online</strong>
-              <span className="ld-tile-caption">2 or 4 players</span>
-              <span className="ld-tile-action">
-                LET'S GO <ArrowRight size={17} />
-              </span>
-            </button>
-            <button
-              className="ld-mode-tile ld-computer-tile"
-              aria-label="Play against Computer"
-              onClick={() => onChoose("computer")}
-            >
-              <span className="ld-mode-badge">INSTANT PLAY</span>
-              <span className="ld-tile-art ld-computer-art" aria-hidden="true">
-                <Bot />
-                <b>VS</b>
-                <UserRound />
-              </span>
-              <strong>Computer</strong>
-              <span className="ld-tile-caption">Ready when you are</span>
-              <span className="ld-tile-action">
-                PLAY NOW <ArrowRight size={17} />
-              </span>
+            <div className="ld-online-choice">
+              <button className="ld-mode-tile" aria-label="Online multiplayer" onClick={() => onChoose("online")}>
+                <span className="ld-tile-art ld-online-art"><LudoMenuIllustration /></span>
+                <strong>ONLINE<br />MULTIPLAYER</strong>
+              </button>
+              <button className="ld-mode-info" aria-label="Online multiplayer rules" onClick={onRules}>i</button>
+            </div>
+            <button className="ld-mode-tile ld-computer-tile" aria-label="Play against Computer" onClick={() => onChoose("computer")}>
+              <span className="ld-tile-art ld-computer-art"><LudoMenuIllustration computer /></span>
+              <strong>COMPUTER</strong>
             </button>
           </div>
-          <p className="ld-home-note">
-            <Crown size={16} /> A classic game. A new rivalry.
-          </p>
         </div>
       </div>
       <footer className="ld-home-footer">
-        <Link className="ld-menu-icon" href="/" aria-label="Back to lobby">
-          <ArrowLeft />
-        </Link>
-        <button className="ld-menu-history" onClick={onHistory}>
-          <History size={18} /> My matches
-        </button>
-        <button
-          className="ld-menu-icon"
-          aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}
-          onClick={onFullscreen}
-        >
-          {fullscreen ? <Minimize /> : <Maximize />}
-        </button>
+        <button className="ld-home-tutorial" aria-label="How to play" onClick={onRules}><LudoCoinStack tutorial /></button>
+        <Link className="ld-home-return" href="/" aria-label="Back to lobby"><ArrowLeft /></Link>
+        <button className="ld-menu-icon" aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"} onClick={onFullscreen}>{fullscreen ? <Minimize /> : <Maximize />}</button>
       </footer>
     </section>
   );
 }
+
 
 export function LudoMatchmaking({
   match,

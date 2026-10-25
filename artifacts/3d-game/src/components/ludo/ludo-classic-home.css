@@ -1,0 +1,403 @@
+@font-face {
+  font-family: "Ludo Menu";
+  src: url("/media/ludo/menu-bold.ttf") format("truetype");
+  font-weight: 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Ludo Profile";
+  src: url("/media/ludo/menu-condensed.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* Opening screen follows the supplied portrait app recording. */
+.ld-in-home {
+  background:
+    radial-gradient(ellipse at 50% 60%, transparent 20%, #02182770 100%),
+    url("/media/ludo/classic-dice-pattern.svg") center / 440px 440px,
+    radial-gradient(ellipse at 50% 62%, #247dc0, #14558e 45%, #092c49 100%);
+  border-inline: 3px solid #071a27;
+}
+.ld-in-home .ld-main {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+.ld-classic-home {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: var(--fit-height, 100dvh);
+  min-height: 460px;
+  padding: 0;
+}
+.ld-classic-home .ld-profile-header {
+  display: block;
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: 25cqw;
+  max-height: 122px;
+  min-height: 80px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.ld-profile-plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 3px 3px #0009);
+}
+.ld-classic-home .ld-profile-avatar {
+  position: absolute;
+  left: 1.5cqw;
+  top: 1cqw;
+  width: 16cqw;
+  height: 16cqw;
+  border: 2px solid #eae0bb;
+  border-radius: 8px;
+  padding: 3px;
+  background: #132a46;
+  box-shadow: 0 0 0 2px #061b36;
+}
+.ld-classic-home .ld-profile-avatar > svg {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+}
+.ld-classic-home .ld-profile-avatar i {
+  width: 3.5cqw;
+  height: 3.5cqw;
+  top: -5px;
+  right: -6px;
+  bottom: auto;
+  border: 0;
+  background: #ff1722;
+  box-shadow: 0 1px 2px #800;
+}
+.ld-classic-home .ld-profile-avatar i.ld-profile-offline { background: #aaa; }
+.ld-classic-home .ld-profile-name {
+  position: absolute;
+  left: 19cqw;
+  top: 1.4cqw;
+  width: 40cqw;
+}
+.ld-classic-home .ld-profile-name strong,
+.ld-classic-home .ld-profile-wallet strong {
+  font-family: "Ludo Profile", "Arial Narrow", sans-serif;
+  font-weight: 700;
+  font-size: clamp(18px, 5cqw, 27px);
+  line-height: 1.25;
+  color: #fff;
+  -webkit-text-stroke: 3px #061329;
+  paint-order: stroke fill;
+  text-shadow: 0 2px #061329;
+}
+.ld-classic-home .ld-profile-name small {
+  margin: 0;
+  color: #fff6a7;
+  font-size: 9px;
+}
+.ld-classic-home .ld-profile-wallet {
+  position: absolute;
+  right: 3cqw;
+  top: 1cqw;
+  height: 9cqw;
+  min-height: 44px;
+  max-width: 37cqw;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: start;
+  gap: 3px;
+}
+.ld-classic-home .ld-profile-wallet > svg {
+  width: 6cqw;
+  height: 7cqw;
+  flex-shrink: 0;
+  color: #ffd124;
+}
+.ld-classic-home .ld-profile-wallet strong {
+  max-width: none;
+  min-width: 0;
+  font-size: clamp(22px, 6cqw, 32px);
+}
+.ld-profile-matches {
+  position: absolute;
+  left: 1.5cqw;
+  top: 17cqw;
+  width: 17cqw;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: #ffe55a;
+}
+.ld-profile-matches svg {
+  width: 28px;
+  height: 32px;
+  z-index: 1;
+  stroke: #c28d12;
+  filter: drop-shadow(0 1px 1px #000);
+}
+.ld-profile-matches span {
+  flex: 1;
+  height: 12px;
+  margin-left: -5px;
+  border: 1.5px solid #f7cc46;
+  border-radius: 0 6px 6px 0;
+  background: #123162;
+}
+.ld-classic-home .ld-add-money {
+  position: absolute;
+  right: 2.5cqw;
+  top: 13.8cqw;
+  min-height: 44px;
+  height: 10cqw;
+  padding: 1px 11px 3px;
+  border: 4px solid #ffcf39;
+  border-radius: 23px;
+  color: #fff;
+  background: linear-gradient(#13518d, #002b4c);
+  font: 700 clamp(17px, 4.9cqw, 25px)/1 "Ludo Profile", "Arial Narrow", sans-serif;
+  letter-spacing: 0;
+  -webkit-text-stroke: 2px #092546;
+  paint-order: stroke fill;
+  box-shadow: inset 0 0 0 1px #ffe986, 0 0 0 2px #ab780d, 0 0 9px #ffcc4b8c;
+}
+.ld-classic-home .ld-profile-header .ld-mobile-settings {
+  display: block;
+  position: absolute;
+  left: 2cqw;
+  top: 29cqw;
+  width: 11cqw;
+  height: 10.5cqw;
+  min-width: 44px;
+  min-height: 44px;
+}
+.ld-classic-home .ld-menu-icon {
+  border: 2px solid #edba24;
+  border-radius: 11px;
+  color: #ffe133;
+  background: linear-gradient(#164a76, #032c4d);
+  box-shadow: inset 0 0 0 2px #766018, 0 0 0 2px #4a401b, 0 0 8px #ffcb4570;
+}
+.ld-classic-home .ld-mobile-settings > svg:first-child {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  width: 25px;
+  height: 25px;
+  fill: #edb915;
+  stroke: #ffdf46;
+}
+.ld-classic-home .ld-mobile-settings > svg:last-child {
+  position: absolute;
+  right: 4px;
+  top: 5px;
+  width: 17px;
+  height: 17px;
+  fill: #edb915;
+  stroke: #ffdf46;
+}
+.ld-classic-home .ld-home-content {
+  position: absolute;
+  inset: 14.5% 0 8.5%;
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+.ld-classic-home .ld-home-content > .ld-classic-emblem {
+  flex: 0 0 42%;
+  min-height: 0;
+  width: 91%;
+  max-width: none;
+  display: block;
+}
+.ld-classic-home .ld-emblem-scene {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  min-height: 0;
+  margin: 0;
+  animation: none;
+}
+.ld-classic-home .ld-emblem-scene::before { display: none; }
+.ld-classic-home .ld-home-content .ld-emblem-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 1px #03274755);
+}
+.ld-classic-home .ld-art-lustre {
+  mask-image: url("/media/ludo/classic-ludo-hero-v1.png");
+  -webkit-mask-image: url("/media/ludo/classic-ludo-hero-v1.png");
+  opacity: .45;
+}
+.ld-classic-home .ld-home-play {
+  width: 100%;
+  max-width: none;
+  flex: 1;
+  min-height: 0;
+}
+.ld-classic-home .ld-mode-tiles {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ld-classic-home .ld-online-choice,
+.ld-classic-home .ld-computer-tile {
+  position: relative;
+  width: min(44cqw, 24cqh);
+  min-width: 114px;
+  aspect-ratio: 1.22;
+  flex-shrink: 0;
+}
+.ld-classic-home .ld-mode-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+  gap: 0;
+  padding: 7px 7px 2px;
+  border: 4px solid #ffdc51;
+  border-radius: 26px;
+  background: #ffc10d;
+  box-shadow: 0 0 0 3px #ac790b, 0 0 0 5px #e3b23966, 0 0 13px #ffdb5799, inset 0 0 0 2px #e5a208;
+  overflow: hidden;
+  transition: filter .15s, transform .15s;
+}
+.ld-classic-home .ld-online-choice > .ld-mode-tile {
+  width: 100%;
+  height: 100%;
+}
+.ld-classic-home .ld-mode-tile:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.ld-classic-home .ld-mode-tile:active { transform: translateY(2px); }
+.ld-classic-home .ld-mode-tile > .ld-tile-art {
+  display: block;
+  flex: 0 0 59%;
+  height: 59%;
+  min-height: 0;
+  width: 100%;
+  padding: 2px 0;
+  border: 2px solid #795400;
+  border-radius: 15px 15px 0 0;
+  background: linear-gradient(#267be4, #0b508c 48%, #002f4a);
+  filter: none;
+}
+.ld-classic-home .ld-tile-art > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: none;
+  transform: none;
+}
+.ld-classic-home .ld-mode-tile > strong {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: "Ludo Menu", Arial, sans-serif;
+  font-size: clamp(15px, min(5.4cqw, 3cqh), 25px);
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1.03;
+  letter-spacing: -.5px;
+  text-align: center;
+  color: #fff;
+  -webkit-text-stroke: 4px #082444;
+  paint-order: stroke fill;
+  text-shadow: 0 2px #082444;
+}
+.ld-classic-home .ld-mode-info {
+  position: absolute;
+  z-index: 2;
+  right: -21px;
+  top: -25px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, #a40b00 0 43%, #ffe03b 46% 53%, #9d5a00 56% 61%, transparent 64%);
+  color: #fff167;
+  font: italic 700 29px/44px Georgia, serif;
+  text-shadow: 0 2px #551000;
+}
+.ld-classic-home .ld-home-footer {
+  position: absolute;
+  inset: auto 3cqw max(8px, env(safe-area-inset-bottom));
+  width: auto;
+  height: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 8px;
+  padding: 0;
+}
+.ld-home-tutorial,
+.ld-home-return {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: #cfe5f2;
+  cursor: pointer;
+}
+.ld-home-tutorial { width: 64px; }
+.ld-home-tutorial svg { width: 100%; height: 48px; }
+.ld-home-return { opacity: .65; }
+.ld-classic-home .ld-home-footer > .ld-menu-icon { width: 44px; height: 44px; }
+
+@container ludo (orientation: landscape) and (max-height: 600px) and (min-width: 560px) {
+  .ld-classic-home { min-height: 224px; }
+  .ld-classic-home .ld-profile-header {
+    height: 52px;
+    min-height: 52px;
+    background: linear-gradient(#2675cd, #073968);
+    border-bottom: 2px solid #d5ac34;
+  }
+  .ld-classic-home .ld-profile-plate,
+  .ld-classic-home .ld-profile-avatar,
+  .ld-classic-home .ld-add-money,
+  .ld-classic-home .ld-home-tutorial { display: none; }
+  .ld-classic-home .ld-profile-name { left: 60px; top: 10px; width: 26%; }
+  .ld-classic-home .ld-profile-name strong { font-size: 17px; }
+  .ld-classic-home .ld-profile-wallet { top: 5px; right: 156px; height: 40px; max-width: 24%; align-items: center; }
+  .ld-classic-home .ld-profile-wallet strong { font-size: 21px; }
+  .ld-classic-home .ld-profile-wallet > svg { width: 24px; height: 30px; }
+  .ld-classic-home .ld-profile-matches { left: auto; right: 108px; top: 4px; width: 44px; }
+  .ld-classic-home .ld-profile-matches span { display: none; }
+  .ld-classic-home .ld-profile-header .ld-mobile-settings { left: auto; right: 8px; top: 4px; width: 44px; height: 44px; }
+  .ld-classic-home .ld-home-content { inset: 58px 12px 6px; width: auto; flex-direction: row; align-items: center; gap: 16px; }
+  .ld-classic-home .ld-home-content > .ld-classic-emblem { flex: 1; width: 45%; height: 100%; }
+  .ld-classic-home .ld-home-play { flex: 1.2; height: 100%; }
+  .ld-classic-home .ld-mode-tiles { flex-direction: row; justify-content: center; align-items: center; gap: 18px; }
+  .ld-classic-home .ld-online-choice,
+  .ld-classic-home .ld-computer-tile { width: min(21cqw, 36cqh); min-width: 90px; }
+  .ld-classic-home .ld-mode-tile { padding: 4px 4px 1px; border-width: 3px; border-radius: 18px; }
+  .ld-classic-home .ld-mode-tile > strong { font-size: clamp(12px, 4.7cqh, 21px); -webkit-text-stroke-width: 3px; }
+  .ld-classic-home .ld-home-footer { display: contents; }
+  .ld-classic-home .ld-home-return { position: absolute; left: 8px; top: 4px; opacity: 1; z-index: 4; }
+  .ld-classic-home .ld-home-footer > .ld-menu-icon { position: absolute; right: 58px; top: 4px; z-index: 4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ld-classic-home .ld-mode-tile { transition: none; }
+}
