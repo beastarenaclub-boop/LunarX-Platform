@@ -45,7 +45,7 @@
     height: calc(
       var(--fit-height, 100dvh) - 4px - max(4px, env(safe-area-inset-bottom))
     );
-    min-height: 500px;
+    min-height: 496px;
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -105,9 +105,9 @@
   }
   .ld-playfield {
     display: grid;
-    grid-template-rows: 56px minmax(208px, 1fr) 56px;
+    grid-template-rows: 56px minmax(192px, 1fr) 56px;
     flex: 1;
-    min-height: 320px;
+    min-height: 304px;
     max-height: calc(min(100vw - 16px, 440px) + 112px);
     margin-block: auto;
   }
@@ -519,6 +519,12 @@
 }
 
 @media (max-width: 760px) and (max-height: 620px) {
+  .ld-lobby-hero {
+    padding: 4px 0;
+  }
+  .ld-setup-section {
+    padding: 6px 0;
+  }
   .ld-colour-note {
     display: none;
   }

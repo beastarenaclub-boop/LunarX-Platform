@@ -638,6 +638,7 @@ for (const capacity of [2, 4] as const)
         p.page.getByRole("button", { name: "Move 4", exact: true }),
       ).toBeEnabled();
       for (const viewport of [
+        { width: 320, height: 512 },
         { width: 320, height: 526 },
         { width: 360, height: 598 },
         { width: 390, height: 802 },
@@ -654,7 +655,7 @@ for (const capacity of [2, 4] as const)
           .toBeLessThanOrEqual(viewport.height);
         const board = await p.page.locator(".ld-board-wrap").boundingBox();
         expect(Math.abs(board!.width - board!.height)).toBeLessThan(1);
-        expect(board!.width).toBeGreaterThan(200);
+        expect(board!.width).toBeGreaterThanOrEqual(192);
         for (const control of [
           roll,
           p.page.getByRole("button", { name: "Move 4", exact: true }),
@@ -686,7 +687,7 @@ for (const capacity of [2, 4] as const)
           ),
         ).toBe(true);
         await p.page.screenshot({
-          path: `tmp/ludo-mobile-checks/fixture-${capacity}-${viewport.width}.png`,
+          path: `tmp/ludo-mobile-checks/fixture-${capacity}-${viewport.width}x${viewport.height}.png`,
         });
       }
       expect((await state(p.context)).match!.id).toBe(id);
