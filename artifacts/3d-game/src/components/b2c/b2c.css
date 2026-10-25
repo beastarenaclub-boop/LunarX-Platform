@@ -296,16 +296,12 @@
   transition: opacity 0.15s;
 }
 .b2c-game[data-game-id="ludo"] {
-  container-type: inline-size;
-  background: radial-gradient(ellipse at 70% 35%, #2869bd, #102d6b 75%);
+  background: #0b2017;
   box-shadow: inset 0 0 0 1px #efce6c70;
 }
 .b2c-game[data-game-id="ludo"] .b2c-game-art {
-  width: 63%;
-  margin-left: 37%;
-  object-fit: contain;
-  padding: 3% 2% 2% 0;
-  filter: drop-shadow(0 7px 7px #04163888);
+  object-fit: cover;
+  object-position: center;
 }
 .b2c-game[data-game-id="ludo"]::after {
   content: "";
@@ -318,36 +314,6 @@
 }
 @keyframes b2c-ludo-shine { 0%,15% { background-position:150% 0; } 55%,100% { background-position:-50% 0; } }
 @media (prefers-reduced-motion:reduce) { .b2c-game[data-game-id="ludo"]::after { display:none; } }
-.b2c-ludo-title {
-  position: absolute;
-  left: 6%;
-  top: 23%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1;
-  pointer-events: none;
-  text-shadow: 0 2px 0 #041438;
-}
-.b2c-ludo-title strong {
-  color: #ffe08a;
-  font-size: 11.5cqw;
-  font-weight: 1000;
-  font-style: italic;
-  letter-spacing: -0.8px;
-}
-.b2c-ludo-title b {
-  margin-top: 4px;
-  color: #fff;
-  font-size: 7cqw;
-  letter-spacing: 2px;
-}
-.b2c-ludo-title small {
-  margin-top: 8px;
-  color: #c9ddff;
-  font-size: 2.5cqw;
-  letter-spacing: .4px;
-}
 .b2c-game:is(:hover, :focus-visible) .b2c-game-hover {
   opacity: 1;
 }

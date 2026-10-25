@@ -136,9 +136,9 @@ export const LOBBY_GAMES: LobbyGame[] = [
     artworkHasTitle: true,
   }),
   game("ludo", "Ludo Live", "table", "#ffe08a", {
-    artwork: `${import.meta.env.BASE_URL}media/ludo/royal-board.png`,
-    artworkHasTitle: false,
-    artworkFit: "contain",
+    artwork: `${import.meta.env.BASE_URL}media/ludo/lobby-casino-v2.jpg`,
+    artworkHasTitle: true,
+    artworkFit: "cover",
     label: "LIVE",
     tags: ["ludo", "multiplayer", "2 players", "4 players", "computer"],
   }),
