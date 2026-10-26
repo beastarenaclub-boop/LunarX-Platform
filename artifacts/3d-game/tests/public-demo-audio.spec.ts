@@ -44,8 +44,8 @@ test("every imported cue decodes and its actual sprite segment is audible", asyn
     return { errors, games: Object.keys(games).length, count };
   });
   expect(result.errors).toEqual([]);
-  expect(result.games).toBe(7);
-  expect(result.count).toBeGreaterThan(50);
+  expect(result.games).toBe(6);
+  expect(result.count).toBeGreaterThan(40);
 });
 
 test("real playback uses exact decoded recordings and provider sprite timings", async ({ page }) => {
@@ -57,7 +57,7 @@ test("real playback uses exact decoded recordings and provider sprite timings", 
     await audio.unlockAudio();
     const context = new AudioContext(), bank = new recordings.PublicDemoSoundBank(context);
     const failures: string[] = [];
-    const games = ["jetx", "aviator", "chicken-road-2", "mines", "tower-rush", "rummy"];
+    const games = ["jetx", "aviator", "mines", "tower-rush", "rummy"];
     for (const game of games) {
       await audio.preloadGameAudio(game);
       await bank.prepare(game, "win");
@@ -73,7 +73,7 @@ test("real playback uses exact decoded recordings and provider sprite timings", 
     return { failures, count: events.length };
   });
   expect(result.failures).toEqual([]);
-  expect(result.count).toBe(6);
+  expect(result.count).toBe(5);
 });
 
 test("late downloads cannot play after navigation or restart stopped music", async ({ page }) => {
@@ -87,10 +87,10 @@ test("late downloads cannot play after navigation or restart stopped music", asy
   await page.locator("#enable").click();
   await page.evaluate(async () => {
     const { audio } = (window as any).soundTest;
-    await audio.unlockAudio(); audio.setAudioGame("chicken-road-2");
+    await audio.unlockAudio(); audio.setAudioGame("tower-rush");
     audio.playGameSound("select"); audio.startMusic(); audio.stopMusic();
     audio.setAudioGame("coin-flip");
-    await audio.preloadGameAudio("chicken-road-2");
+    await audio.preloadGameAudio("tower-rush");
   });
   await page.waitForTimeout(700);
   expect(await page.evaluate(() => (window as any).soundTest.events.length)).toBe(0);

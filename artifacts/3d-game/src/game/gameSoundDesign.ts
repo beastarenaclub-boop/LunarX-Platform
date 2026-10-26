@@ -54,7 +54,7 @@ export const GAME_SOUND_DESIGNS = {
 // Keep the previous sound design for cues without an accessible exact recording.
 // Route identity is separate so a new game's recording cannot leak into Mines/JetX.
 const COLLECTION_SOUND_FALLBACKS = {
-  "chicken-road-2": "mines", "pirate-jackpot-mines": "mines",
+  "pirate-jackpot-mines": "mines",
   "7up7down": "dice", "duck-duel": "mines", "tower-rush": "mines", "jackpot-fishing": "mines", "coin-flip": "mines",
 } as const satisfies Record<string, keyof typeof GAME_SOUND_DESIGNS>;
 export type GameAudioId = keyof typeof GAME_SOUND_DESIGNS | keyof typeof COLLECTION_SOUND_FALLBACKS;

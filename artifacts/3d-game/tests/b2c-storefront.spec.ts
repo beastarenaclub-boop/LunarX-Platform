@@ -274,7 +274,7 @@ test("game families include every variant and category buttons stay aligned and 
   const families: Record<string, string[]> = {
     Poker: ["poker-one-day", "poker-20-20", "poker-six-players"],
     "Teen Patti": ["teen-patti", "teen-patti-live", "teen-patti-joker"],
-    "Chicken Road": ["chicken-road", "chicken-road-pirate", "chicken-road-2"],
+    "Chicken Road": ["chicken-road", "chicken-road-pirate"],
     "Dice Games": ["dice", "7up7down", "lucky-7"],
     Racing: ["wild-trails", "bike-racing", "virtual-formula"],
   };
@@ -282,7 +282,10 @@ test("game families include every variant and category buttons stay aligned and 
     await page.setViewportSize({ width, height: 900 });
     for (const [name, ids] of Object.entries(families)) {
       // Choosing a category outside the strip must also reveal its active tab.
-      await page.getByRole("navigation", { name: "Browse games" }).getByRole("button", { name, exact: true }).click();
+      const browseButton = page.getByRole("navigation", { name: "Browse games" }).getByRole("button", { name, exact: true });
+      // The general strip requires three variants; Chicken Road now has two.
+      if (await browseButton.count()) await browseButton.click();
+      else await navigation.getByRole("button", { name, exact: true }).click();
       const button = navigation.getByRole("button", { name, exact: true });
       await expect(button).toHaveAttribute("aria-pressed", "true");
       // Fractional slot widths can put a fraction of one pixel outside the clip.

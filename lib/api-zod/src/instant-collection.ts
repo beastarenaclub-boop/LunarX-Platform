@@ -1,7 +1,6 @@
 export type InstantKind = "road" | "mines" | "tower" | "coin" | "dice" | "duel" | "fishing";
 export const INSTANT_COLLECTION = [
   { code: "chicken-road-pirate", name: "Chicken Road Pirate Edition", short: "Pirate Road", kind: "road", accent: "#ffce72", theme: "pirate", tagline: "One brave bird. A sea of treasure." },
-  { code: "chicken-road-2", name: "Chicken Road 2.0", short: "Chicken Road 2.0", kind: "road", accent: "#b8f36b", theme: "road", tagline: "Small steps. Bigger adventures." },
   { code: "pirate-jackpot-mines", name: "Pirate Jackpot Mines", short: "Pirate Mines", kind: "mines", accent: "#f5c36a", theme: "pirate", tagline: "Find the treasure. Mind the cannons." },
   { code: "7up7down", name: "7up7down", short: "7up7down", kind: "dice", accent: "#a59bff", theme: "dice", tagline: "Two dice. Three ways to play." },
   { code: "duck-duel", name: "Duck Duel", short: "Duck Duel", kind: "duel", accent: "#ffcc68", theme: "duel", tagline: "Pick your duck. Own the pond." },
@@ -9,9 +8,10 @@ export const INSTANT_COLLECTION = [
   { code: "jackpot-fishing", name: "Jackpot Fishing", short: "Jackpot Fishing", kind: "fishing", accent: "#64e7da", theme: "ocean", tagline: "Cast a line into the extraordinary." },
   { code: "coin-flip", name: "Coin Flip", short: "Coin Flip", kind: "coin", accent: "#edca7a", theme: "coin", tagline: "One coin. Your call." },
 ] as const;
-export type CollectionCode = typeof INSTANT_COLLECTION[number]["code"];
+// Retained only for existing round receipts and cash-out recovery.
+export type CollectionCode = typeof INSTANT_COLLECTION[number]["code"] | "chicken-road-2";
 export type CollectionGame = typeof INSTANT_COLLECTION[number];
-export const REQUESTED_INSTANT_CODES = ["jetx", "chicken-road-pirate", "chicken-road-2", "pirate-jackpot-mines", "fury", "7up7down", "duck-duel", "tower-rush", "jackpot-fishing", "mines", "coin-flip"];
+export const REQUESTED_INSTANT_CODES = ["jetx", "chicken-road-pirate", "pirate-jackpot-mines", "fury", "7up7down", "duck-duel", "tower-rush", "jackpot-fishing", "mines", "coin-flip"];
 export const collectionGame = (code: string) => INSTANT_COLLECTION.find(g => g.code === code);
 export const progressive = (kind: InstantKind) => ["road", "mines", "tower"].includes(kind);
 export const SEVEN_SPOTS = ["down", "seven", "up", "2", "3", "4", "5", "6", "8", "9", "10", "11", "12"] as const;

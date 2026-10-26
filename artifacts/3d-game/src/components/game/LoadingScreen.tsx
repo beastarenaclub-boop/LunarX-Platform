@@ -7,7 +7,6 @@ import { B2C_STANDALONE } from "@/components/b2c/config";
 const routeAliases: Record<string, string> = {
   "/wingo": "/lunar-colour-trading",
   "/fury-flight": "/fury",
-  "/chicken-road-2.0": "/chicken-road-2",
   "/chicken-road-pirate-edition": "/chicken-road-pirate",
   "/wheel-2": "/wheel-2-live",
   "/wheel-2.0": "/wheel-2-live",

@@ -6,6 +6,12 @@ import { requireGameConfig } from "./rtp";
 import { postEntry, publishWalletBalance } from "./wallet";
 import { badRequest, conflict, notFound } from "../lib/errors";
 import { instantDraw, instantHazards, instantSafe, instantSeedHash } from "./instantCollectionMath";
+import { isRetiredGame } from "../lib/retiredGames";
+
+// Historical receipts still need their original rules after a game is removed.
+const settlementGame = (code: string) => collectionGame(code) ?? (code === "chicken-road-2"
+  ? { code: "chicken-road-2" as const, name: "Chicken Road 2.0", kind: "road" as const }
+  : undefined);
 
 interface Metadata {
   version: 1; requestId: string; options: CollectionOptions; step: number; revealed: number[]; outcome: number[];
@@ -13,7 +19,7 @@ interface Metadata {
 }
 const owned = (userId: string, game: string) => and(eq(betsTable.userId, userId), eq(betsTable.gameCode, game), sql`${betsTable.metadata}->>'version' = '1'`);
 export function instantReceipt(bet: Bet): CollectionRound {
-  const m = bet.metadata as Metadata, game = collectionGame(bet.gameCode)!;
+  const m = bet.metadata as Metadata, game = settlementGame(bet.gameCode)!;
   const active = bet.status === "placed";
   const multiplier = progressive(game.kind) ? collectionMultiplier(game.kind, m.step, m.options, m.rtp, m.maxMultiplier) : bet.multiplier ?? 0;
   return { id: bet.id, gameCode: game.code, requestId: m.requestId, status: active ? "active" : bet.status === "lost" ? "lost" : bet.status === "cashed_out" ? "cashed_out" : "won",
@@ -25,7 +31,7 @@ export function instantReceipt(bet: Bet): CollectionRound {
 }
 export async function instantConfig(code: CollectionCode) {
   const c = await requireGameConfig(code);
-  return { enabled: c.enabled, minStakePaise: c.minStakePaise.toString(), maxStakePaise: c.maxStakePaise.toString(), rtp: 1 - c.houseEdge, maxMultiplier: c.maxMultiplier };
+  return { enabled: c.enabled && !isRetiredGame(code), minStakePaise: c.minStakePaise.toString(), maxStakePaise: c.maxStakePaise.toString(), rtp: 1 - c.houseEdge, maxMultiplier: c.maxMultiplier };
 }
 export async function instantState(userId: string, code: CollectionCode) {
   const active = await db.select().from(betsTable).where(and(owned(userId, code), eq(betsTable.status, "placed"))).limit(1);
@@ -33,6 +39,7 @@ export async function instantState(userId: string, code: CollectionCode) {
   return { round: active[0] ? instantReceipt(active[0]) : null, history: history.map(instantReceipt) };
 }
 export async function placeInstant(userId: string, code: CollectionCode, input: { requestId: string; stakeAmount: string; clientSeed: string; options: CollectionOptions }) {
+  if (isRetiredGame(code)) throw badRequest("This game is no longer available.");
   const game = collectionGame(code)!, config = await instantConfig(code), stake = BigInt(input.stakeAmount);
   if (input.options.bets) {
     if (game.kind !== "dice") throw badRequest("Chip bets are only available on 7 Up 7 Down.");
@@ -81,12 +88,13 @@ export async function placeInstant(userId: string, code: CollectionCode, input: 
   return result;
 }
 export async function moveInstant(userId: string, code: CollectionCode, id: string, input: { action: "reveal" | "cashout"; expectedStep: number; cell: number; actionId: string }) {
+  if (isRetiredGame(code) && input.action !== "cashout") throw badRequest("This game has been removed. Cash out your existing round.");
   let wallet: { balance: bigint; amount: bigint } | undefined;
   const result = await db.transaction(async tx => {
     const [bet] = await tx.select().from(betsTable).where(and(owned(userId, code), eq(betsTable.id, id))).for("update").limit(1);
     if (!bet) throw notFound("Round not found.");
     if (bet.status !== "placed") return instantReceipt(bet);
-    const game = collectionGame(code)!, old = bet.metadata as Metadata;
+    const game = settlementGame(code)!, old = bet.metadata as Metadata;
     if (old.lastActionId === input.actionId) return instantReceipt(bet);
     if (old.step !== input.expectedStep) throw conflict("Round changed. Refresh before playing again.");
     const m: Metadata = { ...old, revealed: [...old.revealed], lastActionId: input.actionId };

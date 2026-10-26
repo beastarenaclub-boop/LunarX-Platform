@@ -5,8 +5,8 @@ import { collectionMultiplier, collectionPayout, INSTANT_COLLECTION, REQUESTED_I
 import { instantDraw, instantHazards, instantRandom, instantSafe, instantSeedHash } from "../instantCollectionMath";
 const options: CollectionOptions = { difficulty: "easy", mines: 3, choice: "heads" };
 test("all requested games have unique codes and all new games have rules", () => {
-  assert.equal(new Set(REQUESTED_INSTANT_CODES).size, 11);
-  assert.equal(INSTANT_COLLECTION.length, 8);
+  assert.equal(new Set(REQUESTED_INSTANT_CODES).size, 10);
+  assert.equal(INSTANT_COLLECTION.length, 7);
   for (const g of INSTANT_COLLECTION) assert(REQUESTED_INSTANT_CODES.includes(g.code));
 });
 test("seed commitment and HMAC stream can be independently replayed", () => {

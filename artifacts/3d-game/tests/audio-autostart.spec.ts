@@ -22,7 +22,7 @@ test.describe("automatic playback when the browser permits it", () => {
   test("every shared game starts one music loop on entry without a bet; navigation, hide and mute stop it", async ({ page }) => {
     await shared(page);
     const games: string[] = await page.evaluate(() => Object.keys((window as any).soundTest.design.GAME_SOUND_DESIGNS).filter(game => !["baccarat","teen-patti-live","dragon-tiger-one-day"].includes(game)));
-    for (const route of [...games.map(game => `/${game}`), "/lottery", "/prize-lotto", "/lunar-colour-trading", "/7up7down", "/chicken-road-2", "/tower-rush"]) {
+    for (const route of [...games.map(game => `/${game}`), "/lottery", "/prize-lotto", "/lunar-colour-trading", "/7up7down", "/tower-rush"]) {
       await page.evaluate(route => (window as any).autoAudio.enter(route), route);
       await expect.poll(() => liveLoops(page), { message: route }).toBe(1);
     }

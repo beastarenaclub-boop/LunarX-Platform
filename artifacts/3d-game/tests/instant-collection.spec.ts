@@ -50,6 +50,40 @@ async function setup(page: Page, code: string, options: { drop?: boolean; lose?:
   return { posts, errors, get balance() { return balance; } };
 }
 
+test("removed Chicken Road 2.0 links return to the lobby without a new bet", async ({ page }) => {
+  const f = await setup(page, "chicken-road-2");
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator('a[href="/chicken-road-2"]')).toHaveCount(0);
+  await expect(page.getByTestId("collection-play")).toHaveCount(0);
+  await page.goto("/chicken-road-2.0");
+  await expect(page).toHaveURL(/\/$/);
+  expect(f.posts).toEqual([]);
+  expect(f.errors).toEqual([]);
+});
+
+test("removed Chicken Road 2.0 recovers an old round after a lost cash-out reply", async ({ page }) => {
+  const f = await setup(page, "lobby");
+  let settled = false;
+  const requests: any[] = [];
+  await page.route("**/api/instant/chicken-road-2/**", async route => {
+    if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON(); requests.push(body);
+      expect(body.action).toBe("cashout");
+      expect(body.expectedStep).toBe(3);
+      settled = true;
+      return route.abort("connectionreset");
+    }
+    return route.fulfill({ json: { round: settled ? null : { id: "old-round", gameCode: "chicken-road-2", status: "active", step: 3, cashoutAmount: "15700" }, history: [] } });
+  });
+  await page.goto("/chicken-road-2");
+  await expect(page.getByRole("heading", { name: "Chicken Road 2.0 has been removed" })).toBeVisible();
+  await expect(page.getByTestId("collection-play")).toHaveCount(0);
+  await page.getByRole("button", { name: "Cash out ₹157.00", exact: true }).click();
+  await expect(page).toHaveURL(/\/$/);
+  expect(requests).toHaveLength(1);
+  expect(f.errors).toEqual([]);
+});
+
 for (const game of INSTANT_COLLECTION.filter(game => game.kind !== "dice" && game.kind !== "coin")) test(`${game.name}: play, settle, recover, responsive`, async ({ page }) => {
   const f = await setup(page, game.code);
   if (game.kind === "dice") await page.getByRole("button", { name: "Bet on 7 Up", exact: true }).click();
@@ -201,7 +235,7 @@ test("pirate full screen keeps rules and history accessible", async ({ page }) =
   expect(f.errors).toEqual([]);
 });
 
-test("all 11 games appear under Instant Games with correct routes", async ({ page }) => {
+test("all 10 games appear under Instant Games with correct routes", async ({ page }) => {
   const f = await setup(page, "lobby");
   await page.getByRole("button", { name: "Instant Games", exact: true }).first().click();
   for (const code of REQUESTED_INSTANT_CODES) await expect(page.getByTestId(`card-game-${code}`)).toBeVisible();
@@ -419,35 +453,5 @@ test("pirate pending responses stay silent after mute and after leaving the game
   await expect.poll(() => f.posts.length).toBe(2);
   expect((await pirateEvents(page)).some(e => e.duration === .62)).toBe(false);
   await expect.poll(async () => (await pirateEvents(page)).every(e => e.ended)).toBe(true);
-  expect(f.errors).toEqual([]);
-});
-
-test("exact Chicken Road audio stops on mute during a pending move", async ({ page }) => {
-  await page.addInitScript(() => {
-    (window as any).collectionAudio = [];
-    const start = AudioBufferSourceNode.prototype.start;
-    AudioBufferSourceNode.prototype.start = function(...args) {
-      const entry = { duration: this.buffer?.duration, ended: false };
-      (window as any).collectionAudio.push(entry);
-      this.addEventListener("ended", () => { entry.ended = true; });
-      return start.apply(this, args);
-    };
-  });
-  const f = await setup(page, "chicken-road-2", { audio: true });
-  await page.evaluate(async () => { const path = "/src/game/audio.ts"; await (await import(path)).preloadGameAudio("chicken-road-2"); });
-  await page.route("**/api/instant/chicken-road-2/place", async route => { await new Promise(resolve => setTimeout(resolve, 700)); await route.fallback(); });
-  await page.getByTestId("collection-play").click();
-  await expect.poll(() => page.evaluate(() => (window as any).collectionAudio.length)).toBe(1);
-  await page.getByRole("button", { name: "Mute sound", exact: true }).click();
-  await expect(page.getByTestId("collection-cashout")).toBeEnabled();
-  expect(await page.evaluate(() => (window as any).collectionAudio.length)).toBe(1);
-  await expect.poll(() => page.evaluate(() => (window as any).collectionAudio.every((e: any) => e.ended))).toBe(true);
-  await page.getByRole("button", { name: "Enable sound", exact: true }).click();
-  await expect.poll(() => page.evaluate(() => (window as any).collectionAudio.length)).toBe(2);
-  await page.waitForTimeout(80); // Past the shared click debounce before the next action.
-  await page.getByRole("button", { name: "Cross lane 1", exact: true }).first().click();
-  await expect(page.getByTestId("collection-cashout")).toContainText("Cash out");
-  // One button click and one successful jump; no optimistic second jump cue.
-  await expect.poll(() => page.evaluate(() => (window as any).collectionAudio.length)).toBe(4);
   expect(f.errors).toEqual([]);
 });

@@ -41,7 +41,7 @@ const GAME_FAMILIES: (LobbyCategory & {
   { id: "blackjack", name: "Blackjack", icon: Spade, gameIds: ["blackjack"], minimumGames: 1 },
   { id: "rummy", name: "Rummy", icon: Spade, gameIds: ["rummy"], minimumGames: 1 },
   { id: "wheel", name: "Wheel", icon: CircleDot, gameIds: ["wheel-2-live"], minimumGames: 1 },
-  { id: "chicken-road", name: "Chicken Road", icon: Bird, gameIds: ["chicken-road", "chicken-road-pirate", "chicken-road-2"], minimumGames: 3 },
+  { id: "chicken-road", name: "Chicken Road", icon: Bird, gameIds: ["chicken-road", "chicken-road-pirate"], minimumGames: 2 },
   { id: "dice-games", name: "Dice Games", icon: Dice5, gameIds: ["dice", "7up7down", "lucky-7"], minimumGames: 3 },
   { id: "racing-games", name: "Racing", icon: Trophy, gameIds: ["wild-trails", "bike-racing", "virtual-formula"], minimumGames: 3 },
 ];
