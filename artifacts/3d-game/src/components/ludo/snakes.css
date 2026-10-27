@@ -1,0 +1,949 @@
+.sn-app {
+  position: relative;
+  isolation: isolate;
+  height: 100cqh;
+  min-height: 0;
+  overflow: hidden;
+  background: #962b17;
+  color: #fff6c9;
+  font-family: "Ludo Menu", Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  --sn-gold: #ffda64;
+}
+.sn-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(#9c2f0e33, #6c160d44),
+    url("/media/ludo/snakes-pattern-v1.svg") center/370px;
+  opacity: 0.85;
+  pointer-events: none;
+}
+.sn-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 56px;
+  padding: 5px 8px;
+  background: linear-gradient(#ffed9a, #d79424 55%, #f2bc4e);
+  border-block: 2px solid #ffe9a6;
+  box-shadow: 0 3px 5px #5d190f77;
+  color: #73350e;
+  z-index: 3;
+}
+.sn-toolbar > div {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sn-toolbar strong {
+  font:
+    900 clamp(12px, 4cqw, 18px) "Ludo Profile",
+    Arial,
+    sans-serif;
+  white-space: nowrap;
+}
+.sn-toolbar small {
+  font: 600 10px Arial;
+  color: #6b3514;
+}
+.sn-toolbar button {
+  border: 1px solid #fce48b;
+  border-radius: 9px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(#bb601b, #86371b);
+  color: #ffe789;
+  box-shadow: inset 0 0 0 2px #71401c;
+}
+.sn-toolbar button svg {
+  width: 21px;
+}
+.sn-app button {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    filter 0.16s,
+    transform 0.16s;
+}
+.sn-app button:hover {
+  filter: brightness(1.13);
+}
+.sn-app button:active {
+  transform: scale(0.97);
+}
+.sn-app button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.sn-app button:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+}
+.sn-app input {
+  min-height: 44px;
+  background: #48190e;
+  color: #fff6d1;
+  border: 1px solid #dca747;
+  border-radius: 6px;
+  padding: 8px;
+  font: 600 15px Arial;
+  width: 100%;
+}
+.sn-home .sn-toolbar {
+  margin-top: 4cqh;
+}
+.sn-home-hero {
+  position: absolute;
+  left: 17%;
+  top: 19%;
+  width: 66%;
+  height: 29%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-direction: column;
+}
+.sn-logo {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  overflow: visible;
+  filter: drop-shadow(0 4px 1px #52231588);
+}
+.sn-home-hero > .ld-royal-badge {
+  width: 70px;
+  height: 55px;
+  margin-bottom: -10px;
+  z-index: 1;
+}
+.sn-home-modes {
+  position: absolute;
+  left: 17%;
+  width: 66%;
+  top: 49%;
+  height: 27%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17% 7%;
+}
+.sn-mode {
+  position: relative;
+  padding: 0;
+  background: linear-gradient(#0f5334, #13452f);
+  border: 3px solid #ffe291;
+  border-radius: 12px;
+  box-shadow:
+    0 3px #79400f,
+    inset 0 0 0 2px #b68026;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 44px;
+}
+.sn-mode > .ld-crafted-art {
+  width: 85%;
+  height: 75%;
+  position: absolute;
+  top: -14%;
+  filter: drop-shadow(0 2px 1px #102514);
+}
+.sn-mode strong {
+  margin-top: auto;
+  display: grid;
+  place-items: center;
+  min-height: 34%;
+  width: 100%;
+  background: linear-gradient(#fff3a4, #e4ac32);
+  border-radius: 0 0 8px 8px;
+  color: #fff;
+  font:
+    900 clamp(10px, 3.5cqw, 16px)/1 "Ludo Profile",
+    Arial;
+  text-shadow:
+    -1px -1px #1d393a,
+    1px 1px #1d393a,
+    1px 2px #1d393a;
+  padding: 3px 1px;
+}
+.sn-home-options {
+  position: absolute;
+  top: 80%;
+  left: 18%;
+  width: 64%;
+  display: flex;
+  justify-content: space-between;
+}
+.sn-home-options button {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-width: 58px;
+  min-height: 57px;
+  background: linear-gradient(#ffe965, #dc9919);
+  color: #135e35;
+  border: 3px solid #ffa931;
+  border-radius: 14px;
+  box-shadow: 0 2px 5px #542419;
+}
+.sn-home-options svg {
+  width: 25px;
+  height: 25px;
+}
+.sn-home-options span {
+  font: 700 9px Arial;
+  color: #653b15;
+}
+.sn-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 7%;
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 1.2fr repeat(4, 1fr);
+  background: linear-gradient(#fff1a7, #daa12a);
+  border-top: 2px solid #fff2ae;
+}
+.sn-bottom button {
+  border: 0;
+  border-right: 1px solid #ae7f2f77;
+  background: none;
+  color: #fff;
+  font:
+    700 9px "Ludo Profile",
+    Arial;
+  text-shadow: 0 1px #74460e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 0 5px;
+  position: relative;
+  gap: 2px;
+}
+.sn-bottom svg {
+  width: 28px;
+  height: 28px;
+  color: #96630f;
+  filter: drop-shadow(0 1px #fff7ae);
+}
+.sn-bottom .ld-crafted-art {
+  width: 40px;
+  height: 35px;
+}
+.sn-bottom .active {
+  background: linear-gradient(#fffde4, #ffe38c);
+  border: 2px solid #fff9d1;
+  border-radius: 6px 6px 0 0;
+  margin-top: -8px;
+  color: #9f621b;
+}
+.sn-resume {
+  position: absolute;
+  left: 13%;
+  width: 74%;
+  top: 11.5%;
+  height: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  background: linear-gradient(#095c36, #063822);
+  border: 1px solid #ffdf72;
+  color: #fff6bc;
+  border-radius: 8px;
+  font-size: 13px;
+  box-shadow: 0 3px 7px #421b1488;
+}
+.sn-resume span {
+  font: 11px Arial;
+}
+.sn-scroll {
+  overflow: auto;
+  min-height: 0;
+  flex: 1;
+  padding: 16px 16px 26px;
+}
+.sn-scroll > .sn-logo {
+  display: block;
+  max-width: 215px;
+  height: 126px;
+  margin: 0 auto 15px;
+}
+.sn-panel {
+  border: 3px solid #e5b047;
+  border-radius: 10px;
+  box-shadow:
+    0 3px 10px #4c180f,
+    inset 0 0 25px #34140b;
+  background: linear-gradient(#803722ef, #501e13f5);
+  padding: 16px 12px;
+  text-align: center;
+}
+.sn-panel h2 {
+  font-size: 20px;
+  color: #ffdd64;
+  margin: 0 0 8px;
+  text-shadow: 0 2px #6a3114;
+}
+.sn-panel p,
+.sn-waiting p {
+  font: 12px/1.5 Arial;
+  color: #ffebc7;
+  margin: 6px 0 16px;
+}
+.sn-choices {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 18px 0;
+}
+.sn-choices button {
+  flex: 1;
+  min-height: 46px;
+  background: linear-gradient(#bb652c, #68301c);
+  border: 2px solid #dfab49;
+  border-radius: 8px;
+  color: #ffedaf;
+  font-size: 15px;
+}
+.sn-choices button[aria-pressed="true"] {
+  background: linear-gradient(#ffe49b, #e3ab34);
+  color: #6e3514;
+  box-shadow: 0 0 0 2px #fff1ae;
+}
+.sn-names {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 16px 0;
+}
+.sn-names label {
+  text-align: left;
+  font: 12px/1.5 Arial;
+}
+.sn-primary {
+  min-height: 46px;
+  padding: 8px 18px;
+  border: 2px solid #fff0a0;
+  background: linear-gradient(#ffe996, #ffc843 55%, #cf8e23);
+  box-shadow:
+    0 3px #714514,
+    inset 0 1px white;
+  border-radius: 10px;
+  color: #642f12;
+  font:
+    900 17px "Ludo Profile",
+    Arial;
+}
+.sn-panel > .sn-primary {
+  width: 100%;
+  margin: 8px 0;
+}
+.sn-join {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #f6d66a77;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.sn-join label {
+  font: 13px/2 Arial;
+  text-align: left;
+}
+.sn-join input {
+  letter-spacing: 4px;
+  font-size: 21px;
+  text-align: center;
+}
+.sn-join small {
+  font: 11px Arial;
+}
+.sn-theme-picker {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 20px;
+  gap: 12px;
+  background: #8a230ccc;
+}
+.sn-theme-picker h1 {
+  font-size: 23px;
+  color: #ffe466;
+  text-shadow: 0 2px #51210e;
+  background: #6d210c;
+  border: 2px solid #deab40;
+  border-radius: 12px;
+  padding: 5px 30px;
+  margin: 0;
+}
+.sn-theme-picker .sn-board {
+  min-height: 0;
+  max-height: 70%;
+  width: 100%;
+  max-width: 350px;
+  filter: drop-shadow(0 4px 10px #2c100c);
+}
+.sn-theme-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px;
+}
+.sn-theme-buttons > button:not(.sn-primary) {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: #ffe02f;
+  font-size: 30px;
+}
+.sn-theme-buttons .sn-primary {
+  flex: 1;
+}
+.sn-result-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #ffdc6c66;
+  padding: 14px 0;
+}
+.sn-result-row span {
+  display: flex;
+  flex-direction: column;
+}
+.sn-result-row small {
+  font: 12px Arial;
+  margin-top: 6px;
+}
+.sn-match {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 8px;
+  overflow: auto;
+  gap: 8px;
+}
+.sn-players {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.sn-players > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  background: #462312cf;
+  border: 1px solid #f2cd7644;
+  border-radius: 8px;
+  padding: 6px;
+}
+.sn-players > div.active {
+  border-color: var(--player);
+  box-shadow:
+    inset 0 0 14px color-mix(in srgb, var(--player), transparent 65%),
+    0 0 4px var(--player);
+}
+.sn-players > div.left {
+  opacity: 0.45;
+}
+.sn-players i {
+  flex-shrink: 0;
+  font: 900 15px Arial;
+  width: 27px;
+  height: 27px;
+  background: var(--player);
+  border-radius: 50%;
+  border: 2px solid #fff3c6;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+}
+.sn-players span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sn-players strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: 700 12px Arial;
+}
+.sn-players small {
+  font: 10px Arial;
+  color: #ffeac7;
+}
+.sn-board-wrap {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sn-board {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  overflow: visible;
+  display: block;
+}
+.sn-board-wrap > .sn-board {
+  min-height: 220px;
+  max-width: 100%;
+}
+.sn-controls {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+}
+.sn-status {
+  margin: 0;
+  text-align: center;
+  min-height: 26px;
+  font: 700 12px/1.4 Arial;
+  color: #ffedba;
+}
+.sn-status.snake {
+  color: #ffc9d0;
+}
+.sn-status.ladder {
+  color: #b6ffb0;
+}
+.sn-roll {
+  border: 2px solid #ffdc68;
+  border-radius: 13px;
+  box-shadow:
+    0 3px #6e3513,
+    inset 0 0 18px #f9b42b66;
+  background: linear-gradient(#8c4a24, #472419);
+  color: #fff2c0;
+  min-height: 78px;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 12px;
+  --die-size: 48px;
+}
+.sn-roll span:not([class]) {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  font:
+    900 17px "Ludo Profile",
+    Arial;
+}
+.sn-roll small {
+  font: 10px Arial;
+  margin-top: 5px;
+  max-width: 190px;
+}
+.sn-roll:disabled {
+  opacity: 1;
+  filter: saturate(0.75);
+}
+.sn-match-tools {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  gap: 6px;
+}
+.sn-match-tools button {
+  min-height: 44px;
+  min-width: 44px;
+  color: #ffe7a4;
+  background: #4b210c66;
+  border: 1px solid #e7b94c66;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 10px;
+  font: 11px Arial;
+}
+.sn-match-tools svg {
+  width: 16px;
+}
+.sn-match-tools [aria-pressed="true"] {
+  background: #ba7028;
+}
+.sn-winner {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+.sn-winner > svg {
+  width: 42px;
+  height: 42px;
+  color: #ffdb3c;
+  animation: sn-trophy 1.8s ease-in-out infinite;
+}
+.sn-winner > button:not(.sn-primary) {
+  color: #ffe6a4;
+  background: transparent;
+  border: 0;
+  min-height: 44px;
+}
+.sn-waiting {
+  flex: 1;
+  overflow: auto;
+  padding: 22px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.sn-waiting .sn-logo {
+  width: 220px;
+  max-height: 150px;
+}
+.sn-waiting h1 {
+  font-size: 22px;
+  margin: 0;
+}
+.sn-code {
+  border: 2px solid #ffdd61;
+  background: #472211;
+  color: #ffe788;
+  border-radius: 8px;
+  min-height: 52px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 5px 15px;
+  font:
+    900 26px "Ludo Profile",
+    Arial;
+  letter-spacing: 3px;
+}
+.sn-wait-seats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+.sn-wait-seats > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #462615ad;
+  padding: 10px;
+  border: 1px solid #b97b37;
+  border-radius: 8px;
+}
+.sn-wait-seats svg {
+  height: 60px;
+  width: 65px;
+}
+.sn-wait-seats span {
+  font: 700 12px Arial;
+  margin-top: 6px;
+}
+.sn-error {
+  position: relative;
+  z-index: 5;
+  background: #4a0a0a;
+  color: #ffe6df;
+  border: 1px solid #ff887a;
+  margin: 4px 10px;
+  padding: 10px;
+  border-radius: 7px;
+  font: 13px/1.4 Arial;
+}
+.sn-dialog {
+  background: linear-gradient(#843e23, #421d10) !important;
+  color: #fff1c0 !important;
+  border: 2px solid #efc05a !important;
+  max-width: 390px !important;
+}
+.sn-dialog p {
+  color: #f8deba !important;
+}
+.sn-dialog ol {
+  padding-left: 20px;
+  list-style: decimal;
+  font: 13px/1.7 Arial;
+  display: grid;
+  gap: 6px;
+}
+.sn-dialog > button:not([data-slot]) {
+  min-height: 44px;
+}
+.sn-theme-nature .sn-match {
+  background: linear-gradient(#193f1dbb, #122b12dd);
+}
+.sn-theme-disco .sn-match {
+  background: radial-gradient(ellipse at top, #281549, #080b24 70%);
+}
+.sn-theme-disco .sn-players > div {
+  background: #10132b;
+}
+.sn-theme-disco .sn-roll {
+  background: linear-gradient(#301f59, #10152e);
+  border-color: #dc79ff;
+}
+.sn-theme-disco .sn-token-active {
+  filter: drop-shadow(0 0 4px #f1e1ff);
+}
+@keyframes sn-trophy {
+  50% {
+    transform: translateY(-5px) rotate(-5deg);
+  }
+}
+@container ludo (max-height:650px) and (min-height:501px) {
+  .sn-home-hero {
+    top: 17%;
+    height: 28%;
+  }
+  .sn-home-modes {
+    top: 47%;
+    height: 27%;
+  }
+  .sn-home-options {
+    top: 78%;
+  }
+  .sn-resume {
+    top: 12%;
+    height: 40px;
+  }
+  .sn-match {
+    padding: 6px;
+    gap: 4px;
+  }
+  .sn-roll {
+    min-height: 64px;
+    --die-size: 38px;
+    padding: 8px;
+  }
+  .sn-match-tools button {
+    min-height: 38px;
+  }
+  .sn-players > div {
+    padding: 4px;
+  }
+}
+@container ludo (max-height:500px) {
+  .sn-toolbar {
+    min-height: 46px;
+    height: 46px;
+    padding: 1px 8px;
+  }
+  .sn-toolbar button {
+    height: 40px;
+    width: 44px;
+  }
+  .sn-home .sn-toolbar {
+    margin-top: 0;
+  }
+  .sn-home-hero {
+    top: 21%;
+    left: 3%;
+    width: 31%;
+    height: 56%;
+  }
+  .sn-home-modes {
+    top: 23%;
+    left: 40%;
+    width: 55%;
+    height: 61%;
+    gap: 15% 8%;
+  }
+  .sn-home-options {
+    top: auto;
+    bottom: 3%;
+    left: 40%;
+    width: 55%;
+    gap: 10px;
+  }
+  .sn-home-options button {
+    min-height: 34px;
+    min-width: 0;
+    flex: 1;
+    flex-direction: row;
+    border-width: 1px;
+    border-radius: 7px;
+  }
+  .sn-home-options svg {
+    width: 17px;
+    height: 17px;
+  }
+  .sn-bottom {
+    left: 2%;
+    width: 32%;
+    height: 40px;
+    min-height: 40px;
+    bottom: 2%;
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  .sn-bottom svg {
+    display: none;
+  }
+  .sn-bottom .active {
+    margin: 0;
+    border: 0;
+  }
+  .sn-bottom button {
+    justify-content: center;
+    padding: 0;
+    font-size: 8px;
+  }
+  .sn-resume {
+    left: 2%;
+    width: 32%;
+    height: 40px;
+    top: 15%;
+    font-size: 10px;
+    z-index: 2;
+  }
+  .sn-resume span {
+    font-size: 9px;
+  }
+  .sn-home:has(.sn-resume) .sn-home-hero {
+    top: 34%;
+    height: 43%;
+  }
+  .sn-home-hero > .ld-royal-badge {
+    display: none;
+  }
+  .sn-scroll > .sn-logo {
+    display: none;
+  }
+  .sn-scroll {
+    padding: 12px;
+  }
+  .sn-panel {
+    max-width: 600px;
+    margin: auto;
+  }
+  .sn-panel h2 {
+    font-size: 17px;
+  }
+  .sn-choices {
+    margin: 10px 0;
+  }
+  .sn-match {
+    display: grid;
+    grid-template-columns: minmax(190px, 44%) 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 6px 15px;
+    overflow: auto;
+  }
+  .sn-board-wrap {
+    grid-column: 1;
+    grid-row: 1/3;
+    align-items: flex-start;
+  }
+  .sn-board-wrap > .sn-board {
+    height: min(100%, calc(100cqh - 62px));
+    min-height: 165px;
+    width: auto;
+    max-width: 100%;
+  }
+  .sn-players {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .sn-controls {
+    grid-column: 2;
+    grid-row: 2;
+    justify-content: center;
+  }
+  .sn-roll {
+    min-height: 66px;
+    --die-size: 39px;
+    padding: 8px;
+    gap: 12px;
+  }
+  .sn-match-tools button {
+    min-height: 38px;
+  }
+  .sn-theme-picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 7px 25px;
+    padding: 10px 30px;
+  }
+  .sn-theme-picker .sn-board {
+    grid-column: 1;
+    grid-row: 1/3;
+    height: calc(100cqh - 66px);
+    width: auto;
+    max-height: 100%;
+  }
+  .sn-theme-picker h1 {
+    grid-column: 2;
+    font-size: 18px;
+    padding: 4px 10px;
+    text-align: center;
+  }
+  .sn-theme-buttons {
+    grid-column: 2;
+    gap: 5px;
+  }
+  .sn-waiting .sn-logo {
+    display: none;
+  }
+  .sn-waiting {
+    padding: 10px;
+  }
+  .sn-wait-seats {
+    display: flex;
+    margin: 0;
+  }
+  .sn-wait-seats > div {
+    flex: 1;
+    padding: 5px;
+  }
+  .sn-wait-seats svg {
+    height: 35px;
+  }
+  .sn-waiting p {
+    margin: 0;
+  }
+  .sn-waiting h1 {
+    font-size: 18px;
+  }
+  .sn-code {
+    min-height: 44px;
+    font-size: 21px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sn-app *,
+  .sn-app *::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}

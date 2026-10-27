@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, ShoppingCart } from "lucide-react";
 import type { LudoMode, LudoVariant } from "@workspace/api-zod/ludo";
-import { LudoArtwork, LudoCraftedHero, type LudoArtKind } from "./LudoArtwork";
+import { LudoArtwork, type LudoArtKind } from "./LudoArtwork";
 import { LudoLocalPlay } from "./LudoLocalPlay";
 import { LudoCommunity } from "./LudoCommunity";
 import { LudoDailyReward } from "./LudoDailyReward";
 import { LudoSnakes } from "./LudoSnakes";
 import { LudoPin, type LudoTokenStyle } from "./LudoPin";
 import { TOKEN_STYLES } from "./LudoSetup";
+import { LudoVideoHero, RoyalBadge } from "./LudoVideoArtwork";
+import "./ludo-video-refined.css";
 
 type Feature =
   | "pass"
@@ -83,7 +85,15 @@ export function LudoCraftedHome({
   if (feature === "daily")
     return <LudoDailyReward userId={userId} demo={demo} onBack={back} />;
   if (feature === "snakes")
-    return <LudoSnakes userId={userId} name={name} onBack={back} />;
+    return (
+      <LudoSnakes
+        userId={userId}
+        name={name}
+        onBack={back}
+        balance={balance}
+        demo={demo}
+      />
+    );
   if (feature)
     return (
       <section className="ld-feature-screen" aria-label={feature}>
@@ -245,13 +255,22 @@ export function LudoCraftedHome({
           onClick={() => setFeature("social")}
         >
           <LudoArtwork kind="profile" />
+          <span className="ld-video-player-name" title={name}>
+            {name}
+          </span>
           <i className={offline ? "offline" : ""} />
         </button>
         <ArtButton kind="settings" label="Game settings" onClick={onSettings} />
         <ArtButton kind="mail" label="My matches" onClick={onHistory} />
-        <strong className="ld-crafted-name" title={name}>
-          {name}
-        </strong>
+        <button
+          className="ld-video-bonus"
+          aria-label="Daily reward offer"
+          onClick={() => setFeature("daily")}
+        >
+          <LudoArtwork kind="gift" />
+          <strong>₹100</strong>
+          <b>+</b>
+        </button>
         <Link
           className="ld-crafted-wallet"
           href="/wallet"
@@ -261,13 +280,16 @@ export function LudoCraftedHome({
           <strong>{wallet}</strong>
           <b>+</b>
         </Link>
+        <Link className="ld-video-shop" href="/wallet" aria-label="Open wallet">
+          <ShoppingCart />
+        </Link>
       </header>
       <div className="ld-home-content ld-crafted-content">
         <aside className="ld-crafted-left" aria-label="Ludo club">
           <ArtButton
             kind="gift"
             label="Daily ₹100 reward"
-            caption="₹100"
+            caption="₹100 DAILY"
             onClick={() => setFeature("daily")}
           />
           <ArtButton
@@ -294,14 +316,17 @@ export function LudoCraftedHome({
             label="Quick game"
             onClick={() => onChoose("online", "quick")}
           />
-          <ArtButton
-            kind="dice"
-            label="Choose token style"
-            onClick={() => setFeature("inventory")}
-          />
+          <ArtButton kind="dice" label="Choose theme" onClick={onThemes} />
           <ArtButton kind="help" label="How to play" onClick={onRules} />
         </aside>
-        <LudoCraftedHero />
+        <button
+          className="ld-video-member"
+          aria-label="Club membership"
+          onClick={() => setFeature("membership")}
+        >
+          <RoyalBadge />
+        </button>
+        <LudoVideoHero />
         <div className="ld-crafted-mode-grid">
           {modes.map(([kind, title, label, click, caption]) => (
             <button
@@ -342,10 +367,18 @@ export function LudoCraftedHome({
           className="ld-crafted-season"
           onClick={() => setFeature("season")}
         >
-          <LudoArtwork kind="crown" />
+          <span className="ld-video-season-crest">
+            SEASON
+            <svg viewBox="0 0 30 25" aria-hidden="true">
+              <path
+                d="M2 4l7 7 6-10 6 10 7-7-3 17H5Z"
+                fill="#ffd758"
+                stroke="#99621a"
+              />
+            </svg>
+          </span>
           <span>
-            <small>THE NEXT CHAPTER</small>
-            <strong>SEASON</strong>
+            <strong>Coming soon!</strong>
           </span>
           <b>›</b>
         </button>
@@ -375,7 +408,7 @@ export function LudoCraftedHome({
           onClick={() => setFeature("events")}
         />
         <ArtButton
-          kind="chat"
+          kind="adda"
           label="Adda text chat"
           caption="ADDA"
           onClick={() => setFeature("social")}
@@ -387,7 +420,7 @@ export function LudoCraftedHome({
           onClick={() => setFeature("inventory")}
         />
         <ArtButton
-          kind="friends"
+          kind="chat"
           label="Social"
           caption="SOCIAL"
           onClick={() => setFeature("social")}
@@ -398,13 +431,6 @@ export function LudoCraftedHome({
           Reconnecting…
         </p>
       )}
-      <button
-        className="ld-crafted-theme-access"
-        aria-label="Choose theme"
-        onClick={onThemes}
-      >
-        Themes
-      </button>
     </section>
   );
 }

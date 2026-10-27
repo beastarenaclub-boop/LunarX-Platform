@@ -12,6 +12,7 @@ export type LudoArtKind =
   | "calendar"
   | "inventory"
   | "chat"
+  | "adda"
   | "target"
   | "dice"
   | "home"
@@ -138,12 +139,6 @@ export function LudoArtwork({
         <>
           <g className="ld-art-bob">
             {phone(39, 20, 0)}
-            <path
-              d="M82 28h12v30H82M87 34h9M87 43h9M87 52h9"
-              fill="none"
-              stroke="#74dcff"
-              strokeWidth="3"
-            />
             <text
               x="54"
               y="47"
@@ -160,28 +155,47 @@ export function LudoArtwork({
       )}
       {kind === "team" && (
         <>
-          <g className="ld-art-swords">
+          <g className="ld-art-swords" transform="translate(0 -2)">
             <path
-              d="M30 12L41 15 81 71 75 77 31 23Z"
+              d="M58 5L67 16 64 67 55 67 54 17Z"
               fill="#e8f6ff"
               stroke="#2c5c88"
               strokeWidth="2"
             />
+            <path d="M60 14v51" stroke="#8cbbcc" strokeWidth="2" />
             <path
-              d="M90 12L79 15 39 71 45 77 89 23Z"
-              fill="#d2efff"
-              stroke="#2c5c88"
-              strokeWidth="2"
-            />
-            <path
-              d="M30 67L51 81M69 81L90 67M37 77L29 90M82 77L91 90"
+              d="M44 68H76M60 70V89"
               stroke="#efc44d"
               strokeWidth="7"
               strokeLinecap="round"
             />
+            <path
+              d="M48 16Q80 24 65 40T51 61"
+              fill="none"
+              stroke="#ecd468"
+              strokeWidth="3"
+            />
           </g>
-          {pawn(18, 48, "#3acaff")}
-          {pawn(103, 48, "#fc674b")}
+          <g fill="none" stroke="#c4f1f4" strokeWidth="3">
+            <path d="M11 45V36a14 14 0 0 1 28 0v11" />
+            <path d="M83 47V37a13 13 0 0 1 26 0v12" />
+          </g>
+          {[
+            [23, 45, "#4ac8ed"],
+            [38, 59, "#83dbf0"],
+            [94, 45, "#ec5144"],
+            [80, 59, "#ff9a7d"],
+          ].map(([x, y, c]) => (
+            <g key={String(x)} transform={`translate(${x} ${y})`}>
+              <path
+                d="M-9 0a9 9 0 0 1 18 0q0 9-9 18Q-9 9-9 0Z"
+                fill={String(c)}
+                stroke="#fff0be"
+                strokeWidth="2"
+              />
+              <circle r="4" fill="#27658a" />
+            </g>
+          ))}
         </>
       )}
       {kind === "friends" && (
@@ -230,12 +244,11 @@ export function LudoArtwork({
               strokeWidth="1.5"
             />
           </g>
-          <g transform="translate(0 6)">{phone(45, 35, 25)}</g>
           <path
-            d="M44 20H77l-7-6m7 6-7 6"
-            fill="none"
-            stroke="#9becff"
-            strokeWidth="3"
+            d="M48 61L60 52 75 61 61 72Z"
+            fill={gold}
+            stroke="#9a610d"
+            strokeWidth="2"
           />
         </>
       )}
@@ -593,6 +606,40 @@ export function LudoArtwork({
             ?
           </text>
         </>
+      )}
+      {kind === "adda" && (
+        <g>
+          <rect
+            x="47"
+            y="11"
+            width="28"
+            height="51"
+            rx="14"
+            fill={gold}
+            stroke="#95620d"
+            strokeWidth="2"
+          />
+          {[22, 31, 40, 49].map((y) => (
+            <path
+              key={y}
+              d={`M48 ${y}h9m9 0h9`}
+              stroke="#705019"
+              strokeWidth="2"
+            />
+          ))}
+          <path
+            d="M38 43v8a23 23 0 0 0 46 0v-8M61 74v14M44 90h34"
+            fill="none"
+            stroke="#ffec9c"
+            strokeWidth="5"
+          />
+          <path
+            d="M37 84h-18l-7 6V70h25Z"
+            fill="#54b9f8"
+            stroke="white"
+            strokeWidth="2"
+          />
+        </g>
       )}
       {kind === "coins" && (
         <>

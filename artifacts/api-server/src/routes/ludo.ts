@@ -15,6 +15,7 @@ import {
 } from "../services/ludo";
 import { forbidden } from "../lib/errors";
 import { ludoChat, sendLudoChat } from "../services/ludoChat";
+import { snakeTable, joinSnake, actSnake } from "../services/snakes";
 import { ludoDailyReward, claimLudoDailyReward } from "../services/ludoRewards";
 import {
   ludoSocial,
@@ -45,6 +46,53 @@ router.use((req, res, next) => {
 router.get("/state", async (req, res, next) => {
   try {
     res.json(await ludoTable(req.user!.id));
+  } catch (e) {
+    next(e);
+  }
+});
+router.get("/snakes/state", async (req, res, next) => {
+  try {
+    res.json(await snakeTable(req.user!.id));
+  } catch (e) {
+    next(e);
+  }
+});
+router.post("/snakes/join", moveLimiter, async (req, res, next) => {
+  try {
+    const input = z
+      .object({
+        capacity: z.union([z.literal(2), z.literal(4)]),
+        mode: z.enum(["online", "private"]),
+        code: z
+          .string()
+          .regex(/^\d{8}$/)
+          .optional(),
+        requestId: z.string().uuid(),
+      })
+      .strict()
+      .parse(req.body);
+    res.json(await joinSnake(req.user!.id, input));
+  } catch (e) {
+    next(e);
+  }
+});
+router.post("/snakes/:id/action", moveLimiter, async (req, res, next) => {
+  try {
+    const input = z
+      .object({
+        type: z.enum(["roll", "leave"]),
+        version: z.number().int().nonnegative(),
+        requestId: z.string().uuid(),
+      })
+      .strict()
+      .parse(req.body);
+    res.json(
+      await actSnake(
+        req.user!.id,
+        z.string().uuid().parse(req.params.id),
+        input,
+      ),
+    );
   } catch (e) {
     next(e);
   }

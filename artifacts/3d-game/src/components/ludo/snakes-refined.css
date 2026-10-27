@@ -1,0 +1,364 @@
+/* The red menu follows the second game's positions in the recording. */
+.sn-home .sn-toolbar {
+  display: none;
+}
+.sn-home .sn-pattern {
+  background-size: 470px;
+  opacity: 0.63;
+  background-color: #a73c25;
+}
+.sn-home .sn-home-hero {
+  top: 17.5%;
+  height: 21%;
+  left: 17%;
+  width: 66%;
+}
+.sn-home .sn-home-hero > .ld-royal-badge {
+  margin-bottom: -2px;
+  height: 54px;
+}
+.sn-home .sn-home-modes {
+  top: 41%;
+  height: 24.6%;
+  gap: 17% 9%;
+}
+.sn-home .sn-mode {
+  background: linear-gradient(#21b5ab, #08736b 48%, #024e43);
+  box-shadow:
+    0 0 11px #ffe15a99,
+    0 3px #84501a,
+    inset 0 0 0 2px #b88021;
+}
+.sn-home .sn-mode > strong {
+  min-height: 38%;
+  font-size: clamp(12px, 3.8cqw, 17px);
+  font-style: italic;
+  background: linear-gradient(#fff3a9, #f2ca56);
+}
+.sn-home .sn-home-options {
+  top: 69%;
+  left: 20%;
+  width: 60%;
+}
+.sn-home .sn-home-options button {
+  box-shadow:
+    0 0 12px #ffcc23,
+    0 2px #904918;
+  background: linear-gradient(#1dbab2, #007b6c);
+  border: 5px solid #ffd236;
+  color: #ffe279;
+  border-radius: 20px;
+}
+.sn-home .sn-home-options span {
+  color: #ffe8a1;
+  font-size: 8px;
+}
+.sn-home .sn-home-options svg {
+  width: 28px;
+  height: 28px;
+}
+.sn-home .sn-resume {
+  top: 12%;
+  height: 43px;
+  left: 19%;
+  width: 62%;
+  font-size: 11px;
+}
+.sn-home .sn-resume span {
+  font-size: 10px;
+}
+.sn-home:has(.sn-resume) .sn-home-hero {
+  top: 20%;
+  height: 18%;
+}
+.sn-home:has(.sn-resume) .sn-home-hero > .ld-royal-badge {
+  display: none;
+}
+.sn-account {
+  position: absolute;
+  top: 4.3%;
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  background: linear-gradient(#fff3ad, #d9a03d 70%, #ffe192);
+  border-block: 1px solid #fff4c6;
+  box-shadow: 0 2px #905018;
+  color: #ffffd6;
+  z-index: 4;
+}
+.sn-account-avatar {
+  width: 17%;
+  height: 180%;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  background: linear-gradient(#b27624, #f4c252);
+  border: 2px solid #ffe7a1;
+  border-top: 0;
+  border-radius: 0 0 10px 0;
+  padding: 0 4px 2px;
+  margin-top: -2px;
+  flex-shrink: 0;
+}
+.sn-account-avatar > .ld-crafted-art {
+  height: 57px;
+  width: 52px;
+}
+.sn-account-avatar strong {
+  font:
+    900 10px/13px "Ludo Profile",
+    Arial;
+  text-shadow: 0 1px #603c12;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sn-account-wallet {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  background: linear-gradient(#564b31, #6a6340);
+  border: 1px solid #f5e5a1;
+  border-right: 0;
+  color: white;
+  text-decoration: none;
+  box-shadow: inset 0 2px 4px #332d1c;
+  padding-right: 4px;
+}
+.sn-account-wallet > svg {
+  width: 30px;
+  height: 29px;
+  margin-left: -4px;
+  flex-shrink: 0;
+}
+.sn-account-wallet strong {
+  font:
+    900 17px "Ludo Profile",
+    Arial;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sn-account-wallet b {
+  margin-left: auto;
+  width: 23px;
+  height: 23px;
+  display: grid;
+  place-items: center;
+  background: #178c81;
+  color: #f9d333;
+  border: 2px solid #fbd558;
+  border-radius: 7px;
+  font: 900 22px/18px Arial;
+  flex-shrink: 0;
+}
+.sn-account-wins {
+  width: 22%;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  padding: 1px 5px;
+  color: #fff;
+  background: linear-gradient(#564b31, #6a6340);
+  border: 1px solid #f5e5a1;
+  border-left: 0;
+  margin-left: -5px;
+}
+.sn-account-wins > span {
+  font:
+    900 18px/16px "Ludo Profile",
+    Arial;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.sn-account-wins small {
+  font: 700 6px Arial;
+  writing-mode: vertical-rl;
+}
+.sn-account-wins svg {
+  width: 23px;
+  height: 23px;
+  color: #80dcff;
+  fill: #2f9fc8;
+}
+.sn-account-shop {
+  width: 33px;
+  height: 33px;
+  display: grid;
+  place-items: center;
+  border: 3px solid #ffe25d;
+  border-radius: 50%;
+  background: #068d84;
+  color: #ffe34b;
+}
+.sn-account-shop svg {
+  width: 20px;
+  height: 20px;
+}
+.sn-to-ludo {
+  position: absolute;
+  right: 2%;
+  top: 11.5%;
+  width: 42px;
+  height: 53px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(#d39a35, #663110);
+  border: 2px solid #f4d075;
+  border-radius: 7px;
+  color: #ffef8d;
+  padding: 2px;
+}
+.sn-to-ludo svg {
+  height: 33px;
+  width: 35px;
+}
+.sn-to-ludo span {
+  font: 900 8px Arial;
+}
+.sn-daily,
+.sn-wheel {
+  position: absolute;
+  bottom: 8.7%;
+  width: 16%;
+  height: 9%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #ffed77;
+}
+.sn-daily {
+  left: 2%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.sn-wheel {
+  right: 1%;
+}
+.sn-daily > svg {
+  height: 80%;
+  width: 100%;
+}
+.sn-daily > span {
+  font:
+    900 9px "Ludo Profile",
+    Arial;
+  text-shadow: 0 1px #652e13;
+}
+.sn-bottom > a {
+  border: 0;
+  border-right: 1px solid #ae7f2f77;
+  background: none;
+  color: #fff;
+  text-decoration: none;
+  font:
+    700 9px "Ludo Profile",
+    Arial;
+  text-shadow: 0 1px #74460e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 0 5px;
+  position: relative;
+  gap: 2px;
+}
+@container ludo (max-height:500px) {
+  .sn-account {
+    top: 1%;
+    left: 1%;
+    right: 1%;
+    height: 40px;
+  }
+  .sn-account-avatar {
+    height: 39px;
+    width: 44px;
+    border: 0;
+    border-radius: 4px;
+  }
+  .sn-account-avatar .ld-crafted-art {
+    height: 38px;
+    width: 40px;
+  }
+  .sn-account-avatar strong {
+    display: none;
+  }
+  .sn-account-wallet {
+    max-width: none;
+  }
+  .sn-home .sn-home-hero,
+  .sn-home:has(.sn-resume) .sn-home-hero {
+    top: 22%;
+    left: 3%;
+    width: 31%;
+    height: 55%;
+  }
+  .sn-home .sn-home-modes {
+    top: 23%;
+    left: 40%;
+    width: 55%;
+    height: 54%;
+    gap: 15% 8%;
+  }
+  .sn-home .sn-home-options {
+    top: auto;
+    bottom: 3%;
+    left: 40%;
+    width: 55%;
+  }
+  .sn-home .sn-home-options button {
+    border-width: 2px;
+    border-radius: 8px;
+  }
+  .sn-home .sn-home-options svg {
+    width: 17px;
+    height: 17px;
+  }
+  .sn-home .sn-mode > strong {
+    font-size: 12px;
+    min-height: 26px;
+  }
+  .sn-to-ludo,
+  .sn-daily,
+  .sn-wheel {
+    display: none;
+  }
+  .sn-home .sn-resume {
+    top: 16%;
+    left: 2%;
+    width: 32%;
+    height: 36px;
+    z-index: 3;
+  }
+  .sn-home:has(.sn-resume) .sn-home-hero {
+    top: 32%;
+    height: 43%;
+  }
+  .sn-bottom > a {
+    justify-content: center;
+    padding: 0;
+    font-size: 8px;
+  }
+  .sn-account-wins {
+    width: 20%;
+    max-width: 130px;
+  }
+  .sn-account-shop {
+    margin-left: auto;
+  }
+}

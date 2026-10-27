@@ -216,7 +216,7 @@ test("Snakes and Ladders rolls and saves a free local board", async ({
       .poll(() =>
         p.page.evaluate(
           (id) =>
-            JSON.parse(localStorage.getItem(`ludo-snakes:${id}`)!).positions[0],
+            JSON.parse(localStorage.getItem(`ludo-snakes-v2:${id}`)!).state.players[0].position,
           p.id,
         ),
       )

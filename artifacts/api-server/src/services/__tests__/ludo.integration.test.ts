@@ -32,6 +32,9 @@ import router from "../../routes/ludo";
 import { errorHandler } from "../../middlewares/error";
 import { bus } from "../../realtime/eventBus";
 import { claimLudoDailyReward, ludoDailyReward } from "../ludoRewards";
+import {joinSnake,actSnake,snakeTable} from '../snakes';
+import {newSnakeGame,advanceSnake,validSnakeState,snakeCurve,snakeCell,type SnakeState} from '@workspace/api-zod/snakes';
+import {snakeRooms} from '@workspace/db';
 import { ludoSocial, requestLudoFriend, updateLudoFriend, ludoDirectChat, sendLudoDirectMessage } from "../ludoSocial";
 before(async () => {
   await ready;
@@ -917,4 +920,57 @@ test("friend codes respect account channel boundaries and room invites require m
   assert.equal((await ludoDirectChat(b,id)).messages[0].roomCode,code);
   await assert.rejects(()=>sendLudoDirectMessage(a,id,{requestId:randomUUID(),roomCode:"00000000"}),/not found/);
   assert.equal((await getBalanceByUser(b)).balance,100000n);
+});
+
+test('Snakes rules cover ladders, snakes, exact finish, extra rolls and all legal positions',()=>{
+ const game=()=>newSnakeGame([{id:'a',name:'A',kind:'human'},{id:'b',name:'B',kind:'human'}]);
+ let s=game();s.players[0].position=3;assert.equal(advanceSnake(s,1).players[0].position,25);
+ s.players[0].position=25;assert.equal(advanceSnake(s,2).players[0].position,5);
+ s.players[0].position=98;const over=advanceSnake(s,5);assert.equal(over.players[0].position,98);assert.equal(over.last?.kind,'overshoot');
+ s.players[0].position=96;assert.equal(advanceSnake(s,4).winner,0);
+ assert.equal(advanceSnake(game(),6).turn,0);
+ for(let position=0;position<100;position++)for(let dice=1;dice<=6;dice++){s=game();s.players[0].position=position;const next=advanceSnake(s,dice);assert(validSnakeState(next));assert.equal(s.players[0].position,position);}
+ assert(!validSnakeState({...game(),dice:9}));assert(!validSnakeState({...game(),winner:0}));
+ assert.deepEqual(snakeCurve(99,41,0),snakeCell(99));assert(Math.abs(snakeCurve(99,41,1)[0]-snakeCell(41)[0])<.001);
+});
+test('free online Snakes joins two humans, retries one roll exactly once and never changes wallets',async()=>{
+ const a=await user(),b=await user(),outsider=await user();
+ const input={capacity:2 as const,mode:'online' as const,requestId:randomUUID()};
+ const joined=await Promise.all([joinSnake(a,input),joinSnake(a,input)]);assert.equal(joined[0].room.id,joined[1].room.id);
+ const full=await joinSnake(b,{...input,requestId:randomUUID()});assert.equal(full.room.id,joined[0].room.id);assert.equal(full.room.status,'playing');
+ const snap=(await snakeTable(a)).room!;assert.equal(snap.you,0);assert.equal(snap.state.players.length,2);assert(!JSON.stringify(snap).includes(a));
+ await assert.rejects(()=>actSnake(outsider,snap.id,{type:'roll',version:snap.version,requestId:randomUUID()}),/not your/);
+ await assert.rejects(()=>actSnake(b,snap.id,{type:'roll',version:snap.version,requestId:randomUUID()}),/turn/);
+ const action={type:'roll' as const,version:snap.version,requestId:randomUUID()};
+ const rolls=await Promise.all([actSnake(a,snap.id,action),actSnake(a,snap.id,action)]);
+ assert.equal(rolls[0].room.state.sequence,1);assert.equal(rolls[1].room.state.sequence,1);
+ assert.deepEqual((await snakeTable(b)).room!.state,rolls[0].room.state);
+ await assert.rejects(()=>actSnake(a,snap.id,{...action,type:'leave'}),/different action/);
+ await actSnake(a,snap.id,{type:'leave',version:rolls[0].room.version,requestId:randomUUID()});
+ assert.equal((await snakeTable(b)).room!.status,'finished');
+ assert.equal(await balance(a),100000n);assert.equal(await balance(b),100000n);
+});
+test('Snakes private rooms isolate channels, confirm capacity, start four human seats and resume',async()=>{
+ const people=await Promise.all(Array.from({length:4},()=>user())),foreign=await user(100000n,'b2b');
+ const input={capacity:4 as const,mode:'private' as const,requestId:randomUUID()},host=await joinSnake(people[0],input),code=host.room.code!;
+ assert.match(code,/^\d{8}$/);
+ await assert.rejects(()=>joinSnake(foreign,{...input,code,requestId:randomUUID()}),/not found/);
+ await assert.rejects(()=>joinSnake(people[1],{...input,capacity:2,code,requestId:randomUUID()}),/player count/);
+ for(const id of people.slice(1))await joinSnake(id,{...input,code,requestId:randomUUID()});
+ const rooms=await Promise.all(people.map(id=>snakeTable(id)));assert(rooms.every(t=>t.room!.status==='playing'));assert.equal(new Set(rooms.map(t=>t.room!.id)).size,1);assert.deepEqual(rooms.map(t=>t.room!.you),[0,1,2,3]);
+ for(const id of people.slice(0,3))await actSnake(id,host.room.id,{type:'leave',version:0,requestId:randomUUID()});
+ const last=(await snakeTable(people[3])).room!;assert.equal(last.status,'finished');assert.equal(last.state.winner,3);
+ for(const id of people)assert.equal(await balance(id),100000n);
+});
+test('Snakes waiting cancellation and expiry release seats; timeout rolls are serialized',async()=>{
+ const a=await user(),b=await user();const input={capacity:2 as const,mode:'private' as const,requestId:randomUUID()};
+ const waiting=await joinSnake(a,input);await db.update(snakeRooms).set({deadline:new Date(0)}).where(eq(snakeRooms.id,waiting.room.id));
+ assert.equal((await snakeTable(a)).room!.status,'cancelled');
+ const next=await joinSnake(a,{...input,requestId:randomUUID()});await joinSnake(b,{...input,code:next.room.code!,requestId:randomUUID()});
+ await db.update(snakeRooms).set({deadline:new Date(0)}).where(eq(snakeRooms.id,next.room.id));
+ const snapshots=await Promise.all([snakeTable(a),snakeTable(b)]);assert(snapshots.every(t=>t.room!.state.sequence===1));
+ const winning=snapshots[0].room!.state;winning.players[0].id=a;winning.players[1].id=b;winning.turn=0;winning.players[0].position=99;
+ await db.update(snakeRooms).set({state:winning,endsAt:new Date(0)}).where(eq(snakeRooms.id,next.room.id));assert.equal((await snakeTable(b)).room!.status,'cancelled');
+ const final=await joinSnake(a,{...input,capacity:4,requestId:randomUUID()});await joinSnake(b,{...input,capacity:4,code:final.room.code!,requestId:randomUUID()});
+ await actSnake(b,final.room.id,{type:'leave',version:0,requestId:randomUUID()});assert.equal((await snakeTable(a)).room!.status,'cancelled');
 });

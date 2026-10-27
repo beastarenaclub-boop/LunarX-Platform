@@ -45,3 +45,4 @@ export * from "./prizeLotto";
 export * from "./ludo";
 
 export * from "./ludoSocial";
+export * from "./snakes";

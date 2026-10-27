@@ -1,0 +1,518 @@
+/* Measurements follow the 392 × 850 recording. Artwork remains native and live. */
+.ld-crafted-home.ld-home-screen {
+  background: radial-gradient(
+    ellipse at 47% 32%,
+    #296bb6 0,
+    #205898 45%,
+    #0c2e59 100%
+  );
+}
+.ld-crafted-home .ld-crafted-background {
+  background-size: 440px;
+  opacity: 0.24;
+  filter: contrast(0.9);
+}
+.ld-crafted-home .ld-crafted-header {
+  top: 4.3%;
+  height: 4.6%;
+  min-height: 40px;
+  padding: 1px 3px;
+  gap: 0;
+  background: linear-gradient(#fff9bc, #f8da65 25%, #b58020 70%, #ffdf68);
+  border-block-width: 1px;
+  box-shadow: 0 2px 0 #92631b;
+}
+.ld-crafted-home .ld-crafted-avatar {
+  flex: 0 0 11%;
+  height: 125%;
+  margin-top: 0;
+}
+.ld-crafted-home .ld-crafted-avatar > .ld-crafted-art {
+  width: 100%;
+  height: 90%;
+  filter: drop-shadow(0 1px #97601a);
+}
+.ld-crafted-home .ld-video-player-name {
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: -6px;
+  padding: 0 3px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font:
+    700 8px/12px "Ludo Profile",
+    Arial;
+  color: #fff6c2;
+  text-shadow: 0 1px #512b0b;
+  background: linear-gradient(90deg, #bb7f1d, #e9be55);
+  border: 1px solid #f1d77a;
+  border-radius: 0 0 6px 2px;
+}
+.ld-crafted-home .ld-crafted-header > .ld-crafted-art-button {
+  width: 11%;
+  min-width: 36px;
+  height: 44px;
+}
+.ld-crafted-home .ld-crafted-header .ld-art-settings {
+  width: 23px;
+  height: 26px;
+  filter: grayscale(0.6) drop-shadow(0 1px #8e610f);
+}
+.ld-crafted-home .ld-crafted-header .ld-art-mail {
+  width: 30px;
+  height: 30px;
+}
+.ld-video-bonus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  width: 23%;
+  height: 27px;
+  background: linear-gradient(#07143f, #143d75);
+  border: 1px solid #ffe784;
+  border-radius: 2px;
+  box-shadow: inset 0 2px 3px #030c28;
+  color: white;
+  padding: 0 2px 0 0;
+  margin-right: 9px;
+}
+.ld-video-bonus > .ld-crafted-art {
+  width: 25px;
+  height: 28px;
+  margin-left: -8px;
+  flex-shrink: 0;
+}
+.ld-video-bonus > strong {
+  font:
+    900 clamp(11px, 3.7cqw, 17px) "Ludo Profile",
+    Arial;
+}
+.ld-video-bonus > b,
+.ld-crafted-home .ld-crafted-wallet > b {
+  width: 14px;
+  font: 900 14px/15px Arial;
+  border-radius: 3px;
+  border: 1px solid #efffb0;
+  background: linear-gradient(#b6ee75, #599c2a);
+  text-align: center;
+  color: white;
+}
+.ld-crafted-home .ld-crafted-wallet {
+  height: 27px;
+  margin-left: 0;
+  max-width: none;
+  border-color: #ffed9f;
+  border-radius: 2px;
+}
+.ld-crafted-home .ld-crafted-wallet > .ld-crafted-art {
+  width: 25px;
+  height: 28px;
+  margin-left: -8px;
+}
+.ld-crafted-home .ld-crafted-wallet > strong {
+  font-size: clamp(11px, 3.8cqw, 18px);
+}
+.ld-video-shop {
+  display: grid;
+  place-items: center;
+  width: 8%;
+  min-height: 40px;
+  color: #fff6cf;
+  filter: drop-shadow(0 1px #7a500c);
+}
+.ld-video-shop svg {
+  width: 23px;
+  height: 23px;
+  fill: #e3edf4;
+  stroke: #67798a;
+}
+.ld-crafted-home .ld-crafted-left,
+.ld-crafted-home .ld-crafted-right {
+  top: 11.3%;
+  width: 11%;
+  gap: 0.55cqh;
+}
+.ld-crafted-home .ld-crafted-left > .ld-crafted-art-button,
+.ld-crafted-home .ld-crafted-right > .ld-crafted-art-button {
+  height: 6cqh;
+  min-height: 40px;
+}
+.ld-crafted-home .ld-crafted-left > .ld-crafted-art-button:first-child > svg {
+  display: none;
+}
+.ld-crafted-home .ld-crafted-left > .ld-crafted-art-button:first-child > span {
+  font:
+    900 clamp(11px, 3.6cqw, 16px)/1 "Ludo Profile",
+    Arial;
+  white-space: normal;
+  max-width: 39px;
+  color: #ffea75;
+  text-shadow: 0 2px #5b450b;
+}
+.ld-crafted-home .ld-crafted-left > .ld-crafted-art-button:first-child {
+  height: 4.5cqh;
+  min-height: 30px;
+}
+.ld-video-member {
+  position: absolute;
+  top: 16.1%;
+  left: 41%;
+  width: 18%;
+  height: 6%;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: #ffecac;
+  z-index: 2;
+}
+.ld-royal-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  filter: drop-shadow(0 1px 1px #322716);
+}
+.ld-royal-badge > svg {
+  width: 36px;
+  height: 37px;
+  flex-shrink: 0;
+}
+.ld-royal-badge > em {
+  font:
+    italic 700 13px/1.1 Georgia,
+    serif;
+  color: #fff0ae;
+  white-space: nowrap;
+}
+.ld-crafted-home .ld-video-hero {
+  top: 20.2%;
+  left: 20.3%;
+  width: 59.4%;
+  height: 18.1%;
+  filter: drop-shadow(0 3px 1px #0a304fa0);
+}
+.ld-video-hero > svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.ld-video-white-die {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ld-video-die-rock 8s ease-in-out infinite;
+}
+.ld-video-pawn-blue,
+.ld-video-pawn-yellow {
+  animation: ld-video-pawn-breathe 5s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+.ld-video-pawn-yellow {
+  animation-delay: 1s;
+}
+.ld-crafted-home .ld-crafted-mode-grid {
+  top: 42.1%;
+  left: 8.6%;
+  width: 82.8%;
+  height: 21.9%;
+  column-gap: 2.4%;
+  row-gap: 17%;
+}
+.ld-crafted-home .ld-crafted-tile {
+  border-radius: 12px;
+  border: 2px solid #fff5b0;
+  background: linear-gradient(#2774c3, #084390 65%, #092f6d);
+  box-shadow:
+    0 3px 0 #b27919,
+    0 4px 3px #0e294870,
+    inset 0 0 0 2px #5b9dd2;
+}
+.ld-crafted-home .ld-crafted-tile > strong {
+  flex-basis: 31%;
+  min-height: 22px;
+  border-radius: 0 0 9px 9px;
+  background: linear-gradient(#fff4a5, #e7ba51 80%, #fff0a1);
+  font-size: clamp(10px, 3.3cqw, 15px);
+  letter-spacing: -0.3px;
+  text-shadow:
+    -1px -1px #27344d,
+    1px -1px #27344d,
+    -1px 1px #27344d,
+    1px 2px #27344d;
+}
+.ld-crafted-home .ld-crafted-tile-scene > svg {
+  inset: -14% 3% 0;
+  width: 94%;
+  height: 114%;
+}
+.ld-crafted-home .ld-crafted-tile-team .ld-art-swords {
+  animation: none;
+}
+.ld-crafted-home .ld-crafted-tile-computer .ld-crafted-art {
+  inset: -4% 10% 0;
+  width: 80%;
+  height: 105%;
+}
+.ld-crafted-home .ld-crafted-tile-pass .ld-crafted-art {
+  inset: -10% 0 0;
+  width: 100%;
+  height: 120%;
+}
+.ld-crafted-home .ld-crafted-tile > small {
+  font-size: clamp(7px, 1.9cqw, 9px);
+  color: #7cf142;
+  top: calc(100% + 6px);
+}
+.ld-crafted-home .ld-crafted-extras {
+  top: 68.7%;
+  left: 12%;
+  right: 12%;
+  height: 7.6%;
+  gap: 11%;
+}
+.ld-crafted-home .ld-crafted-extras > .ld-crafted-art-button {
+  border: 3px solid #f3bd36;
+  background: linear-gradient(#2a7cc0, #11437b);
+  border-radius: 34%;
+  width: 19%;
+  height: 77%;
+  box-shadow:
+    0 2px #86520e,
+    inset 0 0 0 2px #ffec90;
+}
+.ld-crafted-home .ld-crafted-extras > .ld-crafted-art-button > svg {
+  height: 110%;
+  width: 110%;
+}
+.ld-crafted-home .ld-crafted-tournament {
+  width: 48%;
+}
+.ld-crafted-home .ld-crafted-tournament svg {
+  top: -23%;
+  height: 69%;
+  width: 43%;
+  left: 28.5%;
+}
+.ld-crafted-home .ld-crafted-tournament strong {
+  bottom: 16%;
+  font-size: clamp(10px, 3.9cqw, 18px);
+  padding: 3px 1px;
+  border-width: 2px;
+  border-radius: 8px 8px 4px 4px;
+  box-shadow:
+    0 3px #bf8221,
+    inset 0 0 0 1px #226daf;
+  text-shadow:
+    -1px -1px #2b250f,
+    1px 2px #2b250f;
+  transform: none;
+}
+.ld-crafted-home .ld-crafted-season {
+  top: 78.1%;
+  left: 33%;
+  width: 34%;
+  height: 4.4%;
+  min-height: 35px;
+  padding: 1px 6px 1px 0;
+  border: 2px solid #ffdf76;
+  border-radius: 8px;
+  transform: none;
+  box-shadow: 0 3px #ba7b17;
+  justify-content: flex-end;
+}
+.ld-crafted-home .ld-crafted-season > span:not(.ld-video-season-crest) {
+  width: 80%;
+  text-align: center;
+}
+.ld-crafted-home .ld-crafted-season strong {
+  font:
+    italic 900 clamp(9px, 2.8cqw, 13px) "Ludo Menu",
+    Arial;
+}
+.ld-crafted-home .ld-crafted-season > b {
+  display: none;
+}
+.ld-crafted-home .ld-video-season-crest {
+  position: absolute;
+  left: -14%;
+  top: -18%;
+  width: 35%;
+  height: 140%;
+  gap: 0;
+  background: linear-gradient(#d952b9, #602a79 60%, #25206a);
+  clip-path: polygon(0 10%, 50% 0, 100% 10%, 90% 70%, 50% 100%, 10% 70%);
+  border: 3px solid #eabe5a;
+  color: #ffef63;
+  align-items: center;
+  justify-content: center;
+  font:
+    900 7px "Ludo Profile",
+    Arial;
+}
+.ld-video-season-crest > svg {
+  height: 25px;
+  width: 28px;
+}
+.ld-crafted-home .ld-crafted-daily {
+  top: 84%;
+  left: 2%;
+  width: 15%;
+  height: 8.5%;
+}
+.ld-crafted-home .ld-crafted-wheel {
+  top: 84%;
+  right: 1%;
+  width: 16%;
+  height: 8.5%;
+}
+.ld-crafted-home .ld-crafted-nav {
+  height: 6.5%;
+  min-height: 50px;
+  grid-template-columns: 1.24fr repeat(4, 1fr);
+  background: linear-gradient(#fff4bb, #d79d28 65%, #edc258);
+}
+.ld-crafted-home .ld-crafted-nav svg {
+  height: 80%;
+  top: -23%;
+  width: 58%;
+}
+.ld-crafted-home .ld-crafted-nav .ld-art-adda {
+  height: 110%;
+  width: 65%;
+  top: -40%;
+}
+.ld-crafted-home .ld-crafted-nav .ld-art-chat {
+  width: 64%;
+  height: 95%;
+  top: -31%;
+}
+.ld-crafted-home .ld-crafted-nav span {
+  font-size: clamp(8px, 2.5cqw, 11px);
+}
+.ld-crafted-home .ld-crafted-nav .active {
+  margin-top: -9px;
+  border-width: 1px;
+}
+.ld-crafted-home .ld-crafted-nav .active svg {
+  top: -8%;
+  height: 80%;
+}
+@keyframes ld-video-pawn-breathe {
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+@keyframes ld-video-die-rock {
+  0%,
+  85%,
+  100% {
+    rotate: 0deg;
+  }
+  90% {
+    rotate: -5deg;
+  }
+  95% {
+    rotate: 5deg;
+  }
+}
+@container ludo (max-height:740px) and (min-height:501px) {
+  .ld-crafted-home .ld-crafted-header {
+    top: 2%;
+  }
+  .ld-crafted-home .ld-crafted-left,
+  .ld-crafted-home .ld-crafted-right {
+    top: 9.3%;
+  }
+  .ld-crafted-home .ld-video-member {
+    top: 14.7%;
+  }
+  .ld-crafted-home .ld-video-hero {
+    top: 20%;
+    height: 18.5%;
+  }
+  .ld-crafted-home .ld-crafted-mode-grid {
+    height: 22.5%;
+  }
+  .ld-crafted-home .ld-crafted-nav {
+    height: 7%;
+  }
+}
+@container ludo (max-height:500px) {
+  .ld-crafted-home .ld-crafted-header {
+    top: 1%;
+    left: 1%;
+    width: 98%;
+    height: 42px;
+  }
+  .ld-crafted-home .ld-video-hero {
+    left: 3%;
+    width: 29%;
+    top: 29%;
+    height: 52%;
+  }
+  .ld-crafted-home .ld-video-member {
+    display: none;
+  }
+  .ld-crafted-home .ld-crafted-left,
+  .ld-crafted-home .ld-crafted-right,
+  .ld-crafted-home .ld-crafted-extras,
+  .ld-crafted-home .ld-crafted-season,
+  .ld-crafted-home .ld-crafted-daily,
+  .ld-crafted-home .ld-crafted-wheel {
+    display: none;
+  }
+  .ld-crafted-home .ld-crafted-mode-grid {
+    left: 35%;
+    width: 61%;
+    top: 29%;
+    height: 57%;
+    gap: 14px 9px;
+  }
+  .ld-crafted-home .ld-crafted-nav {
+    left: 2%;
+    width: 29%;
+    height: 44px;
+    min-height: 44px;
+    bottom: 2%;
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .ld-crafted-home .ld-crafted-nav svg {
+    display: none;
+  }
+  .ld-crafted-home .ld-crafted-nav .active {
+    margin: 0;
+  }
+  .ld-crafted-home .ld-crafted-nav span {
+    font-size: 8px;
+  }
+  .ld-crafted-home .ld-crafted-avatar {
+    flex-basis: 44px;
+  }
+  .ld-crafted-home .ld-crafted-header > .ld-crafted-art-button {
+    width: 44px;
+  }
+  .ld-video-bonus {
+    width: 25%;
+    max-width: 220px;
+    height: 28px;
+    margin-right: 14px;
+  }
+  .ld-crafted-home .ld-crafted-wallet {
+    height: 28px;
+  }
+  .ld-video-shop {
+    width: 36px;
+  }
+  .ld-crafted-home .ld-video-player-name {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ld-video-hero * {
+    animation: none !important;
+  }
+}
