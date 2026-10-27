@@ -15,7 +15,14 @@ import {
   networkNodesTable,
 } from "@workspace/db";
 import { ready, memory } from "../../demo/database";
-import { joinLudo, actLudo, ludoTable, tickLudo, ludoProof } from "../ludo";
+import {
+  joinLudo,
+  actLudo,
+  ludoTable,
+  tickLudo,
+  ludoProof,
+  previewLudoRoom,
+} from "../ludo";
 import { postEntry, getBalanceByUser } from "../wallet";
 import { ludoChat, sendLudoChat } from "../ludoChat";
 import { LUDO } from "@workspace/api-zod/ludo";
@@ -90,6 +97,155 @@ const action = (
   token?: number,
 ) => ({ type, token, version: t.match!.version, requestId: randomUUID() });
 const balance = async (id: string) => (await getBalanceByUser(id)).balance;
+
+test("private rooms preview terms without charging, isolate channels and public queues, reject changed terms and start only when full", async () => {
+  const a = await user(),
+    b = await user(),
+    outsider = await user(100000n, "b2b"),
+    publicUser = await user();
+  const create = {
+    ...input(),
+    mode: "private" as const,
+    variant: "quick" as const,
+  };
+  const created = await joinLudo(a, create),
+    code = created.match!.state.roomCode!;
+  assert.match(code, /^\d{8}$/);
+  assert.equal((await joinLudo(a, create)).match!.id, created.match!.id);
+  assert.equal(await balance(a), 99000n);
+  assert.equal((await previewLudoRoom(b, code)).variant, "quick");
+  assert.equal(await balance(b), 100000n);
+  await assert.rejects(previewLudoRoom(outsider, code));
+  assert.notEqual(
+    (await joinLudo(publicUser, { ...input(), variant: "quick" })).match!.id,
+    created.match!.id,
+  );
+  for (const change of [
+    { entryPaise: 5000 },
+    { variant: "classic" as const },
+    { capacity: 4 as const },
+  ]) {
+    await assert.rejects(
+      joinLudo(b, {
+        ...input(),
+        mode: "private",
+        variant: "quick",
+        roomCode: code,
+        ...change,
+      }),
+    );
+    assert.equal(await balance(b), 100000n);
+  }
+  const join = {
+    ...input(),
+    mode: "private" as const,
+    variant: "quick" as const,
+    roomCode: code,
+  };
+  const joined = await joinLudo(b, join);
+  assert.equal(joined.match!.status, "playing");
+  assert.ok(
+    joined.match!.state.players.every(
+      (p) => p?.kind === "human" && p.tokens[0] === 0,
+    ),
+  );
+  assert.equal((await joinLudo(b, join)).match!.id, created.match!.id);
+  assert.equal(await balance(b), 99000n);
+  await assert.rejects(previewLudoRoom(b, code));
+  const tooLate = await user();
+  await assert.rejects(joinLudo(tooLate, { ...join, requestId: randomUUID() }));
+  assert.equal(await balance(tooLate), 100000n);
+});
+
+test("private guest cancellation refunds only guest; host cancellation and expiry refund everyone exactly once without bots", async () => {
+  for (const expires of [false, true]) {
+    const a = await user(),
+      b = await user();
+    const created = await joinLudo(a, { ...input(4), mode: "private" });
+    const id = created.match!.id,
+      code = created.match!.state.roomCode!;
+    let guest = await joinLudo(b, {
+      ...input(4),
+      mode: "private",
+      roomCode: code,
+    });
+    await actLudo(b, id, action(guest, "leave"));
+    assert.equal((await ludoTable(b)).match!.status, "cancelled");
+    assert.equal((await ludoTable(a)).match!.status, "waiting");
+    assert.equal(await balance(b), 100000n);
+    assert.equal(await balance(a), 99000n);
+    guest = await joinLudo(b, { ...input(4), mode: "private", roomCode: code });
+    if (expires) {
+      await db
+        .update(ludoMatches)
+        .set({ deadline: new Date(0) })
+        .where(eq(ludoMatches.id, id));
+      await tickLudo();
+      await tickLudo();
+    } else {
+      const request = action(await ludoTable(a), "leave");
+      await actLudo(a, id, request);
+      await actLudo(a, id, request);
+    }
+    assert.equal((await ludoTable(a)).match!.status, "cancelled");
+    assert.equal(await balance(a), 100000n);
+    assert.equal(await balance(b), 100000n);
+    assert.ok(
+      (await ludoTable(a)).match!.state.players.every(
+        (p) => !p || p.kind === "human",
+      ),
+    );
+    await assert.rejects(previewLudoRoom(b, code));
+  }
+});
+
+test("variants never mix queues, Team Up requires four seats and a retry cannot switch variant", async () => {
+  const a = await user(),
+    b = await user(),
+    c = await user();
+  const classic = await joinLudo(a, input());
+  const request = { ...input(), variant: "quick" as const };
+  const quick = await joinLudo(b, request);
+  assert.notEqual(classic.match!.id, quick.match!.id);
+  await assert.rejects(joinLudo(b, { ...request, variant: "classic" }));
+  await assert.rejects(joinLudo(c, { ...input(), variant: "team" }));
+  assert.equal(await balance(c), 100000n);
+});
+
+test("Team Up pays both partners once and team forfeit pays opponents without refunding entries", async () => {
+  for (const forfeits of [false, true]) {
+    const ids = await Promise.all([user(), user(), user(), user()]);
+    for (const id of ids) await joinLudo(id, { ...input(4), variant: "team" });
+    let table = await ludoTable(ids[0]),
+      id = table.match!.id;
+    if (!forfeits) {
+      const s = table.match!.state;
+      s.players[0]!.tokens = [56, 56, 56, 55];
+      s.players[2]!.tokens = [56, 56, 56, 56];
+      s.phase = "move";
+      s.dice = 1;
+      await db
+        .update(ludoMatches)
+        .set({ state: s, deadline: new Date(Date.now() + 30000) })
+        .where(eq(ludoMatches.id, id));
+      table = await ludoTable(ids[0]);
+    }
+    const command = action(
+      table,
+      forfeits ? "leave" : "move",
+      forfeits ? undefined : 3,
+    );
+    const ended = await actLudo(ids[0], id, command);
+    await actLudo(ids[0], id, command);
+    await tickLudo();
+    assert.deepEqual(ended.match!.state.winners, forfeits ? [1, 3] : [0, 2]);
+    for (let seat = 0; seat < 4; seat++)
+      assert.equal(
+        await balance(ids[seat]),
+        ended.match!.state.winners!.includes(seat) ? 100800n : 99000n,
+      );
+  }
+});
 
 test("48 players in 24 rooms receive private committed snapshots and cannot move each other's tokens", async (t) => {
   const rooms: { a: string; b: string; table: LudoTable }[] = [];

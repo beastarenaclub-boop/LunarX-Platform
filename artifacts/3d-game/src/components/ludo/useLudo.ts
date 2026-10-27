@@ -8,7 +8,12 @@ import {
   getGetWalletBalanceQueryKey,
   getListWalletTransactionsQueryKey,
 } from "@workspace/api-client-react";
-import type { LudoMatch, LudoTable } from "@workspace/api-zod/ludo";
+import type {
+  LudoMatch,
+  LudoTable,
+  LudoMode,
+  LudoVariant,
+} from "@workspace/api-zod/ludo";
 type Pending = {
   url: string;
   body: Record<string, unknown> & { requestId: string };
@@ -288,7 +293,9 @@ export function useLudo(userId: string) {
   const join = (
     capacity: 2 | 4,
     entryPaise: number,
-    mode: "online" | "computer" = "online",
+    mode: LudoMode = "online",
+    variant: LudoVariant = "classic",
+    roomCode?: string,
   ) => {
     if (pending.current) return;
     void send({
@@ -296,7 +303,9 @@ export function useLudo(userId: string) {
       body: {
         capacity,
         entryPaise,
-        ...(mode === "computer" ? { mode } : {}),
+        mode,
+        variant,
+        ...(roomCode ? { roomCode } : {}),
         requestId: crypto.randomUUID(),
       },
     });

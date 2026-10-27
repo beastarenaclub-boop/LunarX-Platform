@@ -5,23 +5,18 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  type CSSProperties,
 } from "react";
 import { Link } from "wouter";
 import {
   ArrowLeft,
   ArrowRight,
-  Check,
   Coins,
   Crown,
-  History,
   Info,
   ShieldCheck,
   Settings,
   Trophy,
   Users,
-  Minus,
-  Plus,
   Maximize,
   Minimize,
 } from "lucide-react";
@@ -36,7 +31,6 @@ import {
 import { useAuth } from "@/lib/auth";
 import { useLudo } from "@/components/ludo/useLudo";
 import { LudoBoard, COLORS } from "@/components/ludo/LudoBoard";
-import { LudoPin } from "@/components/ludo/LudoPin";
 import {
   LudoHome,
   LudoMatchmaking,
@@ -62,6 +56,24 @@ import "@/components/ludo/ludo-landscape.css";
 import "@/components/ludo/ludo-classic-home.css";
 import "@/components/ludo/ludo-social.css";
 import "@/components/ludo/ludo-reference-match.css";
+import "@/components/ludo/ludo-video-menu.css";
+import "@/components/ludo/ludo-reference-home.css";
+import {
+  LudoSetup,
+  LudoThemePicker,
+  LUDO_THEMES,
+  TOKEN_STYLES,
+  type LudoTheme,
+} from "@/components/ludo/LudoSetup";
+import {
+  LudoTokenStyleContext,
+  type LudoTokenStyle,
+} from "@/components/ludo/LudoPin";
+import {
+  LUDO_VARIANTS,
+  type LudoMode,
+  type LudoVariant,
+} from "@workspace/api-zod/ludo";
 const money = (v: string | number) =>
   `₹${(Number(v) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const preview: LudoState = {
@@ -118,7 +130,7 @@ function LudoGame({
   );
   const [menu, setMenu] = useState<{
     screen: "home" | "setup";
-    mode: "online" | "computer";
+    mode: LudoMode;
   }>(() => {
     try {
       const saved = JSON.parse(
@@ -126,7 +138,12 @@ function LudoGame({
       );
       return {
         screen: saved?.screen === "setup" ? "setup" : "home",
-        mode: saved?.mode === "computer" ? "computer" : "online",
+        mode:
+          saved?.mode === "private"
+            ? "private"
+            : saved?.mode === "computer"
+              ? "computer"
+              : "online",
       };
     } catch {
       return { screen: "home", mode: "online" };
@@ -156,10 +173,33 @@ function LudoGame({
   const [capacity, setCapacity] = useState<2 | 4>(2),
     [entry, setEntry] = useState(1000),
     [dialog, setDialog] = useState<
-      "rules" | "history" | "leave" | "settings" | null
+      "rules" | "history" | "leave" | "settings" | "themes" | null
     >(null),
     [dismissed, setDismissed] = useState<string | null>(null),
     [proof, setProof] = useState("");
+  const [variant, setVariant] = useState<LudoVariant>("classic");
+  const [tokenStyle, setTokenStyle] = useState<LudoTokenStyle>(() => {
+    try {
+      const value = localStorage.getItem(
+        `ludo-token:${userId}`,
+      ) as LudoTokenStyle;
+      if (TOKEN_STYLES.includes(value)) return value;
+    } catch {}
+    return "pin";
+  });
+  const [theme, setTheme] = useState<LudoTheme>(() => {
+    try {
+      const value = localStorage.getItem(`ludo-theme:${userId}`) as LudoTheme;
+      if (LUDO_THEMES.includes(value)) return value;
+    } catch {}
+    return "classic";
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(`ludo-token:${userId}`, tokenStyle);
+      localStorage.setItem(`ludo-theme:${userId}`, theme);
+    } catch {}
+  }, [tokenStyle, theme, userId]);
   const [chatRequest, setChatRequest] = useState(0);
   const [closedResult, setClosedResult] = useState<string | null>(null);
   const m = data?.match,
@@ -232,7 +272,8 @@ function LudoGame({
   const winners =
     m?.state.winners ?? (m?.state.winner != null ? [m.state.winner] : []);
   const youWon = !!m && winners.includes(m.you) && !forfeited;
-  const shared = winners.length > 1;
+  const teamWin = m?.state.variant === "team" && winners.length === 2;
+  const shared = winners.length > 1 && !teamWin;
   const payout = m?.payoutPaise ?? (youWon ? (m?.prizePaise ?? "0") : "0");
   const resultOpen =
     !!ended && m?.status !== "cancelled" && closedResult !== m?.id;
@@ -241,10 +282,8 @@ function LudoGame({
   }, [resultOpen]);
   const winner =
     show && m.state.winner !== null ? m.state.players[m.state.winner] : null;
-  const seats = show ? m.capacity : capacity,
-    chosenPrize = entry * capacity * 0.9;
+  const seats = show ? m.capacity : capacity;
   const entries = data?.entries ?? [...LUDO.entries];
-  const entryIndex = entries.indexOf(entry);
   const locked =
     busy ||
     offline ||
@@ -274,6 +313,7 @@ function LudoGame({
         key={color}
         color={color}
         dockSide={dockSide}
+        team={s.variant === "team" ? i % 2 : undefined}
         onEmojis={() => setChatRequest((v) => v + 1)}
         p={p}
         active={active}
@@ -299,14 +339,18 @@ function LudoGame({
         : forfeited
           ? "You left the match"
           : youWon
-            ? shared
-              ? "You share the prize!"
-              : "You take the crown!"
+            ? teamWin
+              ? "Your team wins!"
+              : shared
+                ? "You share the prize!"
+                : "You take the crown!"
             : shared
               ? "Match tied · prize shared"
-              : winner
-                ? `${winner.name} wins!`
-                : "Match ended"
+              : teamWin
+                ? `Team ${(winners[0] % 2) + 1} wins!`
+                : winner
+                  ? `${winner.name} wins!`
+                  : "Match ended"
       : movement?.busy
         ? "Moving token…"
         : playing
@@ -349,751 +393,678 @@ function LudoGame({
     }
   };
   return (
-    <main
-      ref={app}
-      onPointerDownCapture={audio.unlock}
-      onKeyDownCapture={audio.unlock}
-      className={
-        "ld-app " +
-        (home
-          ? "ld-in-home"
-          : waiting
-            ? "ld-in-search"
-            : show
-              ? `ld-in-match ld-match-${m.capacity}`
-              : "ld-in-lobby")
-      }
-    >
-      {!home && !waiting && (
-        <header className="ld-header">
-          {!show ? (
-            <button
-              className="ld-back"
-              aria-label="Back to main menu"
-              onClick={() => setMenu((v) => ({ ...v, screen: "home" }))}
-            >
-              <ArrowLeft size={21} />
-            </button>
-          ) : (
-            <Link href="/" className="ld-back" aria-label="Back to lobby">
-              <ArrowLeft size={21} />
-            </Link>
-          )}
-          <Link href="/ludo" className="ld-brand">
-            <Crown size={25} />
-            <span>
-              LUDO <b>LIVE</b>
-            </span>
-          </Link>
-          <div className="ld-wallet">
-            <Coins size={22} />
-            <span>
-              <small>{demo ? "Demo wallet" : "Your wallet"}</small>
-              <b title={data ? money(data.balancePaise) : undefined}>
-                {demo ? "∞" : data ? money(data.balancePaise) : "—"}
-              </b>
-            </span>
-          </div>
-          <button
-            className="ld-icon"
-            aria-label="Game rules"
-            onClick={() => setDialog("rules")}
-          >
-            <Info size={20} />
-          </button>
-        </header>
-      )}
-      <div className="ld-main" aria-hidden={resultOpen || undefined}>
-        {home ? (
-          <LudoHome
-            name={name}
-            balance={data?.balancePaise}
-            demo={demo}
-            offline={offline}
-            onChoose={(mode) => setMenu({ screen: "setup", mode })}
-            onSettings={() => setDialog("settings")}
-            onHistory={() => setDialog("history")}
-            onRules={() => setDialog("rules")}
-            fullscreen={fullscreen}
-            onFullscreen={() => void toggleFullscreen()}
-          />
-        ) : !show ? (
-          <section className="ld-lobby">
-            <div className="ld-lobby-hero">
-              <span className="ld-hero-crown">
-                <Crown size={36} />
+    <LudoTokenStyleContext.Provider value={tokenStyle}>
+      <main
+        ref={app}
+        onPointerDownCapture={audio.unlock}
+        onKeyDownCapture={audio.unlock}
+        className={
+          `ld-app ld-theme-${theme} ` +
+          (home
+            ? "ld-in-home"
+            : waiting
+              ? "ld-in-search"
+              : show
+                ? `ld-in-match ld-match-${m.capacity}`
+                : "ld-in-lobby")
+        }
+      >
+        {!home && !waiting && (
+          <header className="ld-header">
+            {!show ? (
+              <button
+                className="ld-back"
+                aria-label="Back to main menu"
+                onClick={() => setMenu((v) => ({ ...v, screen: "home" }))}
+              >
+                <ArrowLeft size={21} />
+              </button>
+            ) : (
+              <Link href="/" className="ld-back" aria-label="Back to lobby">
+                <ArrowLeft size={21} />
+              </Link>
+            )}
+            <Link href="/ludo" className="ld-brand">
+              <Crown size={25} />
+              <span>
+                LUDO <b>LIVE</b>
               </span>
-              <h1>
-                LUDO <span>LIVE</span>
-              </h1>
-              <p>
-                {menu.mode === "computer"
-                  ? "PLAY AGAINST COMPUTER"
-                  : "ONLINE MULTIPLAYER"}
-              </p>
+            </Link>
+            <div className="ld-wallet">
+              <Coins size={22} />
+              <span>
+                <small>{demo ? "Demo wallet" : "Your wallet"}</small>
+                <b title={data ? money(data.balancePaise) : undefined}>
+                  {demo ? "∞" : data ? money(data.balancePaise) : "—"}
+                </b>
+              </span>
             </div>
-            <div className="ld-room-card">
-              <section className="ld-setup-section">
-                <h2>SELECT YOUR COLOUR</h2>
-                <div
-                  className="ld-colours"
-                  role="group"
-                  aria-label="Your token colour"
-                >
-                  {(["blue", "red", "green", "yellow"] as const).map((c) => (
-                    <button
-                      key={c}
-                      aria-label={c + " tokens"}
-                      aria-pressed={colour === c}
-                      style={{ "--seat": COLORS[c] } as CSSProperties}
-                      onClick={() => {
-                        setColour(c);
-                        try {
-                          localStorage.setItem(`ludo-colour:${userId}`, c);
-                        } catch {}
-                      }}
-                    >
-                      <LudoPin color={COLORS[c]} />
-                      <span>
-                        {colour === c && <Check size={17} strokeWidth={3} />}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                <p className="ld-colour-note">Your personal board view</p>
-              </section>
-              <section className="ld-setup-section">
-                <h2>SELECT PLAYERS</h2>
-                <div
-                  className="ld-mode"
-                  role="group"
-                  aria-label="Number of players"
-                >
-                  {([2, 4] as const).map((n) => (
-                    <button
-                      key={n}
-                      aria-pressed={capacity === n}
-                      onClick={() => setCapacity(n)}
-                    >
-                      <span className="ld-radio">
-                        {capacity === n && <Check size={18} strokeWidth={3} />}
-                      </span>
-                      <span>
-                        <strong>{n} players</strong>
-                        <small>
-                          {n === 2 ? "Head to head" : "Classic battle"}
-                        </small>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </section>
-              <section className="ld-setup-section ld-select-game">
-                <h2>SELECT YOUR GAME</h2>
-                <div className="ld-stakes">
-                  <button
-                    className="ld-step"
-                    aria-label="Lower entry fee"
-                    disabled={entryIndex <= 0}
-                    onClick={() => setEntry(entries[entryIndex - 1])}
-                  >
-                    <Minus />
-                  </button>
-                  <div className="ld-prize">
-                    <span>
-                      <Trophy size={22} /> WIN
-                    </span>
-                    <b>{money(chosenPrize)}</b>
-                    <small>Entry: {money(entry)}</small>
-                  </div>
-                  <button
-                    className="ld-step"
-                    aria-label="Higher entry fee"
-                    disabled={
-                      entryIndex < 0 || entryIndex >= entries.length - 1
-                    }
-                    onClick={() => setEntry(entries[entryIndex + 1])}
-                  >
-                    <Plus />
-                  </button>
-                </div>
-                <div className="ld-entries" role="group" aria-label="Entry fee">
-                  {entries.map((amount) => (
-                    <button
-                      key={amount}
-                      aria-pressed={entry === amount}
-                      onClick={() => setEntry(amount)}
-                    >
-                      {money(amount)}
-                    </button>
-                  ))}
-                </div>
-                <p className="ld-fee">Prize after 10% platform commission</p>
+            <button
+              className="ld-icon"
+              aria-label="Game rules"
+              onClick={() => setDialog("rules")}
+            >
+              <Info size={20} />
+            </button>
+          </header>
+        )}
+        <div className="ld-main" aria-hidden={resultOpen || undefined}>
+          {home ? (
+            <LudoHome
+              name={name}
+              balance={data?.balancePaise}
+              demo={demo}
+              offline={offline}
+              onChoose={(mode, selected = "classic") => {
+                setMenu({ screen: "setup", mode });
+                setVariant(selected);
+                if (selected === "team") setCapacity(4);
+              }}
+              onThemes={() => setDialog("themes")}
+              onSettings={() => setDialog("settings")}
+              onHistory={() => setDialog("history")}
+              onRules={() => setDialog("rules")}
+              fullscreen={fullscreen}
+              onFullscreen={() => void toggleFullscreen()}
+            />
+          ) : !show ? (
+            <LudoSetup
+              key={menu.mode}
+              mode={menu.mode}
+              variant={variant}
+              onVariant={(v) => {
+                setVariant(v);
+                if (v === "team") setCapacity(4);
+              }}
+              capacity={capacity}
+              onCapacity={setCapacity}
+              colour={colour}
+              onColour={(c) => {
+                setColour(c);
+                try {
+                  localStorage.setItem(`ludo-colour:${userId}`, c);
+                } catch {}
+              }}
+              tokenStyle={tokenStyle}
+              onTokenStyle={setTokenStyle}
+              entry={entry}
+              onEntry={setEntry}
+              entries={entries}
+              balance={data?.balancePaise}
+              enabled={!!data?.enabled}
+              busy={busy || game.retry}
+              offline={offline}
+              onPlay={(n, e, v, code) => {
+                setDismissed(null);
+                setProof("");
+                game.join(n, e, menu.mode, v, code);
+              }}
+              onRules={() => setDialog("rules")}
+              onHistory={() => setDialog("history")}
+              onThemes={() => setDialog("themes")}
+            />
+          ) : waiting ? (
+            <LudoMatchmaking
+              match={m}
+              state={s}
+              remaining={
+                m.mode === "private" ? remaining : Math.min(20, remaining)
+              }
+              offline={offline}
+              busy={busy || game.retry}
+              audio={audio}
+              onCancel={() => game.act("leave")}
+            />
+          ) : (
+            <section className="ld-arena">
+              <header className="ld-mobile-match-header">
                 <button
-                  className="ld-primary ld-play"
-                  aria-label={
-                    data && data.enabled && Number(data.balancePaise) >= entry
-                      ? "Find a match"
-                      : undefined
-                  }
-                  disabled={
-                    !data ||
-                    busy ||
-                    offline ||
-                    game.retry ||
-                    !data.enabled ||
-                    !data.entries.includes(entry) ||
-                    Number(data.balancePaise) < entry
-                  }
+                  className="ld-menu-icon"
+                  aria-label={playing ? "Leave match" : "Back to main menu"}
+                  disabled={busy || game.retry}
                   onClick={() => {
-                    setDismissed(null);
-                    setProof("");
-                    game.join(capacity, entry, menu.mode);
+                    if (playing) setDialog("leave");
+                    else {
+                      setDismissed(m.id);
+                      setMenu((v) => ({ ...v, screen: "home" }));
+                    }
                   }}
                 >
-                  {busy ? (
-                    "Joining…"
-                  ) : !data ? (
-                    "Connecting…"
-                  ) : !data.enabled ? (
-                    "Tables paused"
-                  ) : Number(data.balancePaise) < entry ? (
-                    "Insufficient balance"
-                  ) : (
-                    <>
-                      PLAY <ArrowRight size={22} />
-                    </>
-                  )}
+                  <ArrowLeft />
                 </button>
-                <p className="ld-note">
-                  {menu.mode === "computer" ? (
-                    <>
-                      Entry debited on joining.
-                      <br />
-                      Computer opponents connect instantly.
-                    </>
-                  ) : (
-                    <>
-                      Entry debited on joining. Empty seats get
-                      <br />
-                      Computer players after 20 seconds.
-                    </>
-                  )}
-                </p>
-              </section>
-            </div>
-            <div className="ld-lobby-links">
-              <button onClick={() => setDialog("history")}>
-                <History size={16} /> My matches
-              </button>
-              <button onClick={() => setDialog("rules")}>
-                <Info size={16} /> How to play
-              </button>
-            </div>
-          </section>
-        ) : waiting ? (
-          <LudoMatchmaking
-            match={m}
-            state={s}
-            remaining={Math.min(20, remaining)}
-            offline={offline}
-            busy={busy || game.retry}
-            audio={audio}
-            onCancel={() => game.act("leave")}
-          />
-        ) : (
-          <section className="ld-arena">
-            <header className="ld-mobile-match-header">
-              <button
-                className="ld-menu-icon"
-                aria-label={playing ? "Leave match" : "Back to main menu"}
-                disabled={busy || game.retry}
-                onClick={() => {
-                  if (playing) setDialog("leave");
-                  else {
-                    setDismissed(m.id);
-                    setMenu((v) => ({ ...v, screen: "home" }));
-                  }
-                }}
-              >
-                <ArrowLeft />
-              </button>
-              <div className="ld-mobile-match-info">
-                <div>
-                  <strong>{offline ? "Reconnecting…" : "LUDO LIVE"}</strong>
-                  <b
-                    className="ld-match-timer"
-                    role="timer"
-                    aria-label={`Match time remaining ${matchClock}`}
-                  >
-                    {matchClock}
-                  </b>
-                  <span title={data ? money(data.balancePaise) : undefined}>
-                    <Coins size={13} />{" "}
-                    {demo ? "∞" : data ? money(data.balancePaise) : "—"}
+                <div className="ld-mobile-match-info">
+                  <div>
+                    <strong>{offline ? "Reconnecting…" : "LUDO LIVE"}</strong>
+                    <b
+                      className="ld-match-timer"
+                      role="timer"
+                      aria-label={`Match time remaining ${matchClock}`}
+                    >
+                      {matchClock}
+                    </b>
+                    <span title={data ? money(data.balancePaise) : undefined}>
+                      <Coins size={13} />{" "}
+                      {demo ? "∞" : data ? money(data.balancePaise) : "—"}
+                    </span>
+                  </div>
+                  <small>
+                    {LUDO_VARIANTS[m.state.variant ?? "classic"].name} ·{" "}
+                    {m.capacity} players · Entry {money(m.entryPaise)} ·{" "}
+                    <b>Win {money(m.prizePaise)}</b>
+                  </small>
+                </div>
+                <div className="ld-landscape-sound">
+                  <LudoSoundControls audio={audio} />
+                </div>
+                <button
+                  className="ld-menu-icon"
+                  aria-label="Game settings"
+                  onClick={() => setDialog("settings")}
+                >
+                  <Settings />
+                </button>
+              </header>
+              <div className="ld-match-bar">
+                <div className="ld-match-id">
+                  MATCH {m.id.slice(0, 8).toUpperCase()}
+                  <small>
+                    {m.capacity} players · Entry {money(m.entryPaise)}
+                  </small>
+                </div>
+                <div className="ld-match-prize">
+                  <Trophy size={18} />
+                  <span>
+                    WIN<b>{money(m.prizePaise)}</b>
                   </span>
                 </div>
-                <small>
-                  {m.capacity} players · Entry {money(m.entryPaise)} ·{" "}
-                  <b>Win {money(m.prizePaise)}</b>
-                </small>
-              </div>
-              <div className="ld-landscape-sound">
-                <LudoSoundControls audio={audio} />
-              </div>
-              <button
-                className="ld-menu-icon"
-                aria-label="Game settings"
-                onClick={() => setDialog("settings")}
-              >
-                <Settings />
-              </button>
-            </header>
-            <div className="ld-match-bar">
-              <div className="ld-match-id">
-                MATCH {m.id.slice(0, 8).toUpperCase()}
-                <small>
-                  {m.capacity} players · Entry {money(m.entryPaise)}
-                </small>
-              </div>
-              <div className="ld-match-prize">
-                <Trophy size={18} />
-                <span>
-                  WIN<b>{money(m.prizePaise)}</b>
-                </span>
-              </div>
-              {live && (
-                <button
-                  className="ld-leave"
-                  disabled={busy || game.retry}
-                  onClick={() =>
-                    waiting ? game.act("leave") : setDialog("leave")
-                  }
-                >
-                  {waiting ? "Cancel & refund entry" : "Leave match"}
-                </button>
-              )}
-            </div>
-            <div className="ld-arena-top">
-              <span
-                className={"ld-connection" + (offline ? " ld-offline" : "")}
-              >
-                <i />
-                {offline ? "Reconnecting…" : demo ? "DEMO TABLE" : "LIVE TABLE"}
-              </span>
-              <span>
-                {waiting
-                  ? "MATCHMAKING"
-                  : forfeited && m.status === "playing"
-                    ? "YOU LEFT"
-                    : ended
-                      ? "MATCH COMPLETE"
-                      : "CLASSIC LUDO"}
-              </span>
-            </div>
-            <div className="ld-board-layout">
-              <div className="ld-playfield">
-                <div className="ld-players ld-players-top">
-                  {m.capacity === 4 &&
-                    (["red", "green"] as const).map((c) => renderPlayer(c))}
-                </div>
-                <div className="ld-board-wrap">
-                  <LudoBoard
-                    key={m.id}
-                    state={s}
-                    you={m.you}
-                    legal={m.legalTokens}
-                    disabled={locked}
-                    moving={movement?.moving}
-                    onMove={onMove}
-                  />
-                  {waiting && (
-                    <div className="ld-search-overlay">
-                      <span className="ld-search-spinner">
-                        <Users size={22} />
-                      </span>
-                      <strong>
-                        {s.players.filter(Boolean).length} / {m.capacity} joined
-                      </strong>
-                      <span>Computer joins in {remaining}s</span>
-                    </div>
-                  )}
-                </div>
-                <div className="ld-players ld-players-bottom">
-                  {m.capacity === 2
-                    ? [m.you, (m.you + 1) % 2].map((seat, i) =>
-                        renderPlayer(
-                          displayColour(ludoColors(m.capacity)[seat]),
-                          i === 0 ? "left" : "right",
-                        ),
-                      )
-                    : (["blue", "yellow"] as const).map((c) => renderPlayer(c))}
-                </div>
-              </div>
-              <div className="ld-action-dock">
-                <div
-                  className={"ld-turn" + (yours ? " ld-your-turn" : "")}
-                  role="status"
-                  aria-live="polite"
-                >
-                  <div>
-                    <h2>{heading}</h2>
-                    <p>
-                      {waiting
-                        ? "Looking for live players. Empty seats fill automatically."
-                        : ended
-                          ? (forfeited
-                              ? "Entry forfeited. You can join a new table."
-                              : m.reason) ||
-                            (youWon
-                              ? money(payout) + " credited to your wallet"
-                              : "Ready for another game?")
-                          : diceRoll.roll
-                            ? "Let the dice land…"
-                            : movement?.busy
-                              ? "Moving token…"
-                              : yours
-                                ? s.phase === "move"
-                                  ? autoToken !== null && !game.error
-                                    ? "Moving your only token automatically…"
-                                    : "Tap a glowing token or choose below"
-                                  : m.capacity === 2
-                                    ? "Tap the dice in the centre"
-                                    : "Tap the dice beside your name"
-                                : s.players[s.turn]?.kind === "computer"
-                                  ? "Computer is making a move…"
-                                  : "Waiting for their move…"}
-                    </p>
-                  </div>
-                  {waiting ? (
-                    <div className="ld-countdown">
-                      {remaining}
-                      <small>SEC</small>
-                    </div>
-                  ) : ended ? (
-                    <button
-                      className="ld-primary"
-                      onClick={() => {
-                        setDismissed(m.id);
-                        setMenu((v) => ({ ...v, screen: "setup" }));
-                      }}
-                    >
-                      Play again <ArrowRight size={16} />
-                    </button>
-                  ) : (
-                    <span className="ld-turn-clock">
-                      {remaining}
-                      <small>SEC</small>
-                    </span>
-                  )}
-                </div>
-                {yours &&
-                  s.phase === "move" &&
-                  !diceRoll.roll &&
-                  !movement?.busy && (
-                    <div className="ld-moves" aria-label="Choose a token">
-                      {m.legalTokens.map((token) => (
-                        <button
-                          key={token}
-                          disabled={locked}
-                          onClick={() => game.act("move", token)}
-                        >
-                          <span style={{ background: COLORS[colour] }} />
-                          Move {token + 1}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                <div className="ld-last">
-                  {diceRoll.roll
-                    ? "Dice in motion…"
-                    : s.last?.text === "Match started · Red rolls first"
-                      ? "Match started · " +
-                        (s.players[0]?.name || "First seat") +
-                        " rolls first"
-                      : s.last?.text ||
-                        "Roll a six to bring your tokens into play."}
-                </div>
-                {ended && m.seed && (
-                  <button className="ld-proof" onClick={() => void verify()}>
-                    <ShieldCheck size={15} />
-                    {proof || "Verify dice & download match record"}
+                {live && (
+                  <button
+                    className="ld-leave"
+                    disabled={busy || game.retry}
+                    onClick={() =>
+                      waiting ? game.act("leave") : setDialog("leave")
+                    }
+                  >
+                    {waiting ? "Cancel & refund entry" : "Leave match"}
                   </button>
                 )}
               </div>
-            </div>
-            <footer className="ld-arena-footer">
-              <LudoChat
-                key={m.id}
-                match={m}
-                userId={userId}
-                openRequest={chatRequest}
-                onWalletChange={() => void game.sync()}
-              />
-              <button onClick={() => setDialog("rules")}>
-                How to play <Info size={14} />
-              </button>
-              <LudoSoundControls audio={audio} />
-              <button
-                className="ld-fullscreen"
-                aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}
-                onClick={async () => {
-                  try {
-                    if (document.fullscreenElement)
-                      await document.exitFullscreen();
-                    else await document.documentElement.requestFullscreen();
-                  } catch {
-                    /* Browser may not support element fullscreen. */
-                  }
-                }}
-              >
-                {fullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
-              </button>
-            </footer>
-          </section>
-        )}
-        {!busy && (game.error || offline || game.retry) && (
-          <div className="ld-error" role="alert">
-            {game.error ||
-              "Connection interrupted. Your match and wallet are saved."}
-            {game.retry ? (
-              <button disabled={busy} onClick={game.retryAction}>
-                Retry last action
-              </button>
-            ) : offline ? (
-              <button onClick={() => void game.sync()}>Reconnect</button>
-            ) : null}
-          </div>
-        )}
-      </div>
-
-      <Dialog
-        open={resultOpen}
-        onOpenChange={(open) => !open && m && setClosedResult(m.id)}
-      >
-        <DialogContent className="ld-modal ld-result-modal">
-          <Crown className="ld-result-crown" aria-hidden="true" />
-          <DialogTitle>
-            {forfeited && m?.state.players[m.you]?.exitReason === "inactive"
-              ? "Removed for inactivity"
-              : heading}
-          </DialogTitle>
-          <DialogDescription>
-            {youWon
-              ? shared
-                ? "A tied finish! Your share is credited to your wallet."
-                : "Your prize is credited to your wallet."
-              : forfeited
-                ? "Your entry was forfeited. Join a new table when you are ready."
-                : "The final table result is in."}
-          </DialogDescription>
-          {youWon && (
-            <strong className="ld-result-prize">{money(payout)}</strong>
-          )}
-          <div className="ld-result-players">
-            {m?.state.players.filter(Boolean).map(
-              (p) =>
-                p && (
+              <div className="ld-arena-top">
+                <span
+                  className={"ld-connection" + (offline ? " ld-offline" : "")}
+                >
+                  <i />
+                  {offline
+                    ? "Reconnecting…"
+                    : demo
+                      ? "DEMO TABLE"
+                      : "LIVE TABLE"}
+                </span>
+                <span>
+                  {waiting
+                    ? "MATCHMAKING"
+                    : forfeited && m.status === "playing"
+                      ? "YOU LEFT"
+                      : ended
+                        ? "MATCH COMPLETE"
+                        : "CLASSIC LUDO"}
+                </span>
+              </div>
+              <div className="ld-board-layout">
+                <div className="ld-playfield">
+                  <div className="ld-players ld-players-top">
+                    {m.capacity === 4 &&
+                      (["red", "green"] as const).map((c) => renderPlayer(c))}
+                  </div>
+                  <div className="ld-board-wrap">
+                    <LudoBoard
+                      key={m.id}
+                      state={s}
+                      you={m.you}
+                      legal={m.legalTokens}
+                      disabled={locked}
+                      moving={movement?.moving}
+                      onMove={onMove}
+                    />
+                    {waiting && (
+                      <div className="ld-search-overlay">
+                        <span className="ld-search-spinner">
+                          <Users size={22} />
+                        </span>
+                        <strong>
+                          {s.players.filter(Boolean).length} / {m.capacity}{" "}
+                          joined
+                        </strong>
+                        <span>Computer joins in {remaining}s</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="ld-players ld-players-bottom">
+                    {m.capacity === 2
+                      ? [m.you, (m.you + 1) % 2].map((seat, i) =>
+                          renderPlayer(
+                            displayColour(ludoColors(m.capacity)[seat]),
+                            i === 0 ? "left" : "right",
+                          ),
+                        )
+                      : (["blue", "yellow"] as const).map((c) =>
+                          renderPlayer(c),
+                        )}
+                  </div>
+                </div>
+                <div className="ld-action-dock">
                   <div
-                    key={p.seat}
-                    className={
-                      winners.includes(p.seat) ? "ld-result-winner" : ""
-                    }
+                    className={"ld-turn" + (yours ? " ld-your-turn" : "")}
+                    role="status"
+                    aria-live="polite"
                   >
-                    <span>
-                      {winners.includes(p.seat) ? "🏆 " : ""}
-                      {p.name}
-                      {p.seat === m.you ? " (YOU)" : ""}
-                    </span>
-                    <b>
-                      {p.forfeited
-                        ? "Left"
-                        : `${p.tokens.filter((t) => t === 56).length}/4 home`}
-                    </b>
+                    <div>
+                      <h2>{heading}</h2>
+                      <p>
+                        {waiting
+                          ? "Looking for live players. Empty seats fill automatically."
+                          : ended
+                            ? (forfeited
+                                ? "Entry forfeited. You can join a new table."
+                                : m.reason) ||
+                              (youWon
+                                ? money(payout) + " credited to your wallet"
+                                : "Ready for another game?")
+                            : diceRoll.roll
+                              ? "Let the dice land…"
+                              : movement?.busy
+                                ? "Moving token…"
+                                : yours
+                                  ? s.phase === "move"
+                                    ? autoToken !== null && !game.error
+                                      ? "Moving your only token automatically…"
+                                      : "Tap a glowing token or choose below"
+                                    : m.capacity === 2
+                                      ? "Tap the dice in the centre"
+                                      : "Tap the dice beside your name"
+                                  : s.players[s.turn]?.kind === "computer"
+                                    ? "Computer is making a move…"
+                                    : "Waiting for their move…"}
+                      </p>
+                    </div>
+                    {waiting ? (
+                      <div className="ld-countdown">
+                        {remaining}
+                        <small>SEC</small>
+                      </div>
+                    ) : ended ? (
+                      <button
+                        className="ld-primary"
+                        onClick={() => {
+                          setDismissed(m.id);
+                          setMenu((v) => ({ ...v, screen: "setup" }));
+                        }}
+                      >
+                        Play again <ArrowRight size={16} />
+                      </button>
+                    ) : (
+                      <span className="ld-turn-clock">
+                        {remaining}
+                        <small>SEC</small>
+                      </span>
+                    )}
                   </div>
-                ),
+                  {yours &&
+                    s.phase === "move" &&
+                    !diceRoll.roll &&
+                    !movement?.busy && (
+                      <div className="ld-moves" aria-label="Choose a token">
+                        {m.legalTokens.map((token) => (
+                          <button
+                            key={token}
+                            disabled={locked}
+                            onClick={() => game.act("move", token)}
+                          >
+                            <span style={{ background: COLORS[colour] }} />
+                            Move {token + 1}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  <div className="ld-last">
+                    {diceRoll.roll
+                      ? "Dice in motion…"
+                      : s.last?.text === "Match started · Red rolls first"
+                        ? "Match started · " +
+                          (s.players[0]?.name || "First seat") +
+                          " rolls first"
+                        : s.last?.text ||
+                          "Roll a six to bring your tokens into play."}
+                  </div>
+                  {ended && m.seed && (
+                    <button className="ld-proof" onClick={() => void verify()}>
+                      <ShieldCheck size={15} />
+                      {proof || "Verify dice & download match record"}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <footer className="ld-arena-footer">
+                <LudoChat
+                  key={m.id}
+                  match={m}
+                  userId={userId}
+                  openRequest={chatRequest}
+                  onWalletChange={() => void game.sync()}
+                />
+                <button onClick={() => setDialog("rules")}>
+                  How to play <Info size={14} />
+                </button>
+                <LudoSoundControls audio={audio} />
+                <button
+                  className="ld-fullscreen"
+                  aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}
+                  onClick={async () => {
+                    try {
+                      if (document.fullscreenElement)
+                        await document.exitFullscreen();
+                      else await document.documentElement.requestFullscreen();
+                    } catch {
+                      /* Browser may not support element fullscreen. */
+                    }
+                  }}
+                >
+                  {fullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+                </button>
+              </footer>
+            </section>
+          )}
+          {!busy && (game.error || offline || game.retry) && (
+            <div className="ld-error" role="alert">
+              {game.error ||
+                "Connection interrupted. Your match and wallet are saved."}
+              {game.retry ? (
+                <button disabled={busy} onClick={game.retryAction}>
+                  Retry last action
+                </button>
+              ) : offline ? (
+                <button onClick={() => void game.sync()}>Reconnect</button>
+              ) : null}
+            </div>
+          )}
+        </div>
+
+        <Dialog
+          open={resultOpen}
+          onOpenChange={(open) => !open && m && setClosedResult(m.id)}
+        >
+          <DialogContent className="ld-modal ld-result-modal">
+            <Crown className="ld-result-crown" aria-hidden="true" />
+            <DialogTitle>
+              {forfeited && m?.state.players[m.you]?.exitReason === "inactive"
+                ? "Removed for inactivity"
+                : heading}
+            </DialogTitle>
+            <DialogDescription>
+              {youWon
+                ? teamWin
+                  ? "Your team's prize is split equally. Your share is credited to your wallet."
+                  : shared
+                    ? "A tied finish! Your share is credited to your wallet."
+                    : "Your prize is credited to your wallet."
+                : forfeited
+                  ? "Your entry was forfeited. Join a new table when you are ready."
+                  : "The final table result is in."}
+            </DialogDescription>
+            {youWon && (
+              <strong className="ld-result-prize">{money(payout)}</strong>
             )}
-          </div>
-          <p>
-            {forfeited && m?.state.players[m.you]?.exitReason === "inactive"
-              ? "Five automatic dice rolls were used. Roll manually before the next timeout to stay in a match."
-              : m?.reason || "First player with four tokens home wins."}
-          </p>
-          <button
-            className="ld-primary"
-            onClick={() => m && setClosedResult(m.id)}
-          >
-            View board
-          </button>
-        </DialogContent>
-      </Dialog>
-      <Dialog
-        open={dialog !== null}
-        onOpenChange={(open) => !open && setDialog(null)}
-      >
-        <DialogContent className="ld-modal">
-          <DialogTitle>
-            {dialog === "rules"
-              ? "How to play Ludo Live"
-              : dialog === "settings"
-                ? "Game settings"
-                : dialog === "history"
-                  ? "Your recent matches"
-                  : "Leave this match?"}
-          </DialogTitle>
-          <DialogDescription>
-            {dialog === "rules"
-              ? "Classic rules for every human and Computer player."
-              : dialog === "settings"
-                ? "Make the table feel like yours."
-                : dialog === "history"
-                  ? "Entries, results and wallet payouts."
-                  : "Leaving after a match starts forfeits your entry fee. Refreshing or closing this page keeps your seat."}
-          </DialogDescription>
-          {dialog === "settings" ? (
-            <div className="ld-settings">
-              <div>
-                <strong>Sound</strong>
-                <button
-                  aria-label="Sound"
-                  aria-pressed={audio.sound}
-                  onClick={audio.toggleSound}
-                >
-                  {audio.sound ? "ON" : "OFF"}
-                </button>
-              </div>
-              <div>
-                <strong>Music</strong>
-                <button
-                  aria-label="Music"
-                  aria-pressed={audio.music}
-                  onClick={audio.toggleMusic}
-                >
-                  {audio.music ? "ON" : "OFF"}
-                </button>
-              </div>
-              <div className="ld-settings-links">
-                <button onClick={() => setDialog("rules")}>How to play</button>
-                <button onClick={() => setDialog("history")}>My matches</button>
-                <button onClick={() => void toggleFullscreen()}>
-                  {fullscreen ? "Exit fullscreen" : "Fullscreen"}
-                </button>
-              </div>
-            </div>
-          ) : dialog === "rules" ? (
-            <div className="ld-rules">
-              <ol>
-                <li>
-                  Roll a 6 to move a token out of its yard. The first seat
-                  starts; turns move clockwise. Two-player games use opposite
-                  corners. Your chosen colour changes only your personal board
-                  view.
-                </li>
-                <li>
-                  Roll, then tap a highlighted token. A 6, capture or token
-                  reaching home earns another roll. Three consecutive sixes end
-                  the turn.
-                </li>
-                <li>
-                  Land on an opponent to send their tokens back. Star squares
-                  are safe. Tokens may share a square; stacks do not block
-                  movement.
-                </li>
-                <li>
-                  Use an exact roll to reach home. First to get all four tokens
-                  home wins the match.
-                </li>
-                <li>
-                  Each roll or move has 10 seconds. Five consecutive automatic
-                  dice rolls are allowed. If you miss the next roll too, you
-                  leave the match and lose your entry. Rolling manually resets
-                  this count; moving your only token automatically does not
-                  count as a missed roll.
-                </li>
-              </ol>
-              <h3>Entry & prize</h3>
-              <p>
-                Entry is deducted from your shared wallet when you join. The
-                winner receives 90% of the total seat pool; the platform keeps
-                10%. No extra charge at settlement.
-              </p>
-              <p>
-                Empty seats fill with labelled Computer players after 20
-                seconds. The platform funds their share of the advertised pool.
-                If Computer wins, no human player receives the prize. Computer
-                uses the same dice and rules.
-              </p>
-              <p>
-                Choose Computer from the main menu to start immediately against
-                Computer opponents. The same entry fees, prize pool and rules
-                apply.
-              </p>
-              <p>
-                Cancel before the match starts for a full refund. Leaving after
-                start forfeits your entry. Matches end within 10 minutes. The
-                player with the most tokens home wins; tied players split the
-                prize after the 10% commission. Distance travelled does not
-                break a tie. A server restart preserves your match; a long
-                interruption resets the turn timer.
-              </p>
-              <p>
-                Each match commits to a secret seed before the first roll. After
-                completion you can download the seed, rolls and action record.
-              </p>
-              <p>
-                Match chat is private to this table. Text messages are free.
-                Sending any emoji from the tray costs ₹5 from your wallet,
-                separately from the entry and prize.
-              </p>
-            </div>
-          ) : dialog === "history" ? (
-            <div className="ld-history">
-              {data?.recent.length ? (
-                data.recent.map((h, i) => (
-                  <div key={`${h.id}:${i}`}>
-                    <span>
-                      <strong>
-                        {h.capacity} players · {money(h.entryPaise)}
-                      </strong>
-                      <small>
-                        {new Date(h.at).toLocaleString()} · {h.id.slice(0, 8)}
-                      </small>
-                    </span>
-                    <span className={h.result === "won" ? "ld-win" : ""}>
-                      <strong>
-                        {h.result === "voided"
-                          ? "Refunded"
-                          : h.result === "won"
-                            ? "Won"
-                            : "Lost"}
-                      </strong>
-                      <small>{money(h.payoutPaise)}</small>
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p>Your completed matches will appear here.</p>
+            <div className="ld-result-players">
+              {m?.state.players.filter(Boolean).map(
+                (p) =>
+                  p && (
+                    <div
+                      key={p.seat}
+                      className={
+                        winners.includes(p.seat) ? "ld-result-winner" : ""
+                      }
+                    >
+                      <span>
+                        {winners.includes(p.seat) ? "🏆 " : ""}
+                        {p.name}
+                        {p.seat === m.you ? " (YOU)" : ""}
+                      </span>
+                      <b>
+                        {p.forfeited
+                          ? "Left"
+                          : `${p.tokens.filter((t) => t === 56).length}/4 home`}
+                      </b>
+                    </div>
+                  ),
               )}
             </div>
-          ) : (
-            <div className="ld-confirm">
-              <button className="ld-secondary" onClick={() => setDialog(null)}>
-                Keep playing
-              </button>
-              <button
-                className="ld-danger"
-                disabled={busy || game.retry}
-                onClick={() => {
+            <p>
+              {forfeited && m?.state.players[m.you]?.exitReason === "inactive"
+                ? "Five automatic dice rolls were used. Roll manually before the next timeout to stay in a match."
+                : m?.reason ||
+                  LUDO_VARIANTS[m?.state.variant ?? "classic"].description}
+            </p>
+            <button
+              className="ld-primary"
+              onClick={() => m && setClosedResult(m.id)}
+            >
+              View board
+            </button>
+          </DialogContent>
+        </Dialog>
+        <Dialog
+          open={dialog !== null}
+          onOpenChange={(open) => !open && setDialog(null)}
+        >
+          <DialogContent className="ld-modal">
+            <DialogTitle>
+              {dialog === "rules"
+                ? "How to play Ludo Live"
+                : dialog === "settings"
+                  ? "Game settings"
+                  : dialog === "themes"
+                    ? "Choose Theme"
+                    : dialog === "history"
+                      ? "Your recent matches"
+                      : "Leave this match?"}
+            </DialogTitle>
+            <DialogDescription>
+              {dialog === "rules"
+                ? "Game modes, entries and fair play."
+                : dialog === "settings"
+                  ? "Make the table feel like yours."
+                  : dialog === "history"
+                    ? "Entries, results and wallet payouts."
+                    : dialog === "themes"
+                      ? "Pick your personal table style."
+                      : m?.state.variant === "team"
+                        ? "Leaving forfeits your whole team and both entries. Refreshing keeps your seat."
+                        : "Leaving after a match starts forfeits your entry fee. Refreshing or closing this page keeps your seat."}
+            </DialogDescription>
+            {dialog === "themes" ? (
+              <LudoThemePicker
+                theme={theme}
+                preview={preview}
+                onSelect={(t) => {
+                  setTheme(t);
                   setDialog(null);
-                  game.act("leave", undefined, true);
                 }}
-              >
-                Forfeit & leave
-              </button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </main>
+              />
+            ) : dialog === "settings" ? (
+              <div className="ld-settings">
+                <div>
+                  <strong>Sound</strong>
+                  <button
+                    aria-label="Sound"
+                    aria-pressed={audio.sound}
+                    onClick={audio.toggleSound}
+                  >
+                    {audio.sound ? "ON" : "OFF"}
+                  </button>
+                </div>
+                <div>
+                  <strong>Music</strong>
+                  <button
+                    aria-label="Music"
+                    aria-pressed={audio.music}
+                    onClick={audio.toggleMusic}
+                  >
+                    {audio.music ? "ON" : "OFF"}
+                  </button>
+                </div>
+                <div className="ld-settings-links">
+                  <button onClick={() => setDialog("themes")}>Themes</button>
+                  <button onClick={() => setDialog("rules")}>
+                    How to play
+                  </button>
+                  <button onClick={() => setDialog("history")}>
+                    My matches
+                  </button>
+                  <button onClick={() => void toggleFullscreen()}>
+                    {fullscreen ? "Exit fullscreen" : "Fullscreen"}
+                  </button>
+                </div>
+              </div>
+            ) : dialog === "rules" ? (
+              <div className="ld-rules">
+                <ol>
+                  <li>
+                    Roll a 6 to move a token out of its yard. The first seat
+                    starts; turns move clockwise. Two-player games use opposite
+                    corners. Your chosen colour changes only your personal board
+                    view.
+                  </li>
+                  <li>
+                    Roll, then tap a highlighted token. A 6, capture or token
+                    reaching home earns another roll. Three consecutive sixes
+                    end the turn.
+                  </li>
+                  <li>
+                    Land on an opponent to send their tokens back. Star squares
+                    are safe. Tokens may share a square; stacks do not block
+                    movement.
+                  </li>
+                  <li>
+                    Use an exact roll to reach home. First to get all four
+                    tokens home wins the match.
+                  </li>
+                  <li>
+                    Each roll or move has 10 seconds. Five consecutive automatic
+                    dice rolls are allowed. If you miss the next roll too, you
+                    leave the match and lose your entry. Rolling manually resets
+                    this count; moving your only token automatically does not
+                    count as a missed roll.
+                  </li>
+                </ol>
+                <h3>Game modes</h3>
+                <p>
+                  <b>Quick:</b> One token starts on the board. Bring any one
+                  token home with an exact roll to win.
+                </p>
+                <p>
+                  <b>Team Up:</b> Four seats, two teams. Opposite seats are
+                  partners and cannot capture each other. Bring all eight team
+                  tokens home to win. Finished partners skip their turns. At ten
+                  minutes, combined home tokens decide the winning team. The
+                  prize is split equally between winning partners; tied teams
+                  share it. Leaving or missing six rolls forfeits your whole
+                  team and both entries.
+                </p>
+                <p>
+                  <b>Friends:</b> Create a room and share its eight-digit code.
+                  Joining shows the real entry and prize before charging. All
+                  seats must fill within five minutes. No bots join private
+                  rooms. Expiry or the host cancelling refunds everyone; a guest
+                  cancelling refunds only that guest.
+                </p>
+                <h3>Entry & prize</h3>
+                <p>
+                  Entry is deducted from your shared wallet when you join. The
+                  winner receives 90% of the total seat pool; the platform keeps
+                  10%. No extra charge at settlement.
+                </p>
+                <p>
+                  Empty seats fill with labelled Computer players after 20
+                  seconds. The platform funds their share of the advertised
+                  pool. If Computer wins, no human player receives the prize.
+                  Computer uses the same dice and rules.
+                </p>
+                <p>
+                  Choose Computer from the main menu to start immediately
+                  against Computer opponents. The same entry fees, prize pool
+                  and rules apply.
+                </p>
+                <p>
+                  Cancel before the match starts for a full refund. Leaving
+                  after start forfeits your entry. Matches end within 10
+                  minutes. The player with the most tokens home wins; tied
+                  players split the prize after the 10% commission. Distance
+                  travelled does not break a tie. A server restart preserves
+                  your match; a long interruption resets the turn timer.
+                </p>
+                <p>
+                  Each match commits to a secret seed before the first roll.
+                  After completion you can download the seed, rolls and action
+                  record.
+                </p>
+                <p>
+                  Match chat is private to this table. Text messages are free.
+                  Sending any emoji from the tray costs ₹5 from your wallet,
+                  separately from the entry and prize.
+                </p>
+              </div>
+            ) : dialog === "history" ? (
+              <div className="ld-history">
+                {data?.recent.length ? (
+                  data.recent.map((h, i) => (
+                    <div key={`${h.id}:${i}`}>
+                      <span>
+                        <strong>
+                          {h.capacity} players · {money(h.entryPaise)}
+                        </strong>
+                        <small>
+                          {new Date(h.at).toLocaleString()} · {h.id.slice(0, 8)}
+                        </small>
+                      </span>
+                      <span className={h.result === "won" ? "ld-win" : ""}>
+                        <strong>
+                          {h.result === "voided"
+                            ? "Refunded"
+                            : h.result === "won"
+                              ? "Won"
+                              : "Lost"}
+                        </strong>
+                        <small>{money(h.payoutPaise)}</small>
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p>Your completed matches will appear here.</p>
+                )}
+              </div>
+            ) : (
+              <div className="ld-confirm">
+                <button
+                  className="ld-secondary"
+                  onClick={() => setDialog(null)}
+                >
+                  Keep playing
+                </button>
+                <button
+                  className="ld-danger"
+                  disabled={busy || game.retry}
+                  onClick={() => {
+                    setDialog(null);
+                    game.act("leave", undefined, true);
+                  }}
+                >
+                  Forfeit & leave
+                </button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </main>
+    </LudoTokenStyleContext.Provider>
   );
 }

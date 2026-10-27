@@ -1,0 +1,299 @@
+/* The supplied 392 × 850 video artwork is the coordinate system for this menu.
+   Controls remain native, keyboard-accessible elements; account data is live. */
+.ld-reference-home.ld-home-screen {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100cqh;
+  min-height: 0;
+  max-height: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: #174d92;
+  font-family: "Ludo Menu", Arial, sans-serif;
+}
+.ld-reference-artwork {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+}
+.ld-reference-content.ld-home-content {
+  display: flex;
+  flex-direction: column;
+  position: static;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  height: auto;
+  max-width: none;
+}
+.ld-reference-home .ld-reference-button {
+  position: absolute;
+  display: block;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  min-height: 0;
+  color: white;
+  cursor: pointer;
+  text-decoration: none;
+}
+.ld-reference-button:hover {
+  box-shadow: inset 0 0 22px #ffed9c30;
+}
+.ld-reference-home .ld-reference-settings,
+.ld-reference-home .ld-reference-help {
+  min-width: 44px;
+  min-height: 44px;
+}
+.ld-reference-button:active {
+  background: #ffffff24;
+}
+.ld-reference-button:focus-visible {
+  outline: 3px solid white;
+  outline-offset: -3px;
+  background: #ffffff20;
+}
+.ld-reference-sprite,
+.ld-reference-logo,
+.ld-reference-landscape-label {
+  display: none;
+}
+.ld-reference-name {
+  position: absolute;
+  left: 35.9%;
+  top: 5.5%;
+  width: 14.7%;
+  height: 2.2%;
+  display: grid;
+  align-content: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: #07194b;
+  font-size: clamp(9px, 3cqw, 14px);
+  text-align: center;
+  font-weight: 900;
+}
+.ld-reference-level {
+  position: absolute;
+  left: 1.3%;
+  top: 9.4%;
+  width: 3%;
+  height: 1.4%;
+  background: #e7b535;
+  color: #fff4af;
+  font-size: 9px;
+  line-height: 1;
+}
+.ld-reference-wallet {
+  position: absolute;
+  display: block;
+  text-decoration: none;
+  color: #fff;
+}
+.ld-reference-wallet strong {
+  position: absolute;
+  left: 11%;
+  right: 30%;
+  top: 21%;
+  height: 57%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  overflow: hidden;
+  padding-right: 3px;
+  white-space: nowrap;
+  background: #081a4c;
+  font-size: clamp(11px, 3.9cqw, 18px);
+}
+.ld-reference-caption {
+  position: absolute;
+  left: 1%;
+  width: 98%;
+  top: 102%;
+  height: 16%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #62e747;
+  font:
+    700 clamp(8px, 2.3cqw, 11px) Arial,
+    sans-serif;
+  background: #17549a;
+  text-shadow: 0 1px 2px #061c2e;
+  white-space: nowrap;
+  border-radius: 3px;
+}
+.ld-reference-soon {
+  position: absolute;
+  color: #ffec75;
+  background: #123d72;
+  font-size: clamp(9px, 3.1cqw, 15px);
+  font-weight: 900;
+  text-align: center;
+  line-height: 1;
+  pointer-events: none;
+}
+.ld-reference-soon-top {
+  left: 88.8%;
+  top: 14.25%;
+  width: 9%;
+  height: 1.7%;
+}
+.ld-reference-soon-bottom {
+  left: 5.6%;
+  top: 82.55%;
+  width: 10%;
+  height: 1.8%;
+}
+.ld-reference-offline {
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  top: 10%;
+  padding: 5px;
+  background: #061b4de8;
+  color: #ffe377;
+  text-align: center;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.ld-reference-notice {
+  color: white;
+}
+.ld-reference-notice [id] {
+  color: inherit;
+}
+/* A rotated phone uses the same button sprites at a usable touch size. */
+@container ludo (max-height: 500px) {
+  .ld-reference-home.ld-home-screen {
+    background:
+      url("/media/ludo/classic-dice-pattern.svg") center / 300px,
+      linear-gradient(125deg, #163b74, #2676c5, #123369);
+  }
+  .ld-reference-artwork,
+  .ld-reference-soon,
+  .ld-reference-level {
+    display: none;
+  }
+  .ld-reference-home .ld-reference-button {
+    display: none;
+  }
+  .ld-reference-home .ld-reference-mode,
+  .ld-reference-home .ld-reference-settings,
+  .ld-reference-home .ld-reference-help,
+  .ld-reference-home .ld-reference-back {
+    display: block;
+  }
+  .ld-reference-home .ld-reference-sprite {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .ld-reference-name {
+    left: 4%;
+    top: 6%;
+    width: 20%;
+    height: 22px;
+    background: transparent;
+    text-align: left;
+    font-size: 14px;
+  }
+  .ld-reference-wallet {
+    left: 58% !important;
+    top: 4% !important;
+    width: 25% !important;
+    height: 36px !important;
+    background: #072a64;
+    border: 1px solid #e7c35d;
+    border-radius: 20px;
+  }
+  .ld-reference-wallet strong {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    justify-content: center;
+    padding: 0;
+    font-size: 14px;
+  }
+  .ld-reference-home .ld-reference-settings {
+    left: auto !important;
+    right: 2%;
+    top: 2% !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+  .ld-reference-logo {
+    display: block;
+    position: absolute;
+    left: 5%;
+    top: 29%;
+    width: 26%;
+    height: 55%;
+  }
+  .ld-reference-logo svg {
+    width: 100%;
+    height: 100%;
+  }
+  .ld-reference-home .ld-reference-mode {
+    top: 29% !important;
+    width: 20% !important;
+    height: 31% !important;
+    min-height: 50px;
+  }
+  .ld-reference-home .ld-reference-online {
+    left: 34% !important;
+  }
+  .ld-reference-home .ld-reference-team {
+    left: 55% !important;
+  }
+  .ld-reference-home .ld-reference-friends {
+    left: 76% !important;
+  }
+  .ld-reference-home .ld-reference-computer {
+    left: 44% !important;
+    top: 65% !important;
+  }
+  .ld-reference-home .ld-reference-pass {
+    left: 66% !important;
+    top: 65% !important;
+  }
+  .ld-reference-caption {
+    background: transparent;
+    font-size: 9px;
+    height: 12px;
+  }
+  .ld-reference-home .ld-reference-help {
+    left: auto !important;
+    right: 2%;
+    top: auto !important;
+    bottom: 2%;
+    width: 44px !important;
+    height: 44px !important;
+  }
+  .ld-reference-home .ld-reference-back {
+    left: 3% !important;
+    top: auto !important;
+    bottom: 2%;
+    width: 75px !important;
+    height: 44px !important;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(#ffe78b, #df9f25);
+    color: #15316c;
+    border: 2px solid #fff0a4;
+  }
+  .ld-reference-landscape-label {
+    display: inline;
+  }
+}

@@ -1,0 +1,1187 @@
+/* Compact menu and framed selection panels from the October 25 recording. */
+.ld-app {
+  --menu-gold: #ffcf40;
+}
+.ld-video-home.ld-classic-home {
+  min-height: 460px;
+  font-family: "Ludo Profile", sans-serif;
+}
+.ld-video-home.ld-classic-home .ld-profile-header {
+  inset: 12px 7px auto;
+  width: auto;
+  min-height: 48px;
+  height: 48px;
+  max-height: none;
+  display: grid;
+  grid-template-columns: 45px minmax(0, 1fr) minmax(80px, 34%) 44px;
+  align-items: center;
+  gap: 5px;
+  padding: 0 3px;
+  border: 2px solid #ffe38a;
+  border-radius: 5px;
+  background: linear-gradient(#1f70bc, #082c67);
+  box-shadow:
+    0 2px 0 #745019,
+    inset 0 0 0 2px #0d3066;
+}
+.ld-video-home.ld-classic-home .ld-profile-avatar {
+  position: relative;
+  inset: auto;
+  width: 44px;
+  height: 48px;
+  padding: 1px;
+  border: 2px solid #ffdf65;
+  border-radius: 3px;
+}
+.ld-video-home.ld-classic-home .ld-profile-avatar i {
+  width: 8px;
+  height: 8px;
+  top: -3px;
+  right: -3px;
+  background: #8bdf20;
+}
+.ld-video-home.ld-classic-home .ld-profile-avatar i.ld-profile-offline {
+  background: #aaa;
+}
+.ld-video-home.ld-classic-home .ld-profile-name {
+  position: static;
+  width: auto;
+  min-width: 0;
+}
+.ld-video-home.ld-classic-home .ld-profile-name strong {
+  display: block;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -webkit-text-stroke: 0;
+}
+.ld-video-home.ld-classic-home .ld-profile-name small {
+  display: block;
+  font-size: 8px;
+  color: #ffdf74;
+  letter-spacing: 0.5px;
+}
+.ld-video-home.ld-classic-home .ld-profile-wallet {
+  position: static;
+  display: flex;
+  align-items: center;
+  max-width: none;
+  height: 44px;
+  min-width: 0;
+  gap: 3px;
+}
+.ld-video-home.ld-classic-home .ld-profile-wallet > svg {
+  width: 22px;
+  height: 28px;
+}
+.ld-video-home.ld-classic-home .ld-profile-wallet strong {
+  font-size: 18px;
+  -webkit-text-stroke: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ld-video-home .ld-profile-wallet b {
+  background: #66ab1d;
+  border: 1px solid #cff5a6;
+  border-radius: 2px;
+  padding: 0 3px;
+  font: bold 13px Arial;
+}
+.ld-video-home.ld-classic-home .ld-profile-header .ld-mobile-settings {
+  position: static;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.ld-video-home.ld-classic-home .ld-mobile-settings > svg:first-child {
+  position: static;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  color: #ffe58b;
+}
+.ld-video-home.ld-classic-home .ld-home-content {
+  inset: 13% 0 13%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(12px, 3cqh, 28px);
+}
+.ld-video-home.ld-classic-home .ld-home-content > .ld-classic-emblem {
+  flex: 0 1 31%;
+  width: 77%;
+  min-height: 95px;
+}
+.ld-video-home.ld-classic-home .ld-home-play {
+  flex: none;
+  height: auto;
+  width: 90%;
+}
+.ld-video-home.ld-classic-home .ld-mode-tiles {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(2, clamp(76px, 12cqh, 110px));
+  gap: 16px 10px;
+  height: auto;
+}
+.ld-video-home.ld-classic-home .ld-mode-tile {
+  grid-column: span 2;
+  min-width: 0;
+  width: auto;
+  aspect-ratio: auto;
+  padding: 3px 3px 2px;
+  border: 2px solid #fff1ad;
+  border-radius: 10px;
+  background: linear-gradient(#ffe892, #ffd04c);
+  box-shadow:
+    0 2px 0 #a66b04,
+    0 0 0 1px #d48f18,
+    inset 0 0 0 1px #fff9d9;
+}
+.ld-video-home.ld-classic-home .ld-computer-tile {
+  grid-column: 2 / span 2;
+}
+.ld-video-home.ld-classic-home .ld-themes-tile {
+  grid-column: 4 / span 2;
+}
+.ld-video-home.ld-classic-home .ld-mode-tile > .ld-tile-art {
+  flex: 1;
+  min-height: 39px;
+  height: auto;
+  border: 1px solid #d1ae61;
+  border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(#1877cb, #073d85);
+  padding: 0;
+}
+.ld-video-home.ld-classic-home .ld-mode-tile > strong {
+  flex: 0 0 22px;
+  font-size: clamp(11px, 3.2cqw, 15px);
+  line-height: 1.1;
+  letter-spacing: 0;
+  -webkit-text-stroke: 2px #183558;
+}
+.ld-video-home.ld-classic-home .ld-tile-art.ld-team-art,
+.ld-video-home.ld-classic-home .ld-tile-art.ld-friends-art,
+.ld-video-home.ld-classic-home .ld-tile-art.ld-themes-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.ld-video-home.ld-classic-home .ld-team-art > svg {
+  width: 29%;
+  height: 70%;
+  stroke: #d7f4ff;
+  fill: #39a2d5;
+  stroke-width: 1.8;
+}
+.ld-video-home.ld-classic-home .ld-team-art > svg:nth-child(2) {
+  width: 35%;
+  stroke: #ffeb89;
+  fill: #f7b824;
+}
+.ld-video-home.ld-classic-home .ld-friends-art > svg {
+  width: 42%;
+  height: 70%;
+  stroke: #ffb398;
+  fill: #f34342;
+  filter: drop-shadow(0 2px 1px #04376a);
+}
+.ld-video-home.ld-classic-home .ld-friends-art > svg:last-child {
+  width: 32%;
+  stroke: #ffdf62;
+  fill: #e7ac28;
+}
+.ld-video-home.ld-classic-home .ld-themes-art > svg {
+  width: 46%;
+  height: 76%;
+  stroke: #ffe993;
+  fill: #e5a331;
+}
+.ld-home-caption {
+  margin: 14px 0 0;
+  color: #badbfa;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+}
+.ld-home-feature {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  width: 78%;
+  min-height: 62px;
+  background: linear-gradient(90deg, #07316d90, #155f9fe6, #07316d90);
+  border: 0;
+  border-block: 1px solid #e8c45b99;
+  color: #ffdf66;
+  cursor: pointer;
+}
+.ld-home-feature > svg {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 2px #865410);
+}
+.ld-home-feature span {
+  display: grid;
+  text-align: center;
+  gap: 3px;
+}
+.ld-home-feature strong {
+  font:
+    900 15px "Ludo Menu",
+    sans-serif;
+  text-shadow: 0 2px #122c57;
+}
+.ld-home-feature small {
+  color: #cce5fc;
+  font-size: 12px;
+}
+.ld-video-home.ld-classic-home .ld-home-footer {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  position: absolute;
+  inset: auto 0 0;
+  width: 100%;
+  height: calc(54px + env(safe-area-inset-bottom));
+  padding: 0 0 env(safe-area-inset-bottom);
+  gap: 0;
+  background: linear-gradient(#fff2b7, #edc55a 24%, #b77617 96%);
+  border-top: 2px solid #fff0b5;
+}
+.ld-video-home.ld-classic-home .ld-home-footer > * {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  width: auto;
+  height: 52px;
+  min-height: 44px;
+  opacity: 1;
+  border: 0;
+  border-right: 1px solid #9c6b3b55;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: #fff;
+  text-shadow: 0 1px #594011;
+  cursor: pointer;
+}
+.ld-video-home .ld-home-footer svg {
+  width: 23px;
+  height: 23px;
+  color: #fff4b5;
+  filter: drop-shadow(0 1px 1px #6f4717);
+}
+.ld-video-home .ld-home-footer span {
+  font:
+    700 9px "Ludo Profile",
+    sans-serif;
+}
+.ld-in-lobby {
+  background:
+    linear-gradient(#021020b5, #010b18d9),
+    url("/media/ludo/classic-dice-pattern.svg") center / 400px,
+    #164f86;
+}
+.ld-in-lobby .ld-main {
+  width: 100%;
+  max-width: 440px;
+  padding: 8px 20px 18px;
+}
+.ld-in-lobby .ld-header {
+  min-height: 56px;
+  height: 56px;
+  padding: 4px 8px;
+  gap: 6px;
+  background: #061f3b9c;
+}
+.ld-in-lobby .ld-brand {
+  font-size: 15px;
+}
+.ld-in-lobby .ld-wallet {
+  min-width: 0;
+}
+.ld-in-lobby .ld-wallet b {
+  font-size: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ld-video-setup {
+  width: 100%;
+  max-width: none;
+}
+.ld-setup-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+}
+.ld-setup-topline > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font:
+    700 12px "Ludo Profile",
+    sans-serif;
+  color: #ffdc67;
+}
+.ld-setup-topline > span svg {
+  width: 16px;
+  height: 16px;
+}
+.ld-setup-topline > button {
+  color: #fff;
+  font:
+    700 10px "Ludo Profile",
+    sans-serif;
+  background: linear-gradient(#328bcc, #074178);
+  border: 1px solid #dcae43;
+  border-radius: 12px;
+  min-height: 30px;
+  padding: 4px 9px;
+}
+.ld-video-setup .ld-room-card {
+  display: block;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.ld-video-setup .ld-setup-section {
+  padding: 9px 12px;
+  margin-bottom: 8px;
+  border: 2px solid #ae8426;
+  border-radius: 0;
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    #0b58a4,
+    #03295a 75%,
+    #071529
+  );
+  box-shadow:
+    inset 0 0 0 1px #f9cd5366,
+    0 0 0 1px #1c180b;
+}
+.ld-video-setup .ld-setup-section h2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font:
+    italic 900 16px/1.15 "Ludo Menu",
+    sans-serif;
+  color: #ffcc39;
+  letter-spacing: 0.2px;
+  text-shadow: 0 2px #3e2508;
+  margin: 0 0 7px;
+  min-height: 21px;
+}
+.ld-video-setup .ld-setup-section h2 > button {
+  position: absolute;
+  right: -4px;
+  top: -10px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: #ffcf40;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+.ld-token-styles {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.ld-token-styles button {
+  display: grid;
+  place-items: center;
+  position: relative;
+  width: 48px;
+  height: 47px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.ld-token-styles .ld-pin {
+  width: 29px;
+  height: 39px;
+  filter: drop-shadow(0 2px 1px #00142e);
+}
+.ld-token-styles button > svg:last-child:not(.ld-pin) {
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  width: 15px;
+  height: 15px;
+  color: #ffdc46;
+  background: #0b3f67;
+  border: 1px solid #ffdc46;
+  border-radius: 50%;
+}
+.ld-token-styles button[aria-pressed="true"] .ld-pin {
+  filter: drop-shadow(0 0 4px #9fdbff);
+}
+.ld-video-setup .ld-colours {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 0;
+  border-top: 1px solid #80c2eb66;
+  padding-top: 3px;
+  margin-top: 3px;
+}
+.ld-video-setup .ld-colours button {
+  width: 48px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.ld-video-setup .ld-colours button > span {
+  position: static;
+  width: 29px;
+  height: 29px;
+  background: var(--seat);
+  border: 2px solid #fff6;
+  border-radius: 50%;
+  color: #fff;
+  display: grid;
+  place-items: center;
+}
+.ld-video-setup .ld-colours button[aria-pressed="true"] > span {
+  box-shadow:
+    0 0 0 2px #0b3c6b,
+    0 0 0 3px #fff;
+}
+.ld-video-setup .ld-mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ld-video-setup .ld-mode button {
+  min-height: 50px;
+  padding: 4px 7px;
+  border: 1px solid #5091c4;
+  border-radius: 5px;
+  background: #073d78;
+  box-shadow: none;
+  gap: 7px;
+  justify-content: center;
+}
+.ld-video-setup .ld-mode button[aria-pressed="true"] {
+  border: 2px solid #ffc92a;
+  box-shadow: 0 0 5px #f9c22a5e;
+}
+.ld-video-setup .ld-radio {
+  width: 23px;
+  height: 23px;
+  border: 2px solid #ffcf3e;
+  border-radius: 50%;
+  color: #ffcf3e;
+}
+.ld-video-setup .ld-radio svg {
+  width: 18px;
+  height: 18px;
+}
+.ld-video-setup .ld-mode strong {
+  font:
+    700 15px "Ludo Profile",
+    sans-serif;
+}
+.ld-video-setup .ld-mode small {
+  font-size: 10px;
+}
+.ld-variant-options {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.ld-variant-options button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 3px 5px;
+  border: 2px solid #d3a427;
+  border-radius: 10px;
+  color: #fff7c4;
+  background: linear-gradient(#1978b6, #074780);
+  box-shadow: inset 0 0 0 1px #ffdc5677;
+  font:
+    italic 700 14px "Ludo Profile",
+    sans-serif;
+  white-space: nowrap;
+}
+.ld-variant-options .ld-variant-quick {
+  background: linear-gradient(#70a329, #216617);
+}
+.ld-variant-options .ld-variant-team {
+  background: linear-gradient(#4266b9, #153363);
+}
+.ld-variant-options button[aria-pressed="true"] {
+  border-color: #ffe76b;
+  box-shadow:
+    0 0 5px #ffcc58a6,
+    inset 0 0 0 1px #ffdc56;
+}
+.ld-variant-options i {
+  width: 17px;
+  height: 17px;
+  border: 2px solid #ffcd41;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.ld-variant-options i svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 4;
+  color: #ffcd41;
+}
+.ld-variant-description {
+  color: #c7e4fb;
+  font-size: 10px;
+  line-height: 1.35;
+  margin: 7px 0 0;
+}
+.ld-video-setup .ld-stakes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin: 0;
+}
+.ld-video-setup .ld-step {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 6px;
+  border: 2px solid #9cd1fc;
+  border-radius: 9px;
+  background: linear-gradient(#2066af, #064083);
+}
+.ld-video-setup .ld-step:disabled {
+  opacity: 0.35;
+}
+.ld-video-setup .ld-prize {
+  flex: 0 1 145px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  padding: 5px 8px;
+  border: 2px solid #ffe58d;
+  border-radius: 8px;
+  background: linear-gradient(#ffeaa4, #e0ac32 58%, #ffc841);
+  box-shadow: inset 0 0 0 2px #b58123;
+}
+.ld-video-setup .ld-prize > span {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  color: #5c3b0a;
+  font-size: 10px;
+}
+.ld-video-setup .ld-prize b {
+  font:
+    900 24px/1.1 "Ludo Menu",
+    sans-serif;
+  color: #fff;
+  text-shadow: 0 2px #5b3c11;
+  -webkit-text-stroke: 1px #624410;
+  paint-order: stroke fill;
+}
+.ld-video-setup .ld-prize small {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #573d0e;
+  margin: 2px 0 0;
+  font-weight: 800;
+  font-size: 10px;
+}
+.ld-video-setup .ld-entries {
+  display: flex;
+  margin-top: 8px;
+  gap: 5px;
+  justify-content: center;
+}
+.ld-video-setup .ld-entries button {
+  flex: 1;
+  min-height: 36px;
+  padding: 3px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.ld-video-setup .ld-fee {
+  margin: 6px 0;
+  font-size: 9px;
+  line-height: 1.3;
+}
+.ld-video-setup .ld-primary,
+.ld-theme-actions .ld-primary {
+  min-height: 44px;
+  width: min(100%, 220px);
+  margin: 6px auto 0;
+  padding: 6px 20px;
+  border: 2px solid #ffce37;
+  border-radius: 13px;
+  background: linear-gradient(#3d9bc8, #07508b 48%, #063969);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px #ffef89,
+    0 0 0 1px #a46c0a,
+    0 0 6px #f9bd1c99;
+  font:
+    italic 700 19px "Ludo Profile",
+    sans-serif;
+}
+.ld-video-setup .ld-primary:disabled {
+  opacity: 0.5;
+}
+.ld-video-setup .ld-note {
+  font-size: 10px;
+  line-height: 1.4;
+  margin: 9px 0 0;
+  color: #bed7ed;
+}
+.ld-video-setup .ld-lobby-links {
+  display: flex;
+  gap: 16px;
+  margin: 5px 0 0;
+}
+.ld-video-setup .ld-lobby-links button {
+  min-height: 44px;
+  color: #ffdf75;
+  font-size: 11px;
+}
+.ld-room-tabs {
+  display: flex;
+  gap: 4px;
+  padding-inline: 12px;
+}
+.ld-room-tabs button {
+  flex: 1;
+  min-height: 44px;
+  border: 2px solid #ae8426;
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  background: #05234f;
+  font:
+    italic 900 20px "Ludo Profile",
+    sans-serif;
+  color: #b4943e;
+}
+.ld-room-tabs button[aria-selected="true"] {
+  background: #0b5096;
+  color: #ffdb43;
+}
+.ld-room-join form {
+  display: grid;
+  gap: 12px;
+  padding: 12px 0;
+}
+.ld-room-join input {
+  min-height: 48px;
+  width: 100%;
+  text-align: center;
+  border: 2px solid #f4d786;
+  border-radius: 7px;
+  background: #fff9e5;
+  color: #0b2d54;
+  font:
+    700 20px "Ludo Profile",
+    sans-serif;
+  letter-spacing: 2px;
+}
+.ld-room-error {
+  color: #ffc2b4;
+  font-size: 12px;
+}
+.ld-room-preview {
+  display: grid;
+  gap: 7px;
+  padding: 15px 4px;
+  border-top: 1px solid #cfa847;
+  color: #fff2ae;
+}
+.ld-room-preview > strong {
+  font-size: 20px;
+}
+.ld-room-preview > p,
+.ld-room-preview > small {
+  color: #d6e9f6;
+  font-size: 12px;
+}
+.ld-private-code {
+  width: min(100%, 280px);
+  border: 2px solid #ffd773;
+  border-radius: 7px;
+  padding: 7px 10px;
+  margin: 10px auto 0;
+  background: #5f0f17;
+  text-align: center;
+}
+.ld-private-code label {
+  color: #ffde73;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+.ld-private-code > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.ld-private-code input {
+  min-width: 0;
+  width: 150px;
+  font:
+    700 25px "Ludo Profile",
+    sans-serif;
+  letter-spacing: 2px;
+  text-align: center;
+  background: transparent;
+  border: 0;
+  color: #ffdc55;
+}
+.ld-private-code button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: #ffdc55;
+}
+.ld-private-code small {
+  color: #ffe9c8;
+  font-size: 10px;
+}
+.ld-private-search > .ld-emblem,
+.ld-private-search > .ld-match-id {
+  display: none;
+}
+.ld-private-search > .ld-multiplayer-ribbon {
+  margin-top: 18px;
+}
+.ld-private-search .ld-versus-grid {
+  margin-block: 16px;
+}
+.ld-private-search .ld-search-bottom {
+  margin: 0;
+  padding: 4px 0;
+}
+.ld-private-search .ld-search-bottom h2,
+.ld-private-search .ld-search-bottom > p {
+  display: none;
+}
+.ld-private-search .ld-search-details {
+  margin-top: auto;
+}
+.ld-theme-picker {
+  padding: 12px 18px;
+  border: 1px solid #dcae47;
+  border-radius: 5px;
+  background: radial-gradient(ellipse at center, #216ca9, #071c3b);
+  text-align: center;
+}
+.ld-theme-picker h3 {
+  display: inline-block;
+  color: #ffe264;
+  border: 1px solid #b69339;
+  background: #09264a;
+  border-radius: 10px;
+  font:
+    italic 900 20px "Ludo Profile",
+    sans-serif;
+  padding: 3px 28px;
+  margin: 0 0 14px;
+}
+.ld-theme-board {
+  width: min(100%, 260px);
+  margin: auto;
+  padding: 6px;
+  border: 2px solid #e4b846;
+  background: #092c4e;
+}
+.ld-theme-board .ld-board {
+  width: 100%;
+  aspect-ratio: 1;
+}
+.ld-theme-picker p {
+  color: #d5e7fc;
+  font-size: 12px;
+  margin: 14px 0 5px;
+}
+.ld-theme-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.ld-theme-actions > button:not(.ld-primary) {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: 0;
+  background: none;
+  color: #ffda37;
+}
+.ld-theme-actions > button svg {
+  width: 26px;
+  height: 26px;
+}
+.ld-theme-nature.ld-in-home,
+.ld-theme-nature.ld-in-match,
+.ld-theme-picker.ld-theme-nature {
+  background:
+    radial-gradient(ellipse at 50% 45%, #4a9d77aa, #062d24bb),
+    url("/media/ludo/classic-dice-pattern.svg") center / 400px,
+    #1c6249;
+}
+.ld-theme-disco.ld-in-home,
+.ld-theme-disco.ld-in-match,
+.ld-theme-picker.ld-theme-disco {
+  background:
+    radial-gradient(ellipse at 25% 10%, #9242d575, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, #1b9ebd5c, transparent 60%),
+    url("/media/ludo/classic-dice-pattern.svg") center / 400px,
+    #211043;
+}
+.ld-theme-nature .ld-grid rect[fill="#fff"] {
+  fill: #fff7d6;
+}
+.ld-theme-disco .ld-grid rect[fill="#fff"] {
+  fill: #261b3f;
+  stroke: #d5aaff;
+}
+.ld-theme-disco .ld-grid path[fill="none"] {
+  stroke: #dbb6ff;
+}
+.ld-settings .ld-settings-links {
+  flex-wrap: wrap;
+}
+.ld-app button:focus-visible,
+.ld-app a:focus-visible,
+.ld-modal button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+.ld-app button:disabled {
+  cursor: not-allowed;
+}
+@container ludo (max-height: 740px) and (max-width: 559px) {
+  .ld-video-home.ld-classic-home .ld-home-content {
+    inset: 12% 0 12%;
+    gap: 16px;
+  }
+  .ld-video-home.ld-classic-home .ld-home-content > .ld-classic-emblem {
+    flex-basis: 30%;
+  }
+  .ld-home-feature {
+    min-height: 48px;
+  }
+  .ld-home-caption {
+    margin-top: 10px;
+    font-size: 10px;
+  }
+  .ld-in-lobby .ld-main {
+    padding: 4px 14px 10px;
+  }
+  .ld-video-setup .ld-setup-section {
+    padding: 6px 9px;
+    margin-bottom: 6px;
+  }
+  .ld-video-setup .ld-setup-section h2 {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .ld-video-setup .ld-prize {
+    min-height: 57px;
+  }
+  .ld-video-setup .ld-prize b {
+    font-size: 21px;
+  }
+}
+@container ludo (orientation: landscape) and (max-height: 600px) and (min-width: 560px) {
+  .ld-video-home.ld-classic-home {
+    min-height: 224px;
+  }
+  .ld-video-home.ld-classic-home .ld-profile-header {
+    inset: 3px 60px auto;
+    grid-template-columns: 40px 1fr minmax(100px, 35%) 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+  .ld-video-home.ld-classic-home .ld-profile-avatar {
+    display: block;
+    width: 38px;
+    height: 42px;
+  }
+  .ld-video-home.ld-classic-home .ld-home-content {
+    inset: 54px 12px 5px;
+    display: grid;
+    grid-template-columns: 35% 1fr;
+    gap: 15px;
+    align-items: center;
+  }
+  .ld-video-home.ld-classic-home .ld-home-content > .ld-classic-emblem {
+    width: 100%;
+    min-height: 0;
+    height: 100%;
+  }
+  .ld-video-home.ld-classic-home .ld-home-play {
+    width: 100%;
+  }
+  .ld-video-home.ld-classic-home .ld-mode-tiles {
+    grid-template-rows: repeat(2, min(72px, 29cqh));
+    gap: 8px;
+  }
+  .ld-video-home.ld-classic-home .ld-mode-tile > .ld-tile-art {
+    min-height: 20px;
+  }
+  .ld-video-home.ld-classic-home .ld-mode-tile > strong {
+    font-size: 11px;
+    flex-basis: 18px;
+  }
+  .ld-home-feature,
+  .ld-home-caption {
+    display: none;
+  }
+  .ld-video-home.ld-classic-home .ld-home-footer {
+    display: contents;
+  }
+  .ld-video-home.ld-classic-home .ld-home-footer > * {
+    display: none;
+  }
+  .ld-video-home.ld-classic-home .ld-home-footer > .ld-home-return {
+    display: grid;
+    position: absolute;
+    left: 5px;
+    top: 4px;
+    width: 44px;
+    height: 44px;
+    border: 0;
+  }
+  .ld-video-home.ld-classic-home .ld-home-footer > .ld-menu-icon {
+    display: grid;
+    position: absolute;
+    right: 5px;
+    top: 4px;
+    width: 44px;
+    height: 44px;
+  }
+  .ld-video-home .ld-home-footer span {
+    display: none;
+  }
+  .ld-in-lobby .ld-header {
+    height: 46px;
+    min-height: 46px;
+  }
+  .ld-in-lobby .ld-main {
+    max-width: none;
+    padding: 0 8px 8px;
+  }
+  .ld-video-setup .ld-setup-topline,
+  .ld-video-setup .ld-lobby-links {
+    display: none;
+  }
+  .ld-video-setup .ld-room-card {
+    display: grid;
+    grid-template-columns: minmax(192px, 1fr) minmax(132px, 0.75fr) minmax(
+        204px,
+        1.2fr
+      );
+    grid-template-rows: auto auto;
+    gap: 5px;
+  }
+  .ld-video-setup .ld-setup-section {
+    padding: 4px 6px;
+    margin: 0;
+  }
+  .ld-video-setup .ld-setup-section h2 {
+    min-height: 15px;
+    font-size: 11px;
+    margin-bottom: 3px;
+  }
+  .ld-video-setup .ld-token-section {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .ld-video-setup .ld-player-section {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .ld-video-setup .ld-variant-section {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .ld-video-setup .ld-select-game {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+  .ld-video-setup .ld-room-join {
+    grid-column: 2 / span 2;
+    grid-row: 1 / span 2;
+  }
+  .ld-video-setup .ld-mode {
+    gap: 3px;
+  }
+  .ld-video-setup .ld-mode button {
+    min-height: 44px;
+    gap: 2px;
+    padding: 2px;
+  }
+  .ld-video-setup .ld-mode strong {
+    font-size: 11px;
+  }
+  .ld-video-setup .ld-mode small {
+    display: none;
+  }
+  .ld-video-setup .ld-radio {
+    width: 18px;
+    height: 18px;
+  }
+  .ld-video-setup .ld-variant-options {
+    gap: 3px;
+    flex-wrap: wrap;
+  }
+  .ld-video-setup .ld-variant-options button {
+    padding: 2px;
+    font-size: 11px;
+    min-height: 28px;
+    border-radius: 5px;
+  }
+  .ld-video-setup .ld-variant-options i {
+    display: none;
+  }
+  .ld-video-setup .ld-variant-description {
+    font-size: 8px;
+    margin-top: 4px;
+  }
+  .ld-video-setup .ld-stakes {
+    gap: 8px;
+  }
+  .ld-video-setup .ld-prize {
+    min-height: 45px;
+    padding: 3px;
+  }
+  .ld-video-setup .ld-prize b {
+    font-size: 18px;
+  }
+  .ld-video-setup .ld-prize span {
+    font-size: 8px;
+  }
+  .ld-video-setup .ld-prize span svg {
+    display: none;
+  }
+  .ld-video-setup .ld-prize small {
+    font-size: 9px;
+  }
+  .ld-video-setup .ld-entries {
+    margin-top: 3px;
+  }
+  .ld-video-setup .ld-entries button {
+    min-height: 25px;
+  }
+  .ld-video-setup .ld-fee {
+    margin: 3px 0;
+    font-size: 8px;
+  }
+  .ld-video-setup .ld-primary {
+    margin-top: 2px;
+    min-height: 44px;
+  }
+  .ld-video-setup .ld-note {
+    font-size: 8px;
+    line-height: 1.2;
+    margin-top: 4px;
+  }
+  .ld-video-setup .ld-token-styles {
+    flex-wrap: wrap;
+  }
+  .ld-video-setup .ld-token-styles button {
+    width: 25%;
+    min-width: 28px;
+    height: 42px;
+  }
+  .ld-video-setup .ld-colours button {
+    min-width: 0;
+    width: 25%;
+  }
+  .ld-private-code {
+    margin-top: 4px;
+    padding: 2px 6px;
+  }
+  .ld-private-search .ld-landscape-title {
+    display: none;
+  }
+  .ld-private-search .ld-search-countdown {
+    grid-area: 1 / 1 / 2 / -1;
+    width: 94px;
+    justify-self: center;
+    align-self: center;
+    min-height: 36px;
+    margin: 0;
+    pointer-events: none;
+  }
+  .ld-private-search .ld-search-countdown > span {
+    font-size: 21px;
+  }
+  .ld-private-search .ld-private-code {
+    grid-area: 3 / 1 / 5 / 2;
+    width: min(100%, 250px);
+    margin: 0;
+    justify-self: center;
+  }
+  .ld-private-search .ld-search-bottom {
+    display: none;
+  }
+  .ld-private-search .ld-search-details {
+    margin: 0;
+  }
+  .ld-private-search .ld-versus-grid {
+    margin: 0;
+  }
+  .ld-private-code label,
+  .ld-private-code small {
+    display: none;
+  }
+  .ld-room-tabs button {
+    min-height: 32px;
+    font-size: 15px;
+  }
+}

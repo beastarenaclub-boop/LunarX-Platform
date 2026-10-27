@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 const chrome = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 export default defineConfig({
   testDir: "./tests",
-  testMatch: "ludo.spec.ts",
+  testMatch: ["ludo.spec.ts", "ludo-modes.spec.ts"],
   workers: 1,
   retries: 0,
   timeout: 90000,

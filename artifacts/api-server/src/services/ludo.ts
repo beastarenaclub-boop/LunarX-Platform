@@ -1,4 +1,4 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomBytes, randomInt, randomUUID } from "node:crypto";
 import { and, desc, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
   db,
@@ -16,6 +16,8 @@ import {
   type LudoAction,
   type LudoMatch,
   type LudoTable,
+  type LudoJoin,
+  type LudoRoomPreview,
 } from "@workspace/api-zod/ludo";
 import { badRequest, conflict, forbidden, notFound } from "../lib/errors";
 import { logger } from "../lib/logger";
@@ -36,6 +38,14 @@ type Room = typeof matches.$inferSelect;
 type Member = typeof members.$inferSelect;
 const QUEUE_LOCK = 73482205;
 const stateOf = (room: Room) => room.state as LudoState;
+const modeOf = (room: Room) =>
+  stateOf(room).roomCode
+    ? ("private" as const)
+    : room.pool.endsWith(":computer")
+      ? ("computer" as const)
+      : ("online" as const);
+const channelPool = (user: typeof usersTable.$inferSelect) =>
+  user.channel === "b2b" ? `b2b:${user.b2bAgentId ?? "house"}` : "b2c";
 const prize = (r: Room) =>
   (r.entryPaise * BigInt(r.capacity) * BigInt(10000 - r.commissionBps)) /
   10000n;
@@ -172,7 +182,9 @@ async function finishOnTime(tx: Tx, r: Room, at: number) {
   s.winners = timedWinners(s);
   s.winner = s.winners.length === 1 ? s.winners[0] : null;
   r.reason =
-    "10-minute limit reached. Most tokens home wins; tied players share the prize.";
+    s.variant === "team"
+      ? "10-minute limit reached. Combined team home tokens decide the result; winning partners share the prize."
+      : "10-minute limit reached. Most tokens home wins; tied players share the prize.";
   s.last = {
     seat: s.winners[0] ?? s.turn,
     text:
@@ -204,6 +216,21 @@ async function forfeit(
     (m) => m.seat === seat && !m.endedAt,
   );
   if (member) await settleMember(tx, r, member, "lost", at);
+  if (s.variant === "team") {
+    // A team cannot remove unfinished tokens by forfeiting a partner.
+    for (const partner of s.players)
+      if (partner && partner.seat % 2 === seat % 2) {
+        partner.forfeited = true;
+        partner.exitReason = inactive ? "inactive" : "left";
+      }
+    s.winners = s.players
+      .filter((other) => other && !other.forfeited)
+      .map((other) => other!.seat);
+    s.winner = s.winners[0] ?? null;
+    r.reason = `Team ${(seat % 2) + 1} forfeited when ${p.name} ${inactive ? "missed six rolls" : "left"}.`;
+    await finish(tx, r, at);
+    return;
+  }
   const alive = s.players.filter((p) => p && !p.forfeited);
   if (alive.length === 1) {
     s.winner = alive[0]!.seat;
@@ -235,7 +262,7 @@ function start(r: Room, at: number) {
         name: `Computer ${seat + 1}`,
         color: colors[seat],
         kind: "computer",
-        tokens: [-1, -1, -1, -1],
+        tokens: s.variant === "quick" ? [0, -1, -1, -1] : [-1, -1, -1, -1],
         forfeited: false,
         auto: true,
       };
@@ -288,15 +315,21 @@ async function notify(
     logger.warn({ err }, "Ludo notification failed; polling will recover");
   }
 }
-export async function joinLudo(
-  userId: string,
-  input: {
-    capacity: 2 | 4;
-    entryPaise: number;
-    requestId: string;
-    mode?: "online" | "computer";
-  },
-) {
+export async function joinLudo(userId: string, input: LudoJoin) {
+  const variant = input.variant ?? "classic",
+    mode = input.mode ?? "online";
+  if (
+    !["classic", "quick", "team"].includes(variant) ||
+    !["online", "computer", "private"].includes(mode)
+  )
+    throw badRequest("Choose an available game mode");
+  if (
+    ![2, 4].includes(input.capacity) ||
+    (variant === "team" && input.capacity !== 4)
+  )
+    throw badRequest("Team Up requires four players");
+  if (input.roomCode && (mode !== "private" || !/^\d{8}$/.test(input.roomCode)))
+    throw badRequest("Enter an eight-digit private room code");
   if (!LUDO.entries.includes(input.entryPaise as (typeof LUDO.entries)[number]))
     throw badRequest("Choose an available entry fee");
   const id = await db.transaction(async (tx) => {
@@ -315,7 +348,9 @@ export async function joinLudo(
       if (
         r.capacity !== input.capacity ||
         r.entryPaise !== BigInt(input.entryPaise) ||
-        r.pool.endsWith(":computer") !== (input.mode === "computer")
+        modeOf(r) !== mode ||
+        (stateOf(r).variant ?? "classic") !== variant ||
+        (input.roomCode && stateOf(r).roomCode !== input.roomCode)
       )
         throw conflict("This request already joined a different match");
       return r.id;
@@ -346,12 +381,29 @@ export async function joinLudo(
         BigInt(input.entryPaise) > config.maxStakePaise)
     )
       throw conflict("This entry fee is currently unavailable");
+    const basePool = channelPool(user);
+    let code = input.roomCode;
+    if (mode === "private" && !code) {
+      // Serialized with joins; never reuse a code, including completed rooms.
+      for (;;) {
+        code = String(randomInt(10000000, 100000000));
+        const [used] = await tx
+          .select({ id: matches.id })
+          .from(matches)
+          .where(eq(matches.pool, `${basePool}:private:${code}`))
+          .limit(1);
+        if (!used) break;
+      }
+    }
     const pool =
-      (user.channel === "b2b" ? `b2b:${user.b2bAgentId ?? "house"}` : "b2c") +
-      (input.mode === "computer" ? ":computer" : "");
+      mode === "private"
+        ? `${basePool}:private:${code}`
+        : basePool +
+          (variant === "classic" ? "" : `:${variant}`) +
+          (mode === "computer" ? ":computer" : "");
     const at = await now(tx);
     const candidates =
-      input.mode === "computer"
+      mode === "computer" || (mode === "private" && !input.roomCode)
         ? []
         : await tx
             .select()
@@ -369,6 +421,14 @@ export async function joinLudo(
     let r = candidates.find(
       (r) => r.deadline.getTime() > at && stateOf(r).players.some((p) => !p),
     );
+    if (!r && input.roomCode)
+      throw conflict(
+        "Room unavailable, full, expired, or its entry/game settings changed. Check the room code again.",
+      );
+    if (r && (stateOf(r).variant ?? "classic") !== variant)
+      throw conflict(
+        "Room game mode does not match. Check the room code again.",
+      );
     if (!r) {
       const seed = randomBytes(32).toString("hex");
       [r] = await tx
@@ -382,8 +442,12 @@ export async function joinLudo(
           commissionBps: LUDO.commissionBps,
           seed,
           commitment: commitment(seed),
-          deadline: new Date(at + LUDO.queueMs),
+          deadline: new Date(
+            at + (mode === "private" ? LUDO.privateQueueMs : LUDO.queueMs),
+          ),
           state: {
+            variant,
+            ...(code ? { roomCode: code } : {}),
             players: Array(input.capacity).fill(null),
             turn: 0,
             phase: "roll",
@@ -397,7 +461,11 @@ export async function joinLudo(
         .returning();
     }
     const s = stateOf(r),
-      seat = s.players.findIndex((p) => !p),
+      seat = (
+        variant === "team" && mode === "private"
+          ? [0, 2, 1, 3]
+          : Array.from({ length: r.capacity }, (_, i) => i)
+      ).find((i) => !s.players[i])!,
       betId = randomUUID();
     await postEntry(
       {
@@ -443,18 +511,19 @@ export async function joinLudo(
       name,
       color: ludoColors(r.capacity)[seat],
       kind: "human",
-      tokens: [-1, -1, -1, -1],
+      tokens: variant === "quick" ? [0, -1, -1, -1] : [-1, -1, -1, -1],
       forfeited: false,
       auto: false,
     };
-    if (input.mode === "computer" || s.players.every(Boolean))
+    if (mode === "computer" || s.players.every(Boolean))
       start(r, await now(tx));
     await save(
       tx,
       r,
       {
         type: "join",
-        mode: input.mode ?? "online",
+        mode,
+        variant,
         seat,
         capacity: r.capacity,
         entryPaise: String(r.entryPaise),
@@ -465,6 +534,42 @@ export async function joinLudo(
   });
   await notify(id, { userId, requestId: input.requestId, wallet: true });
   return ludoTable(userId, id);
+}
+/** Show the real terms before a code-based join can debit the wallet. */
+export async function previewLudoRoom(
+  userId: string,
+  code: string,
+): Promise<LudoRoomPreview> {
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, userId));
+  if (!user || user.status !== "active")
+    throw forbidden("An active player account is required");
+  const [r] = await db
+    .select()
+    .from(matches)
+    .where(
+      and(
+        eq(matches.pool, `${channelPool(user)}:private:${code}`),
+        eq(matches.status, "waiting"),
+      ),
+    );
+  if (
+    !r ||
+    r.deadline.getTime() <= Date.now() ||
+    stateOf(r).players.every(Boolean)
+  )
+    throw notFound("Private room not found or no longer open");
+  return {
+    code,
+    capacity: r.capacity as 2 | 4,
+    entryPaise: String(r.entryPaise),
+    prizePaise: String(prize(r)),
+    variant: stateOf(r).variant ?? "classic",
+    joined: stateOf(r).players.filter(Boolean).length,
+    expiresAt: r.deadline.getTime(),
+  };
 }
 export async function actLudo(
   userId: string,
@@ -516,6 +621,24 @@ export async function actLudo(
       );
     if (input.type === "leave") {
       if (r.status === "waiting") {
+        if (
+          modeOf(r) === "private" &&
+          (m.seat === 0 || at >= r.deadline.getTime())
+        ) {
+          r.reason =
+            m.seat === 0
+              ? "Host closed the private room; all entries refunded"
+              : "Private room expired; all entries refunded";
+          await finish(tx, r, at, true);
+          await save(
+            tx,
+            r,
+            { command, result: s.last },
+            userId,
+            input.requestId,
+          );
+          return;
+        }
         // An elapsed waiting deadline is not a refund loophole: tick must start it first.
         if (at >= r.deadline.getTime())
           throw conflict("Match is starting. Refresh the board.");
@@ -595,8 +718,13 @@ export async function tickLudo() {
         r.startedAt !== null && at - r.startedAt.getTime() >= LUDO.maxMatchMs;
       if (r.deadline.getTime() > at && !overLimit) return false;
       const s = stateOf(r);
-      if (r.status === "waiting") start(r, at);
-      else if (overLimit) {
+      if (r.status === "waiting") {
+        if (modeOf(r) === "private") {
+          r.reason =
+            "Private room expired before all friends joined; all entries refunded";
+          await finish(tx, r, at, true);
+        } else start(r, at);
+      } else if (overLimit) {
         await finishOnTime(tx, r, at);
       } else if (at - r.deadline.getTime() > 120000) {
         s.last = {
@@ -643,9 +771,11 @@ export async function tickLudo() {
 }
 function publicMatch(r: Room, m: Member, payout = 0n): LudoMatch {
   const s = stateOf(r);
+  const refunded = !!m.endedAt && payout === r.entryPaise;
   return {
+    mode: modeOf(r),
     id: r.id,
-    status: r.status as LudoMatch["status"],
+    status: refunded ? "cancelled" : (r.status as LudoMatch["status"]),
     capacity: r.capacity as 2 | 4,
     entryPaise: String(r.entryPaise),
     prizePaise: String(prize(r)),
@@ -664,7 +794,9 @@ function publicMatch(r: Room, m: Member, payout = 0n): LudoMatch {
         : [],
     commitment: r.commitment,
     seed: r.endedAt ? r.seed : null,
-    reason: r.reason,
+    reason: refunded
+      ? (r.reason ?? "You left the waiting room; entry refunded")
+      : r.reason,
   };
 }
 export async function ludoTable(

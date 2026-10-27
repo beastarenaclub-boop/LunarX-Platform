@@ -33,6 +33,60 @@ const initial = (n = 2): LudoState => ({
   rollNonce: 0,
   last: null,
 });
+
+test("Quick wins on the first exact home token, while Classic still requires four", () => {
+  for (const variant of ["quick", "classic"] as const) {
+    const s = initial();
+    s.variant = variant;
+    s.players[0]!.tokens = [55, -1, -1, -1];
+    rollDie(s, 2);
+    assert.equal(s.winner, null);
+    s.turn = 0;
+    s.phase = "roll";
+    rollDie(s, 1);
+    moveToken(s, 0);
+    assert.equal(s.winner, variant === "quick" ? 0 : null);
+  }
+});
+test("Team Up protects partners, skips finished seats and requires eight tokens", () => {
+  const s = initial(4);
+  s.variant = "team";
+  s.players[0]!.tokens[0] = 30;
+  s.players[2]!.tokens[0] = 5;
+  s.players[1]!.tokens[0] = 18;
+  rollDie(s, 1);
+  moveToken(s, 0);
+  assert.equal(s.players[2]!.tokens[0], 5);
+  assert.equal(s.players[1]!.tokens[0], -1);
+  s.turn = 0;
+  s.phase = "roll";
+  s.players[0]!.tokens = [56, 56, 56, 55];
+  rollDie(s, 1);
+  moveToken(s, 3);
+  assert.equal(s.winner, null);
+  assert.equal(s.turn, 1);
+  s.turn = 3;
+  s.phase = "roll";
+  rollDie(s, 2);
+  assert.equal(s.turn, 1);
+  s.turn = 2;
+  s.phase = "roll";
+  s.players[2]!.tokens = [56, 56, 56, 55];
+  rollDie(s, 1);
+  moveToken(s, 3);
+  assert.equal(s.winner, 2);
+  assert.deepEqual(s.winners, [0, 2]);
+});
+test("Team timeout uses combined home count, with tied teams sharing", () => {
+  const s = initial(4);
+  s.variant = "team";
+  s.players[0]!.tokens = [56, 56, -1, -1];
+  s.players[2]!.tokens = [56, 56, -1, -1];
+  s.players[1]!.tokens = [56, 56, 56, -1];
+  assert.deepEqual(timedWinners(s), [0, 2]);
+  s.players[3]!.tokens[0] = 56;
+  assert.deepEqual(timedWinners(s), [0, 1, 2, 3]);
+});
 test("timed ranking counts only home tokens, splits equal scores and excludes forfeited seats", () => {
   const s = initial(4);
   s.players[0]!.tokens = [56, 55, 55, 55];

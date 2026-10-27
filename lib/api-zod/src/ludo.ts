@@ -3,6 +3,7 @@ export const LUDO = {
   entries: [1000, 5000, 10000, 50000],
   commissionBps: 1000,
   queueMs: 20000,
+  privateQueueMs: 300000,
   turnMs: 10000,
   botMs: 1000,
   maxMatchMs: 600000,
@@ -11,6 +12,40 @@ export const LUDO = {
 } as const;
 export const LUDO_COLORS = ["red", "green", "yellow", "blue"] as const;
 export type LudoColor = (typeof LUDO_COLORS)[number];
+export type LudoVariant = "classic" | "quick" | "team";
+export type LudoMode = "online" | "computer" | "private";
+export type LudoJoin = {
+  capacity: 2 | 4;
+  entryPaise: number;
+  requestId: string;
+  mode?: LudoMode;
+  variant?: LudoVariant;
+  roomCode?: string;
+};
+export const LUDO_VARIANTS = {
+  classic: {
+    name: "Classic",
+    description: "Bring all four tokens home to win.",
+  },
+  quick: {
+    name: "Quick",
+    description: "One token starts outside. First token home wins.",
+  },
+  team: {
+    name: "Team Up",
+    description:
+      "Opposite seats are partners. Bring all eight tokens home; split the team prize equally.",
+  },
+} as const;
+export type LudoRoomPreview = {
+  code: string;
+  capacity: 2 | 4;
+  entryPaise: string;
+  prizePaise: string;
+  variant: LudoVariant;
+  joined: number;
+  expiresAt: number;
+};
 export type LudoPlayer = {
   seat: number;
   name: string;
@@ -23,6 +58,8 @@ export type LudoPlayer = {
   exitReason?: "left" | "inactive";
 };
 export type LudoState = {
+  variant?: LudoVariant;
+  roomCode?: string;
   players: (LudoPlayer | null)[];
   turn: number;
   phase: "roll" | "move";
@@ -40,6 +77,7 @@ export type LudoState = {
   } | null;
 };
 export type LudoMatch = {
+  mode?: LudoMode;
   id: string;
   status: "waiting" | "playing" | "finished" | "cancelled";
   capacity: 2 | 4;

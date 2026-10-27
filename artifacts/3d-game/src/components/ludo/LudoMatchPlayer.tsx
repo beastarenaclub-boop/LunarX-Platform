@@ -125,6 +125,7 @@ export function LudoMatchPlayer({
   onRoll,
   onEmojis,
   dockSide,
+  team,
 }: {
   p: LudoPlayer | null;
   color: LudoColor;
@@ -137,6 +138,7 @@ export function LudoMatchPlayer({
   onRoll: () => void;
   onEmojis: () => void;
   dockSide?: "left" | "right";
+  team?: number;
 }) {
   const home = p?.tokens.filter((t) => t === 56).length ?? 0;
   return (
@@ -185,6 +187,7 @@ export function LudoMatchPlayer({
             : you
               ? "YOU"
               : "ONLINE"}
+        {team !== undefined && <b className="ld-team-label">T{team + 1}</b>}
       </span>
       <div className="ld-player-controls">
         <span className="ld-avatar">

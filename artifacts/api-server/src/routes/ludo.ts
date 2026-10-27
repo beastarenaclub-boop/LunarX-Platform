@@ -6,7 +6,13 @@ import {
   bettingIpRateLimiter,
   bettingRateLimiter,
 } from "../middlewares/rateLimit";
-import { actLudo, joinLudo, ludoProof, ludoTable } from "../services/ludo";
+import {
+  actLudo,
+  joinLudo,
+  ludoProof,
+  ludoTable,
+  previewLudoRoom,
+} from "../services/ludo";
 import { forbidden } from "../lib/errors";
 import { ludoChat, sendLudoChat } from "../services/ludoChat";
 const router = Router();
@@ -44,6 +50,26 @@ router.get("/:id/proof", async (req, res, next) => {
     next(e);
   }
 });
+router.get(
+  "/rooms/:code",
+  bettingIpRateLimiter,
+  bettingRateLimiter,
+  async (req, res, next) => {
+    try {
+      res.json(
+        await previewLudoRoom(
+          req.user!.id,
+          z
+            .string()
+            .regex(/^\d{8}$/)
+            .parse(req.params.code),
+        ),
+      );
+    } catch (e) {
+      next(e);
+    }
+  },
+);
 router.post(
   "/join",
   bettingIpRateLimiter,
@@ -55,7 +81,12 @@ router.post(
           capacity: z.union([z.literal(2), z.literal(4)]),
           entryPaise: z.number().int().positive(),
           requestId: z.string().uuid(),
-          mode: z.enum(["online", "computer"]).optional(),
+          mode: z.enum(["online", "computer", "private"]).optional(),
+          variant: z.enum(["classic", "quick", "team"]).optional(),
+          roomCode: z
+            .string()
+            .regex(/^\d{8}$/)
+            .optional(),
         })
         .strict()
         .parse(req.body);

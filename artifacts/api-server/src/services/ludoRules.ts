@@ -41,7 +41,11 @@ export function nextTurn(s: LudoState) {
   s.dice = null;
   for (let i = 1; i <= s.players.length; i++) {
     const next = (s.turn + i) % s.players.length;
-    if (s.players[next] && !s.players[next]!.forfeited) {
+    if (
+      s.players[next] &&
+      !s.players[next]!.forfeited &&
+      !(s.variant === "team" && s.players[next]!.tokens.every((t) => t === 56))
+    ) {
       s.turn = next;
       return;
     }
@@ -50,6 +54,16 @@ export function nextTurn(s: LudoState) {
 /** Only finished tokens count at the ten-minute cutoff; progress never breaks a tie. */
 export function timedWinners(s: LudoState): number[] {
   const active = s.players.filter((p): p is LudoPlayer => !!p && !p.forfeited);
+  if (s.variant === "team") {
+    const scores = [0, 1].map((team) =>
+      active
+        .filter((p) => p.seat % 2 === team)
+        .reduce((sum, p) => sum + p.tokens.filter((t) => t === 56).length, 0),
+    );
+    return active
+      .filter((p) => scores[p.seat % 2] === Math.max(...scores))
+      .map((p) => p.seat);
+  }
   const best = Math.max(
     ...active.map((p) => p.tokens.filter((t) => t === 56).length),
   );
@@ -87,7 +101,12 @@ export function moveToken(s: LudoState, token: number) {
   let captured = 0;
   if (pos <= 50 && !LUDO_SAFE.includes(absolute(p, pos))) {
     for (const other of s.players)
-      if (other && other.seat !== p.seat && !other.forfeited) {
+      if (
+        other &&
+        other.seat !== p.seat &&
+        !other.forfeited &&
+        !(s.variant === "team" && other.seat % 2 === p.seat % 2)
+      ) {
         other.tokens.forEach((op, i) => {
           if (op >= 0 && op <= 50 && absolute(other, op) === absolute(p, pos)) {
             other.tokens[i] = -1;
@@ -103,12 +122,27 @@ export function moveToken(s: LudoState, token: number) {
     captured,
     text: `${p.name} moved token ${token + 1}${captured ? ` · captured ${captured}` : pos === 56 ? " · home!" : ""}`,
   };
-  if (p.tokens.every((t) => t === 56)) {
+  const partners = s.players.filter(
+    (other) => other && !other.forfeited && other.seat % 2 === p.seat % 2,
+  );
+  const won =
+    s.variant === "quick"
+      ? pos === 56
+      : s.variant === "team"
+        ? partners.every((other) => other!.tokens.every((t) => t === 56))
+        : p.tokens.every((t) => t === 56);
+  if (won) {
     s.winner = p.seat;
-    s.last.text = `${p.name} wins!`;
+    s.winners =
+      s.variant === "team" ? partners.map((other) => other!.seat) : [p.seat];
+    s.last.text =
+      s.variant === "team"
+        ? `Team ${(p.seat % 2) + 1} wins!`
+        : `${p.name} wins!`;
     return;
   }
-  if (dice === 6 || captured || pos === 56) {
+  if (s.variant === "team" && p.tokens.every((t) => t === 56)) nextTurn(s);
+  else if (dice === 6 || captured || pos === 56) {
     s.phase = "roll";
     s.dice = null;
   } else nextTurn(s);

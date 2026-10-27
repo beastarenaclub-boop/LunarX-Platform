@@ -1,21 +1,20 @@
-import { Link } from "wouter";
 import {
   ArrowLeft,
   Bot,
-  Maximize,
-  Minimize,
   Music,
-  Settings,
-  Star,
   Timer,
   Users,
   UserRound,
   Volume2,
   VolumeX,
 } from "lucide-react";
-import type { LudoMatch, LudoState } from "@workspace/api-zod/ludo";
+import {
+  LUDO_VARIANTS,
+  type LudoMatch,
+  type LudoState,
+} from "@workspace/api-zod/ludo";
 import { LudoEmblem } from "./LudoEmblem";
-import { LudoProfilePlate, LudoPlayerPortrait, LudoMenuIllustration, LudoCoinStack } from "./LudoMenuArt";
+import { PrivateRoomCode } from "./LudoSetup";
 import { COLORS } from "./LudoBoard";
 
 type SoundControls = {
@@ -49,66 +48,7 @@ export function LudoSoundControls({ audio }: { audio: SoundControls }) {
 const money = (value: string | number) =>
   `₹${(Number(value) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 
-export function LudoHome({
-  name, balance, demo, offline, onChoose, onSettings, onHistory, onRules,
-  fullscreen, onFullscreen,
-}: {
-  name: string;
-  balance?: string;
-  demo: boolean;
-  offline: boolean;
-  onChoose: (mode: "online" | "computer") => void;
-  onSettings: () => void;
-  onHistory: () => void;
-  onRules: () => void;
-  fullscreen: boolean;
-  onFullscreen: () => void;
-}) {
-  return (
-    <section className="ld-home-screen ld-classic-home" aria-label="Ludo main menu">
-      <header className="ld-profile-header">
-        <LudoProfilePlate />
-        <span className="ld-profile-avatar"><LudoPlayerPortrait /><i className={offline ? "ld-profile-offline" : ""} /></span>
-        <div className="ld-profile-name"><strong title={name}>{name}</strong>{offline && <small>Reconnecting…</small>}</div>
-        <Link className="ld-profile-wallet" href="/wallet" aria-label="Your wallet">
-          <LudoCoinStack /><strong title={balance ? money(balance) : undefined}>{demo ? "∞" : balance ? money(balance) : "—"}</strong>
-        </Link>
-        <button className="ld-profile-matches" aria-label="My matches" onClick={onHistory}><Star fill="currentColor" /><span /></button>
-        <Link className="ld-add-money" href="/wallet">MORE COINS</Link>
-        <button className="ld-menu-icon ld-mobile-settings" aria-label="Game settings" onClick={onSettings}><Settings /><Settings /></button>
-      </header>
-      <div className="ld-home-content">
-        <div className="ld-emblem ld-classic-emblem" aria-label="Ludo King">
-          <div className="ld-emblem-scene">
-            <img className="ld-emblem-art" src={`${import.meta.env.BASE_URL}media/ludo/classic-ludo-hero-v1.png`} alt="Ludo King crown, four coloured pawns, dice and board" width="1587" height="991" fetchPriority="high" draggable={false} />
-            <span className="ld-art-lustre" aria-hidden="true" />
-          </div>
-        </div>
-        <div className="ld-home-play">
-          <div className="ld-mode-tiles">
-            <div className="ld-online-choice">
-              <button className="ld-mode-tile" aria-label="Online multiplayer" onClick={() => onChoose("online")}>
-                <span className="ld-tile-art ld-online-art"><LudoMenuIllustration /></span>
-                <strong>ONLINE<br />MULTIPLAYER</strong>
-              </button>
-              <button className="ld-mode-info" aria-label="Online multiplayer rules" onClick={onRules}>i</button>
-            </div>
-            <button className="ld-mode-tile ld-computer-tile" aria-label="Play against Computer" onClick={() => onChoose("computer")}>
-              <span className="ld-tile-art ld-computer-art"><LudoMenuIllustration computer /></span>
-              <strong>COMPUTER</strong>
-            </button>
-          </div>
-        </div>
-      </div>
-      <footer className="ld-home-footer">
-        <button className="ld-home-tutorial" aria-label="How to play" onClick={onRules}><LudoCoinStack tutorial /></button>
-        <Link className="ld-home-return" href="/" aria-label="Back to lobby"><ArrowLeft /></Link>
-        <button className="ld-menu-icon" aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"} onClick={onFullscreen}>{fullscreen ? <Minimize /> : <Maximize />}</button>
-      </footer>
-    </section>
-  );
-}
-
+export { LudoReferenceHome as LudoHome } from "./LudoReferenceHome";
 
 export function LudoMatchmaking({
   match,
@@ -135,7 +75,10 @@ export function LudoMatchmaking({
   ];
   const joined = state.players.filter(Boolean).length;
   return (
-    <section className="ld-search-screen" aria-label="Searching for players">
+    <section
+      className={`ld-search-screen${match.mode === "private" ? " ld-private-search" : ""}`}
+      aria-label="Searching for players"
+    >
       <div className="ld-search-top">
         <button
           className="ld-menu-icon"
@@ -149,11 +92,14 @@ export function LudoMatchmaking({
         <LudoSoundControls audio={audio} />
       </div>
       <LudoEmblem compact />
-      <div className="ld-multiplayer-ribbon">REAL-TIME MULTIPLAYER</div>
+      <div className="ld-multiplayer-ribbon">
+        {match.mode === "private" ? "PRIVATE ROOM" : "REAL-TIME MULTIPLAYER"}
+      </div>
       <p className="ld-search-stake">
-        Classic <span>›</span> {match.capacity} players <span>›</span> Entry{" "}
-        {money(match.entryPaise)}
+        {LUDO_VARIANTS[state.variant ?? "classic"].name} <span>›</span>{" "}
+        {match.capacity} players <span>›</span> Entry {money(match.entryPaise)}
       </p>
+      {state.roomCode && <PrivateRoomCode code={state.roomCode} />}
       <div className={"ld-versus-grid ld-versus-" + match.capacity}>
         {order.map((seat, index) => {
           const p = state.players[seat];
@@ -185,7 +131,10 @@ export function LudoMatchmaking({
                 <i>{p ? "✓" : "?"}</i>
               </div>
               <strong className="ld-versus-name" title={p?.name}>
-                {p?.name || "Searching…"}
+                {p?.name ||
+                  (match.mode === "private"
+                    ? "Waiting for friend…"
+                    : "Searching…")}
               </strong>
               <small>
                 {seat === match.you
@@ -208,17 +157,22 @@ export function LudoMatchmaking({
       <div
         className="ld-search-countdown"
         role="timer"
-        aria-label={`${remaining} seconds until Computer joins`}
+        aria-label={`${remaining} seconds ${match.mode === "private" ? "until room expires" : "until Computer joins"}`}
       >
         <Timer />
-        <span>00:{String(remaining).padStart(2, "0")}</span>
+        <span>
+          {String(Math.floor(remaining / 60)).padStart(2, "0")}:
+          {String(remaining % 60).padStart(2, "0")}
+        </span>
       </div>
       <p className="ld-search-progress">
         {joined} of {match.capacity} players connected
       </p>
       <div className="ld-search-bottom">
         <h2>
-          Finding your opponents
+          {match.mode === "private"
+            ? "Waiting for your friends"
+            : "Finding your opponents"}
           <span className="ld-search-dots" aria-hidden="true">
             …
           </span>
@@ -226,9 +180,15 @@ export function LudoMatchmaking({
         <p>
           {offline
             ? "Reconnecting. Your seat is saved."
-            : "Searching for players…"}
+            : match.mode === "private"
+              ? "All seats must fill to start."
+              : "Searching for players…"}
         </p>
-        <small>Empty seats get Computer players when the timer ends.</small>
+        <small>
+          {match.mode === "private"
+            ? "No Computer fill-ins. Unfilled rooms expire with a full refund."
+            : "Empty seats get Computer players when the timer ends."}
+        </small>
       </div>
       <div className="ld-search-details">
         <span className={"ld-connection" + (offline ? " ld-offline" : "")}>
