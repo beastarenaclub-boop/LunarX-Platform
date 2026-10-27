@@ -43,3 +43,5 @@ export * from "./virtualSports";
 export * from "./lottery";
 export * from "./prizeLotto";
 export * from "./ludo";
+
+export * from "./ludoSocial";

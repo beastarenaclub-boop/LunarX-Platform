@@ -8,7 +8,9 @@ import { createRequire } from "node:module";
 const root = fileURLToPath(new URL("../", import.meta.url));
 const out = path.join(root, ".ludo-tests");
 const serve = process.argv.includes("--serve"),
-  postgres = serve || process.argv.includes("--postgres");
+  postgres =
+    (serve && process.env.LUDO_TEST_MEMORY !== "1") ||
+    process.argv.includes("--postgres");
 let admin, database;
 if (postgres) {
   const { Pool } = createRequire(
@@ -58,6 +60,10 @@ await build({
     {
       name: "isolated-ludo-test-store",
       setup(build) {
+        if (!postgres)
+          build.onResolve({ filter: /ludoPostgresStore$/ }, () => ({
+            path: path.join(root, "src/demo/database.ts"),
+          }));
         build.onResolve({ filter: /^@workspace\/api-zod$/ }, () => ({
           path: path.resolve(root, "../../lib/api-zod/src/index.ts"),
         }));
@@ -115,8 +121,10 @@ if (serve) {
   const cleanup = () =>
     (cleaning ??= (async () => {
       child.kill();
-      await admin.query(`DROP DATABASE IF EXISTS ${database} WITH (FORCE)`);
-      await admin.end();
+      if (admin) {
+        await admin.query(`DROP DATABASE IF EXISTS ${database} WITH (FORCE)`);
+        await admin.end();
+      }
     })());
   process.on("SIGINT", () => void cleanup().finally(() => process.exit()));
   process.on("SIGTERM", () => void cleanup().finally(() => process.exit()));

@@ -31,6 +31,8 @@ import express from "express";
 import router from "../../routes/ludo";
 import { errorHandler } from "../../middlewares/error";
 import { bus } from "../../realtime/eventBus";
+import { claimLudoDailyReward, ludoDailyReward } from "../ludoRewards";
+import { ludoSocial, requestLudoFriend, updateLudoFriend, ludoDirectChat, sendLudoDirectMessage } from "../ludoSocial";
 before(async () => {
   await ready;
 });
@@ -852,4 +854,67 @@ test("HTTP rejects anonymous access and forged dice/payout; valid requests never
       server.close((e) => (e ? reject(e) : resolve())),
     );
   }
+});
+
+
+test("daily reward credits exactly 100 rupees under concurrent clicks and uses an IST day", async () => {
+  const id = await user(0n);
+  const results = await Promise.all(Array.from({length:8}, () => claimLudoDailyReward(id)));
+  assert.equal(results.filter(r=>r.credited).length,1);
+  assert.equal((await getBalanceByUser(id)).balance,10000n);
+  const status=await ludoDailyReward(id);
+  assert.equal(status.claimed,true);assert.equal(status.history.length,1);
+  assert.equal(status.amountPaise,"10000");
+  assert.equal(new Date(status.resetsAt).toISOString().slice(11,19),"18:30:00");
+  assert.equal((await claimLudoDailyReward(id)).credited,false);
+  assert.equal((await getBalanceByUser(id)).balance,10000n);
+});
+
+test("daily reward rejects inactive and operator accounts without crediting them", async () => {
+  const id=await user(0n);
+  await db.update(usersTable).set({status:"suspended"}).where(eq(usersTable.id,id));
+  await assert.rejects(()=>claimLudoDailyReward(id),/active player/);
+  await db.update(usersTable).set({status:"active",role:"agent"}).where(eq(usersTable.id,id));
+  await assert.rejects(()=>claimLudoDailyReward(id),/active player/);
+  assert.equal((await getBalanceByUser(id)).balance,0n);
+});
+
+test("friends require recipient consent; direct chat is private, free and retry-safe", async () => {
+  const a=await user(),b=await user(),outsider=await user();
+  const ap=await ludoSocial(a),bp=await ludoSocial(b);
+  assert.match(ap.friendCode,/^[A-F0-9]{12}$/);
+  assert.equal((await ludoSocial(a)).friendCode,ap.friendCode);
+  const sent=await requestLudoFriend(a,bp.friendCode),id=sent.friends[0].id;
+  await assert.rejects(()=>updateLudoFriend(a,id,"accept"),/recipient/);
+  await assert.rejects(()=>ludoDirectChat(a,id),/Accept/);
+  await updateLudoFriend(b,id,"accept");
+  const message={requestId:randomUUID(),text:"Hello! Ready for a game?"};
+  await Promise.all([sendLudoDirectMessage(a,id,message),sendLudoDirectMessage(a,id,message)]);
+  const received=await ludoDirectChat(b,id);
+  assert.equal(received.messages.length,1);assert.equal(received.messages[0].mine,false);
+  assert.equal(received.messages[0].text,message.text);
+  await assert.rejects(()=>sendLudoDirectMessage(a,id,{...message,text:"different"}),/different/);
+  await assert.rejects(()=>ludoDirectChat(outsider,id),/not found/);
+  assert.equal((await getBalanceByUser(a)).balance,100000n);
+  await updateLudoFriend(b,id,"block");
+  await assert.rejects(()=>sendLudoDirectMessage(a,id,{requestId:randomUUID(),text:"Blocked"}),/Accept/);
+  assert.equal((await ludoSocial(a)).friends.length,0);
+  assert.equal((await ludoSocial(b)).friends[0].blockedByYou,true);
+  await updateLudoFriend(b,id,"unblock");
+  await assert.rejects(()=>ludoDirectChat(a,id),/Accept/);
+});
+
+test("friend codes respect account channel boundaries and room invites require membership", async () => {
+  const a=await user(),b=await user(),otherChannel=await user(100000n,"b2b");
+  const bp=await ludoSocial(b),cp=await ludoSocial(otherChannel);
+  await assert.rejects(()=>requestLudoFriend(a,cp.friendCode),/not found/);
+  const sent=await requestLudoFriend(a,bp.friendCode),id=sent.friends[0].id;
+  await updateLudoFriend(b,id,"accept");
+  const room=await joinLudo(a,{...input(),mode:"private"});
+  const code=room.match!.state.roomCode!;
+  await assert.rejects(()=>sendLudoDirectMessage(b,id,{requestId:randomUUID(),roomCode:code}),/Join or create/);
+  await sendLudoDirectMessage(a,id,{requestId:randomUUID(),roomCode:code});
+  assert.equal((await ludoDirectChat(b,id)).messages[0].roomCode,code);
+  await assert.rejects(()=>sendLudoDirectMessage(a,id,{requestId:randomUUID(),roomCode:"00000000"}),/not found/);
+  assert.equal((await getBalanceByUser(b)).balance,100000n);
 });

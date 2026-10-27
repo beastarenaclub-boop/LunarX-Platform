@@ -15,6 +15,14 @@ import {
 } from "../services/ludo";
 import { forbidden } from "../lib/errors";
 import { ludoChat, sendLudoChat } from "../services/ludoChat";
+import { ludoDailyReward, claimLudoDailyReward } from "../services/ludoRewards";
+import {
+  ludoSocial,
+  requestLudoFriend,
+  updateLudoFriend,
+  ludoDirectChat,
+  sendLudoDirectMessage,
+} from "../services/ludoSocial";
 const router = Router();
 const moveLimiter = rateLimit({
   windowMs: 60000,
@@ -37,6 +45,100 @@ router.use((req, res, next) => {
 router.get("/state", async (req, res, next) => {
   try {
     res.json(await ludoTable(req.user!.id));
+  } catch (e) {
+    next(e);
+  }
+});
+const socialLimiter = rateLimit({
+  windowMs: 60000,
+  limit: 40,
+  keyGenerator: (req) => req.user?.id ?? "anon",
+  validate: { xForwardedForHeader: false, ip: false },
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+});
+router.get("/rewards/daily", async (req, res, next) => {
+  try {
+    res.json(await ludoDailyReward(req.user!.id));
+  } catch (e) {
+    next(e);
+  }
+});
+router.post("/rewards/daily", socialLimiter, async (req, res, next) => {
+  try {
+    res.json(await claimLudoDailyReward(req.user!.id));
+  } catch (e) {
+    next(e);
+  }
+});
+router.get("/social", async (req, res, next) => {
+  try {
+    res.json(await ludoSocial(req.user!.id));
+  } catch (e) {
+    next(e);
+  }
+});
+router.post("/social/request", socialLimiter, async (req, res, next) => {
+  try {
+    const input = z
+      .object({ code: z.string().regex(/^[A-Fa-f0-9]{12}$/) })
+      .strict()
+      .parse(req.body);
+    res.json(await requestLudoFriend(req.user!.id, input.code));
+  } catch (e) {
+    next(e);
+  }
+});
+router.post("/social/:id", socialLimiter, async (req, res, next) => {
+  try {
+    const input = z
+      .object({ action: z.enum(["accept", "remove", "block", "unblock"]) })
+      .strict()
+      .parse(req.body);
+    res.json(
+      await updateLudoFriend(
+        req.user!.id,
+        z.string().uuid().parse(req.params.id),
+        input.action,
+      ),
+    );
+  } catch (e) {
+    next(e);
+  }
+});
+router.get("/social/:id/messages", async (req, res, next) => {
+  try {
+    res.json(
+      await ludoDirectChat(
+        req.user!.id,
+        z.string().uuid().parse(req.params.id),
+      ),
+    );
+  } catch (e) {
+    next(e);
+  }
+});
+router.post("/social/:id/messages", socialLimiter, async (req, res, next) => {
+  try {
+    const input = z
+      .object({
+        requestId: z.string().uuid(),
+        text: z.string().min(1).max(500).optional(),
+        roomCode: z
+          .string()
+          .regex(/^\d{8}$/)
+          .optional(),
+      })
+      .strict()
+      .refine((x) => !!x.text !== !!x.roomCode)
+      .parse(req.body);
+    res.json(
+      await sendLudoDirectMessage(
+        req.user!.id,
+        z.string().uuid().parse(req.params.id),
+        input,
+      ),
+    );
   } catch (e) {
     next(e);
   }

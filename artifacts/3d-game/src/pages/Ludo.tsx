@@ -58,6 +58,8 @@ import "@/components/ludo/ludo-social.css";
 import "@/components/ludo/ludo-reference-match.css";
 import "@/components/ludo/ludo-video-menu.css";
 import "@/components/ludo/ludo-reference-home.css";
+import "@/components/ludo/ludo-crafted.css";
+import { LudoCommunity } from "@/components/ludo/LudoCommunity";
 import {
   LudoSetup,
   LudoThemePicker,
@@ -201,6 +203,7 @@ function LudoGame({
     } catch {}
   }, [tokenStyle, theme, userId]);
   const [chatRequest, setChatRequest] = useState(0);
+  const [communityOpen, setCommunityOpen] = useState(false);
   const [closedResult, setClosedResult] = useState<string | null>(null);
   const m = data?.match,
     live =
@@ -210,6 +213,9 @@ function LudoGame({
   useEffect(() => {
     if (live && m) seenActive.current = m.id;
   }, [live, m?.id]);
+  useEffect(() => {
+    if (m?.status === "playing") setCommunityOpen(false);
+  }, [m?.status]);
   const show =
       m && (live || (seenActive.current === m.id && dismissed !== m.id)),
     canonical = show
@@ -451,6 +457,9 @@ function LudoGame({
         <div className="ld-main" aria-hidden={resultOpen || undefined}>
           {home ? (
             <LudoHome
+              userId={userId}
+              tokenStyle={tokenStyle}
+              onTokenStyle={setTokenStyle}
               name={name}
               balance={data?.balancePaise}
               demo={demo}
@@ -514,6 +523,7 @@ function LudoGame({
               busy={busy || game.retry}
               audio={audio}
               onCancel={() => game.act("leave")}
+              onSocial={() => setCommunityOpen(true)}
             />
           ) : (
             <section className="ld-arena">
@@ -1062,6 +1072,21 @@ function LudoGame({
                 </button>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+        <Dialog open={communityOpen} onOpenChange={setCommunityOpen}>
+          <DialogContent
+            className="ld-community-modal"
+            aria-describedby={undefined}
+          >
+            <DialogTitle className="sr-only">
+              Friends and room invitations
+            </DialogTitle>
+            <LudoCommunity
+              userId={userId}
+              roomCode={m?.state.roomCode}
+              onBack={() => setCommunityOpen(false)}
+            />
           </DialogContent>
         </Dialog>
       </main>

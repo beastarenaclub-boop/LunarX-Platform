@@ -917,6 +917,9 @@ test("late state replies cannot rewind a confirmed six or block the player's leg
   try {
     await a.page.getByRole("button", { name: "Find a match" }).click();
     await b.page.getByRole("button", { name: "Find a match" }).click();
+    await expect(
+      a.page.getByRole("button", { name: "Roll dice", exact: true }),
+    ).toBeEnabled();
     const id = (await state(a.context)).match!.id;
     await readyRoll(a.context, a.page, id, 0, 6, [-1, -1, -1, -1]);
     let intercepted = () => {};
@@ -1154,8 +1157,8 @@ for (const capacity of [2, 4] as const)
         .getByRole("button", { name: "Play against Computer", exact: true })
         .click();
       await expect(
-        p.page.getByText("PLAY AGAINST COMPUTER", { exact: true }),
-      ).toBeVisible();
+        p.page.getByRole("region", { name: "Set up your Ludo game" }),
+      ).toContainText("COMPUTER");
       if (capacity === 4)
         await p.page
           .getByRole("button", { name: "4 players Classic battle" })
@@ -1743,10 +1746,8 @@ test("desktop and fullscreen use the phone layout through menus and live play", 
     ]) {
       await p.page.setViewportSize(viewport);
       await centeredPhone();
-      await expect(p.page.locator(".ld-home-content")).toHaveCSS(
-        "flex-direction",
-        "column",
-      );
+      await expect(p.page.locator(".ld-crafted-home")).toBeVisible();
+      await expect(p.page.locator(".ld-crafted-tile")).toHaveCount(5);
       await expect(
         p.page.getByRole("button", { name: "Online multiplayer", exact: true }),
       ).toBeInViewport({ ratio: 1 });

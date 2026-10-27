@@ -58,6 +58,7 @@ export function LudoMatchmaking({
   busy,
   audio,
   onCancel,
+  onSocial,
 }: {
   match: LudoMatch;
   state: LudoState;
@@ -66,6 +67,7 @@ export function LudoMatchmaking({
   busy: boolean;
   audio: SoundControls;
   onCancel: () => void;
+  onSocial: () => void;
 }) {
   const order = [
     match.you,
@@ -99,7 +101,7 @@ export function LudoMatchmaking({
         {LUDO_VARIANTS[state.variant ?? "classic"].name} <span>›</span>{" "}
         {match.capacity} players <span>›</span> Entry {money(match.entryPaise)}
       </p>
-      {state.roomCode && <PrivateRoomCode code={state.roomCode} />}
+      {state.roomCode && <><PrivateRoomCode code={state.roomCode} /><button className="ld-invite-friends" onClick={onSocial}>Invite friends</button></>}
       <div className={"ld-versus-grid ld-versus-" + match.capacity}>
         {order.map((seat, index) => {
           const p = state.players[seat];
