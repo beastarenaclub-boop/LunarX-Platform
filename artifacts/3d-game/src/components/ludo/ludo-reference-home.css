@@ -67,6 +67,10 @@
 .ld-reference-landscape-label {
   display: none;
 }
+.ld-reference-sprite,
+.ld-reference-logo svg {
+  overflow: hidden;
+}
 .ld-reference-name {
   position: absolute;
   left: 35.9%;

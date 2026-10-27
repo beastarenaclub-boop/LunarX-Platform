@@ -40,6 +40,7 @@ function MenuButton({
       <svg
         className="ld-reference-sprite"
         viewBox={rect.join(" ")}
+        preserveAspectRatio="none"
         aria-hidden="true"
       >
         <image href={artwork} width="392" height="850" />

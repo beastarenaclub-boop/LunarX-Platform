@@ -1049,6 +1049,11 @@
     grid-column: 2;
     grid-row: 2;
   }
+  /* The header already exposes Game rules. This duplicate 44px target
+     extends over the compact mode row and intercepts Quick taps. */
+  .ld-video-setup .ld-variant-section h2 > button {
+    display: none;
+  }
   .ld-video-setup .ld-select-game {
     grid-column: 3;
     grid-row: 1 / span 2;

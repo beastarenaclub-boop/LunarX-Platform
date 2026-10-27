@@ -101,6 +101,26 @@ test("video menu: token styles and themes persist and Quick starts with a live o
   }
 });
 
+test("all game modes remain clickable in short landscape", async ({ browser }) => {
+  const p = await player(browser, "Landscape modes");
+  try {
+    await p.page.getByRole("button", { name: "Play against Computer", exact: true }).click();
+    for (const viewport of [{ width: 844, height: 348 }, { width: 640, height: 230 }]) {
+      await p.page.setViewportSize(viewport);
+      for (const name of ["Team Up", "Quick", "Classic"]) {
+        const mode = p.page.getByRole("button", { name, exact: true });
+        await mode.click();
+        await expect(mode).toHaveAttribute("aria-pressed", "true");
+      }
+      await p.page.getByRole("button", { name: "Game rules", exact: true }).click();
+      await expect(p.page.getByRole("dialog")).toBeVisible();
+      await p.page.keyboard.press("Escape");
+    }
+  } finally {
+    await p.context.close();
+  }
+});
+
 test("Friends code join previews the real fee, starts both players and refunds an expired empty room", async ({
   browser,
 }) => {
