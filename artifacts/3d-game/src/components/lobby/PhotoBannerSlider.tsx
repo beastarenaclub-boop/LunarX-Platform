@@ -23,6 +23,7 @@ interface Banner {
 }
 
 const BANNERS: Banner[] = [
+  { image: `${import.meta.env.BASE_URL}media/mega-ball/banner.jpg`, title: "Mega Ball", subtitle: "New game · Every ball. A big moment.", color: "#e4ca74", alt: "New Mega Ball game with gold and emerald studio, bingo cards and a 100x bonus ball", gameId: "mega-ball", artworkHasTitle: true },
   ...POKER_GAMES.map(code => ({ image: POKER_ART[code].src, title: POKER_ART[code].title, subtitle: "20-second betting · " + POKER_ART[code].subtitle, color: POKER_ART[code].accent, alt: POKER_ART[code].title + " casino poster", gameId: code, artworkHasTitle: true })),
   { image: roundOne, title: "Round One", subtitle: "The casino collection", color: "#eacb82", alt: "Round One casino banner with a golden vault and a roulette host", gameId: "roulette" },
   { image: megaFireBlaze, title: "Mega Fire Blaze", subtitle: "Roulette Live", color: "#f5a5f3", alt: "Mega Fire Blaze Roulette Live banner with a host and a red roulette table", gameId: "roulette" },

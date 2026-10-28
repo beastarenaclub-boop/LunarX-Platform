@@ -31,6 +31,7 @@ export const WALLET_SCOPES = [
   "lucky-7-live",
   "wheel-2-live", "teen-patti-joker",
   "crazy-time",
+  "mega-ball",
   "vegetable-bowl",
   "dragon-tiger",
   "dragon-tiger-one-day",

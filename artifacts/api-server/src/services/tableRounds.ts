@@ -111,6 +111,8 @@ import { bus } from "../realtime/eventBus";
 import { logger } from "../lib/logger";
 import { deriveVegetableOutcome, settleVegetableBets, type VegetableBet } from "./vegetableMath";
 import { VEGETABLE_OUTCOME_VERSION, type VegetableOutcome, type VegetableOutcomeVersion } from "@workspace/api-zod/vegetable-game";
+import { MEGA_BALL_MAX_RETURN, type MegaBallOutcome } from "@workspace/api-zod/mega-ball";
+import { deriveMegaBallOutcome, validateMegaBallCards, settleMegaBallCards } from "./megaBallMath";
 import { CRAZY_TIME_VERSION, CRAZY_TIME_MAX_RETURN, type CrazyTimeOutcome } from "@workspace/api-zod/crazy-time-game";
 import { deriveCrazyTimeOutcome, validateCrazyTimeBets, settleCrazyTimeBets, type CrazyTimeBetInput } from "./crazyTimeMath";
 
@@ -128,6 +130,7 @@ export const TABLE_GAME_CODES = [
   "lucky-7",
   "vegetable-bowl",
   "crazy-time",
+  "mega-ball",
   "7up7down",
 ] as const;
 export type TableGameCode = (typeof TABLE_GAME_CODES)[number];
@@ -590,6 +593,12 @@ const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdapter> = 
     settle: (bets, outcome, cap, edge) => ({ settled: bets, totalPayout: sevenPayout(bets as SevenBet[], (outcome as SevenOutcome).dice, 1 - edge, cap) }),
     async insertAudit({ round }) { return round.id; },
   },
+  "mega-ball": {
+    validate: validateMegaBallCards,
+    derive: deriveMegaBallOutcome,
+    settle: (bets, outcome) => settleMegaBallCards(bets, outcome as MegaBallOutcome),
+    async insertAudit({ round }) { return round.id; },
+  },
   "crazy-time": {
     validate: bets => validateCrazyTimeBets(toBetInputs<CrazyTimeBetInput>(bets)),
     derive: (serverSeed, clientSeed, nonce, cfg) => deriveCrazyTimeOutcome(serverSeed, clientSeed, nonce, cfg.crazyTimeVersion ?? 1),
@@ -843,6 +852,7 @@ export async function createTableRound(gameCode: TableGameCode): Promise<TableRo
     snap.maxMultiplier = Math.max(snap.maxMultiplier, ROULETTE_PAYOUT_BASE);
     snap.minStakePaise = ROULETTE_LIMITS.minBetPaise;
   }
+  if (gameCode === "mega-ball") snap.maxMultiplier = MEGA_BALL_MAX_RETURN;
   if (gameCode === "crazy-time") {
     snap.crazyTimeVersion = CRAZY_TIME_VERSION;
     snap.maxMultiplier = CRAZY_TIME_MAX_RETURN;
@@ -1060,15 +1070,16 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
               ...(["teen-patti", "teen-patti-live"].includes(round.gameCode) ? { teenPattiPayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "vegetable-bowl" ? { vegetablePayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "crazy-time" ? { crazyTimePayoutPaise: slipPayout } : {}),
+              ...(round.gameCode === "mega-ball" ? { megaBallPayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "roulette" ? { roulettePayoutPaise: slipPayout } : {}),
             });
             payoutAmount = out.payoutAmount;
           } else {
-            await settleLoss(slip.betId, slip.userId, 0, round.gameCode === "vegetable-bowl", round.gameCode === "crazy-time", round.gameCode === "roulette");
+            await settleLoss(slip.betId, slip.userId, 0, round.gameCode === "vegetable-bowl", round.gameCode === "crazy-time", round.gameCode === "roulette", round.gameCode === "mega-ball");
           }
         } catch (err) {
           if ((err as Error).message !== "BET_ALREADY_SETTLED") throw err;
-          if (["teen-patti", "teen-patti-live", "vegetable-bowl", "crazy-time", "roulette"].includes(round.gameCode)) {
+          if (["teen-patti", "teen-patti-live", "vegetable-bowl", "crazy-time", "mega-ball", "roulette"].includes(round.gameCode)) {
             // A restart can occur after wallet credit but before the slip receipt.
             const [credited] = await db.select({ payout: betsTable.payoutAmount }).from(betsTable).where(eq(betsTable.id, slip.betId));
             payoutAmount = credited?.payout ?? 0n;
@@ -1247,7 +1258,7 @@ async function placeTableBetsUnlocked(input: {
       .from(tableRoundsTable)
       .where(eq(tableRoundsTable.id, round.id))
       .limit(1);
-    if (!fresh[0] || fresh[0].phase !== "betting" || (["crazy-time", "roulette", "teen-patti", "teen-patti-live"].includes(input.gameCode) && fresh[0].bettingEndsAt.getTime() <= Date.now())) {
+    if (!fresh[0] || fresh[0].phase !== "betting" || (["crazy-time", "mega-ball", "roulette", "teen-patti", "teen-patti-live"].includes(input.gameCode) && fresh[0].bettingEndsAt.getTime() <= Date.now())) {
       await refundSlip(slip);
       throw new Error("BETTING_CLOSED");
     }
@@ -1433,7 +1444,7 @@ export async function getTableRoundSnapshot(
 
   // A player's receipt must not disappear behind the 100-row public feed.
   // Crazy Time accepts a single combined slip per user, so this stays small.
-  const personalSlips = (gameCode === "teen-patti" || gameCode === "teen-patti-live" || gameCode === "coin-flip" || gameCode === "wheel-2-live" || gameCode === "teen-patti-joker" || gameCode === "crazy-time" || gameCode === "7up7down" || gameCode === "lucky-7-live") && userId
+  const personalSlips = (gameCode === "mega-ball" || gameCode === "teen-patti" || gameCode === "teen-patti-live" || gameCode === "coin-flip" || gameCode === "wheel-2-live" || gameCode === "teen-patti-joker" || gameCode === "crazy-time" || gameCode === "7up7down" || gameCode === "lucky-7-live") && userId
     ? await db.select({ id: tableRoundBetsTable.id, userId: tableRoundBetsTable.userId,
       totalStake: tableRoundBetsTable.totalStake, bets: tableRoundBetsTable.bets,
       status: tableRoundBetsTable.status, payoutAmount: tableRoundBetsTable.payoutAmount,

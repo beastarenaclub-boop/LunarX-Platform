@@ -137,6 +137,7 @@ export function useTableRound<TOutcome = unknown>(
     | "andar-bahar"
     | "lucky-7"
     | "crazy-time"
+    | "mega-ball"
     | "vegetable-bowl"
     | "teen-patti-live",
   opts: Options = {},
@@ -159,7 +160,7 @@ export function useTableRound<TOutcome = unknown>(
   const emitBettingOpen = useCallback((roundId: string) => {
     if (lastBettingRoundRef.current === roundId) return;
     lastBettingRoundRef.current = roundId;
-    if (optsRef.current.roundOpenVoice !== false) {
+    if (game !== "mega-ball" && optsRef.current.roundOpenVoice !== false) {
       preloadCroupierRoundVoice();
       voiceRoundOpen(game, roundId);
     }
@@ -340,7 +341,7 @@ export function useTableRound<TOutcome = unknown>(
           lastClosedRoundRef.current = ev.roundId;
           if (optsRef.current.roundClosedVoice !== false) {
             preloadCroupierRoundVoice();
-            voiceBetsClosed(game, ev.roundId);
+            if (game !== "mega-ball") voiceBetsClosed(game, ev.roundId);
           }
         }
         // Accepted taps may not have reached an earlier snapshot yet. Fetch

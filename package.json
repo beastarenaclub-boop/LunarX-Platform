@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "mega:dev": "node tools/start-mega-ball.mjs",
+    "mega:test": "cd artifacts/api-server && node --import tsx --test src/services/__tests__/megaBall.test.ts src/demo/__tests__/megaBall.test.ts ../3d-game/tests/mega-ball-machine.test.ts",
+    "mega:test:browser": "node artifacts/3d-game/node_modules/@playwright/test/cli.js test --config artifacts/3d-game/playwright.mega-ball.config.ts",
     "ludo:test": "node artifacts/api-server/scripts/test-ludo.mjs",
     "ludo:test:browser": "node artifacts/3d-game/node_modules/@playwright/test/cli.js test --config artifacts/3d-game/playwright.ludo.config.ts",
     "joker:dev": "node artifacts/3d-game/node_modules/vite/bin/vite.js --config artifacts/3d-game/vite.teenpatti-joker.config.ts",

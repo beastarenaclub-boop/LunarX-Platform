@@ -545,7 +545,7 @@ export default function B2C({
           {!browse && (
             <>
               <section
-                className={`b2c-hero${activeBanner.poker ? " b2c-poker-hero" : ""}`}
+                className={`b2c-hero${(activeBanner.poker || activeBanner.megaBall) ? " b2c-poker-hero" : ""}`}
                 ref={bannerRef}
                 aria-label="Featured games"
                 aria-roledescription="carousel"
@@ -560,6 +560,7 @@ export default function B2C({
                   style={{ objectPosition: activeBanner.position }}
                   fetchPriority="high"
                 />
+                {activeBanner.megaBall && (<div className="b2c-poker-hero-copy"><button onClick={() => navigate("/mega-ball")}>Play Mega Ball <ChevronRight size={15} /></button><small>NEW GAME · 20 balls + Mega Ball</small></div>)}
                 {activeBanner.poker && (
                   <div className="b2c-poker-hero-copy">
                     <button

@@ -572,6 +572,7 @@ router.put(
 const GAME_META: Record<string, { title: string; route: string }> = {
   ...Object.fromEntries(POKER_GAMES.map(code => [code, { title: POKER_TITLES[code], route: `/${code}` }])),
   ...Object.fromEntries(INSTANT_COLLECTION.map(g => [g.code, { title: g.name, route: `/${g.code}` }])),
+  "mega-ball": { title: "Mega Ball", route: "/mega-ball" },
   "crazy-time": { title: "Crazy Time", route: "/crazy-time" },
   "vegetable-bowl": { title: "Vegetable Bowl", route: "/vegetable-bowl" },
   lottery: { title: "Irland Lotto", route: "/lottery" },

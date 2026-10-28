@@ -1,0 +1,10 @@
+Asset: presenter-green.png
+Mode: built-in imagegen, new original image.
+Retained generation brief: Photorealistic original adult blonde female television
+presenter, full body including shoes, wearing a tailored burgundy long-sleeved
+below-knee dress, black belt and black heels. Hold a black microphone with a
+composed friendly expression. Warm soft studio illumination on realistic skin,
+hair and fabric. Flat saturated green background for runtime chroma-key compositing.
+No game machine, balls, number text or logos. Do not recreate the reference host's identity.
+
+The exact subsequent video animation prompt is in presenter-generation.json.

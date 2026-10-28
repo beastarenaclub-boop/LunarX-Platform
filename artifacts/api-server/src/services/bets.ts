@@ -85,6 +85,7 @@ export async function placeBet(input: PlaceBetInput): Promise<Bet> {
     throw badRequest("Roulette bets must use the current table and its per-selection limits.");
   }
   if (input.gameCode === "chicken-road") throw badRequest("Use the Chicken Road game to place a bet.");
+  if (input.gameCode === "mega-ball" && !input.tableRoundPlacement) throw badRequest("Buy Mega Ball cards through the game table.");
   if (input.gameCode === "crazy-time" && !input.tableRoundPlacement) {
     throw badRequest("Crazy Time bets must use the current table round.");
   }
@@ -296,6 +297,7 @@ export interface CashOutInput {
   roulettePayoutPaise?: bigint;
   /** Exact, server-only wheel settlement; never accepted from public requests. */
   crazyTimePayoutPaise?: bigint;
+  megaBallPayoutPaise?: bigint;
   /** Exact server-computed Vegetable Bowl return. Never accepted by a public route. */
   vegetablePayoutPaise?: bigint;
   /** Exact, server-only Teen Patti return, using the accepted round's paytable. */
@@ -331,6 +333,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   if (existing.gameCode === "teen-patti-joker") throw badRequest("Joker 20-20 bets are settled by the game server.");
   if (existing.gameCode === "wheel-2-live") throw badRequest("Wheel 2.0 Live outcomes are settled by the game server.");
   if (existing.gameCode === "lucky-7-live") throw badRequest("Lucky 7 Live payouts are settled by the game server.");
+  if (existing.gameCode === "mega-ball" && (input.megaBallPayoutPaise === undefined || input.megaBallPayoutPaise < 0n || input.megaBallPayoutPaise > existing.stakeAmount * 1_000_000n)) throw badRequest("Mega Ball cards settle automatically after the draw.");
   if (existing.gameCode === "crazy-time" && (input.crazyTimePayoutPaise === undefined || input.crazyTimePayoutPaise < 0n || input.crazyTimePayoutPaise > existing.stakeAmount * 5001n)) {
     throw badRequest("Crazy Time bets settle automatically after the wheel stops.");
   }
@@ -361,7 +364,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   // The round-end settlement service later sums every bet, takes 5% as
   // company profit, and splits 95% across winners weighted by stake×multiplier.
   // The legacy 'house_edge' mode keeps the per-bet immediate credit path.
-  const isPariMutuel = !isTeenPatti && existing.gameCode !== "roulette" && existing.gameCode !== "vegetable-bowl" && existing.gameCode !== "crazy-time" && ((existing.metadata as { settlementMode?: string } | null)?.settlementMode ?? cfg.settlementMode) === "pari_mutuel";
+  const isPariMutuel = !isTeenPatti && existing.gameCode !== "roulette" && existing.gameCode !== "vegetable-bowl" && existing.gameCode !== "crazy-time" && existing.gameCode !== "mega-ball" && ((existing.metadata as { settlementMode?: string } | null)?.settlementMode ?? cfg.settlementMode) === "pari_mutuel";
   // Free bets settle immediately at stake × multiplier straight to the CASH
   // wallet even in pari-mutuel mode: their stake never entered the shared
   // pool (no debit happened), so they cannot participate in the 95/5 split.
@@ -370,7 +373,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
     | null;
   const isFreeBet = !!existingMeta?.freeBet;
   const payout =
-    isTeenPatti ? input.teenPattiPayoutPaise! : existing.gameCode === "roulette" ? input.roulettePayoutPaise! : existing.gameCode === "crazy-time" ? input.crazyTimePayoutPaise! : existing.gameCode === "vegetable-bowl" ? input.vegetablePayoutPaise! : isPariMutuel && !isFreeBet
+    existing.gameCode === "mega-ball" ? input.megaBallPayoutPaise! : isTeenPatti ? input.teenPattiPayoutPaise! : existing.gameCode === "roulette" ? input.roulettePayoutPaise! : existing.gameCode === "crazy-time" ? input.crazyTimePayoutPaise! : existing.gameCode === "vegetable-bowl" ? input.vegetablePayoutPaise! : isPariMutuel && !isFreeBet
       ? 0n
       : BigInt(Math.floor(Number(stake) * cappedMultiplier));
   // CRITICAL: settle the bet status FIRST with a conditional UPDATE on
@@ -618,6 +621,7 @@ export async function settleLoss(
   vegetableTableSettlement = false,
   crazyTimeTableSettlement = false,
   rouletteTableSettlement = false,
+  megaBallTableSettlement = false,
 ): Promise<Bet> {
   const rows = await db
     .select()
@@ -638,6 +642,7 @@ export async function settleLoss(
   if (existing.gameCode === "crazy-time" && !crazyTimeTableSettlement) {
     throw badRequest("Crazy Time bets settle automatically after the wheel stops.");
   }
+  if (existing.gameCode === "mega-ball" && !megaBallTableSettlement) throw badRequest("Mega Ball cards settle automatically after the draw.");
   if (existing.gameCode === "vegetable-bowl" && !vegetableTableSettlement) {
     throw badRequest("Vegetable Bowl bets settle automatically after the harvest.");
   }

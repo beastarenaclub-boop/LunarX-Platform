@@ -1,0 +1,10 @@
+{
+  "tool": "Built-in imagegen + Runway video generation",
+  "taskId": "3a485a75-9075-45a6-a52b-9c0d92b01355",
+  "model": "seedance-2",
+  "duration": 10,
+  "sourceResolution": "1080x1920",
+  "servedResolution": "540x960",
+  "purpose": "Original animated presenter only. No prerecorded game outcome or balls.",
+  "prompt": "Locked-off camera, single uncut full-body photorealistic studio greenscreen take of this exact original female television presenter. Preserve her face, hair, burgundy below-knee long-sleeved dress, belt, black shoes, microphone, proportions, and framing. Keep her whole body and shoes inside the frame throughout. Keep the entire background and ground PERFECTLY FLAT SATURATED GREEN with no changing shadows, patterns or props so she can be chroma-keyed into a live game. Natural subtle breathing and blinking; soft poised smile. First 4 seconds: she holds the microphone with both hands and occasionally gives a small friendly nod to camera. Seconds 4-7: she turns her gaze slightly towards her own left, to a machine beside her offscreen, and makes one restrained open-palm presenting gesture with her left hand while her right hand holds the microphone. Seconds 7-10: she gently returns to the exact original pose with hands together on the microphone and looks at the camera. A smooth seamless end-to-start loop. Natural human motion, no sway loop, no exaggerated dancing or walking. Lips mostly closed, no invented spoken words or numbers. Maintain realistic warm soft studio lighting on her face and fabric and no green spill. No camera movement, no cuts, no zoom, no objects, no text, no balls, no machine, no logos."
+}

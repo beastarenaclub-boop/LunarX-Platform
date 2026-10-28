@@ -1,0 +1,14 @@
+{
+  "tool": "Built-in image_gen.imagegen",
+  "reference": "Screen Recording 2026-10-26 224527.mp4; 230 seconds; supplied by user",
+  "assets": [
+    {
+      "file": "studio.jpg",
+      "prompt": "Create one photorealistic widescreen 16:9 casino game studio background, 1536x864 if possible, for a Mega Ball bingo game. Reference style: luxurious dark emerald green and warm luminous gold television studio, repeating large round brushed brass disks of mixed sizes set into emerald walls with lit gold rims, polished emerald floor with fine golden arcs. On the left at x=35% stands a professional adult female presenter with shoulder length blonde hair, wearing an elegant burgundy long-sleeved knee-length dress and black heels, hands gently clasped, full body visible. At the right x=67% stands an emerald and gold rounded pedestal under a large rectangular warm amber illuminated display alcove. IMPORTANT: leave the display alcove EMPTY, no ball machine, no balls inside it: the game renders an animated transparent lottery machine there. A narrow decorative brass-bordered empty plaque on far left. Cinematic wide straight-on camera, highly realistic architecture and person, bright polished real studio, not cartoon. Bottom quarter is a clear dark green floor area for UI overlay. No interface, no buttons, no writing, no brand marks, no logos, no watermarks. This is a clean background asset, not an app mockup."
+    },
+    {
+      "file": "banner.jpg",
+      "prompt": "Premium photorealistic casino promotional banner for a game named MEGA BALL. Wide 16:9 composition. Emerald green and luminous polished gold TV game show studio with large round brass wall discs, a beautiful clear spherical lottery ball machine with swirling green white and yellow numbered balls at right, a poised adult blonde woman presenter in a burgundy evening dress standing beside the machine. At left large beautifully legible gold dimensional typography exactly 'MEGA BALL', small rounded gold badge above exactly 'NEW GAME', and below small clean text exactly 'EVERY BALL. A BIG MOMENT.' One shiny royal-blue bonus ball near bottom right with gold rim and exact text '100x'. A subtle fan of emerald bingo cards near lower center. Rich realistic gold reflections, elegant dark green vignette, cinematic art direction, professional high-end game poster, no existing provider logos, no unrelated text, no interface. Keep all main text in the central 65 percent width to survive banner cropping."
+    }
+  ]
+}

@@ -60,6 +60,7 @@ const WinGo = lazy(() => import("@/pages/WinGo"));
 const ForexTrading = lazy(() => import("@/pages/ForexTrading"));
 const Lottery = lazy(() => import("@/pages/Lottery"));
 const PrizeLotto = lazy(() => import("@/pages/PrizeLotto"));
+const MegaBall = lazy(() => import("@/pages/MegaBall"));
 const CrazyTime = lazy(() => import("@/pages/CrazyTime"));
 const DragonTigerOneDay = lazy(() => import("@/pages/DragonTigerOneDay"));
 const CoinFlipLive = lazy(() => import("@/pages/CoinFlipLive"));
@@ -93,6 +94,7 @@ const GAME_ROUTES = new Set([
   "/lucky-7-live",
   "/wheel-2-live",
   "/crazy-time",
+  "/mega-ball",
   "/vegetable-bowl",
   "/horse-racing",
   "/bike-racing",
@@ -255,6 +257,7 @@ function App() {
               </Protected>
             </Route>
           ))}
+          <Route path="/mega-ball"><Protected><MegaBall /></Protected></Route>
           <Route path="/mines">
             <Protected>
               <Mines />

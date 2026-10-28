@@ -21,6 +21,7 @@ export type PrimaryCategory =
   | "racing"
   | "lottery";
 export type GameFamily =
+  | "mega-ball"
   | "ludo"
   | "roulette"
   | "poker"
@@ -60,6 +61,7 @@ export interface RegistryEntry {
 
 // Share the storefront's curated trending order across both lobbies.
 export const TOP_GAME_IDS = [
+  "mega-ball",
   "ludo",
   "roulette",
   "teen-patti-live",
@@ -117,6 +119,7 @@ const crash = (id: string) => {
 // One catalog for every view. Only implemented player routes belong here.
 // The top section and remaining section partition this list, never repeat it.
 export const LOBBY_GAMES: LobbyGame[] = [
+  game("mega-ball", "Mega Ball", "live", "#e4ca74", { artwork: `${import.meta.env.BASE_URL}media/mega-ball/banner.jpg`, artworkHasTitle: true, label: "NEW", tags: ["mega ball", "bingo", "lottery", "game show", "51 balls"] }),
   ...SPORTS.map(s => game(`virtual-${s.id}`, s.name, "racing", s.color, { route: `/virtual-sports/${s.id}`, artwork: `${import.meta.env.BASE_URL}media/virtual-sports/${s.id}.jpg`, provider: "Arena Virtual Sports", label: "NEW" })),
   ...INSTANT_COLLECTION.map(g => game(g.code, g.name, "instant", g.accent, { artwork: import.meta.env.BASE_URL + 'media/instant/' + g.code + '.svg', label: "INSTANT" })),
   crash("jetx"),

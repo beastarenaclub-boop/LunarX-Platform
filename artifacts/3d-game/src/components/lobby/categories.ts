@@ -14,6 +14,7 @@ const NEW_GAMES_CATEGORY: LobbyCategory = { id: "new", name: "New Games", icon: 
 
 const PRIMARY_CATEGORIES: LobbyCategory[] = [
   { id: "all", name: "All Games", icon: Grid2X2 },
+  { id: "mega-ball", name: "Mega Ball", icon: CircleDot },
   NEW_GAMES_CATEGORY,
   { id: "instant", name: "Instant Games", icon: Rocket },
   { id: "crash", name: "Crash Games", icon: Plane },
@@ -30,6 +31,7 @@ const GAME_FAMILIES: (LobbyCategory & {
   gameIds: string[];
   minimumGames: number;
 })[] = [
+  { id: "mega-ball", name: "Mega Ball", icon: CircleDot, gameIds: ["mega-ball"], minimumGames: 1 },
   { id: "ludo", name: "Ludo", icon: Dice5, gameIds: ["ludo"], minimumGames: 1 },
   { id: "roulette", name: "Roulette", icon: CircleDot, gameIds: ["roulette"], minimumGames: 1 },
   { id: "poker", name: "Poker", icon: Spade, gameIds: ["poker-one-day", "poker-20-20", "poker-six-players"], minimumGames: 3 },
