@@ -15,7 +15,14 @@ test("the complete studio frame fits without covering controls on resize and rot
     { timeout: 30000 },
   );
   await expect(page.locator(".mb-machine-canvas")).toHaveAttribute(
-    "data-relief-asset", "ready", { timeout: 30000 },
+    "data-relief-asset",
+    "ready",
+    { timeout: 30000 },
+  );
+  await expect(page.locator(".mb-machine-canvas")).toHaveAttribute(
+    "data-inlay-asset",
+    "ready",
+    { timeout: 30000 },
   );
   for (const viewport of [
     { width: 1440, height: 900 },

@@ -126,7 +126,7 @@ removes the green background in a shader, pauses footage when off-camera or hidd
 and uses the still portrait if video loading fails. The clip contains no game
 balls, numbers, multiplier values or result footage.
 
-The latest graphics pass adds `studio-relief-v3.png`, a photographic brass wall
+The photographic set includes `studio-relief-v3.png`, a brass wall
 with stamped petals, fine machining and concealed lamps (built-in imagegen;
 exact prompt in `studio-relief-v3.prompt.txt`). `studioFloor.ts` adds restrained,
 blurred reflections of the live presenter and machine at twelve updates per
@@ -135,6 +135,21 @@ browser's animation rate. Glass uses a thin acrylic shell, metal has brushed
 roughness, balls have a molded polymer finish and a centered readable number,
 and the extraction gate includes clear plates and pneumatic fittings. The
 cabinet door's enamel and embossed lettering are generated locally on canvas.
+
+The next studio pass adds physical recessed brass portals, a warm-lit machine
+niche, a taller bowed emerald counter, floor inlays and a lacquered green floor.
+`studio-gold-inlay-v4.png` supplies photographic metal facets for the inset panels;
+it was made with built-in Imagegen and its exact prompt is saved beside it.
+`multiplierCabinet.ts` now uses nine reusable curved tiles with physical borders,
+embossed exact-text artwork, recessed glass, fixed gold pointers and two sliding
+door leaves. The circular medallion travels intact with the right leaf. The
+reported reel value is read from the tile aligned with the pointers, allowing
+the browser check to compare it to the declared winning multiplier.
+
+Closer inspection of the second recording confirms 12×, rather than 2×, in the
+reference reel and history. This graphics update preserves the published game
+rules and their supported outcome values; adding a new winning multiplier would
+require a separate rule/version change.
 
 ## Validation
 

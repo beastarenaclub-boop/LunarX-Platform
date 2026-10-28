@@ -3,6 +3,8 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import { createPresenter } from "./presenter";
 import { createMultiplierCabinet } from "./multiplierCabinet";
 import { createStudioFloor } from "./studioFloor";
+import { createStudioArchitecture } from "./studioArchitecture";
+import { createStudioCounter } from "./studioCounter";
 import type { ShowCamera } from "./showTimeline";
 import {
   studioEnvironment,
@@ -92,7 +94,7 @@ export function createMachineRenderer(
   const scene = new T.Scene();
   const machineRoot = new T.Group();
   machineRoot.scale.setScalar(0.78);
-  machineRoot.position.set(0.35, 0.75, 0);
+  machineRoot.position.set(0.35, 1.5, 0);
   scene.add(machineRoot);
   scene.background = new T.Color("#031b17");
   const environment = studioEnvironment(renderer);
@@ -141,9 +143,9 @@ export function createMachineRenderer(
   );
   const dark = keep(
     new T.MeshPhysicalMaterial({
-      color: "#07573f",
-      metalness: 0.25,
-      roughness: 0.25,
+      color: "#126851",
+      metalness: 0.16,
+      roughness: 0.22,
       roughnessMap: microtexture,
       clearcoat: 0.85,
       clearcoatRoughness: 0.12,
@@ -179,7 +181,7 @@ export function createMachineRenderer(
       thickness: 0.025,
       roughness: 0.035,
       transparent: true,
-      opacity: 0.085,
+      opacity: 0.15,
       depthWrite: false,
       clearcoat: 1,
       envMapIntensity: 1.3,
@@ -329,17 +331,17 @@ export function createMachineRenderer(
   wall.castShadow = wall.receiveShadow = false;
   scene.add(wall);
   canvas.dataset.reliefAsset = "loading";
-  for (const x of [-4.99, -2.37]) {
-    const edge = box(0.055, 4.72, 0.12, brass, [x, 2.31, -0.83]);
-    scene.add(edge);
-  }
+  canvas.dataset.inlayAsset = "loading";
+  const studioSet = createStudioArchitecture(scene, (status) => {
+    if (!disposed) canvas.dataset.inlayAsset = status;
+  });
   const floor = createStudioFloor(scene, {
     exclude: [studioWall],
     strength: 0.16,
   });
   const deck = keep(
     new T.MeshPhysicalMaterial({
-      color: "#124234",
+      color: "#164c3e",
       metalness: 0.25,
       roughness: 0.19,
       roughnessMap: microtexture,
@@ -348,15 +350,7 @@ export function createMachineRenderer(
       envMapIntensity: 0.75,
     }),
   );
-  box(6.6, 0.16, 2.65, dark, [0, 0.31, 0]);
-  mesh(new RoundedBoxGeometry(6.48, 1.27, 2.53, 5, 0.17), dark, [0, -0.325, 0]);
-  box(6.5, 0.045, 2.55, brass, [0, -0.94, 0]);
-  for (const y of [-0.75, 0.1]) box(6.08, 0.018, 0.018, brass, [0, y, 1.274]);
-  for (const x of [-3.04, 3.04])
-    box(0.018, 0.85, 0.018, brass, [x, -0.325, 1.274]);
-  label("M E G A   B A L L", 2.1, 0.22, [0, -0.33, 1.28], "#cfb77c");
-  box(6.58, 0.035, 2.64, brass, [0, 0.402, 0]);
-  box(6.49, 0.035, 2.56, deck, [0, 0.437, 0]);
+  const counter = createStudioCounter(machineRoot, { body: dark, brass, deck });
   const shadowMaterial = keep(
     new T.MeshBasicMaterial({
       map: keep(contactShadowTexture()),
@@ -619,6 +613,9 @@ export function createMachineRenderer(
   const fill = new T.PointLight("#f4f7ff", 6, 14, 2);
   fill.position.set(3, 4.5, 3);
   scene.add(fill);
+  const frontFill = new T.DirectionalLight("#fff7e8", 0.42);
+  frontFill.position.set(1, 3.2, 8);
+  scene.add(frontFill);
   const rim = new T.PointLight("#fff1ce", 4, 10, 2);
   rim.position.set(-2, 3.7, -0.8);
   scene.add(rim);
@@ -700,9 +697,9 @@ export function createMachineRenderer(
       tilt: number;
     }
   > = {
-    wide: { center: [-1.8, 2.15, 0.55], width: 10.8, height: 5.0, tilt: 0.35 },
-    machine: { center: [0.35, 2.35, 0.6], width: 6.0, height: 3.9, tilt: 0.3 },
-    chute: { center: [0.4, 2.97, 0.15], width: 4.5, height: 2.7, tilt: 0.14 },
+    wide: { center: [-1.8, 2.28, 0.55], width: 10.8, height: 5.32, tilt: 0.35 },
+    machine: { center: [0.35, 3.1, 0.6], width: 6.0, height: 3.9, tilt: 0.3 },
+    chute: { center: [0.4, 3.72, 0.15], width: 4.5, height: 2.7, tilt: 0.14 },
     multiplier: {
       center: [-4, 2.05, 0.15],
       width: 6.8,
@@ -710,13 +707,12 @@ export function createMachineRenderer(
       tilt: 0.35,
     },
     mega: {
-      center: [-0.703, 3.496, 0.04],
+      center: [-0.703, 4.246, 0.04],
       width: 1.34,
       height: 0.64,
       tilt: 0.06,
     },
   };
-  let firstCamera = true;
   const fitShot = (name: ShowCamera) => {
     const shot = shots[name],
       halfFov = Math.tan(T.MathUtils.degToRad(camera.fov / 2));
@@ -758,13 +754,13 @@ export function createMachineRenderer(
       ) * 1.25;
     studioWall.scale.setScalar(cover);
     studioWall.position.y += 0.35;
-    if (firstCamera) {
-      fitShot(latest().frame.camera);
-      camera.position.copy(cameraPosition);
-      target.copy(cameraTarget);
-      camera.lookAt(target);
-      firstCamera = false;
-    }
+    // A layout/orientation change must fit immediately; interpolating from the
+    // previous aspect ratio briefly crops the host and cabinet. Show cuts still
+    // use the smooth interpolation in render().
+    fitShot(latest().frame.camera);
+    camera.position.copy(cameraPosition);
+    target.copy(cameraTarget);
+    camera.lookAt(target);
   };
   const observer = new ResizeObserver(resize);
   observer.observe(canvas.parentElement!);
@@ -849,7 +845,12 @@ export function createMachineRenderer(
     previous = now;
     const state = latest(),
       frame = state.frame;
-    cabinet.update(frame, state.multiplier, state.motion);
+    const reelPresentation = cabinet.update(
+      frame,
+      state.multiplier,
+      state.motion,
+    );
+    studioSet.update(frame.bonusLights, dt);
     presenter.update(
       state.motion,
       frame.camera === "wide" || frame.camera === "multiplier",
@@ -959,8 +960,9 @@ export function createMachineRenderer(
           ? "opening"
           : "closed";
     canvas.dataset.reelValue = frame.multiplierVisible
-      ? String(state.multiplier ?? "")
+      ? String(reelPresentation.centerValue)
       : "";
+    canvas.dataset.reelOffset = String(reelPresentation.centerOffset);
     canvas.dataset.resultVisible = String(frame.resultVisible);
     const inventory = `${frame.drawn.join(",")}:${frame.chute ?? ""}`;
     if (inventory !== lastInventory) {
@@ -983,6 +985,8 @@ export function createMachineRenderer(
     observer.disconnect();
     presenter.dispose();
     cabinet.dispose();
+    studioSet.dispose();
+    counter.dispose();
     floor.dispose();
     resources.forEach((r) => r.dispose());
     environment.dispose();

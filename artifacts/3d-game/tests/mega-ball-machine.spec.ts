@@ -160,6 +160,10 @@ test("one physical ball per call: 20 draws and one Mega Ball match numbers and c
   expect(completed.rackNumbers?.split(",")).toHaveLength(21);
   expect(completed.chuteNumbers).toBe("");
   expect(completed.reelState).toBe("selected");
+  expect(Number(completed.reelOffset)).toBeCloseTo(0, 8);
+  await expect(
+    page.getByTestId("mega-ball-result").locator("strong > span"),
+  ).toHaveText(`${completed.reelValue}x`);
   expect(completed.resultVisible).toBe("true");
   const stages = await page.evaluate(
     (round) =>

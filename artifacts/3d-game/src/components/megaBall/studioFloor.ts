@@ -7,13 +7,30 @@ interface StudioFloorOptions {
   strength?: number;
 }
 
-/** A restrained lacquer sheen; the existing photographic floor remains visible. */
+/** A physical emerald studio floor with a restrained, blurred lacquer reflection. */
 export function createStudioFloor(
   scene: T.Scene,
   { exclude = [], strength = 0.2 }: StudioFloorOptions = {},
 ) {
   const resolution = window.innerWidth <= 600 ? 384 : 768;
   const geometry = new T.PlaneGeometry(16, 8);
+  // The floor's solid surface must extend past ultra-wide camera frustums. The
+  // smaller reflection target may fade out, but its rectangle must never expose
+  // the photographed floor as triangular seams at either side of the set.
+  const baseGeometry = new T.PlaneGeometry(80, 80);
+  const baseMaterial = new T.MeshPhysicalMaterial({
+    color: "#082a22",
+    metalness: 0,
+    roughness: 0.42,
+    clearcoat: 0.25,
+    clearcoatRoughness: 0.24,
+    envMapIntensity: 0.2,
+  });
+  const base = new T.Mesh(baseGeometry, baseMaterial);
+  base.position.set(-1.7, -0.062, 1.2);
+  base.rotation.x = -Math.PI / 2;
+  base.receiveShadow = true;
+  scene.add(base);
   const floor = new Reflector(geometry, {
     color: "#9bbaaa",
     textureWidth: resolution,
@@ -73,8 +90,7 @@ export function createStudioFloor(
           reflected += texture2D(tDiffuse, projected - radius).rgb * 0.0625;
           reflected += texture2D(tDiffuse, projected + vec2(radius.x, -radius.y)).rgb * 0.0625;
           reflected += texture2D(tDiffuse, projected + vec2(-radius.x, radius.y)).rgb * 0.0625;
-          // Add light reflected by live subjects without painting a dark rectangle
-          // over the studio photograph or reflecting its baked-in floor again.
+          // Add the subjects' soft reflection over the lacquered physical floor.
           reflected = max(reflected - vec3(0.008), vec3(0.0));
           float alpha = strength * edge.x * edge.y * valid * mix(0.6, 1.0, grazing);
           gl_FragColor = vec4(reflected * mix(vec3(1.0), color, 0.18), alpha);
@@ -121,7 +137,10 @@ export function createStudioFloor(
       if (disposed) return;
       disposed = true;
       scene.remove(floor);
+      scene.remove(base);
       floor.dispose();
+      baseMaterial.dispose();
+      baseGeometry.dispose();
       geometry.dispose();
     },
   };
