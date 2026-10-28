@@ -52,7 +52,7 @@ test("coin, dice and fishing distributions match their published rules", () => {
     heads += coin.outcome[0] === 0 ? 1 : 0; assert(coin.multiplier === 0 || coin.multiplier === 1.94);
     const roll = instantDraw("dice", String(i), "client", "7up7down", "seven", .97);
     const total = roll.outcome.reduce((a, b) => a + b, 0); dice[total < 7 ? 0 : total === 7 ? 1 : 2]++;
-    assert.equal(roll.multiplier, total === 7 ? 5.82 : 0);
+    assert.equal(roll.multiplier, total === 7 ? 1.98 : 0);
     const fish = instantDraw("fishing", String(i), "client", "jackpot-fishing", "cast", .97);
     catches[fish.outcome[0]]++; fishingReturn += fish.multiplier;
   }

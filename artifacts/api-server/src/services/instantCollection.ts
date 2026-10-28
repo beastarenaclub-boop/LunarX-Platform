@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { db, betsTable, type Bet } from "@workspace/db";
 import { and, desc, eq, sql } from "drizzle-orm";
-import { collectionGame, collectionMultiplier, collectionPayout, collectionSteps, progressive, normalizeSevenBets, sevenPayout, type CollectionCode, type CollectionOptions, type CollectionRound } from "@workspace/api-zod/instant-collection";
+import { collectionGame, collectionMultiplier, collectionPayout, collectionSteps, progressive, normalizeSevenBets, sevenPayout, SEVEN_PAYOUT_VERSION, SEVEN_TOTAL_RETURN, type SevenPayoutVersion, type CollectionCode, type CollectionOptions, type CollectionRound } from "@workspace/api-zod/instant-collection";
 import { requireGameConfig } from "./rtp";
 import { postEntry, publishWalletBalance } from "./wallet";
 import { badRequest, conflict, notFound } from "../lib/errors";
@@ -16,6 +16,7 @@ const settlementGame = (code: string) => collectionGame(code) ?? (code === "chic
 interface Metadata {
   version: 1; requestId: string; options: CollectionOptions; step: number; revealed: number[]; outcome: number[];
   serverSeed: string; clientSeed: string; rtp: number; maxMultiplier: number; lastActionId?: string;
+  sevenPayoutVersion?: SevenPayoutVersion;
 }
 const owned = (userId: string, game: string) => and(eq(betsTable.userId, userId), eq(betsTable.gameCode, game), sql`${betsTable.metadata}->>'version' = '1'`);
 export function instantReceipt(bet: Bet): CollectionRound {
@@ -27,11 +28,11 @@ export function instantReceipt(bet: Bet): CollectionRound {
     step: m.step, options: m.options, revealed: m.revealed, outcome: m.outcome,
     hazards: !active && game.kind === "mines" ? instantHazards(m.serverSeed, m.clientSeed, game.code, m.options.mines) : null,
     serverSeedHash: instantSeedHash(m.serverSeed), serverSeed: active ? null : m.serverSeed, clientSeed: m.clientSeed,
-    createdAt: bet.placedAt.toISOString(), rtp: m.rtp, maxMultiplier: m.maxMultiplier };
+    createdAt: bet.placedAt.toISOString(), rtp: m.rtp, maxMultiplier: m.maxMultiplier, ...(game.kind === "dice" ? { sevenPayoutVersion: m.sevenPayoutVersion ?? 1 } : {}) };
 }
 export async function instantConfig(code: CollectionCode) {
   const c = await requireGameConfig(code);
-  return { enabled: c.enabled && !isRetiredGame(code), minStakePaise: c.minStakePaise.toString(), maxStakePaise: c.maxStakePaise.toString(), rtp: 1 - c.houseEdge, maxMultiplier: c.maxMultiplier };
+  return { enabled: c.enabled && !isRetiredGame(code), minStakePaise: c.minStakePaise.toString(), maxStakePaise: c.maxStakePaise.toString(), rtp: 1 - c.houseEdge, maxMultiplier: code === "7up7down" ? SEVEN_TOTAL_RETURN : c.maxMultiplier, ...(code === "7up7down" ? { sevenPayoutVersion: SEVEN_PAYOUT_VERSION } : {}) };
 }
 export async function instantState(userId: string, code: CollectionCode) {
   const active = await db.select().from(betsTable).where(and(owned(userId, code), eq(betsTable.status, "placed"))).limit(1);
@@ -60,6 +61,7 @@ export async function placeInstant(userId: string, code: CollectionCode, input: 
     const [active] = await tx.select({ id: betsTable.id }).from(betsTable).where(and(owned(userId, code), eq(betsTable.status, "placed"))).limit(1);
     if (active) throw conflict("Finish your current round first.");
     const m: Metadata = { version: 1, requestId: input.requestId, options: input.options, clientSeed: input.clientSeed, serverSeed: randomBytes(32).toString("hex"), step: 0, revealed: [], outcome: [], rtp: config.rtp, maxMultiplier: config.maxMultiplier };
+    if (game.kind === "dice") m.sevenPayoutVersion = SEVEN_PAYOUT_VERSION;
     let multiplier = 1, status: Bet["status"] = "placed";
     if (!progressive(game.kind)) {
       const draw = instantDraw(game.kind, m.serverSeed, m.clientSeed, code, m.options.choice, m.rtp);

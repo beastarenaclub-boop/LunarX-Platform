@@ -11,7 +11,7 @@ import { AB_MOTION_VERSION, andarBaharRevealMs } from "@workspace/api-zod/andar-
 import { L7_VERSION, normalizeL7Bets, l7Stake, l7Payout, type L7Bet, type L7Card } from "@workspace/api-zod/lucky7-live";
 import { deriveL7Card } from "./lucky7LiveMath";
 import { settleL7Live } from "./lucky7Live";
-import { normalizeSevenBets, sevenPayout, type SevenBet } from "@workspace/api-zod/instant-collection";
+import { normalizeSevenBets, sevenPayout, SEVEN_PAYOUT_VERSION, SEVEN_TOTAL_RETURN, type SevenBet, type SevenPayoutVersion } from "@workspace/api-zod/instant-collection";
 import { instantDraw } from "./instantCollectionMath";
 import { settleSevenLive, type SevenOutcome } from "./sevenUpDownLive";
 /**
@@ -152,6 +152,8 @@ export interface RoundConfigSnapshot {
   vegetableOutcomeVersion?: VegetableOutcomeVersion;
   /** Missing on legacy rounds, which retain the version 1 payout rules. */
   lucky7PayoutVersion?: Lucky7PayoutVersion;
+  /** Missing on legacy rounds, which retain their accepted RTP-based odds. */
+  sevenPayoutVersion?: SevenPayoutVersion;
   payoutVersion?: number;
   roulettePayoutBase?: number;
   houseEdge: number;
@@ -590,7 +592,7 @@ const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdapter> = 
       const dice = instantDraw("dice", seed, client, `7up7down:${nonce}`, "up", 1 - cfg.houseEdge).outcome;
       return { dice, total: dice[0] + dice[1] };
     },
-    settle: (bets, outcome, cap, edge) => ({ settled: bets, totalPayout: sevenPayout(bets as SevenBet[], (outcome as SevenOutcome).dice, 1 - edge, cap) }),
+    settle: (bets, outcome, cap, edge, cfg) => ({ settled: bets, totalPayout: sevenPayout(bets as SevenBet[], (outcome as SevenOutcome).dice, 1 - edge, cap, cfg.sevenPayoutVersion ?? 1) }),
     async insertAudit({ round }) { return round.id; },
   },
   "mega-ball": {
@@ -832,6 +834,10 @@ export async function createTableRound(gameCode: TableGameCode): Promise<TableRo
     snap.teenPattiPayouts = teenPattiPayouts(snap.maxMultiplier, snap.payoutVersion);
   }
   if (gameCode === "coin-flip") Object.assign(snap, COIN_LIVE_TIMING);
+  if (gameCode === "7up7down") {
+    snap.sevenPayoutVersion = SEVEN_PAYOUT_VERSION;
+    snap.maxMultiplier = SEVEN_TOTAL_RETURN;
+  }
   // New coups allow 20 seconds for betting. In-flight rounds retain
   // their original deadlines; the studio adjusts playback to the snapshot.
   if (gameCode === "baccarat") {

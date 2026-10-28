@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { randomUUID } from "node:crypto";
-import { sevenPayout, type SevenBet } from "@workspace/api-zod/instant-collection";
+import { type SevenBet } from "@workspace/api-zod/instant-collection";
+import type { RoundConfigSnapshot } from "../tableRounds";
 
 test("continuous 7 Up 7 Down: atomic admission, exact settlement, spectator rounds and restart recovery", { skip: !process.env.SEVEN_UP_DOWN_INTEGRATION }, async () => {
   assert.match(new URL(process.env.DATABASE_URL!).pathname, /^\/seven_up_down_test_/);
@@ -19,6 +20,8 @@ test("continuous 7 Up 7 Down: atomic admission, exact settlement, spectator roun
     await postEntry({ userId, type: "deposit", amount: 100000n });
     const bets: SevenBet[] = [{ spot: "up", amount: "101" }, { spot: "down", amount: "101" }, { spot: "seven", amount: "101" }, { spot: "8", amount: "101" }];
     const first = await createTableRound("7up7down");
+    assert.equal((first.config as RoundConfigSnapshot).sevenPayoutVersion, 2);
+    assert.equal((first.config as RoundConfigSnapshot).maxMultiplier, 1.98);
     assert.equal((await getTableRoundSnapshot("7up7down", userId))?.outcome, null);
     const [a, b] = await Promise.all([placeSevenLive(userId, first.id, bets), placeSevenLive(userId, first.id, [...bets].reverse())]);
     assert.equal(a.slipId, b.slipId);
@@ -35,7 +38,7 @@ test("continuous 7 Up 7 Down: atomic admission, exact settlement, spectator roun
     assert.equal(outcome.dice.length, 2);
     assert.equal((await getTableRoundSnapshot("7up7down", userId))?.outcome, null, "outcome stays hidden until landing");
     await assert.rejects(placeSevenLive(poorId, first.id, bets), /closed/);
-    const expected = sevenPayout(bets, outcome.dice, .97);
+    const expected = outcome.total === 8 ? 398n : 199n;
     await Promise.all([settleSevenLive(revealed), settleSevenLive(revealed)]);
     const settled = await settleTableRound(revealed);
     await finishTableRound(settled);
@@ -44,6 +47,7 @@ test("continuous 7 Up 7 Down: atomic admission, exact settlement, spectator roun
     assert.equal(ledger.filter(r => r.type === "bet").length, 1);
     assert.equal(ledger.filter(r => r.type === "win").length, 1);
     assert.equal((await sevenLiveHistory(userId))[0].payoutAmount, String(expected));
+    assert.equal((await sevenLiveHistory(userId))[0].sevenPayoutVersion, 2);
     assert.equal((await placeSevenLive(userId, first.id, bets)).slipId, a.slipId, "late retries return original receipt");
 
     const empty = await createTableRound("7up7down");
@@ -59,5 +63,19 @@ test("continuous 7 Up 7 Down: atomic admission, exact settlement, spectator roun
     await assert.rejects(placeSevenLive(userId, expired.id, bets), /closed/);
     const poorBets = await db.select().from(betsTable).where(eq(betsTable.userId, poorId));
     assert.equal(poorBets.length, 0, "failed placement rolls the whole transaction back");
+    await recoverTableRound(expired);
+
+    // A revealed round accepted before the rate change must keep its original odds on restart.
+    const legacy = await createTableRound("7up7down");
+    const legacyConfig = { ...legacy.config as RoundConfigSnapshot, maxMultiplier: 1000 };
+    delete legacyConfig.sevenPayoutVersion;
+    await db.update(tableRoundsTable).set({ config: legacyConfig }).where(eq(tableRoundsTable.id, legacy.id));
+    await placeSevenLive(userId, legacy.id, [{ spot: "seven", amount: "100" }]);
+    const [legacyRevealed] = await db.update(tableRoundsTable).set({ phase: "reveal", outcome: { dice: [3, 4], total: 7 } }).where(eq(tableRoundsTable.id, legacy.id)).returning();
+    const beforeRecovery = (await getBalanceByUser(userId)).balance;
+    await recoverTableRound(legacyRevealed, legacyRevealed.settleEndsAt.getTime() + 1);
+    await recoverTableRound(legacyRevealed, legacyRevealed.settleEndsAt.getTime() + 1);
+    assert.equal((await getBalanceByUser(userId)).balance, beforeRecovery + 582n);
+    assert.equal((await sevenLiveHistory(userId))[0].sevenPayoutVersion, 1);
   } finally { await pool.end(); }
 });

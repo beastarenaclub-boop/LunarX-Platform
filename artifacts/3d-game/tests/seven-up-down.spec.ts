@@ -40,9 +40,9 @@ async function setup(page: Page, options: { low?: boolean; drop?: boolean; rejec
     else if (path === "/api/wallet/balances") body = { balances: { lunar: String(wallet) } };
     else if (path.startsWith("/api/7up7down")) {
       if (offline) return route.fulfill({ status: 503, json: { detail: "Unavailable" } });
-      if (path.endsWith("/config")) body = { enabled: true, minStakePaise: "1000", maxStakePaise: "1000000", rtp: .97, maxMultiplier: 1000 };
+      if (path.endsWith("/config")) body = { enabled: true, minStakePaise: "1000", maxStakePaise: "1000000", rtp: .97, maxMultiplier: 1.98, sevenPayoutVersion: 2 };
       else if (path.endsWith("/state")) body = { round: null, history };
-      else if (path.endsWith("/round")) body = { roundId: `live-${id}`, phase, now: Date.now(), bettingEndsAt, revealEndsAt: Date.now() + 3000, settleEndsAt: Date.now() + 4000, outcome, myBets, recent, liveBets: [], playerCount: myBets.length, totalStake: myBets[0]?.totalStake ?? "0", config: { houseEdge: .03, minStakePaise: "1000", maxStakePaise: "1000000", maxMultiplier: 1000, bettingWindowMs: 120000, revealDurationMs: 3000, settleDurationMs: 4000 } };
+      else if (path.endsWith("/round")) body = { roundId: `live-${id}`, phase, now: Date.now(), bettingEndsAt, revealEndsAt: Date.now() + 3000, settleEndsAt: Date.now() + 4000, outcome, myBets, recent, liveBets: [], playerCount: myBets.length, totalStake: myBets[0]?.totalStake ?? "0", config: { sevenPayoutVersion: 2, houseEdge: .03, minStakePaise: "1000", maxStakePaise: "1000000", maxMultiplier: 1000, bettingWindowMs: 120000, revealDurationMs: 3000, settleDurationMs: 4000 } };
       else if (path.endsWith("/bet")) {
         const input = route.request().postDataJSON(); posts.push(input);
         if (options.reject) return route.fulfill({ status: 400, json: { detail: "Betting is closed. Choose your chips for the next round." } });
@@ -90,6 +90,16 @@ async function setup(page: Page, options: { low?: boolean; drop?: boolean; rejec
   };
 }
 
+test("all range and number spots show 1.98 total return and explain the 98 paise profit", async ({ page }) => {
+  await setup(page);
+  await expect(page.locator(".sud-odds")).toHaveText(Array(13).fill("1.98×"));
+  await expect(page.getByTestId("seven-spot-down")).toContainText("2–6");
+  await expect(page.getByTestId("seven-spot-up")).toContainText("8–12");
+  await page.getByRole("button", { name: "Game rules", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText("a ₹1 bet returns ₹1.98, including ₹0.98 profit");
+  await expect(page.getByRole("dialog")).not.toContainText("current RTP");
+});
+
 test("chips support multiple spots, double, undo, clear and single mode", async ({ page }) => {
   const f = await setup(page);
   await page.getByTestId("seven-spot-up").click(); await page.getByTestId("seven-spot-8").click();
@@ -130,14 +140,14 @@ test("confirmed slip settles all winning spots and repeat requires fresh confirm
   f.reveal(); await expect(page.getByTestId("dice-dome")).toHaveClass(/is-rolling/);
   await expect(page.locator(".is-winner")).toHaveCount(0);
   f.land(); f.settle();
-  await expect(page.getByTestId("collection-result")).toContainText("₹93.00 · Returned to your wallet");
-  await expect(page.getByTestId("collection-balance")).toHaveText("₹10,073.00");
+  await expect(page.getByTestId("collection-result")).toContainText("₹39.60 · Returned to your wallet");
+  await expect(page.getByTestId("collection-balance")).toHaveText("₹10,019.60");
   await expect(page.getByRole("img", { name: "Die 1: 5", exact: true })).toBeVisible();
   await page.screenshot({ path: "tmp/seven-up-down-result.png", fullPage: true });
   f.next(); await expect(page.getByTestId("seven-total-bet")).toHaveText("₹0.00");
   await page.getByRole("button", { name: "Repeat last bet" }).click();
   await expect(page.getByTestId("seven-total-bet")).toHaveText("₹20.00");
-  expect(f.posts).toHaveLength(1); expect(f.wallet).toBe(1007300n); expect(f.errors).toEqual([]);
+  expect(f.posts).toHaveLength(1); expect(f.wallet).toBe(1001960n); expect(f.errors).toEqual([]);
 });
 
 test("lost response and reload recover accepted bet without another debit", async ({ page }) => {

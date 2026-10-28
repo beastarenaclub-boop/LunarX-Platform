@@ -17,13 +17,17 @@ export const progressive = (kind: InstantKind) => ["road", "mines", "tower"].inc
 export const SEVEN_SPOTS = ["down", "seven", "up", "2", "3", "4", "5", "6", "8", "9", "10", "11", "12"] as const;
 export type SevenSpot = typeof SEVEN_SPOTS[number];
 export type SevenBet = { spot: SevenSpot; amount: string };
+export type SevenPayoutVersion = 1 | 2;
+export const SEVEN_PAYOUT_VERSION: SevenPayoutVersion = 2;
+export const SEVEN_TOTAL_RETURN = 1.98;
 export type CollectionOptions = { difficulty: "easy" | "medium" | "hard"; mines: number; choice: string; bets?: SevenBet[] };
 
 export function sevenWins(spot: SevenSpot, total: number): boolean {
   return spot === "down" ? total < 7 : spot === "up" ? total > 7 : spot === "seven" ? total === 7 : Number(spot) === total;
 }
-/** Total returns, including stake, derived from the existing server-owned RTP. */
-export function sevenMultiplier(spot: SevenSpot, rtp: number, cap = 1000): number {
+/** Every spot returns stake + 98% profit. Version 1 preserves already accepted rounds. */
+export function sevenMultiplier(spot: SevenSpot, rtp: number, cap = 1000, version: SevenPayoutVersion = SEVEN_PAYOUT_VERSION): number {
+  if (version === 2) return SEVEN_TOTAL_RETURN;
   const ways = spot === "down" || spot === "up" ? 15 : spot === "seven" ? 6 : 6 - Math.abs(7 - Number(spot));
   return Math.min(cap, Math.floor((rtp * 36 / ways + 1e-10) * 100) / 100);
 }
@@ -39,19 +43,19 @@ export function normalizeSevenBets(bets: SevenBet[], stake: bigint): SevenBet[] 
   if (total !== stake) throw new Error("Bet total does not match the chip amounts.");
   return [...bets].sort((a, b) => SEVEN_SPOTS.indexOf(a.spot) - SEVEN_SPOTS.indexOf(b.spot));
 }
-export function sevenPayout(bets: SevenBet[], outcome: number[], rtp: number, cap = 1000): bigint {
+export function sevenPayout(bets: SevenBet[], outcome: number[], rtp: number, cap = 1000, version: SevenPayoutVersion = SEVEN_PAYOUT_VERSION): bigint {
   const total = outcome[0] + outcome[1];
-  return bets.reduce((sum, bet) => sum + (sevenWins(bet.spot, total) ? collectionPayout(BigInt(bet.amount), sevenMultiplier(bet.spot, rtp, cap)) : 0n), 0n);
+  return bets.reduce((sum, bet) => sum + (sevenWins(bet.spot, total) ? collectionPayout(BigInt(bet.amount), sevenMultiplier(bet.spot, rtp, cap, version)) : 0n), 0n);
 }
 export interface CollectionRound {
   id: string; gameCode: CollectionCode; requestId: string; status: "active" | "won" | "lost" | "cashed_out";
   stakeAmount: string; payoutAmount: string; cashoutAmount: string; multiplier: number; step: number;
   options: CollectionOptions; revealed: number[]; hazards: number[] | null; outcome: number[];
   serverSeedHash: string; serverSeed: string | null; clientSeed: string; createdAt: string;
-  rtp: number; maxMultiplier: number;
+  rtp: number; maxMultiplier: number; sevenPayoutVersion?: SevenPayoutVersion;
 }
 export interface CollectionState { round: CollectionRound | null; history: CollectionRound[] }
-export interface CollectionConfig { enabled: boolean; minStakePaise: string; maxStakePaise: string; rtp: number; maxMultiplier: number }
+export interface CollectionConfig { enabled: boolean; minStakePaise: string; maxStakePaise: string; rtp: number; maxMultiplier: number; sevenPayoutVersion?: SevenPayoutVersion }
 export type CoinSide = "heads" | "tails";
 export type CoinLiveBet = { side: CoinSide; amount: string };
 export type CoinLiveInput = { roundId: string; side: CoinSide; stakeAmount: string };

@@ -1,5 +1,5 @@
 import { createHash, createHmac } from "node:crypto";
-import { type CollectionOptions, type InstantKind, roadSurvival } from "@workspace/api-zod/instant-collection";
+import { type CollectionOptions, type InstantKind, roadSurvival, sevenMultiplier, sevenWins, type SevenSpot } from "@workspace/api-zod/instant-collection";
 
 export const instantSeedHash = (seed: string) => createHash("sha256").update(seed).digest("hex");
 export function instantRandom(seed: string, client: string, game: string, label: string) {
@@ -24,8 +24,7 @@ export function instantDraw(kind: InstantKind, seed: string, client: string, gam
   if (kind === "dice") {
     outcome = [Math.floor(roll * 6) + 1, Math.floor(instantRandom(seed, client, game, "dice:2") * 6) + 1];
     const sum = outcome[0] + outcome[1];
-    if ((choice === "down" && sum < 7) || (choice === "up" && sum > 7)) multiplier = rtp * 36 / 15;
-    if (choice === "seven" && sum === 7) multiplier = rtp * 6;
+    if (sevenWins(choice as SevenSpot, sum)) multiplier = sevenMultiplier(choice as SevenSpot, rtp);
   } else if (kind === "fishing") {
     const prize = roll < .5 ? 0 : roll < .8 ? 1 : roll < .95 ? 2 : roll < .99 ? 3 : 4;
     outcome = [prize]; multiplier = [0, 1.5, 2, 4, 6][prize] * rtp / .97;

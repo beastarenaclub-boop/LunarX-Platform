@@ -28,6 +28,7 @@ export interface RoundConfigSnapshot {
   andarBaharMotionVersion?: number;
   roulettePayoutBase?: number;
   vegetableOutcomeVersion?: 1 | 2;
+  sevenPayoutVersion?: 1 | 2;
   houseEdge: number;
   maxMultiplier: number;
   maxStakePaise: string;

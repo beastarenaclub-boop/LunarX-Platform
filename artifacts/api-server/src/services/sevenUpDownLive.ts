@@ -54,7 +54,7 @@ export async function settleSevenLive(round: TableRound) {
       if (!slip || slip.status !== "pending") return null;
       const [bet] = await tx.select().from(betsTable).where(eq(betsTable.id, slip.betId)).for("update");
       if (!bet || bet.status !== "placed") throw new Error("SEVEN_SLIP_STATE_MISMATCH");
-      const payout = sevenPayout(slip.bets as SevenBet[], outcome.dice, 1 - cfg.houseEdge, cfg.maxMultiplier);
+      const payout = sevenPayout(slip.bets as SevenBet[], outcome.dice, 1 - cfg.houseEdge, cfg.maxMultiplier, cfg.sevenPayoutVersion ?? 1);
       let balance: bigint | undefined;
       if (payout > 0n) {
         const credit = await postEntry({ userId: slip.userId, type: "win", amount: payout, refType: "bet", refId: bet.id, memo: `7 Up 7 Down · total ${outcome.total}` }, tx);
@@ -73,6 +73,6 @@ export async function sevenLiveHistory(userId: string): Promise<CollectionRound[
   const rows = await db.select({ slip: tableRoundBetsTable, round: tableRoundsTable }).from(tableRoundBetsTable).innerJoin(tableRoundsTable, eq(tableRoundBetsTable.roundId, tableRoundsTable.id)).where(and(eq(tableRoundBetsTable.gameCode, SEVEN_CODE), eq(tableRoundBetsTable.userId, userId), eq(tableRoundBetsTable.status, "settled"))).orderBy(desc(tableRoundBetsTable.createdAt)).limit(20);
   return rows.map(({ slip, round }) => {
     const cfg = round.config as RoundConfigSnapshot;
-    return { id: round.id, gameCode: SEVEN_CODE, requestId: slip.id, status: slip.payoutAmount > 0n ? "won" : "lost", stakeAmount: slip.totalStake.toString(), payoutAmount: slip.payoutAmount.toString(), cashoutAmount: slip.payoutAmount.toString(), multiplier: Number(slip.payoutAmount) / Number(slip.totalStake), step: 0, options: { difficulty: "easy", mines: 3, choice: "up", bets: slip.bets as SevenBet[] }, outcome: (round.outcome as SevenOutcome).dice, revealed: [], hazards: null, serverSeed: round.serverSeed, serverSeedHash: round.serverSeedHash, clientSeed: round.clientSeed, createdAt: slip.createdAt.toISOString(), rtp: 1 - cfg.houseEdge, maxMultiplier: cfg.maxMultiplier };
+    return { id: round.id, gameCode: SEVEN_CODE, requestId: slip.id, status: slip.payoutAmount > 0n ? "won" : "lost", stakeAmount: slip.totalStake.toString(), payoutAmount: slip.payoutAmount.toString(), cashoutAmount: slip.payoutAmount.toString(), multiplier: Number(slip.payoutAmount) / Number(slip.totalStake), step: 0, options: { difficulty: "easy", mines: 3, choice: "up", bets: slip.bets as SevenBet[] }, outcome: (round.outcome as SevenOutcome).dice, revealed: [], hazards: null, serverSeed: round.serverSeed, serverSeedHash: round.serverSeedHash, clientSeed: round.clientSeed, createdAt: slip.createdAt.toISOString(), rtp: 1 - cfg.houseEdge, maxMultiplier: cfg.maxMultiplier, sevenPayoutVersion: cfg.sevenPayoutVersion ?? 1 };
   });
 }
