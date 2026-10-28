@@ -10,8 +10,8 @@
   <path fill="url(#bg)" d="M0 0h600v800H0z"/>
   <g stroke="#fff" stroke-opacity=".15"><circle cx="520" cy="130" r="220"/><circle cx="520" cy="130" r="270"/><circle cx="70" cy="610" r="190"/></g>
   <path d="M318 32a28 28 0 1 0 16 41 29 29 0 0 1-16-41Z" fill="#e7ddff"/>
-  <text x="300" y="162" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="77" font-weight="900" letter-spacing="3">LUNAR</text>
-  <text x="300" y="200" text-anchor="middle" fill="#e5dcff" font-family="Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="5">COLOUR TRADING</text>
+  <text x="300" y="162" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="67" font-weight="900" letter-spacing="3">COLOUR</text>
+  <text x="300" y="200" text-anchor="middle" fill="#e5dcff" font-family="Arial,sans-serif" font-size="30" font-weight="700" letter-spacing="5">TRADING</text>
   <g filter="url(#shadow)">
     <g transform="translate(164 365) rotate(-18)"><circle r="102" fill="url(#red)"/><circle r="84" stroke="white" stroke-opacity=".65" stroke-width="20" stroke-dasharray="32 54"/><circle r="65" fill="url(#white)"/><text y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="76" font-weight="800" fill="#dd546c">2</text></g>
     <g transform="translate(420 374) rotate(18)"><circle r="96" fill="url(#violet)"/><circle r="79" stroke="white" stroke-opacity=".65" stroke-width="20" stroke-dasharray="30 52"/><circle r="61" fill="url(#white)"/><text y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="74" font-weight="800" fill="#9b54d3">5</text></g>
@@ -19,5 +19,6 @@
   </g>
   <g fill="white" fill-opacity=".65"><path d="m474 234 5 15 15 5-15 5-5 15-5-15-15-5 15-5Z"/><path d="m99 246 4 10 10 4-10 4-4 10-4-10-10-4 10-4Z"/><circle cx="504" cy="479" r="4"/></g>
   <rect x="165" y="607" width="270" height="38" rx="19" fill="white" fill-opacity=".16" stroke="white" stroke-opacity=".2"/>
-  <text x="300" y="632" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" fill="white" letter-spacing="2">30s · 1m · 3m · 5m</text>
+  <text x="300" y="632" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" fill="white" letter-spacing="2">0–9 · 1.98× RETURN</text>
+  <text x="300" y="679" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" fill="#e5dcff">₹1 stake + ₹0.98 profit on a winning number</text>
 </svg>

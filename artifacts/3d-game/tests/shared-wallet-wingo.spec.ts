@@ -28,7 +28,7 @@ test("Win Go uses the lobby wallet, updates another tab, and cannot refill share
     state = await (await page.request.get("/api/wingo/state?duration=30")).json();
     return state.round.ends - state.serverTime;
   }, { timeout: 35000 }).toBeGreaterThan(15000);
-  const slip = { duration: 30, period: state.round.period, pick: "green", stake: 1000, request: randomUUID() };
+  const slip = { duration: 30, period: state.round.period, pick: "green", stake: 1000, request: randomUUID(), payoutVersion: state.round.payoutVersion };
   for (let retry = 0; retry < 2; retry++) {
     const result = await page.request.post("/api/wingo/bets", { data: slip });
     expect(result.ok(), await result.text()).toBeTruthy();

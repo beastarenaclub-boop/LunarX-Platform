@@ -22,9 +22,9 @@ function Secondary({ children }: { children: ReactNode }) {
 
 function Information() {
   return <Dialog>
-    <DialogTrigger asChild><button className="icon-button" data-testid="btn-game-rules" aria-label="Lunar Colour Trading information"><Info size={19} /></button></DialogTrigger>
+    <DialogTrigger asChild><button className="icon-button" data-testid="btn-game-rules" aria-label="Colour Trading information"><Info size={19} /></button></DialogTrigger>
     <GameInformationDrawer onCloseAutoFocus={restoreGameInformationFocus} className="bg-white text-slate-800">
-      <DialogTitle>Lunar Colour Trading</DialogTitle>
+      <DialogTitle>Colour Trading</DialogTitle>
       <DialogDescription>Game guide, recent results and your activity.</DialogDescription>
       <GameInformationTarget />
     </GameInformationDrawer>

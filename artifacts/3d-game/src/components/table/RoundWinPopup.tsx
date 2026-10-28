@@ -31,7 +31,7 @@ export default function RoundWinPopup({
   const titleId = useId();
   const descriptionId = useId();
   const game = win?.game ?? win?.scope.split(":")[2] ?? "game";
-  const gameName = game === "wingo" ? "Lunar Colour Trading" : game.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  const gameName = game === "wingo" ? "Colour Trading" : game.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
   const { bounds, portalContainer } = useGameScreenBounds(game, !!win && !inline, "viewport");
   useEffect(() => {
     if (inline && win) confirm.current?.focus({ preventScroll: true });

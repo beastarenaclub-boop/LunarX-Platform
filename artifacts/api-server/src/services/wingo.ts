@@ -2,7 +2,7 @@ import { randomBytes, randomInt } from "node:crypto";
 import { and, asc, desc, eq, isNull, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, wingoRoundsTable as rounds, wingoBetsTable as bets } from "@workspace/db";
-import { DURATIONS, commitmentFor, multiplierFor } from "../../../3d-game/wingo-server/rules.mjs";
+import { DURATIONS, PAYOUT_VERSION, commitmentFor, multiplierFor } from "../../../3d-game/wingo-server/rules.mjs";
 import { badRequest, conflict } from "../lib/errors";
 import { logger } from "../lib/logger";
 import { ensureWallet, getBalance, getBalanceByUser, postEntry, publishWalletBalance, type TxClient } from "./wallet";
@@ -14,6 +14,7 @@ const betSchema = z.object({
   pick: z.string().regex(/^(green|red|violet|big|small|[0-9])$/),
   stake: z.number().int().min(100).max(1_000_000).multipleOf(100),
   request: z.string().regex(/^[a-zA-Z0-9-]{16,80}$/),
+  payoutVersion: z.number().int().min(1).max(PAYOUT_VERSION).optional(),
 }).strict();
 type BetInput = z.infer<typeof betSchema>;
 const periodFor = (duration: number, time: number) => `${duration}-${Math.floor(time / (duration * 1000))}`;
@@ -55,7 +56,7 @@ async function advance(tx: TxClient, now: number, changed: Set<string>) {
     const number = randomInt(10);
     const secret = randomBytes(32).toString("hex");
     await tx.insert(rounds).values({ period, duration, start, ends: start + duration * 1000,
-      number, secret, payoutVersion: 2, commitment: commitmentFor(period, number, secret) });
+      number, secret, payoutVersion: PAYOUT_VERSION, commitment: commitmentFor(period, number, secret) });
   }
 }
 
@@ -118,6 +119,8 @@ async function table(userId: string, duration: number, input?: BetInput) {
         const [round] = await tx.select().from(rounds).where(eq(rounds.period, input.period));
         if (round.settled || now >= round.ends - 5000)
           throw conflict("Predictions are locked for this round. The next round starts shortly.");
+        if (round.payoutVersion >= 3 && input.payoutVersion !== round.payoutVersion)
+          throw conflict("The game rates have changed. Refresh Colour Trading before placing your bet.");
         const [bet] = await tx.insert(bets).values({ userId, period: input.period, pick: input.pick,
           stake: input.stake, request: input.request, created: now }).returning();
         try {

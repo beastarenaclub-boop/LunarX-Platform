@@ -66,7 +66,7 @@ test("lobby card opens native Win Go and returning leaves the lobby styles intac
   await expect(page.getByTestId("card-game-lunar").first()).toBeVisible();
 });
 
-test("responsive controls, landscape dialogs, browser zoom and timer modes", async ({
+test("responsive controls, landscape dialogs, browser zoom without timers", async ({
   page,
 }) => {
   await signUp(page);
@@ -98,15 +98,8 @@ test("responsive controls, landscape dialogs, browser zoom and timer modes", asy
   await page.evaluate(() => {
     document.documentElement.style.zoom = "";
   });
-  for (const [label, duration] of [
-    ["1 minute", 60],
-    ["3 minutes", 180],
-    ["5 minutes", 300],
-    ["30 seconds", 30],
-  ] as const) {
-    await page.getByRole("button", { name: new RegExp(`^${label}`) }).click();
-    await expect(page.getByTestId("period")).toContainText(`#${duration}-`);
-  }
+  await expect(page.locator('.mode-picker, [data-testid="countdown"], .round-progress')).toHaveCount(0);
+  await expect(page.getByTestId("period")).toContainText('#30-');
   await page.setViewportSize({ width: 390, height: 844 });
   await page
     .getByRole("button", { name: "Pick number 7", exact: true })

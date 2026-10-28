@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" fill="none">
+  <defs>
+    <linearGradient id="bg" x2="1200" y2="675" gradientUnits="userSpaceOnUse"><stop stop-color="#19152f"/><stop offset=".55" stop-color="#393064"/><stop offset="1" stop-color="#7661cf"/></linearGradient>
+    <radialGradient id="green"><stop stop-color="#b8ffe1"/><stop offset=".58" stop-color="#36d6a4"/><stop offset="1" stop-color="#11936d"/></radialGradient>
+    <radialGradient id="red"><stop stop-color="#ffceca"/><stop offset=".6" stop-color="#fa7f8d"/><stop offset="1" stop-color="#d24363"/></radialGradient>
+    <radialGradient id="violet"><stop stop-color="#f6d5ff"/><stop offset=".6" stop-color="#c18aff"/><stop offset="1" stop-color="#8c45d1"/></radialGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#100920" flood-opacity=".4"/></filter>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h1200v675H0z"/>
+  <g stroke="#fff" stroke-opacity=".12"><circle cx="1000" cy="220" r="270"/><circle cx="1000" cy="220" r="320"/><circle cx="100" cy="720" r="270"/></g>
+  <g font-family="Arial,sans-serif">
+    <text x="70" y="136" fill="#bdb0ec" font-size="22" font-weight="700" letter-spacing="5">PICK YOUR NUMBER</text>
+    <text x="66" y="256" fill="#fff" font-size="100" font-weight="900">COLOUR</text>
+    <text x="70" y="338" fill="#e1d9fc" font-size="67" font-weight="800" letter-spacing="5">TRADING</text>
+    <rect x="70" y="389" width="452" height="67" rx="33" fill="#fff" fill-opacity=".12" stroke="#fff" stroke-opacity=".22"/>
+    <text x="296" y="433" fill="#fff" text-anchor="middle" font-size="28" font-weight="700">0–9 · 1.98× TOTAL RETURN</text>
+    <text x="70" y="532" fill="#fff" font-size="26">₹1 stake + ₹0.98 profit</text>
+    <text x="70" y="572" fill="#c9bde9" font-size="22">on every winning number bet</text>
+  </g>
+  <g filter="url(#shadow)" font-family="Arial,sans-serif" font-weight="800" text-anchor="middle">
+    <g transform="translate(770 254) rotate(-18)"><circle r="112" fill="url(#red)"/><circle r="93" stroke="#fff" stroke-opacity=".65" stroke-width="21" stroke-dasharray="35 60"/><circle r="70" fill="#fff"/><text y="29" font-size="82" fill="#dd546c">2</text></g>
+    <g transform="translate(1020 269) rotate(16)"><circle r="107" fill="url(#violet)"/><circle r="88" stroke="#fff" stroke-opacity=".65" stroke-width="21" stroke-dasharray="34 57"/><circle r="66" fill="#fff"/><text y="28" font-size="82" fill="#9b54d3">5</text></g>
+    <g transform="translate(895 428) rotate(-8)"><circle r="131" fill="url(#green)"/><circle r="109" stroke="#fff" stroke-opacity=".7" stroke-width="24" stroke-dasharray="43 69"/><circle r="82" fill="#fff"/><text y="34" font-size="106" fill="#1da87e">7</text></g>
+  </g>
+</svg>

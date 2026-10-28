@@ -165,7 +165,7 @@ export const LOBBY_GAMES: LobbyGame[] = [
     registryCode: "andar-bahar",
     label: "NEW",
   }),
-  game("wingo", "Lunar Colour Trading", "instant", "#c4b5fd", {
+  game("wingo", "Colour Trading", "instant", "#c4b5fd", {
     route: "/lunar-colour-trading",
     artwork: colour,
     artworkHasTitle: true,

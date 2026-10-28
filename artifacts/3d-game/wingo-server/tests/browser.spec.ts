@@ -69,13 +69,13 @@ test("desktop: real prediction, settlement, persistent balance, proof and chart"
   expect(errors).toEqual([]);
 });
 
-test("mobile widths, all timer modes, help, wallet and keyboard interactions", async ({
+test("mobile widths, hidden timers, help, wallet and keyboard interactions", async ({
   page,
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/lunar-colour-trading");
-  await expect(page).toHaveTitle("Lunar Colour Trading");
+  await expect(page).toHaveTitle("Colour Trading");
   await expect(page.getByTestId("balance")).toContainText("10,000");
   for (const width of [320, 390, 768, 1280]) {
     await page.setViewportSize({ width, height: 900 });
@@ -87,21 +87,11 @@ test("mobile widths, all timer modes, help, wallet and keyboard interactions", a
     ).toBe(true);
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const [label, duration] of [
-    ["1 minute", 60],
-    ["3 minutes", 180],
-    ["5 minutes", 300],
-    ["30 seconds", 30],
-  ] as const) {
-    await page.getByRole("button", { name: new RegExp(`^${label}`) }).click();
-    await expect(page.getByTestId("period")).toContainText(`#${duration}-`);
-    await expect(
-      page.getByRole("button", { name: new RegExp(`^${label}`) }),
-    ).toHaveAttribute("aria-pressed", "true");
-  }
+  await expect(page.locator('.mode-picker, [data-testid="countdown"], .round-progress')).toHaveCount(0);
+  await expect(page.getByTestId("period")).toContainText('#30-');
   await page.getByRole("button", { name: "Game rules & fairness" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
-  await expect(page.getByText("2× / 1.5×").first()).toBeVisible();
+  await expect(page.getByRole("cell", {name:"1.98×",exact:true})).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
   await page.getByRole("button", { name: "Open practice wallet" }).click();

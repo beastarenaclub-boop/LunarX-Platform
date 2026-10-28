@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleHelp,
-  Clock3,
   Coins,
   Download,
   History as HistoryIcon,
@@ -30,18 +29,12 @@ import {
   VolumeX,
   Wallet,
   X,
-  Zap,
 } from "lucide-react";
 import { useStandaloneGameAudio, type GameAudioBridge } from "../../src/game/useStandaloneGameAudio";
 import type { GameState, History, Pick } from "./types";
 import RoundWinPopup, { type Win } from "../../src/components/table/RoundWinPopup";
 
-const MODES = [
-  { value: 30, title: "30 seconds", short: "30s", tag: "QUICK PLAY" },
-  { value: 60, title: "1 minute", short: "1m", tag: "CLASSIC" },
-  { value: 180, title: "3 minutes", short: "3m", tag: "TAKE YOUR TIME" },
-  { value: 300, title: "5 minutes", short: "5m", tag: "SLOW & STEADY" },
-];
+const ROUND_DURATION = 30;
 const MULTIPLIERS = [1, 5, 10, 20, 50, 100];
 const coins = (cents: number) =>
   (cents / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 });
@@ -51,8 +44,6 @@ const title = (value: string) =>
     : value.charAt(0).toUpperCase() + value.slice(1);
 const color = (n: number) => (n % 2 ? "green" : "red");
 const size = (n: number) => (n >= 5 ? "Big" : "Small");
-const payoutLabel = (pick: Pick) =>
-  pick === "violet" ? "4.5×" : /^\d$/.test(pick) ? "9×" : "2×";
 function Ball({ number, small = false }: { number: number; small?: boolean }) {
   return (
     <span
@@ -148,15 +139,16 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
   audioBridge?: GameAudioBridge;
 } = {}) {
   const [data, setData] = useState<GameState | null>(null);
-  const pricingV2 = data?.round.payoutVersion === 2;
-  const payoutLabel = (pick: Pick) => pick === "violet" ? (pricingV2 ? "4.25Ã—" : "4.5Ã—") : /^\d$/.test(pick) ? (pricingV2 ? "8.5Ã—" : "9Ã—") : (pricingV2 ? "1.70Ã—" : "2Ã—");
+  const payoutVersion = data?.round.payoutVersion ?? 1;
+  const pricingV2 = payoutVersion >= 2;
+  const payoutLabel = (pick: Pick) => pick === "violet" ? (pricingV2 ? "4.25×" : "4.5×") : /^\d$/.test(pick) ? (payoutVersion === 3 ? "1.98×" : pricingV2 ? "8.5×" : "9×") : (pricingV2 ? "1.70×" : "2×");
   const sharedWallet = !!onOpenWallet;
   const balance = walletBalance === undefined ? data?.player.balance : Number(walletBalance);
   const lastBalance = useRef<number | undefined>(undefined);
   const walletChangeRef = useRef(onWalletChange);
   walletChangeRef.current = onWalletChange;
   const openWallet = () => onOpenWallet ? onOpenWallet() : setWallet(true);
-  const [mode, setMode] = useState(30);
+  const mode = ROUND_DURATION;
   const modeRef = useRef(mode);
   modeRef.current = mode;
   const [ready, setReady] = useState(false);
@@ -193,7 +185,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
   const historyRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = "Lunar Colour Trading";
+    document.title = "Colour Trading";
     return () => { document.title = previousTitle; };
   }, []);
   function accept(next: GameState) {
@@ -352,16 +344,6 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
   const violetCount = history.filter((item) =>
     [0, 5].includes(item.number),
   ).length;
-  const clockText = `${Math.floor(remaining / 60)
-    .toString()
-    .padStart(2, "0")}:${(remaining % 60).toString().padStart(2, "0")}`;
-  const modeInfo = MODES.find((item) => item.value === mode)!;
-  function switchMode(value: number) {
-    if (busy) return;
-    setMode(value);
-    setPick(null);
-    setConfirm(null);
-  }
   function showHistory(nextTab: string) {
     setTab(nextTab);
     historyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -379,7 +361,9 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
     busyRef.current = true;
     setBusy(true);
     try {
-      const next = await api("bets", { ...selection, duration: mode });
+      const next = await api("bets", { ...selection, duration: mode,
+        ...(payoutVersion >= 3 ? { payoutVersion } : {}),
+      });
       accept(next);
       gameAudio.play("bet");
       setToast({
@@ -450,7 +434,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
     );
     const link = document.createElement("a");
     link.href = url;
-    link.download = `lunar-colour-trading-${mode}s-history.csv`;
+    link.download = `colour-trading-history.csv`;
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
@@ -473,14 +457,14 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
           <a
             className="brand"
             href={onBackToLobby ? "/lunar-colour-trading" : "/"}
-            aria-label="Lunar Colour Trading home"
+            aria-label="Colour Trading home"
           >
             <span className="brand-mark">
               <MoonStar size={27} aria-hidden="true" />
             </span>
             <span>
-              lunar
-              <small>COLOUR TRADING</small>
+              Colour
+              <small>TRADING</small>
             </span>
           </a>
           <Secondary><nav aria-label="Main navigation">
@@ -529,7 +513,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
           {onBackToLobby ? (
             <button onClick={onBackToLobby}>All games</button>
           ) : (
-            "Lunar"
+            "Games"
           )}{" "}
           <ChevronRight size={13} />
           <span>Colour Trading</span>
@@ -537,10 +521,10 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
         <Secondary><section className="page-heading">
           <div>
             <div className="eyebrow">
-              <span /> PICK A COLOUR. FOLLOW YOUR ORBIT.
+              <span /> PICK YOUR COLOUR. PLAY YOUR NUMBER.
             </div>
             <h1>
-              Lunar <span>Colour Trading</span>
+              <span>Colour Trading</span>
             </h1>
             <p>
               Pick your colour, find your number. A fresh round is always around
@@ -623,46 +607,14 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
 
         <div className="game-layout">
           <div className="game-column">
-            <section className="mode-picker" aria-label="Round duration">
-              {MODES.map((item) => (
-                <button
-                  key={item.value}
-                  onClick={() => switchMode(item.value)}
-                  disabled={busy}
-                  className={mode === item.value ? "selected" : ""}
-                  aria-pressed={mode === item.value}
-                >
-                  <span className="mode-icon">
-                    {item.value === 30 ? (
-                      <Zap size={23} />
-                    ) : (
-                      <Clock3 size={23} />
-                    )}
-                  </span>
-                  <span>
-                    <b>{item.title}</b>
-                    <small>{item.tag}</small>
-                  </span>
-                  {mode === item.value && (
-                    <span className="mode-check">
-                      <Check size={10} />
-                    </span>
-                  )}
-                </button>
-              ))}
-            </section>
-
             <section
-              className={`round-ticket ${remaining <= 5 ? "closing" : ""}`}
+              className={`round-ticket colour-round-ticket ${locked ? "closing" : ""}`}
               aria-label="Current round"
             >
               <div className="ticket-left">
                 <span className="round-live">
                   <i />
-                  {locked && connected && correctMode
-                    ? "DRAWING SOON"
-                    : "LUNAR LIVE"}
-                  <span>{modeInfo.short}</span>
+                  {!connected || !fresh ? "CONNECTING" : locked ? "BETTING CLOSED" : "BETTING OPEN"}
                 </span>
                 <span className="round-caption">Current round</span>
                 <strong className="period" data-testid="period">
@@ -682,40 +634,6 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
                     </span>
                   )}
                 </div>
-              </div>
-              <div className="ticket-divider" />
-              <div className="ticket-right">
-                <span>
-                  <Timer size={14} />
-                  {remaining <= 5 ? "Result in" : "Round ends in"}
-                </span>
-                <div
-                  className="countdown"
-                  aria-label={`${remaining} seconds remaining`}
-                  data-testid="countdown"
-                >
-                  {clockText
-                    .split("")
-                    .map((digit, i) =>
-                      digit === ":" ? (
-                        <b key={i}>:</b>
-                      ) : (
-                        <span key={i}>{digit}</span>
-                      ),
-                    )}
-                </div>
-                <small>
-                  {remaining <= 5 ? (
-                    <>
-                      <LockKeyhole size={12} /> Predictions locked
-                    </>
-                  ) : (
-                    <>Picks close in {Math.max(0, remaining - 5)}s</>
-                  )}
-                </small>
-              </div>
-              <div className="round-progress">
-                <i style={{ width: `${(remaining / mode) * 100}%` }} />
               </div>
             </section>
 
@@ -738,7 +656,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
                   >
                     <span className="color-orb" />
                     <strong>{title(item)}</strong>
-                    <small>{item === "violet" ? "4.5×" : "up to 2×"}</small>
+                    <small>{payoutLabel(item)}</small>
                     {pick === item && (
                       <Check className="choice-check" size={17} />
                     )}
@@ -747,7 +665,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
               </div>
               <div className="option-divider">
                 <span>or pick your lucky number</span>
-                <b>9× return</b>
+                <b>{payoutLabel("0")} return</b>
               </div>
               <div className="number-options">
                 {Array.from({ length: 10 }, (_, number) => (
@@ -777,7 +695,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
                     <strong>Big</strong>
                     <small>5 · 6 · 7 · 8 · 9</small>
                   </span>
-                  <b>2×</b>
+                  <b>{payoutLabel("big")}</b>
                   {pick === "big" && <Check size={17} />}
                 </button>
                 <button
@@ -790,7 +708,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
                     <strong>Small</strong>
                     <small>0 · 1 · 2 · 3 · 4</small>
                   </span>
-                  <b>2×</b>
+                  <b>{payoutLabel("small")}</b>
                   {pick === "small" && <Check size={17} />}
                 </button>
               </div>
@@ -952,7 +870,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
                   </span>
                   <h2>The latest reveal</h2>
                 </div>
-                <span className="tiny-tag">{modeInfo.short}</span>
+                <span className="tiny-tag">LIVE</span>
               </div>
               <div className="latest-result">
                 {last ? (
@@ -1120,7 +1038,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
               </button>
             ) : (
               <span className="history-mode">
-                Lunar {modeInfo.short}
+                Colour Trading
                 <ChevronDown size={13} />
               </span>
             )}
@@ -1335,7 +1253,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
                 {tab === "Game history"
                   ? `${history.length} completed rounds`
                   : `${myBets.length} recent predictions`}
-                <span className="footer-dot">·</span>Lunar {modeInfo.short}
+                <span className="footer-dot">·</span>Colour Trading
               </span>
               <div>
                 <button
@@ -1373,7 +1291,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
         <Secondary><footer className="footer">
           <div>
             <MoonStar size={20} aria-hidden="true" />
-            <span>Lunar Colour Trading</span>
+            <span>Colour Trading</span>
           </div>
           <span>{sharedWallet ? "One wallet across all games · 1 coin = ₹1" : "Practice coins only · No cash value"}</span>
           <button onClick={() => setRules(true)}>
@@ -1410,7 +1328,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
               <span>Your prediction</span>
               <strong>{title(confirm.pick)}</strong>
               <span>
-                Lunar {modeInfo.short} · #{confirm.period}
+                Colour Trading · #{confirm.period}
               </span>
             </div>
             <div className="receipt">
@@ -1457,17 +1375,16 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
       <Modal
         open={rules}
         onClose={() => setRules(false)}
-        title="Lunar Colour Trading guide"
-        description={sharedWallet ? "Lunar Colour Trading uses the same wallet as all your games. 1 coin = ₹1." : "A quick guide to Lunar Colour Trading practice rounds."}
+        title="Colour Trading guide"
+        description={sharedWallet ? "Colour Trading uses the same wallet as all your games. 1 coin = ₹1." : "A quick guide to Colour Trading practice rounds."}
       >
         <ol className="rules-steps">
           <li>
             <span>1</span>
             <div>
-              <b>Choose your pace</b>
+              <b>Join the round</b>
               <p>
-                Play 30-second, 1-minute, 3-minute or 5-minute rounds. Each mode
-                has its own results.
+                Every round lasts 30 seconds. Place your prediction while betting is open.
               </p>
             </div>
           </li>
@@ -1477,7 +1394,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
               <b>Make your pick</b>
               <p>
                 Select one colour, exact number, or Big / Small. Set the base
-                {BetControls ? "coin amount. Your selected prediction submits automatically when the betting countdown ends. Cancel clears it, and a new round needs a new selection." : "amount and multiplier, then confirm."}
+                {BetControls ? "coin amount. Your selected prediction submits automatically before betting closes. Cancel clears it, and a new round needs a new selection." : "amount and multiplier, then confirm."}
               </p>
             </div>
           </li>
@@ -1504,27 +1421,27 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
             <tr>
               <td>Green</td>
               <td>1, 3, 7, 9 / 5</td>
-              <td>2× / 1.5×</td>
+              <td>{pricingV2 ? payoutLabel("green") : "2× / 1.5×"}</td>
             </tr>
             <tr>
               <td>Red</td>
               <td>2, 4, 6, 8 / 0</td>
-              <td>2× / 1.5×</td>
+              <td>{pricingV2 ? payoutLabel("green") : "2× / 1.5×"}</td>
             </tr>
             <tr>
               <td>Violet</td>
               <td>0, 5</td>
-              <td>4.5×</td>
+              <td>{payoutLabel("violet")}</td>
             </tr>
             <tr>
               <td>Big / Small</td>
               <td>5–9 / 0–4</td>
-              <td>2×</td>
+              <td>{payoutLabel("big")}</td>
             </tr>
             <tr>
               <td>Number</td>
               <td>Your exact number</td>
-              <td>9×</td>
+              <td>{payoutLabel("0")}</td>
             </tr>
           </tbody>
         </table>
@@ -1533,7 +1450,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
           <p>
             Each result is randomly selected on the server and committed before
             the reveal. The history lets you check that commitment. Past results
-            do not predict future draws. Returns include your stake; there is no extra fee. {pricingV2 && "Theoretical RTP is 85% on every pick, before paise rounding; it is not a guarantee per round."}
+            do not predict future draws. Returns include your stake; there is no extra fee. {payoutVersion === 3 ? "Every winning number bet from 0 to 9 returns ₹1.98 per ₹1: your ₹1 stake plus ₹0.98 profit. Number-pick theoretical RTP is 19.8%; colour and size picks remain at 85%, before paise rounding." : pricingV2 ? "Theoretical RTP is 85% on every pick, before paise rounding; it is not a guarantee per round." : ""}
           </p>
         </div>
       </Modal>

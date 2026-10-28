@@ -1,6 +1,6 @@
 import type { WinGoBetControlsProps } from "../../../wingo/src/App";
 import { useAuth } from "@/lib/auth";
-import { AutoBetStatus, BET_SEND_BUFFER_MS, useTimedBet } from "./AutoBet";
+import { BET_SEND_BUFFER_MS, useTimedBet } from "./AutoBet";
 import { TableCoinRack, useCoinPreferences } from "./CoinSettings";
 import "./wingo-betting.css";
 
@@ -21,7 +21,9 @@ export default function WinGoBetControls(props: WinGoBetControlsProps) {
     <TableCoinRack preferences={coins} chip={props.chip} onSelect={props.onSelect}
       layout="fit" unit="chips" maxValue={10000} disabled={props.locked || props.busy} />
     <div className="wingo-selected-stake">Play amount <strong>{Number.isFinite(props.chip) ? props.chip.toLocaleString("en-IN") : "—"} coins</strong></div>
-    <AutoBetStatus selected={props.selected} busy={props.busy} onCancel={props.onCancel}
-      seconds={props.selected && deadline !== null ? Math.max(0, Math.ceil((deadline - Date.now()) / 1000)) : null} />
+    <div className="auto-bet-status" data-testid="auto-bet-status" role="status">
+      <span>{props.busy ? "Placing bet…" : props.selected ? "Bet selected · submits before betting closes" : "Select coins to bet"}</span>
+      {props.selected && !props.busy && <button type="button" onClick={props.onCancel} aria-label="Cancel selected bet">Cancel</button>}
+    </div>
   </div>;
 }

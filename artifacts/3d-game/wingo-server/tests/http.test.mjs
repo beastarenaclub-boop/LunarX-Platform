@@ -75,8 +75,8 @@ test("HTTP sessions, JSON validation, CSRF protection, settlement and session is
     })
   ).json();
   assert.equal(settled.bets.length, 1);
-  assert.equal(settled.bets[0].payout, 9000);
-  assert.equal(settled.player.balance, 1008000);
+  assert.equal(settled.bets[0].payout, 1980);
+  assert.equal(settled.player.balance, 1000980);
   assert.equal(settled.history[0].number, 5);
   const resume = await post("session", {}, cookie);
   assert.equal((await resume.json()).player.id, initial.player.id);

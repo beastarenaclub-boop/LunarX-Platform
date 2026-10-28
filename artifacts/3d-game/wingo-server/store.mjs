@@ -3,7 +3,7 @@ import { randomBytes, randomInt, randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
-import { DURATIONS, hash, multiplierFor, commitmentFor } from "./rules.mjs";
+import { DURATIONS, PAYOUT_VERSION, hash, multiplierFor, commitmentFor } from "./rules.mjs";
 export { DURATIONS, hash, colorsFor, multiplierFor, commitmentFor } from "./rules.mjs";
 export class Fault extends Error {
   constructor(message, status = 400) {
@@ -33,6 +33,9 @@ export function createStore(
     CREATE INDEX IF NOT EXISTS bet_round ON bets(period);
     CREATE TABLE IF NOT EXISTS accounts (account TEXT PRIMARY KEY, token TEXT UNIQUE NOT NULL);
   `);
+  // Keep the odds of existing practice rounds when upgrading this database.
+  if (!db.prepare("PRAGMA table_info(rounds)").all().some(column => column.name === "payoutVersion"))
+    db.exec("ALTER TABLE rounds ADD COLUMN payoutVersion INTEGER NOT NULL DEFAULT 1");
   function transaction(fn) {
     db.exec("BEGIN IMMEDIATE");
     try {
@@ -54,7 +57,7 @@ export function createStore(
         .prepare("SELECT * FROM bets WHERE period=? AND payout IS NULL")
         .all(round.period)) {
         const payout = Math.round(
-          bet.stake * multiplierFor(bet.pick, round.number),
+          bet.stake * multiplierFor(bet.pick, round.number, round.payoutVersion),
         );
         db.prepare("UPDATE bets SET payout=? WHERE id=?").run(payout, bet.id);
         db.prepare("UPDATE players SET balance=balance+? WHERE id=?").run(
@@ -76,7 +79,7 @@ export function createStore(
         throw new Error("Invalid random draw");
       const secret = randomBytes(32).toString("hex");
       db.prepare(
-        "INSERT INTO rounds(period,duration,start,ends,number,secret,commitment) VALUES(?,?,?,?,?,?,?)",
+        "INSERT INTO rounds(period,duration,start,ends,number,secret,commitment,payoutVersion) VALUES(?,?,?,?,?,?,?,?)",
       ).run(
         period,
         duration,
@@ -85,6 +88,7 @@ export function createStore(
         number,
         secret,
         commitmentFor(period, number, secret),
+        PAYOUT_VERSION,
       );
     }
   }
@@ -106,7 +110,7 @@ export function createStore(
   function stateInner(player, duration, time) {
     const round = db
       .prepare(
-        "SELECT period,duration,start,ends,commitment FROM rounds WHERE period=?",
+        "SELECT period,duration,start,ends,commitment,payoutVersion FROM rounds WHERE period=?",
       )
       .get(periodFor(duration, time));
     const history = db

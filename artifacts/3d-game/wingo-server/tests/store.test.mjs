@@ -69,9 +69,9 @@ test("all ten outcomes follow colour, dual-violet, size and exact-number payout 
   assert.deepEqual(colorsFor(5), ["green", "violet"]);
 });
 
-test("four concurrent modes, hidden outcome, and a verifiable commitment after reveal", (t) => {
+test("30-second mode, hidden outcome, and a verifiable commitment after reveal", (t) => {
   const { store, token, initial, setTime } = fixture(t, 0);
-  for (const duration of [30, 60, 180, 300]) {
+  for (const duration of [30]) {
     const round = store.state(token, duration).round;
     assert.equal(round.duration, duration);
     assert.equal(round.ends - round.start, duration * 1000);
@@ -100,15 +100,15 @@ test("settles multiple predictions exactly once and accounts for special number 
   const settled = store.state(token);
   assert.equal(
     settled.player.balance,
-    1000000 - 6000 + 1500 + 4500 + 2000 + 9000,
+    1000000 - 6000 + 1700 + 4250 + 1700 + 1980,
   );
   assert.equal(settled.summary.played, 6);
   assert.equal(settled.summary.won, 4);
-  assert.equal(settled.summary.profit, 11000);
+  assert.equal(settled.summary.profit, 3630);
   assert.equal(settled.pending, 0);
   assert.deepEqual(
     settled.bets.map((b) => b.payout).sort((a, b) => a - b),
-    [0, 0, 1500, 2000, 4500, 9000],
+    [0, 0, 1700, 1700, 1980, 4250],
   );
 });
 
@@ -122,7 +122,7 @@ test("request replay never charges twice, including retries after settlement", (
   assert.throws(() => bet("red", 1000, { request }), /different prediction/);
   setTime(initial.round.ends);
   const retried = bet("green", 1000, { request });
-  assert.equal(retried.player.balance, 1000500);
+  assert.equal(retried.player.balance, 1000700);
   assert.equal(retried.bets.length, 1);
 });
 
@@ -164,9 +164,9 @@ test("separate players have private wallets and bets but see the same rounds", (
   assert.equal(store.state(token).player.balance, 999000);
 });
 
-test("shared practice wallet handles pending bets across all four timers", (t) => {
+test("practice wallet settles only 30-second rounds", (t) => {
   const { store, token, setTime } = fixture(t);
-  for (const duration of [30, 60, 180, 300]) {
+  for (const duration of [30]) {
     const round = store.state(token, duration).round;
     store.placeBet(token, {
       duration,
@@ -176,12 +176,12 @@ test("shared practice wallet handles pending bets across all four timers", (t) =
       request: randomUUID(),
     });
   }
-  assert.equal(store.state(token).pending, 4);
-  assert.equal(store.state(token).player.balance, 999600);
+  assert.equal(store.state(token).pending, 1);
+  assert.equal(store.state(token).player.balance, 999900);
   setTime(2100000);
   const after = store.state(token);
   assert.equal(after.pending, 0);
-  assert.equal(after.player.balance, 1003200);
+  assert.equal(after.player.balance, 1000098);
 });
 
 test("free refill requires low balance and no pending bets; it never erases history", (t) => {
@@ -220,11 +220,11 @@ test("restart preserves commitment, settles overdue bets once, and does not fabr
   store = createStore(filename, { now: () => time, draw: () => 9 });
   const next = store.state(token);
   store.close();
-  assert.equal(next.player.balance, 1003500);
+  assert.equal(next.player.balance, 1003250);
   assert.equal(next.history.length, 1);
   assert.equal(next.history[0].commitment, initial.round.commitment);
   assert.equal(next.history[0].number, 0);
   store = createStore(filename, { now: () => time });
-  assert.equal(store.state(token).player.balance, 1003500);
+  assert.equal(store.state(token).player.balance, 1003250);
   store.close();
 });

@@ -33,7 +33,7 @@ test("platform accounts keep separate balances across login sessions and restart
   store = createStore(filename, { now: () => time });
   try {
     assert.equal(store.accountSession("platform-alice"), alice);
-    assert.equal(store.state(alice).player.balance, 1008000);
+    assert.equal(store.state(alice).player.balance, 1000980);
     assert.equal(
       store.state(store.accountSession("platform-bob")).player.balance,
       1000000,
