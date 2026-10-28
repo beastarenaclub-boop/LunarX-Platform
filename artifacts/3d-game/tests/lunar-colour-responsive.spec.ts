@@ -56,7 +56,8 @@ for (const [width, height] of [[320, 568], [390, 844], [768, 1024], [1024, 768],
     await expect(page).toHaveTitle("Colour Trading");
     await expect(page.getByTestId("balance")).toContainText("10,000");
     await fitsWidth(page);
-    await expect(page.locator('.mode-picker, [data-testid="countdown"], .round-progress')).toHaveCount(0);
+    await expect(page.locator('.mode-picker, .round-progress')).toHaveCount(0);
+    await expect(page.getByTestId('countdown')).toHaveText(/^00:[0-3][0-9]$/);
     await expect(page.locator('.option-divider')).toContainText('1.98× return');
     for (const selector of [".number-options > button", ".color-option", ".mode-picker button", "[data-game-coin]"]) {
       for (const button of await page.locator(selector).all()) {
@@ -88,7 +89,7 @@ for (const [width, height] of [[320, 568], [390, 844], [768, 1024], [1024, 768],
   });
 }
 
-test("lobby branding, old link, no timers and 200% zoom", async ({ page }) => {
+test("lobby branding, old link, 30-second countdown and 200% zoom", async ({ page }) => {
   const errors = await setup(page);
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
@@ -97,7 +98,8 @@ test("lobby branding, old link, no timers and 200% zoom", async ({ page }) => {
   await card.click();
   await expect(page).toHaveURL(/\/lunar-colour-trading$/);
   await expect(page.getByTestId("balance")).toBeVisible();
-  await expect(page.locator('.mode-picker, [data-testid="countdown"], .round-progress')).toHaveCount(0);
+  await expect(page.locator('.mode-picker, .round-progress')).toHaveCount(0);
+  await expect(page.getByTestId('countdown')).toHaveText(/^00:[0-3][0-9]$/);
   await expect(page.getByTestId("period")).toContainText("#30-");
   await expect(page.locator('.option-divider')).toContainText('1.98× return');
   await page.evaluate(() => { document.documentElement.style.zoom = "2"; });
@@ -113,7 +115,7 @@ test("lobby branding, old link, no timers and 200% zoom", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test("hidden clock still submits one selected bet before betting closes", async ({ page }) => {
+test("countdown ticks and submits one selected bet before betting closes", async ({ page }) => {
   const errors = await setup(page);
   const submitted: { duration: number; pick: string; period: string }[] = [];
   let ends = 0;
@@ -131,7 +133,10 @@ test("hidden clock still submits one selected bet before betting closes", async 
   const pick = page.getByRole("button", { name: "Pick number 7", exact: true });
   await pick.click();
   await expect(page.getByTestId("auto-bet-status")).toContainText("Bet selected");
-  await expect(page.locator('.mode-picker, [data-testid="countdown"], .round-progress')).toHaveCount(0);
+  await expect(page.locator('.mode-picker, .round-progress')).toHaveCount(0);
+  await expect(page.getByTestId('countdown')).toHaveText(/^00:[0-3][0-9]$/);
+  const initialSeconds = Number((await page.getByTestId('countdown').innerText()).replace(/\s/g,'').split(':')[1]);
+  await expect.poll(async () => Number((await page.getByTestId('countdown').innerText()).replace(/\s/g,'').split(':')[1])).toBeLessThan(initialSeconds);
   await expect.poll(() => submitted.length).toBe(1);
   expect(submitted[0]).toMatchObject({ duration: 30, pick: "7", period: "30-1234", payoutVersion: 3 });
   await expect(pick).toHaveAttribute("aria-pressed", "false");

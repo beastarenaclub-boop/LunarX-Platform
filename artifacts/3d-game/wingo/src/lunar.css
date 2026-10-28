@@ -119,8 +119,3 @@
   .wingo-theme .place-button { font-size: 14px; }
   .wingo-theme .place-button small { font-size: 11px; }
 }
-
-/* No visible clock: the server still owns the 30-second betting window. */
-.wingo-theme .colour-round-ticket { display: block; min-height: 0; }
-.wingo-theme .colour-round-ticket .ticket-left { width: 100%; padding: 20px 24px; }
-@media(max-width:600px) { .wingo-theme .colour-round-ticket .ticket-left { padding: 16px; } }

@@ -69,7 +69,7 @@ test("desktop: real prediction, settlement, persistent balance, proof and chart"
   expect(errors).toEqual([]);
 });
 
-test("mobile widths, hidden timers, help, wallet and keyboard interactions", async ({
+test("mobile widths, 30-second countdown, help, wallet and keyboard interactions", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -87,7 +87,8 @@ test("mobile widths, hidden timers, help, wallet and keyboard interactions", asy
     ).toBe(true);
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.locator('.mode-picker, [data-testid="countdown"], .round-progress')).toHaveCount(0);
+  await expect(page.locator('.mode-picker, .round-progress')).toHaveCount(0);
+  await expect(page.getByTestId('countdown')).toHaveText(/^00:[0-3][0-9]$/);
   await expect(page.getByTestId("period")).toContainText('#30-');
   await page.getByRole("button", { name: "Game rules & fairness" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();

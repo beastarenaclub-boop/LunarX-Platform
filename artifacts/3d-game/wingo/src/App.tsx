@@ -306,7 +306,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
   useEffect(() => { if (BetControls) setPick(null); }, [mode, data?.round.period, BetControls]);
   const remaining =
     data && correctMode
-      ? Math.max(0, Math.ceil((data.round.ends - time) / 1000))
+      ? Math.min(mode, Math.max(0, Math.ceil((data.round.ends - time) / 1000)))
       : mode;
   const heardTick = useRef("");
   useEffect(() => {
@@ -323,6 +323,8 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
   const fresh = time - clock.current.server < 6000;
   const locked =
     !data || !correctMode || remaining <= 5 || !connected || !fresh;
+  const clockReady = !!data && correctMode && connected && fresh;
+  const clockText = clockReady ? `00:${String(remaining).padStart(2, "0")}` : "--:--";
   const stake = Number(base) * multiple * 100;
   const validStake =
     Number.isSafeInteger(stake) &&
@@ -608,7 +610,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
         <div className="game-layout">
           <div className="game-column">
             <section
-              className={`round-ticket colour-round-ticket ${locked ? "closing" : ""}`}
+              className={`round-ticket ${locked ? "closing" : ""}`}
               aria-label="Current round"
             >
               <div className="ticket-left">
@@ -634,6 +636,16 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
                     </span>
                   )}
                 </div>
+              </div>
+              <div className="ticket-divider" />
+              <div className="ticket-right">
+                <span><Timer size={14} aria-hidden="true" />{clockReady && remaining <= 5 ? "Result in" : "Round ends in"}</span>
+                <div className="countdown" data-testid="countdown" role="timer" aria-live="off"
+                  aria-label={clockReady ? `${remaining} seconds remaining` : "Syncing round"}>
+                  {clockText.split("").map((digit, index) => digit === ":"
+                    ? <b key={index}>:</b> : <span key={index}>{digit}</span>)}
+                </div>
+                <small>{clockReady ? remaining <= 5 ? "Betting closed" : "30-second round" : "Connecting…"}</small>
               </div>
             </section>
 

@@ -66,7 +66,7 @@ test("lobby card opens native Win Go and returning leaves the lobby styles intac
   await expect(page.getByTestId("card-game-lunar").first()).toBeVisible();
 });
 
-test("responsive controls, landscape dialogs, browser zoom without timers", async ({
+test("responsive controls, landscape dialogs, browser zoom with the 30-second countdown", async ({
   page,
 }) => {
   await signUp(page);
@@ -98,7 +98,8 @@ test("responsive controls, landscape dialogs, browser zoom without timers", asyn
   await page.evaluate(() => {
     document.documentElement.style.zoom = "";
   });
-  await expect(page.locator('.mode-picker, [data-testid="countdown"], .round-progress')).toHaveCount(0);
+  await expect(page.locator('.mode-picker, .round-progress')).toHaveCount(0);
+  await expect(page.getByTestId('countdown')).toHaveText(/^00:[0-3][0-9]$/);
   await expect(page.getByTestId("period")).toContainText('#30-');
   await page.setViewportSize({ width: 390, height: 844 });
   await page
