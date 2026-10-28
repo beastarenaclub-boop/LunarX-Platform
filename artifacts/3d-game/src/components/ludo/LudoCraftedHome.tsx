@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { ArrowLeft, Check, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import type { LudoMode, LudoVariant } from "@workspace/api-zod/ludo";
 import { LudoArtwork, type LudoArtKind } from "./LudoArtwork";
 import { LudoLocalPlay } from "./LudoLocalPlay";
@@ -11,6 +11,7 @@ import { LudoPin, type LudoTokenStyle } from "./LudoPin";
 import { TOKEN_STYLES } from "./LudoSetup";
 import { LudoVideoHero, RoyalBadge } from "./LudoVideoArtwork";
 import "./ludo-video-refined.css";
+import "./ludo-generated-art.css";
 
 type Feature =
   | "pass"
@@ -281,7 +282,7 @@ export function LudoCraftedHome({
           <b>+</b>
         </Link>
         <Link className="ld-video-shop" href="/wallet" aria-label="Open wallet">
-          <ShoppingCart />
+          <LudoArtwork kind="shop" />
         </Link>
       </header>
       <div className="ld-home-content ld-crafted-content">
@@ -368,14 +369,8 @@ export function LudoCraftedHome({
           onClick={() => setFeature("season")}
         >
           <span className="ld-video-season-crest">
-            SEASON
-            <svg viewBox="0 0 30 25" aria-hidden="true">
-              <path
-                d="M2 4l7 7 6-10 6 10 7-7-3 17H5Z"
-                fill="#ffd758"
-                stroke="#99621a"
-              />
-            </svg>
+            <LudoArtwork kind="season" />
+            <small>SEASON</small>
           </span>
           <span>
             <strong>Coming soon!</strong>

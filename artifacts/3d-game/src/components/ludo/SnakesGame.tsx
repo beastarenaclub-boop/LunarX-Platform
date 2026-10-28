@@ -25,8 +25,6 @@ import {
   RotateCcw,
   Trophy,
   Users,
-  Home,
-  ShoppingBag,
   Settings,
 } from "lucide-react";
 import { LudoDice } from "./LudoDice";
@@ -45,6 +43,7 @@ import {
 } from "@/components/ui/dialog";
 import "./snakes.css";
 import "./snakes-refined.css";
+import "./ludo-generated-art.css";
 type Mode = "computer" | "local" | "online" | "private";
 type Screen =
   | "home"
@@ -626,14 +625,14 @@ export function SnakesGame({
               {history.filter((h) => h.winner === name).length}
               <small>WINS</small>
             </span>
-            <Trophy />
+            <LudoArtwork kind="results" />
           </button>
           <Link
             href="/wallet"
             className="sn-account-shop"
             aria-label="Open wallet"
           >
-            <ShoppingBag />
+            <LudoArtwork kind="shop" />
           </Link>
         </header>
       )}
@@ -714,18 +713,18 @@ export function SnakesGame({
           </div>
           <div className="sn-home-options">
             <button onClick={() => setScreen("history")}>
-              <Trophy />
+              <LudoArtwork kind="results" />
               <span>Results</span>
             </button>
             <button
               onClick={() => setSettings(true)}
               aria-label="Snake settings"
             >
-              <Settings />
+              <LudoArtwork kind="settings" />
               <span>Settings</span>
             </button>
             <button onClick={openThemes} aria-label="Choose theme">
-              <Palette />
+              <LudoArtwork kind="themes" />
               <span>Themes</span>
             </button>
           </div>
@@ -773,11 +772,11 @@ export function SnakesGame({
               onClick={onBack}
               aria-label="Back to Ludo home"
             >
-              <Home />
+              <LudoArtwork kind="home" />
               HOME
             </button>
             <button onClick={() => setScreen("social")}>
-              <Users />
+              <LudoArtwork kind="friends" />
               FRIENDS
             </button>
             <button onClick={() => setScreen("social")}>
@@ -785,11 +784,11 @@ export function SnakesGame({
               SOCIAL
             </button>
             <button onClick={openThemes}>
-              <Palette />
+              <LudoArtwork kind="inventory" />
               INVENTORY
             </button>
             <Link href="/wallet">
-              <ShoppingBag />
+              <LudoArtwork kind="shop" />
               STORE
             </Link>
           </nav>

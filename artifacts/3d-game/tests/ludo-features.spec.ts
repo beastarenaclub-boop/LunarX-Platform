@@ -14,7 +14,9 @@ async function player(browser: Browser, name: string) {
   const page = await context.newPage();
   await page.goto("/ludo");
   // The full application is transformed on the first cold Vite request.
-  await expect(page.locator(".ld-crafted-home")).toBeVisible({ timeout: 60000 });
+  await expect(page.locator(".ld-crafted-home")).toBeVisible({
+    timeout: 60000,
+  });
   return { context, page, id };
 }
 test("original home artwork, reward claim and inventory work without a reference screenshot", async ({
@@ -26,6 +28,23 @@ test("original home artwork, reward claim and inventory work without a reference
   try {
     await expect(p.page.locator(".ld-crafted-home img")).toHaveCount(0);
     await expect(p.page.locator(".ld-crafted-tile")).toHaveCount(5);
+    const graphics = await p.page
+      .locator(".ld-crafted-home image")
+      .evaluateAll((images) =>
+        Promise.all(
+          images.map(async (element) => {
+            const image = new Image();
+            image.src = element.getAttribute("href")!;
+            await image.decode();
+            return (
+              image.naturalWidth > 0 &&
+              image.src.includes("/media/ludo/generated-v1/")
+            );
+          }),
+        ),
+      );
+    expect(graphics.length).toBeGreaterThan(20);
+    expect(graphics.every(Boolean)).toBe(true);
     await p.page.screenshot({ path: "tmp/ludo-crafted/home-portrait.png" });
     await p.page
       .getByRole("button", { name: "Inventory", exact: true })
@@ -216,7 +235,8 @@ test("Snakes and Ladders rolls and saves a free local board", async ({
       .poll(() =>
         p.page.evaluate(
           (id) =>
-            JSON.parse(localStorage.getItem(`ludo-snakes-v2:${id}`)!).state.players[0].position,
+            JSON.parse(localStorage.getItem(`ludo-snakes-v2:${id}`)!).state
+              .players[0].position,
           p.id,
         ),
       )

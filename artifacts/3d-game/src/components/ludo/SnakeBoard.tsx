@@ -306,147 +306,56 @@ export function SnakeBoard({
 }
 
 export function SnakeLogo() {
+  const art = (name: string) => `/media/ludo/generated-v1/${name}.webp`;
   return (
     <svg
       className="sn-logo"
-      viewBox="0 0 300 180"
+      viewBox="0 0 320 175"
       role="img"
       aria-label="Snakes and Ladders"
     >
-      <path
-        d="M57 35L241 139M65 24L249 128M71 45l8-11m13 23 8-11m13 23 8-11m13 23 8-11m13 23 8-11m13 23 8-11m13 23 8-11m13 23 8-11"
-        fill="none"
-        stroke="#fff2cd"
-        strokeWidth="5"
+      <image
+        href={art("snakes-hero-sign")}
+        x="37"
+        y="40"
+        width="246"
+        height="129"
+        preserveAspectRatio="none"
       />
-      <path d="M245 35L58 142M236 23L49 130" stroke="#fff2cd" strokeWidth="5" />
-      <path
-        d="M43 53Q150 22 257 53L248 136Q150 161 52 136Z"
-        fill="#065e32"
-        stroke="#f8d543"
-        strokeWidth="8"
-      />
-      <path
-        d="M54 58Q150 34 246 58L238 129Q150 148 62 129Z"
-        fill="none"
-        stroke="#96c744"
-        strokeWidth="2"
-      />
-      <path
-        d="M37 118Q-5 78 27 67T45 35M264 121Q304 85 278 69T259 34"
-        fill="none"
-        stroke="#efa837"
-        strokeWidth="13"
-      />
-      <path
-        d="M37 118Q-5 78 27 67T45 35M264 121Q304 85 278 69T259 34"
-        fill="none"
-        stroke="#7420a0"
-        strokeWidth="6"
-      />
-      <ellipse
-        cx="45"
-        cy="34"
-        rx="16"
-        ry="11"
-        fill="#46b54b"
-        stroke="#ecd654"
-        strokeWidth="3"
-      />
-      <ellipse
-        cx="259"
-        cy="34"
-        rx="16"
-        ry="11"
-        fill="#46b54b"
-        stroke="#ecd654"
-        strokeWidth="3"
-      />
-      {[40, 50, 254, 264].map((x) => (
-        <circle key={x} cx={x} cy="30" r="3" fill="white" />
-      ))}
-      {[false, true].map((right) => (
-        <g
-          key={String(right)}
-          transform={right ? "translate(300 0) scale(-1 1)" : ""}
-        >
-          <path
-            d="M43 123Q19 148 13 130Q6 115 23 103T32 70"
-            fill="none"
-            stroke="#074924"
-            strokeWidth="21"
-            strokeLinecap="round"
-          />
-          <path
-            d="M43 123Q19 148 13 130Q6 115 23 103T32 70"
-            fill="none"
-            stroke="#59ba43"
-            strokeWidth="16"
-            strokeLinecap="round"
-          />
-          <path
-            d="M37 126Q20 140 19 125"
-            fill="none"
-            stroke="#bbe56f"
-            strokeWidth="6"
-            strokeLinecap="round"
-          />
-          <path
-            d="M18 65Q8 43 20 29Q24 18 32 28Q40 12 49 28Q65 39 58 59L48 77Z"
-            fill="#37a84b"
-            stroke="#074c29"
-            strokeWidth="3"
-          />
-          <ellipse cx="29" cy="38" rx="7" ry="12" fill="#ffffed" />
-          <ellipse cx="44" cy="36" rx="7" ry="12" fill="#ffffed" />
-          <ellipse cx="32" cy="39" rx="3" ry="6" fill="#17291e" />
-          <ellipse cx="47" cy="37" rx="3" ry="6" fill="#17291e" />
-          <path
-            d="M14 55Q22 47 30 56Q49 42 61 51Q69 64 55 71Q37 75 20 68Z"
-            fill="#f9d02c"
-            stroke="#9f6619"
-            strokeWidth="2"
-          />
-          <path
-            d="M21 67Q41 69 55 61Q53 87 33 92Q12 90 21 67Z"
-            fill="#481743"
-            stroke="#e8a62b"
-            strokeWidth="3"
-          />
-          <path d="M29 70L32 83 37 69M47 66L45 79 40 69" fill="#fffbd2" />
-          <path
-            d="M36 82Q47 98 22 100Q3 101 10 84"
-            fill="none"
-            stroke="#efad42"
-            strokeWidth="8"
-            strokeLinecap="round"
-          />
-          <path
-            d="M36 82Q47 98 22 100Q3 101 10 84"
-            fill="none"
-            stroke="#b542bf"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-          <circle cx="58" cy="53" r="1.5" fill="#684716" />
-        </g>
-      ))}
+      <g className="sn-generated-left">
+        <image
+          href={art("snakes-hero-left")}
+          x="0"
+          y="5"
+          width="84"
+          height="154"
+        />
+      </g>
+      <g className="sn-generated-right">
+        <image
+          href={art("snakes-hero-right")}
+          x="236"
+          y="5"
+          width="84"
+          height="154"
+        />
+      </g>
       <g
         fontFamily="Georgia,serif"
         textAnchor="middle"
         fontWeight="900"
         fill="#ffe343"
-        stroke="#926412"
-        strokeWidth="1"
+        stroke="#77510e"
+        strokeWidth="1.5"
         paintOrder="stroke"
       >
-        <text x="150" y="78" fontSize="27">
+        <text x="160" y="88" fontSize="27">
           SNAKES
         </text>
-        <text x="150" y="100" fontSize="18">
+        <text x="160" y="110" fontSize="17">
           AND
         </text>
-        <text x="150" y="127" fontSize="27">
+        <text x="160" y="138" fontSize="27">
           LADDERS
         </text>
       </g>

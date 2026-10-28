@@ -21,9 +21,13 @@ export type LudoArtKind =
   | "settings"
   | "help"
   | "coins"
+  | "results"
+  | "themes"
+  | "shop"
+  | "season"
   | "snakes";
 
-/** Original vector layers: every highlight, pawn and moving part is independent. */
+/** Generated illustrations share the same scalable, accessible decoration wrapper. */
 export function LudoArtwork({
   kind,
   className = "",
@@ -32,6 +36,72 @@ export function LudoArtwork({
   className?: string;
 }) {
   const id = useId().replace(/:/g, "");
+  const generated: Partial<Record<LudoArtKind, string>> = {
+    online: "mode-online",
+    team: "mode-team",
+    friends: "mode-friends",
+    computer: "mode-computer",
+    pass: "mode-pass",
+    crown: "ludo-hero-crown",
+    gift: "gift",
+    wheel: "wheel",
+    calendar: "calendar",
+    inventory: "inventory",
+    chat: "chat",
+    adda: "adda",
+    target: "target",
+    dice: "dice-theme",
+    home: "home",
+    mail: "mail",
+    settings: "settings",
+    help: "help",
+    coins: "coins",
+    snakes: "snakes-entry",
+    results: "results",
+    themes: "themes",
+    shop: "shop",
+    season: "season",
+  };
+  const asset = generated[kind];
+  if (asset)
+    return (
+      <svg
+        viewBox="0 0 120 100"
+        className={`ld-crafted-art ld-art-${kind} ${className}`}
+        aria-hidden="true"
+        data-generated-art={asset}
+      >
+        <g
+          className={
+            kind === "friends"
+              ? "ld-generated-icon ld-art-heart"
+              : "ld-generated-icon"
+          }
+        >
+          <image
+            href={`/media/ludo/generated-v1/${asset}.webp`}
+            width="120"
+            height="100"
+            preserveAspectRatio="xMidYMid meet"
+          />
+          {kind === "computer" && (
+            <text
+              x="60"
+              y="58"
+              textAnchor="middle"
+              fill="#fff0ac"
+              stroke="#543209"
+              strokeWidth=".5"
+              fontFamily="Arial,sans-serif"
+              fontWeight="900"
+              fontSize="22"
+            >
+              VS
+            </text>
+          )}
+        </g>
+      </svg>
+    );
   const gold = `url(#${id}gold)`,
     blue = `url(#${id}blue)`;
   const phone = (x: number, y: number, angle: number) => (

@@ -1,0 +1,484 @@
+{
+  "provider": "OpenAI built-in image_gen",
+  "userApprovedProviderSwitch": true,
+  "status": "integrated",
+  "referenceVideo": "C:/ludo/3 WhatsApp Video 2026-10-25 at 8.17.52 PM.mp4",
+  "assets": [
+    {
+      "id": "mode-pass",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-291464a2-260d-4772-a15a-9385f1ce82c1.png",
+      "prompt": "Use case: stylized-concept. Deliver ONE isolated professional mobile board-game UI icon. Two recognizable seated golden human silhouettes facing each other with bent knees and arms reaching toward a small diamond-shaped gold playing card between them. Match the reference's Pass n Play illustration; anatomical readable poses, not block shapes or a phone. Style: premium polished sculpted gold 2.5D arcade illustration, rounded beveled shapes, convincing volume, warm top-left lighting, crisp dark-gold contour. Two actual simplified seated people facing inward, clear bent knees and recognizable arms and heads, a small diamond game tile between their hands. Broad horizontal compact composition filling 82% of width and 55% of height, centered. Gold only with amber shading and pale cream reflections. No round badge, button, background, frame, lettering or watermark. Actual transparent background, generous clean alpha margins. Designed to read at 80 CSS pixels.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/mode-pass.png",
+      "web": "/media/ludo/generated-v1/mode-pass.webp",
+      "export": {
+        "width": 512,
+        "height": 351,
+        "bytes": 35156,
+        "transparentPixels": 119216
+      }
+    },
+    {
+      "id": "mode-online",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-64f28a9a-faad-49e1-8377-bbf8cb7f2680.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A small blue-and-green globe between two slightly tilted gold smartphones, linked by a tiny dotted gold arc. Bold readable silhouette and glossy dimensional surfaces, no UI frame or text. One isolated icon on genuine transparent background. No outer badge or button. Subject fills 80 percent of canvas, centered. Wide composition for combined symbols; upright for the single phone. No text, no letters.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/mode-online.png",
+      "web": "/media/ludo/generated-v1/mode-online.webp",
+      "export": {
+        "width": 512,
+        "height": 341,
+        "bytes": 77736,
+        "transparentPixels": 58613
+      }
+    },
+    {
+      "id": "mode-team",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-8a815c2e-7b00-4565-93b5-385cacb37368.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A single upright silver sword with golden handle at the center, pale blue headphones and two blue plus two warm red team markers arranged around it. Match the reference's vertical composition, not crossed swords. No lettering. One isolated icon on genuine transparent background. No outer badge or button. Subject fills 80 percent of canvas, centered. Wide composition for combined symbols; upright for the single phone. No text, no letters.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/mode-team.png",
+      "web": "/media/ludo/generated-v1/mode-team.webp",
+      "export": {
+        "width": 512,
+        "height": 341,
+        "bytes": 56072,
+        "transparentPixels": 98196
+      }
+    },
+    {
+      "id": "mode-friends",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-6240a011-3dca-4cff-a4ff-c2a8f0e4fd91.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. Two warm red rounded hearts between two tilted gold smartphones, connected by a dotted gold arc, with a small green outlined microphone upper right. Match the reference's compact glossy composition. One isolated icon on genuine transparent background. No outer badge or button. Subject fills 80 percent of canvas, centered. Wide composition for combined symbols; upright for the single phone. No text, no letters.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/mode-friends.png",
+      "web": "/media/ludo/generated-v1/mode-friends.webp",
+      "export": {
+        "width": 512,
+        "height": 341,
+        "bytes": 54118,
+        "transparentPixels": 93882
+      }
+    },
+    {
+      "id": "mode-computer",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-156f41f2-6c0f-4a34-b6f1-a1de6897f978.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A single upright golden smartphone with dark inset screen and thick polished bevel. Keep screen blank for a live VS label. Reference scale and proportions; no background circuitry or extra objects. One isolated icon on genuine transparent background. No outer badge or button. Subject fills 80 percent of canvas, centered. Wide composition for combined symbols; upright for the single phone. No text, no letters.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/mode-computer.png",
+      "web": "/media/ludo/generated-v1/mode-computer.webp",
+      "export": {
+        "width": 341,
+        "height": 512,
+        "bytes": 27114,
+        "transparentPixels": 72432
+      }
+    },
+    {
+      "id": "ludo-hero-board",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-0ded4533-c1a0-4efd-9b41-945d9f47fc48.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. Low perspective classic square Ludo board with white paths and four colored yards. Match the reference's compact trapezoid perspective. No lettering, crown, foreground pawns or dice; these will be separate layers. Isolated game component on true transparent background. No lettering. No glow, fog, rays, stage or background plane. Entire object visible with 10 percent empty margin. Board: red top-left, green top-right, blue bottom-left, yellow bottom-right, low front perspective with a flat horizontal front edge and four white inner home squares; no pieces on it. For all other subjects ignore the board instructions and render only the named single component.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/ludo-hero-board.png",
+      "web": "/media/ludo/generated-v1/ludo-hero-board.webp",
+      "export": {
+        "width": 768,
+        "height": 615,
+        "bytes": 94142,
+        "transparentPixels": 155938
+      }
+    },
+    {
+      "id": "ludo-hero-crown",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-b0a8528f-c519-43a5-81e0-7364a9e187d7.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. Rich beveled gold royal crown, five rounded jewel-tipped points, slightly tilted left, compact dark blue and red jewel accents, matching the crown above the first Ludo letter in the reference. Isolated game component on true transparent background. No lettering. No glow, fog, rays, stage or background plane. Entire object visible with 10 percent empty margin. Board: red top-left, green top-right, blue bottom-left, yellow bottom-right, low front perspective with a flat horizontal front edge and four white inner home squares; no pieces on it. For all other subjects ignore the board instructions and render only the named single component.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/ludo-hero-crown.png",
+      "web": "/media/ludo/generated-v1/ludo-hero-crown.webp",
+      "export": {
+        "width": 768,
+        "height": 703,
+        "bytes": 103036,
+        "transparentPixels": 300240
+      }
+    },
+    {
+      "id": "ludo-hero-blue-pawn",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-7a368e1a-5cb3-45dd-a91c-1603073b685f.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. One classic glossy cyan-blue Ludo pawn: spherical head, smooth tapered cone body and broad rounded foot. Front three-quarter view, soft bright edge highlights. Isolated game component on true transparent background. No lettering. No glow, fog, rays, stage or background plane. Entire object visible with 10 percent empty margin. Board: red top-left, green top-right, blue bottom-left, yellow bottom-right, low front perspective with a flat horizontal front edge and four white inner home squares; no pieces on it. For all other subjects ignore the board instructions and render only the named single component.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/ludo-hero-blue-pawn.png",
+      "web": "/media/ludo/generated-v1/ludo-hero-blue-pawn.webp",
+      "export": {
+        "width": 512,
+        "height": 768,
+        "bytes": 42406,
+        "transparentPixels": 201421
+      }
+    },
+    {
+      "id": "ludo-hero-yellow-pawn",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-606718d3-f5a7-4fdf-b3eb-29dd70192afa.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. One classic glossy golden-yellow Ludo pawn with exactly the same geometry, lighting and camera as the blue pawn. Isolated game component on true transparent background. No lettering. No glow, fog, rays, stage or background plane. Entire object visible with 10 percent empty margin. Board: red top-left, green top-right, blue bottom-left, yellow bottom-right, low front perspective with a flat horizontal front edge and four white inner home squares; no pieces on it. For all other subjects ignore the board instructions and render only the named single component.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/ludo-hero-yellow-pawn.png",
+      "web": "/media/ludo/generated-v1/ludo-hero-yellow-pawn.webp",
+      "export": {
+        "width": 512,
+        "height": 768,
+        "bytes": 45126,
+        "transparentPixels": 202758
+      }
+    },
+    {
+      "id": "ludo-hero-die",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-e79e5466-7a20-4355-81bb-3ecfd09fb971.png",
+      "prompt": "Use case: stylized-concept. ONE SINGLE WHITE DIE ONLY. A rounded ivory-white six-sided die, three-quarter view, physically consistent black recessed pips on three faces (1, 2 and 3). NO snakes, NO animals, NO plaque, NO ladder, NO game board, no extra objects. Isolated square canvas. Polished dimensional cartoon game art, smooth rounded surfaces, warm upper-left studio reflections, crisp outline. Genuine transparent background with no glow haze. Entire subject visible with 10 percent padding. Render only the requested component.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/ludo-hero-die.png",
+      "web": "/media/ludo/generated-v1/ludo-hero-die.webp",
+      "export": {
+        "width": 768,
+        "height": 768,
+        "bytes": 57108,
+        "transparentPixels": 263843
+      }
+    },
+    {
+      "id": "snakes-hero-sign",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-e9777bc8-c789-4e70-b751-dd3f162499bc.png",
+      "prompt": "Use case: stylized-concept. ONE EMPTY SIGN ONLY: a broad teal-green gently curved rectangular plaque with a thick polished gold bevel and four short ivory ladder ends forming an X behind it. Width-to-height about 2.3:1. The center is an entirely blank dark teal field. NO snakes, NO characters, NO die, NO other objects. NO text. Polished dimensional cartoon game art, smooth rounded surfaces, warm upper-left studio reflections, crisp outline. Genuine transparent background with no glow haze. Entire subject visible with 10 percent padding. Render only the requested component.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/snakes-hero-sign.png",
+      "web": "/media/ludo/generated-v1/snakes-hero-sign.webp",
+      "export": {
+        "width": 768,
+        "height": 333,
+        "bytes": 49582,
+        "transparentPixels": 120491
+      }
+    },
+    {
+      "id": "snakes-hero-left",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-6522b30c-1363-4bf4-a0e2-2dab7492b965.png",
+      "prompt": "Use case: stylized-concept. ONE SINGLE SNAKE ONLY: a friendly green cartoon snake, body curling below its head, facing to the viewer's RIGHT. Big lively eyes looking right, broad golden-yellow muzzle, open purple mouth, thin forked magenta tongue, small emerald body spots. Upright portrait composition. This is a separate animated character layer. NO sign, NO plaque, NO ladder, NO dice, NO lettering, NO second snake. Polished dimensional cartoon game art, smooth rounded surfaces, warm upper-left studio reflections, crisp outline. Genuine transparent background with no glow haze. Entire subject visible with 10 percent padding. Render only the requested component.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/snakes-hero-left.png",
+      "web": "/media/ludo/generated-v1/snakes-hero-left.webp",
+      "export": {
+        "width": 512,
+        "height": 768,
+        "bytes": 80992,
+        "transparentPixels": 205090
+      }
+    },
+    {
+      "id": "snakes-hero-right",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-6f0be40a-20f4-4240-ad2a-ffbd206ee0ea.png",
+      "prompt": "Use case: stylized-concept. ONE SINGLE SNAKE ONLY: a friendly green cartoon snake, body curling below its head, facing to the viewer's LEFT. Big lively eyes looking left, broad golden-yellow muzzle, open purple mouth, thin forked magenta tongue, small emerald body spots. Upright portrait composition. This is a separate animated character layer. NO sign, NO plaque, NO ladder, NO dice, NO lettering, NO second snake. Polished dimensional cartoon game art, smooth rounded surfaces, warm upper-left studio reflections, crisp outline. Genuine transparent background with no glow haze. Entire subject visible with 10 percent padding. Render only the requested component.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/snakes-hero-right.png",
+      "web": "/media/ludo/generated-v1/snakes-hero-right.webp",
+      "export": {
+        "width": 512,
+        "height": 768,
+        "bytes": 76610,
+        "transparentPixels": 206834
+      }
+    },
+    {
+      "id": "membership",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-46582ba2-8ee4-4fe7-a578-33c8091979d6.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A compact royal red-and-gold membership crest with a polished crown, gold circular inset and small ornamental flourishes. Leave its center free of letters. Render ONLY this requested icon, isolated on a real transparent background. No lettering or digits. Entire subject with 10 percent clear margin. No outer glow, haze, rays or background. Strong compact silhouette.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/membership.png",
+      "web": "/media/ludo/generated-v1/membership.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 64914,
+        "transparentPixels": 129190
+      }
+    },
+    {
+      "id": "gift",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-e3a144be-9174-4c88-ae01-4f0f5d3c25e4.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A glossy red square gift box wrapped with a thick gold ribbon and large elegant golden bow, three-quarter view. No frame, amount or lettering. Render ONLY this requested icon, isolated on a real transparent background. No lettering or digits. Entire subject with 10 percent clear margin. No outer glow, haze, rays or background. Strong compact silhouette.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/gift.png",
+      "web": "/media/ludo/generated-v1/gift.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 43674,
+        "transparentPixels": 136323
+      }
+    },
+    {
+      "id": "wheel",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-3dca61cf-b60e-4b2c-849f-78ebe1d62ad6.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A polished upright blue-and-gold segmented prize wheel on a golden stand with a small red triangular pointer above and a modest pile of gold coins at the base. Blank center hub for HTML text, no prizes or amounts printed on segments. Render ONLY this requested icon, isolated on a real transparent background. No lettering or digits. Entire subject with 10 percent clear margin. No outer glow, haze, rays or background. Strong compact silhouette.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/wheel.png",
+      "web": "/media/ludo/generated-v1/wheel.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 63458,
+        "transparentPixels": 126831
+      }
+    },
+    {
+      "id": "coins",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-bb56de55-4788-4576-883c-2bb13f3b9434.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. Three short stacks of rich golden arcade coins and two loose coins at the base, thick beveled rims, warm reflections and simple unmarked faces. Compact low arrangement, no currency values. Render ONLY this requested icon, isolated on a real transparent background. No lettering or digits. Entire subject with 10 percent clear margin. No outer glow, haze, rays or background. Strong compact silhouette.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/coins.png",
+      "web": "/media/ludo/generated-v1/coins.webp",
+      "export": {
+        "width": 512,
+        "height": 468,
+        "bytes": 41948,
+        "transparentPixels": 138121
+      }
+    },
+    {
+      "id": "calendar",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-e8256f49-e411-4cfe-9d1b-dda8a97edcbc.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A small gold-framed desk calendar with white page, red top binding and green check mark, matching the gold bottom navigation art. No date or text. Render ONLY this icon, isolated on a true transparent background, all edges visible with 10 percent margin. No lettering, no extra objects, no background glow or scene. Bold simple silhouettes; legible as a tiny navigation icon.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/calendar.png",
+      "web": "/media/ludo/generated-v1/calendar.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 44656,
+        "transparentPixels": 139835
+      }
+    },
+    {
+      "id": "inventory",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-f66a5ed8-47a8-467f-98c5-183ee2971727.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A compact golden collection case with blue and gold Ludo tokens and a tiny polished die, dimensional toy-like highlights, readable at navigation-icon size. Render ONLY this icon, isolated on a true transparent background, all edges visible with 10 percent margin. No lettering, no extra objects, no background glow or scene. Bold simple silhouettes; legible as a tiny navigation icon.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/inventory.png",
+      "web": "/media/ludo/generated-v1/inventory.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 55786,
+        "transparentPixels": 129617
+      }
+    },
+    {
+      "id": "chat",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-2dadf9cc-46d3-4b77-87a6-489690dc78ec.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A glossy pale-blue speech bubble with three round blue dots, thick warm gold edge and a friendly rounded lower tail. No letters or UI frame. Render ONLY this icon, isolated on a true transparent background, all edges visible with 10 percent margin. No lettering, no extra objects, no background glow or scene. Bold simple silhouettes; legible as a tiny navigation icon.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/chat.png",
+      "web": "/media/ludo/generated-v1/chat.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 44196,
+        "transparentPixels": 146274
+      }
+    },
+    {
+      "id": "adda",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-35df2c5c-9b81-4788-92cb-fad3280d4185.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. One elegant upright gold vintage microphone with horizontal grille slots and a short gold stand, plus a small blue speech bubble at its lower left. Match the reference's central ADDA navigation icon. Render ONLY this icon, isolated on a true transparent background, all edges visible with 10 percent margin. No lettering, no extra objects, no background glow or scene. Bold simple silhouettes; legible as a tiny navigation icon.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/adda.png",
+      "web": "/media/ludo/generated-v1/adda.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 42266,
+        "transparentPixels": 174833
+      }
+    },
+    {
+      "id": "target",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-5006733e-6af5-452f-b799-fce5b5cf323b.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A glossy red-and-white concentric bullseye target with a small gold arrow striking the center, diagonally from upper right. Compact arcade icon, no background. Render ONLY this single icon. Real transparent background, entire subject with 10 percent clean margin. No wording, no rectangular backdrop, no extra objects or glow haze. Clear friendly proportions.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/target.png",
+      "web": "/media/ludo/generated-v1/target.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 55642,
+        "transparentPixels": 126029
+      }
+    },
+    {
+      "id": "dice-theme",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-c3884d76-af91-496b-a73c-8fbb7a0cda39.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A friendly glossy golden square die mascot, slightly tilted, with lively eyes and small expressive hands. Compact silhouette matching the side menu reference, without text or a frame. Render ONLY this single icon. Real transparent background, entire subject with 10 percent clean margin. No wording, no rectangular backdrop, no extra objects or glow haze. Clear friendly proportions.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/dice-theme.png",
+      "web": "/media/ludo/generated-v1/dice-theme.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 59030,
+        "transparentPixels": 142438
+      }
+    },
+    {
+      "id": "home",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-e534f2ee-5e37-490f-abc1-e6b1ea1451cb.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A tiny gold-roofed toy house with ivory walls and four square blue, red, green and yellow window panels. Warm gold foundation, front three-quarter view. Render ONLY this single icon. Real transparent background, entire subject with 10 percent clean margin. No wording, no rectangular backdrop, no extra objects or glow haze. Clear friendly proportions.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/home.png",
+      "web": "/media/ludo/generated-v1/home.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 64456,
+        "transparentPixels": 106952
+      }
+    },
+    {
+      "id": "mail",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-c7f1845c-47c4-4410-bcad-8000aa119cec.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels. A small dimensional golden envelope with folded triangular flap and a subtle red notification dot at upper right. No letters, background or numbers. Render ONLY this single icon. Real transparent background, entire subject with 10 percent clean margin. No wording, no rectangular backdrop, no extra objects or glow haze. Clear friendly proportions.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/mail.png",
+      "web": "/media/ludo/generated-v1/mail.webp",
+      "export": {
+        "width": 512,
+        "height": 468,
+        "bytes": 36130,
+        "transparentPixels": 91197
+      }
+    },
+    {
+      "id": "settings",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-6d5fcaa7-e1f2-4538-94c7-43a4292c44fa.png",
+      "prompt": "ONE isolated settings cog icon, eight rounded thick ivory and polished gold teeth, empty dark blue circular hole at center. No question mark, symbols, text or other objects. Premium sculpted glossy 2.5D mobile board game style, upper left light, consistent gold toy material. Entire cog centered with 10 percent margin on true transparent background.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/settings.png",
+      "web": "/media/ludo/generated-v1/settings.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 46916,
+        "transparentPixels": 117646
+      }
+    },
+    {
+      "id": "help",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-6031e325-c628-4639-9465-b35a614a9ad4.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels.  A dimensional gold question mark floating over a small glossy dark-blue rounded tile with thin gold rim. Only the question mark symbol, no other text. Render ONLY this single icon, true transparent background, entire subject with 10 percent clean margin. No wording except the requested question mark symbol. No rectangular backdrop or glow haze.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/help.png",
+      "web": "/media/ludo/generated-v1/help.webp",
+      "export": {
+        "width": 500,
+        "height": 512,
+        "bytes": 37150,
+        "transparentPixels": 174548
+      }
+    },
+    {
+      "id": "snakes-entry",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-637fd922-57ca-475b-bfd3-0c879b592cb1.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels.  A tiny teal-and-ivory Snakes and Ladders board with one friendly green curling snake, a short gold ladder and one small red die, arranged as a compact glossy game icon. No labels or tiny unreadable numerals. Render ONLY this single icon, true transparent background, entire subject with 10 percent clean margin. No wording except the requested question mark symbol. No rectangular backdrop or glow haze.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/snakes-entry.png",
+      "web": "/media/ludo/generated-v1/snakes-entry.webp",
+      "export": {
+        "width": 512,
+        "height": 512,
+        "bytes": 62804,
+        "transparentPixels": 135640
+      }
+    },
+    {
+      "id": "results",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-49f380ee-f2ef-4c32-88ee-26250d8bf46d.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels.  A gold three-step winner podium, center tallest, topped with a small royal crown. Teal accents and polished highlights. Leave podium faces blank for accessible live rank labels. Render ONLY this single icon, true transparent background, entire subject with 10 percent clean margin. No wording except the requested question mark symbol. No rectangular backdrop or glow haze.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/results.png",
+      "web": "/media/ludo/generated-v1/results.webp",
+      "export": {
+        "width": 512,
+        "height": 341,
+        "bytes": 43430,
+        "transparentPixels": 88557
+      }
+    },
+    {
+      "id": "themes",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-10d856dd-3427-458b-b404-f896866571bd.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels.  Three overlapping miniature game boards: warm classic, leafy green Nature and blue-violet Disco. Distinct colors, thick gold edges, no lettering, numbers or background. SINGLE isolated asset only. True transparent background. No text, no question mark, no additional objects.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/themes.png",
+      "web": "/media/ludo/generated-v1/themes.webp",
+      "export": {
+        "width": 512,
+        "height": 468,
+        "bytes": 102900,
+        "transparentPixels": 75593
+      }
+    },
+    {
+      "id": "shop",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-456e90e7-b0c8-465c-8f30-3defa2612156.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels.  A small polished gold shopping trolley with a pale blue basket, rounded wheels and warm beveled metal edges. Clear side three-quarter silhouette. SINGLE isolated asset only. True transparent background. No text, no question mark, no additional objects.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/shop.png",
+      "web": "/media/ludo/generated-v1/shop.webp",
+      "export": {
+        "width": 512,
+        "height": 468,
+        "bytes": 73490,
+        "transparentPixels": 117293
+      }
+    },
+    {
+      "id": "season",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-ab1f482e-e5a5-4198-96a5-57315b9ff629.png",
+      "prompt": "Use case: stylized-concept. Produce ONE standalone premium mobile board-game asset, polished sculpted 2.5D cartoon illustration with rounded bevels, rich volume, smooth vibrant toy materials, warm upper-left studio lighting, controlled creamy highlights, a crisp darker contour and restrained contact shadows. Consistent classic Ludo game art: rich gold, royal blue, cyan, warm red, grass green and yellow. Centered subject with clean margins; readable when reduced to 40-90 CSS pixels. No complete interface, screenshot, advertising, watermarks or labels.  A purple and gold royal shield with a raised golden crown shape and small red ribbon at top. Match the reference's seasonal crest; leave all text and numbers blank. SINGLE isolated asset only. True transparent background. No text, no question mark, no additional objects.",
+      "transparent": true,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/season.png",
+      "web": "/media/ludo/generated-v1/season.webp",
+      "export": {
+        "width": 501,
+        "height": 512,
+        "bytes": 65448,
+        "transparentPixels": 107851
+      }
+    },
+    {
+      "id": "ludo-background",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-6e118af5-3186-497e-8cbb-037dcce9a8ec.png",
+      "prompt": "Seamless deep royal-blue game texture with soft diagonal oversized Ludo-board motifs and subtle dice pips. Match the reference's atmospheric blue tonal variation, low contrast behind foreground buttons. No icons, words, borders or sharp focal objects. Create only this flat full-bleed square background texture, subdued low contrast and rich painted mobile game style. No foreground object, icon or UI. Opaque background.",
+      "transparent": false,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/ludo-background.png",
+      "web": "/media/ludo/generated-v1/ludo-background.webp",
+      "export": {
+        "width": 1024,
+        "height": 1024,
+        "bytes": 56988,
+        "transparentPixels": 0
+      }
+    },
+    {
+      "id": "snakes-background",
+      "source": "C:\\Users\\hacker\\.codex\\generated_images\\01a179d8-99b3-7001-be24-bcf7ae0c84bc\\exec-3883ca52-a7e9-4739-be3e-4475376c1208.png",
+      "prompt": "Seamless warm red and burnt-orange diagonal Snakes and Ladders board texture, small alternating squares, faint curving olive-green snakes and slender ladders, softened painted shading. Match the recording's warm color and pattern scale. No legible numbers, text, buttons or focal logo; live game boards remain separate. Create only this flat full-bleed square background texture, subdued low contrast and rich painted mobile game style. No foreground object, icon or UI. Opaque background.",
+      "transparent": false,
+      "master": "artifacts/3d-game/public/media/ludo/generated-v1/snakes-background.png",
+      "web": "/media/ludo/generated-v1/snakes-background.webp",
+      "export": {
+        "width": 1024,
+        "height": 1024,
+        "bytes": 218218,
+        "transparentPixels": 0
+      }
+    }
+  ]
+}
