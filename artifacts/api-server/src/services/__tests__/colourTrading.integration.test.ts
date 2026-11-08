@@ -6,7 +6,7 @@ import { db, usersTable, wingoRoundsTable as rounds, wingoBetsTable as bets, wal
 import { ready, memory } from '../../demo/database';
 import { wingoState, placeWingoBet, tickWingo } from '../wingo';
 import { postEntry, getBalanceByUser } from '../wallet';
-import { commitmentFor } from '../../../../3d-game/wingo-server/rules.mjs';
+import { commitmentFor, PAYOUT_VERSION } from '../../../../3d-game/wingo-server/rules.mjs';
 before(async()=>{await ready;});
 after(async()=>{await memory.close();});
 
@@ -21,10 +21,10 @@ test('30-second wallet bets use 1.98 returns, reject other durations and preserv
   const state=await wingoState(userId);
   assert.equal(state.round.duration,30);
   assert.equal(state.round.ends-state.round.start,30000);
-  assert.equal(state.round.payoutVersion,3);
+  assert.equal(state.round.payoutVersion,PAYOUT_VERSION);
   assert.ok(!('number' in state.round) && !('secret' in state.round));
   await db.update(rounds).set({ends:Date.now()+60000,number:5,secret:'test-secret',commitment:commitmentFor(state.round.period,5,'test-secret')}).where(eq(rounds.period,state.round.period));
-  const input={duration:30,period:state.round.period,pick:'5',stake:100,request:randomUUID(),payoutVersion:3};
+  const input={duration:30,period:state.round.period,pick:'5',stake:100,request:randomUUID(),payoutVersion:PAYOUT_VERSION};
   await assert.rejects(placeWingoBet(userId,{...input,payoutVersion:undefined}),/rates have changed/);
   await assert.rejects(placeWingoBet(userId,{...input,payoutVersion:2}),/rates have changed/);
   assert.equal((await getBalanceByUser(userId)).balance,10000n);

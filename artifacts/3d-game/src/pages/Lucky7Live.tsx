@@ -1,3 +1,4 @@
+import { DEFAULT_BUTTON_VALUES } from "@/lib/buttonValues";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "wouter";
 import {
@@ -64,7 +65,7 @@ function soundEnabled() {
 const suits = { hearts: "♥", diamonds: "♦", clubs: "♣", spades: "♠" };
 const money = (n: number | string) =>
   `₹${(Number(n) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
-const chips = [50, 100, 500, 1000, 5000, 10000];
+const chips = DEFAULT_BUTTON_VALUES;
 const colors = [
   "#d18c61",
   "#afbccb",
@@ -102,7 +103,7 @@ export default function Lucky7Live() {
   const favoriteKey = `lunar:lobby:favourites:${user?.id ?? "guest"}`;
   const root = useRef<HTMLDivElement>(null),
     audio = useRef<AudioContext | null>(null);
-  const [chip, setChip] = useState(50),
+  const [chip, setChip] = useState(100),
     [panel, setPanel] = useState<"rules" | "history" | "settings" | null>(null);
   const [sound, setSound] = useState(soundEnabled);
   const music = useTableMusic(sound);

@@ -88,7 +88,10 @@ export default function BetPanel({ panelIdx }: Props) {
 
   const canPlace =
     phase === "betting" &&
-    !panel.pendingBet &&
+    !panel.pendingBet && !panel.activeBetId &&
+    roundId.startsWith("crash-") && countdownMs > 300 &&
+    Number.isFinite(panel.amount) && panel.amount > 0 &&
+    (maxStakeRupees <= 0 || panel.amount <= maxStakeRupees) &&
     // Free bets don't touch the wallet, so the balance check only applies
     // to normal cash/bonus stakes.
     (freeBetArmed ? freeBetStake > 0 : panel.amount <= balance) &&
@@ -280,7 +283,11 @@ export default function BetPanel({ panelIdx }: Props) {
           ) : (
             isFury ? (
               <div className="crash-bet-action fury-bet-selection">
-                <strong>₹{panel.amount.toFixed(2)} <small>INR</small></strong>
+                <Button size="lg" className="w-full h-12 font-bold" disabled={!canPlace || panel.autoBet.enabled}
+                  data-game-bet data-testid={`btn-bet-${panelIdx}`}
+                  onClick={() => { setSelectedRound(null); void placeBet(panelIdx); }}>
+                  BET ₹{panel.amount.toFixed(2)}
+                </Button>
                 {selectionStatus}
               </div>
             ) : selectionStatus

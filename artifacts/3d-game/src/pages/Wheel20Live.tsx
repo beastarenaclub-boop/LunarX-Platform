@@ -1,3 +1,4 @@
+import { DEFAULT_BUTTON_VALUES } from "@/lib/buttonValues";
 import {
   useCallback,
   useEffect,
@@ -55,7 +56,7 @@ const media = `${import.meta.env.BASE_URL}media/wheel20-live/`;
 const commentaryPreference = "w20:commentary:auto-v1";
 const money = (n: number | string) =>
   `₹${(Number(n) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
-const chips = [10, 50, 100, 500, 1000, 5000];
+const chips = DEFAULT_BUTTON_VALUES;
 const chipColors = [
   "#63b1ee",
   "#dc758a",
@@ -109,7 +110,7 @@ export default function Wheel20Live() {
     const timer = window.setTimeout(() => setCommentaryDelayed(true), 4000);
     return () => window.clearTimeout(timer);
   }, [commentaryState]);
-  const [chip, setChip] = useState(10),
+  const [chip, setChip] = useState(100),
     [sound, setSound] = useState(
       () => read(commentaryPreference, "on") === "on",
     );

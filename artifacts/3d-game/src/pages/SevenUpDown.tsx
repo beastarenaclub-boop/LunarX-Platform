@@ -1,3 +1,4 @@
+import { DEFAULT_BUTTON_VALUES } from "@/lib/buttonValues";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -52,7 +53,7 @@ export default function SevenUpDown() {
   });
   const [slip, setSlip] = useState<Slip>(() => pending ? fromBets(pending.bets) : {});
   const [undo, setUndo] = useState<Slip[]>([]), [lastSlip, setLastSlip] = useState<Slip>({});
-  const [chip, setChip] = useState(10), [chipsOpen, setChipsOpen] = useState(false);
+  const [chip, setChip] = useState(DEFAULT_BUTTON_VALUES[0]), [chipsOpen, setChipsOpen] = useState(false);
   const [multiple, setMultiple] = useState(true), [roadmap, setRoadmap] = useState(false);
   const [error, setError] = useState(""), [panel, setPanelState] = useState<"rules" | "history" | "fairness" | "settings" | null>(null);
   const [sending, setSending] = useState(false), [confirmedRound, setConfirmedRound] = useState<string | null>(null);
@@ -200,7 +201,7 @@ export default function SevenUpDown() {
       <div className="sud-dock">
         <div className="sud-player"><span>{(user?.displayName || "P").slice(0, 1).toUpperCase()}</span><small>{user?.displayName || "Player"}</small></div>
         <button className="sud-dock-action" disabled={locked || !sumSlip(lastSlip) || !ready} onClick={() => { if (Object.keys(lastSlip).length > 1) setMultiple(true); edit({ ...lastSlip }, "stack"); }} aria-label="Repeat last bet"><RotateCcw size={21} /><small>again</small></button>
-        <div className="sud-chip-selector"><button className="sud-selected-chip" disabled={locked} onClick={() => { cue(chipsOpen ? "close" : "open"); setChipsOpen(v => !v); }} aria-label="Choose chip value" aria-expanded={chipsOpen}><Chip value={chip} /><ChevronDown size={12} /></button>{chipsOpen && <div className="sud-chip-menu" role="group" aria-label="Chip values">{[10, 50, 100, 500, 1000, 5000].map((value, i) => <button key={value} onClick={() => { cue("select"); setChip(value); setChipsOpen(false); }} aria-label={`Select ₹${value} chip`} aria-pressed={chip === value}><Chip value={value} color={["#169a43", "#268dcc", "#d94242", "#9462c8", "#d58c24", "#202533"][i]} /></button>)}</div>}</div>
+        <div className="sud-chip-selector"><button className="sud-selected-chip" disabled={locked} onClick={() => { cue(chipsOpen ? "close" : "open"); setChipsOpen(v => !v); }} aria-label="Choose chip value" aria-expanded={chipsOpen}><Chip value={chip} /><ChevronDown size={12} /></button>{chipsOpen && <div className="sud-chip-menu" role="group" aria-label="Chip values">{DEFAULT_BUTTON_VALUES.map((value, i) => <button key={value} onClick={() => { cue("select"); setChip(value); setChipsOpen(false); }} aria-label={`Select ₹${value} chip`} aria-pressed={chip === value}><Chip value={value} color={["#169a43", "#268dcc", "#d94242", "#9462c8", "#d58c24", "#202533"][i]} /></button>)}</div>}</div>
         <button className="sud-dock-action" disabled={locked || !total} onClick={() => edit(Object.fromEntries(Object.entries(slip).map(([spot, value]) => [spot, value! * 2])), "stack")} aria-label="Double bets"><b>×2</b><small>double</small></button>
         <button className="sud-dock-action" disabled={locked || !undo.length} onClick={() => { cue("undo"); setSlip(undo[undo.length - 1]); setUndo(a => a.slice(0, -1)); setError(""); }} aria-label="Undo last chip"><Undo2 size={23} /><small>undo</small></button>
         <button className="sud-dock-action sud-clear" disabled={locked || !total} onClick={() => edit({}, "clear")} aria-label="Clear bets"><X size={25} /><small>clear</small></button>

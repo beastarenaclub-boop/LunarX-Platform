@@ -32,7 +32,7 @@ function readGame(key: string): Saved | null {
       !x ||
       typeof x.id !== "string" ||
       !Number.isInteger(x.version) ||
-      ![2, 4].includes(x.state?.players?.length) ||
+      ![2, 3, 4].includes(x.state?.players?.length) ||
       !Number.isInteger(x.state.turn) ||
       x.state.turn < 0 ||
       x.state.turn >= x.state.players.length ||
@@ -71,7 +71,7 @@ export function LudoLocalPlay({
 }) {
   const key = `ludo-pass-play-v1:${userId}`;
   const [saved, setSaved] = useState<Saved | null>(() => readGame(key));
-  const [capacity, setCapacity] = useState<2 | 4>(2),
+  const [capacity, setCapacity] = useState<2 | 3 | 4>(2),
     [variant, setVariant] = useState<LudoVariant>("classic"),
     [names, setNames] = useState([name, "Player 2", "Player 3", "Player 4"]);
   const [roll, setRoll] = useState<LudoRoll | null>(null),
@@ -102,7 +102,7 @@ export function LudoLocalPlay({
             state: saved.state,
             mode: "computer",
             status: saved.state.winner === null ? "playing" : "finished",
-            capacity: saved.state.players.length as 2 | 4,
+            capacity: saved.state.players.length as 2 | 3 | 4,
             you: saved.state.turn,
             entryPaise: "0",
             prizePaise: "0",
@@ -241,13 +241,13 @@ export function LudoLocalPlay({
           <h1>Bring everyone to the board</h1>
           <p>Take turns on this device. Your game saves automatically.</p>
           <div className="ld-feature-options">
-            {([2, 4] as const).map((n) => (
+            {([2, 3, 4] as const).map((n) => (
               <button
                 key={n}
                 aria-pressed={capacity === n}
                 onClick={() => {
                   setCapacity(n);
-                  if (n === 2 && variant === "team") setVariant("classic");
+                  if (n !== 4 && variant === "team") setVariant("classic");
                 }}
               >
                 {n} players

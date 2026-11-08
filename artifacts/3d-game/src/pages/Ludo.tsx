@@ -172,8 +172,8 @@ function LudoGame({
     document.addEventListener("fullscreenchange", change);
     return () => document.removeEventListener("fullscreenchange", change);
   }, []);
-  const [capacity, setCapacity] = useState<2 | 4>(2),
-    [entry, setEntry] = useState(1000),
+  const [capacity, setCapacity] = useState<2 | 3 | 4>(2),
+    [entry, setEntry] = useState(LUDO.entries[0] as number),
     [dialog, setDialog] = useState<
       "rules" | "history" | "leave" | "settings" | "themes" | null
     >(null),
@@ -623,7 +623,7 @@ function LudoGame({
               <div className="ld-board-layout">
                 <div className="ld-playfield">
                   <div className="ld-players ld-players-top">
-                    {m.capacity === 4 &&
+                    {m.capacity >= 3 &&
                       (["red", "green"] as const).map((c) => renderPlayer(c))}
                   </div>
                   <div className="ld-board-wrap">

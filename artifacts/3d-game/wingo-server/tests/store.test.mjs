@@ -100,15 +100,15 @@ test("settles multiple predictions exactly once and accounts for special number 
   const settled = store.state(token);
   assert.equal(
     settled.player.balance,
-    1000000 - 6000 + 1700 + 4250 + 1700 + 1980,
+    1000000 - 6000 + 1980 + 4250 + 1980 + 1980,
   );
   assert.equal(settled.summary.played, 6);
   assert.equal(settled.summary.won, 4);
-  assert.equal(settled.summary.profit, 3630);
+  assert.equal(settled.summary.profit, 4190);
   assert.equal(settled.pending, 0);
   assert.deepEqual(
     settled.bets.map((b) => b.payout).sort((a, b) => a - b),
-    [0, 0, 1700, 1700, 1980, 4250],
+    [0, 0, 1980, 1980, 1980, 4250],
   );
 });
 
@@ -122,7 +122,7 @@ test("request replay never charges twice, including retries after settlement", (
   assert.throws(() => bet("red", 1000, { request }), /different prediction/);
   setTime(initial.round.ends);
   const retried = bet("green", 1000, { request });
-  assert.equal(retried.player.balance, 1000700);
+  assert.equal(retried.player.balance, 1000980);
   assert.equal(retried.bets.length, 1);
 });
 

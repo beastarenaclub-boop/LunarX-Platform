@@ -291,7 +291,7 @@ export function useLudo(userId: string) {
   );
   useRealtimeResync(() => void sync());
   const join = (
-    capacity: 2 | 4,
+    capacity: 2 | 3 | 4,
     entryPaise: number,
     mode: LudoMode = "online",
     variant: LudoVariant = "classic",

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowDown, CircleDot, LoaderCircle, Pause, Play } from "lucide-react";
+import { ArrowDown, CircleDot, LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
 import { sfx, unlockAudio, voiceRoundLoss, voiceRoundWin } from "@/game/audio";
 import { notifyPlayStarted } from "@/game/engine";
@@ -25,11 +25,6 @@ export default function Plinko() {
   const [rows, setRows] = useState(12);
   const [risk, setRisk] = useState<Risk>("medium");
   const [bonus, setBonus] = useState(false);
-  const [mode, setMode] = useState<"manual" | "auto">("manual");
-  const [autoCount, setAutoCount] = useState(10);
-  const [remaining, setRemaining] = useState(0);
-  const [autoRunning, setAutoRunning] = useState(false);
-  const [stopping, setStopping] = useState(false);
   const [busy, setBusy] = useState(false);
   const [ball, setBall] = useState<Ball | null>(null);
   const [completed, setCompleted] = useState<PlinkoState | null>(null);
@@ -41,7 +36,6 @@ export default function Plinko() {
   const [revealed, setRevealed] = useState<string | null>(null);
   const [clientSeed, setClientSeed] = useState("");
   const [uncertain, setUncertain] = useState(false);
-  const stopRef = useRef(false);
   const lock = useRef(false);
   const mounted = useRef(true);
   const landResolve = useRef<((ok: boolean) => void) | null>(null);
@@ -53,19 +47,12 @@ export default function Plinko() {
   const validation = stakeError(stake, available, config.data?.maxStakePaise);
   const table = config.data?.multipliers?.[risk]?.[String(rows)] ?? [];
   const ready = !!user && config.data?.enabled === true && table.length === rows + 1 && balance.isSuccess && seed.isSuccess && !rotating && !uncertain;
-  const locked = busy || autoRunning || rotating;
-  const win = useRoundWin({ game: "plinko", userId: user?.id, roundId: completed?.id ?? null, eligible: !!completed && !autoRunning,
+  const locked = busy || rotating;
+  const win = useRoundWin({ game: "plinko", userId: user?.id, roundId: completed?.id ?? null, eligible: !!completed,
     bets: completed ? [{ status: "settled", totalStake: completed.stakeAmount, payoutAmount: completed.payoutAmount }] : [] });
-  const autoSelect = useSelectionBet({ enabled: ready && mode === "manual" && !locked && !validation, scope: `${rows}:${risk}:${bonus}:${mode}`, submit: () => singleDrop() });
+  const autoSelect = useSelectionBet({ enabled: ready && !locked && !validation, scope: `${rows}:${risk}:${bonus}`, submit: () => singleDrop() });
   const selectStake = (n: number) => { setStake(n); unlockAudio(); if (n > 0) autoSelect.select(); else autoSelect.cancel(); };
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; stopRef.current = true; landResolve.current?.(false); landResolve.current = null; }; }, []);
-  // Losing focus stops future auto bets; the already submitted ball still settles.
-  useEffect(() => {
-    const stop = () => { if (document.hidden) { stopRef.current = true; setStopping(true); } };
-    document.addEventListener("visibilitychange", stop);
-    return () => document.removeEventListener("visibilitychange", stop);
-  }, []);
-
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; landResolve.current?.(false); landResolve.current = null; }; }, []);
   const landed = (result: PlinkoState) => {
     if (!mounted.current) return;
     setCompleted(result); setResults(prev => [result, ...prev].slice(0, 6)); setBall(null);
@@ -99,24 +86,7 @@ export default function Plinko() {
       return false;
     } finally { lock.current = false; if (mounted.current) setBusy(false); }
   };
-  const singleDrop = async () => { if (autoRunning || lock.current) return; autoSelect.cancel(); await drop(); };
-  const startAuto = async () => {
-    if (locked || !ready || validation || !Number.isInteger(autoCount) || autoCount < 1 || autoCount > 100) return;
-    autoSelect.cancel(); stopRef.current = false; setStopping(false); setAutoRunning(true); win.dismiss();
-    for (let left = autoCount; left > 0 && !stopRef.current && mounted.current; left--) {
-      setRemaining(left);
-      if (!await drop()) break;
-      if (mounted.current) setRemaining(left - 1);
-      // Fetch the settled balance before authorizing the next drop.
-      try {
-        const out = await balance.refetch();
-        if (out.error) break;
-        latestBalance.current = bonus ? undefined : out.data?.balance;
-      } catch { break; }
-    }
-    if (mounted.current) { setAutoRunning(false); setStopping(false); setRemaining(0); }
-  };
-  const stopAuto = () => { stopRef.current = true; setStopping(true); };
+  const singleDrop = async () => { if (lock.current) return; autoSelect.cancel(); await drop(); };
   const rotate = async () => {
     if (locked) return;
     setRotating(true);
@@ -152,21 +122,19 @@ export default function Plinko() {
     {uncertain && <Notice onRetry={() => void reconcile()}>The drop couldn't be confirmed. Refresh your wallet and history before trying again.</Notice>}
     <main className="instant-layout" data-game-screen="plinko">
       <aside className="instant-controls"><div className="instant-control-title">Set your drop<span>YOUR GAME</span></div>
-        <div className="instant-segment" aria-label="Play mode">{(["manual", "auto"] as const).map(m => <button key={m} aria-pressed={mode === m} disabled={locked} onClick={() => setMode(m)}>{m === "manual" ? "Manual" : "Auto drops"}</button>)}</div>
         <StakeControl game="plinko" userId={user.id} value={stake} onChange={selectStake} disabled={locked || !ready} max={config.data?.maxStakePaise} />
         <div><label>Risk level<span>{risk === "high" ? "WIDER SWINGS" : risk === "low" ? "SMALLER SWINGS" : "BALANCED"}</span></label><div className="instant-segment" aria-label="Risk level">{(["low", "medium", "high"] as const).map(r => <button key={r} aria-pressed={risk === r} disabled={locked} onClick={() => changeRisk(r)} data-testid={`risk-${r}`}>{r[0].toUpperCase() + r.slice(1)}</button>)}</div></div>
         <div><label>Rows<span>BOARD SIZE</span></label><div className="instant-segment" aria-label="Rows">{[8, 12, 16].map(n => <button key={n} aria-pressed={rows === n} disabled={locked} onClick={() => changeRows(n)} data-testid={`rows-${n}`}>{n}</button>)}</div></div>
         <label className="instant-bonus"><input type="checkbox" checked={bonus} disabled={locked} onChange={e => setBonus(e.target.checked)} data-testid="toggle-plinko-bonus" /> Use bonus wallet</label>
-        {mode === "auto" && <div><label htmlFor="auto-drops">Number of drops<span>1–100</span></label><input className="instant-auto-count" id="auto-drops" type="number" min="1" max="100" step="1" value={autoCount || ""} onChange={e => setAutoCount(Number(e.target.value))} disabled={locked} data-testid="input-auto-count" /><p className="instant-small" style={{ marginTop: 7 }}>Planned stake: ₹{money(stake * (Number.isFinite(autoCount) ? autoCount : 0))}</p></div>}
-        <div className="instant-control-bottom">{autoRunning ? <button className="instant-primary" onClick={stopAuto} disabled={stopping} data-game-bet data-testid="btn-auto-stop"><Pause size={17} />{stopping ? "Stopping after this ball…" : `Stop auto · ${remaining} left`}</button> : <button className="instant-primary" onClick={() => mode === "auto" ? void startAuto() : void singleDrop()} disabled={!ready || !!validation || busy || (mode === "auto" && (!Number.isInteger(autoCount) || autoCount < 1 || autoCount > 100))} data-game-bet data-testid={mode === "auto" ? "btn-auto-start" : "btn-plinko-drop"}>{busy ? <LoaderCircle size={18} /> : mode === "auto" ? <Play size={17} /> : <ArrowDown size={18} />}{busy ? "Ball in play…" : mode === "auto" ? "Start auto drops" : "Drop ball"}</button>}
+        <div className="instant-control-bottom"><button className="instant-primary" onClick={() => void singleDrop()} disabled={!ready || !!validation || busy} data-game-bet data-testid="btn-plinko-drop">{busy ? <LoaderCircle size={18} /> : <ArrowDown size={18} />}{busy ? "Ball in play…" : "Drop ball"}</button>
           <AutoBetStatus seconds={autoSelect.seconds} busy={busy} onCancel={autoSelect.cancel} />
-          <p className="instant-small">{validation ?? (autoRunning ? "Stop cancels future drops. The current ball will finish." : "Each drop is a separate bet.")}</p></div>
+          <p className="instant-small">{validation ?? "Each drop is a separate bet."}</p></div>
         <div className="instant-odds"><span>Highest pocket</span><strong>{table.length ? `${Math.max(...table)}×` : "—"}</strong></div>
       </aside>
       <section className="instant-stage" aria-label="Plinko game board"><div className="instant-stage-top"><h3>THE DROP ZONE</h3><div className="drop-result-chips" aria-label="Recent results">{results.length ? results.slice(0, 4).reverse().map(r => <span key={r.id}>{r.multiplier.toFixed(2)}×</span>) : <span>READY TO DROP</span>}</div></div>
         <div className="instant-stage-body"><PlinkoBoard rows={rows} multipliers={table} ball={ball} onLand={landed} sound={sound} lastBucket={completed?.rows === rows && completed.risk === risk ? completed.bucket : null} /></div>
         <p className="instant-status" aria-live="polite">{ball ? "Follow the bounce…" : busy ? "Preparing your drop…" : completed ? `Landed at ${completed.multiplier.toFixed(2)}× · ₹${formatRupees(completed.payoutAmount)} returned` : "The outer pockets hold the bigger multipliers."}</p>
-        <div className="instant-stats"><div><small>Last multiplier</small><strong className="accent" data-testid="plinko-last-multiplier">{completed ? `${completed.multiplier.toFixed(2)}×` : "—"}</strong></div><div><small>Last return</small><strong data-testid="plinko-last-payout">₹{formatRupees(completed?.payoutAmount ?? "0")}</strong></div><div><small>Net profit</small><strong className={net < 0 ? "negative" : "accent"}>{net < 0 ? "−" : ""}₹{money(Math.abs(net))}</strong></div></div>
+        <div className="instant-stats"><div><small>Last multiplier</small><strong className="accent" data-testid="plinko-last-multiplier">{completed ? `${completed.multiplier.toFixed(2)}×` : "—"}</strong></div><div><small className="plinko-win-label" style={{ fontWeight: 800 }}>{net > 0 ? "WIN" : "RETURN"}</small><strong data-testid="plinko-last-payout">₹{formatRupees(completed?.payoutAmount ?? "0")}</strong></div><div><small>Net profit</small><strong className={net < 0 ? "negative" : "accent"}>{net < 0 ? "−" : ""}₹{money(Math.abs(net))}</strong></div></div>
       </section>
     </main>
     <section className="instant-history"><div className="instant-history-head"><h3>Your recent drops</h3><span>Every bounce has a story</span></div><div className="instant-history-list"><div className="instant-history-row is-head"><span>Drop</span><span>Bet</span><span>Multiplier</span><span>Return</span></div>

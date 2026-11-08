@@ -6,6 +6,8 @@ import {
   CRAZY_TIME_TYPES,
   CRAZY_TIME_RTP,
   crazyTimeProfit,
+  crazyTimeReturn,
+  crazyTimeReturnRange,
   type CrazyTimeOutcome,
 } from "@workspace/api-zod/crazy-time-game";
 import {
@@ -13,6 +15,20 @@ import {
   settleCrazyTimeBets,
   validateCrazyTimeBets,
 } from "../crazyTimeMath";
+
+test("displayed rate ranges cover actual settled returns for every spot and version", () => {
+  for (const version of [1, 2]) {
+    for (let nonce = 0; nonce < 1000; nonce++) {
+      const outcome = deriveCrazyTimeOutcome("rate-test", "client", nonce);
+      const [min, max] = crazyTimeReturnRange(outcome.winner, version);
+      for (let choice = 0; choice < 108; choice++) {
+        if (outcome.bonus?.kind === "crazy-time" && choice > 2) continue;
+        const actual = crazyTimeReturn(outcome, choice, version);
+        assert.ok(actual >= min && actual <= max, `${outcome.winner}: ${actual} outside ${min}–${max}`);
+      }
+    }
+  }
+});
 
 test("wheel has exactly 54 sectors and the published counts", () => {
   assert.equal(CRAZY_TIME_WHEEL.length, 54);

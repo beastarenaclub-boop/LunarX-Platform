@@ -191,19 +191,19 @@ test("bet limits include lay liability, accumulated bets, duplicates and malform
     "100.5",
     "NaN",
     "999",
-    "500001",
+    "5000001",
   ])
     assert.throws(() =>
       lockSelections([{ market: "p0-back", amountPaise }], quotes),
     );
   assert.throws(() =>
-    lockSelections([{ market: "p0-lay", amountPaise: "500000" }], quotes),
+    lockSelections([{ market: "p0-lay", amountPaise: "5000000" }], quotes),
   );
   assert.throws(() =>
     lockSelections(
       [{ market: "p0-back", amountPaise: "1000" }],
       quotes,
-      500000n,
+      5000000n,
     ),
   );
   assert.throws(() =>

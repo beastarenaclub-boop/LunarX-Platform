@@ -1190,3 +1190,7 @@
     font-size: 15px;
   }
 }
+
+/* Six entry presets fit the portrait setup without clipping. */
+.ld-video-setup .ld-entries { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ld-video-setup .ld-mode { grid-template-columns: repeat(3, minmax(0, 1fr)); }

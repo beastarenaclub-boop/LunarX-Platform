@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { useStore } from "@/game/store";
+import { store, useStore } from "@/game/store";
 import { unlockAudio, sfx } from "@/game/audio";
 import { t } from "@/game/i18n";
 import { Button } from "@/components/ui/button";
@@ -98,6 +98,12 @@ export default function TopBar({ onJetXActivityToggle }: { onJetXActivityToggle?
       },
     },
   );
+  // Betting controls must use the same authoritative balance as the header,
+  // rather than the old practice balance restored from browser storage.
+  useEffect(() => {
+    const paise = user && !balance.isError ? Number(balance.data?.balance) : NaN;
+    store.setState({ balance: Number.isSafeInteger(paise) && paise >= 0 ? paise / 100 : 0 });
+  }, [user?.id, balance.data?.balance, balance.isError]);
   // Push: server emits wallet:{userId} on every ledger change, carrying the
   // game `scope` so we update the matching per-game cache entry.
   useRealtimeTopic<{

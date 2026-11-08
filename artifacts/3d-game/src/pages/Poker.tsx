@@ -1,3 +1,4 @@
+import { DEFAULT_BUTTON_VALUES } from "@/lib/buttonValues";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "wouter";
 import {
@@ -436,7 +437,7 @@ function PokerTable({
                   inputMode="decimal"
                   type="number"
                   min="10"
-                  max="5000"
+                  max="50000"
                   step="10"
                   value={stake}
                   onChange={(e) => setStake(e.target.value)}
@@ -444,7 +445,7 @@ function PokerTable({
                 />
               </label>
               <div>
-                {[10, 50, 100, 500, 1000].map((chip) => (
+                {DEFAULT_BUTTON_VALUES.map((chip) => (
                   <button
                     key={chip}
                     className={Number(stake) === chip ? "pk-chip-active" : ""}
@@ -673,7 +674,7 @@ function PokerTable({
                   aria-label="Default stake"
                   type="number"
                   min="10"
-                  max="5000"
+                  max="50000"
                   value={stake}
                   onChange={(e) => setStake(e.target.value)}
                 />

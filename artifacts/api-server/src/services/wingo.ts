@@ -12,7 +12,7 @@ const betSchema = z.object({
   duration: durationSchema,
   period: z.string().regex(/^\d+-\d+$/),
   pick: z.string().regex(/^(green|red|violet|big|small|[0-9])$/),
-  stake: z.number().int().min(100).max(1_000_000).multipleOf(100),
+  stake: z.number().int().min(100).max(5_000_000).multipleOf(100),
   request: z.string().regex(/^[a-zA-Z0-9-]{16,80}$/),
   payoutVersion: z.number().int().min(1).max(PAYOUT_VERSION).optional(),
 }).strict();
@@ -83,7 +83,7 @@ async function snapshot(tx: TxClient, userId: string, walletId: string, duration
     player: { id: userId.slice(0, 8), balance: Number(await getBalance(walletId, tx)) },
     round, history, bets: myBets,
     summary: { played: summary.played, won: summary.won, profit: summary.profit },
-    pending: summary.pending, lockSeconds: 5, minStake: 100, maxStake: 1_000_000,
+    pending: summary.pending, lockSeconds: 5, minStake: 100, maxStake: 5_000_000,
   };
 }
 

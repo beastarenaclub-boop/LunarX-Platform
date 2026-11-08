@@ -274,7 +274,7 @@ export async function settleCoinLive(round: TableRound) {
       const entry = normalizeCoinLiveBet(slip.bets);
       const multiplier =
         entry.side === outcome.side
-          ? coinLiveMultiplier(1 - cfg.houseEdge, cfg.maxMultiplier)
+          ? coinLiveMultiplier(1 - cfg.houseEdge, cfg.maxMultiplier, cfg.coinPayoutVersion ?? 1)
           : 0;
       const payout = collectionPayout(slip.totalStake, multiplier);
       let balance: bigint | undefined;

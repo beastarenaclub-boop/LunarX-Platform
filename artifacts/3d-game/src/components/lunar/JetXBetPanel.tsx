@@ -1,3 +1,4 @@
+import { DEFAULT_BUTTON_VALUES } from "@/lib/buttonValues";
 import { useId, useRef, useState } from "react";
 import { Minus, Plus, RefreshCw } from "lucide-react";
 import { useStore, type CrashPanelIndex } from "@/game/store";
@@ -49,7 +50,7 @@ export default function JetXBetPanel({ panelIdx, expanded = false, onAutoPlay }:
       <input type="number" min="1" max={Number.isFinite(limit) ? limit : undefined} step="0.01" aria-label={`Bet ${panelIdx + 1} amount`} data-testid={`input-amount-${panelIdx}`} value={editing ? amount : amount.toFixed(2)} disabled={editLocked || freeArmed} onFocus={() => setEditing(true)} onBlur={() => setEditing(false)} onChange={e => setAmount(Number(e.target.value))} />
       <button aria-label={`Increase bet ${panelIdx + 1} amount`} data-testid={`btn-amount-plus-${panelIdx}`} disabled={editLocked || freeArmed} onClick={() => setAmount(panel.amount + 10)}><Plus size={15} /></button>
     </div>
-    {expanded && <div className="jetx-quick-stakes">{[500, 5000, 65000].map(value => <button key={value} disabled={editLocked || freeArmed} onClick={() => setAmount(value)}>{value.toLocaleString("en-IN")}</button>)}<button disabled={editLocked || freeArmed} onClick={() => setAmount(Math.min(limit, balance))}>Max</button></div>}
+    {<div className="jetx-quick-stakes">{DEFAULT_BUTTON_VALUES.map(value => <button key={value} disabled={editLocked || freeArmed} onClick={() => setAmount(value)}>{value.toLocaleString("en-IN")}</button>)}<button disabled={editLocked || freeArmed} onClick={() => setAmount(Math.min(limit, balance))}>Max</button></div>}
     <button className="jetx-bet-action" data-state={canCash ? "cashout" : locked ? "accepted" : "bet"} data-game-bet data-testid={canCash ? `btn-cashout-${panelIdx}` : `btn-bet-${panelIdx}`} onClick={() => void act()} disabled={submitting || (!canCash && !canBet)}>
       {expanded && !canCash && <strong>₹ {amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>}
       <span>{submitting ? canCash ? "Cashing out…" : "Placing…" : label}</span>

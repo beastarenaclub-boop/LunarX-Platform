@@ -34,7 +34,7 @@ export const POKER_CONFIG = {
   streetMs: 3_000,
   resultMs: 7_000,
   minStakePaise: 1_000,
-  maxStakePaise: 500_000,
+  maxStakePaise: 5_000_000,
   backOdds: 198,
   layOdds: 202,
   categoryOdds: [0, 220, 400, 2000, 2000, 3000, 3500, 50000, 300000],

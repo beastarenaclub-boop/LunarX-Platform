@@ -146,8 +146,8 @@ export function LudoSetup({
   mode: LudoMode;
   variant: LudoVariant;
   onVariant: (v: LudoVariant) => void;
-  capacity: 2 | 4;
-  onCapacity: (n: 2 | 4) => void;
+  capacity: 2 | 3 | 4;
+  onCapacity: (n: 2 | 3 | 4) => void;
   colour: LudoColor;
   onColour: (c: LudoColor) => void;
   tokenStyle: LudoTokenStyle;
@@ -159,7 +159,7 @@ export function LudoSetup({
   enabled: boolean;
   busy: boolean;
   offline: boolean;
-  onPlay: (n: 2 | 4, e: number, v: LudoVariant, code?: string) => void;
+  onPlay: (n: 2 | 3 | 4, e: number, v: LudoVariant, code?: string) => void;
   onRules: () => void;
   onHistory: () => void;
   onThemes: () => void;
@@ -384,12 +384,12 @@ export function LudoSetup({
                 role="group"
                 aria-label="Number of players"
               >
-                {([2, 4] as const).map((n) => (
+                {([2, 3, 4] as const).map((n) => (
                   <button
                     key={n}
                     aria-label={`${n} players ${n === 2 ? "Head to head" : "Classic battle"}`}
                     aria-pressed={capacity === n}
-                    disabled={n === 2 && variant === "team"}
+                    disabled={n !== 4 && variant === "team"}
                     onClick={() => onCapacity(n)}
                   >
                     <span className="ld-radio">

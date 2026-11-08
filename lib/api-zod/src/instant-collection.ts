@@ -55,14 +55,17 @@ export interface CollectionRound {
   rtp: number; maxMultiplier: number; sevenPayoutVersion?: SevenPayoutVersion;
 }
 export interface CollectionState { round: CollectionRound | null; history: CollectionRound[] }
-export interface CollectionConfig { enabled: boolean; minStakePaise: string; maxStakePaise: string; rtp: number; maxMultiplier: number; sevenPayoutVersion?: SevenPayoutVersion }
+export interface CollectionConfig { enabled: boolean; minStakePaise: string; maxStakePaise: string; rtp: number; maxMultiplier: number; sevenPayoutVersion?: SevenPayoutVersion; coinPayoutVersion?: 1 | 2 }
 export type CoinSide = "heads" | "tails";
 export type CoinLiveBet = { side: CoinSide; amount: string };
 export type CoinLiveInput = { roundId: string; side: CoinSide; stakeAmount: string };
 export type CoinLiveOutcome = { side: CoinSide; value: 0 | 1 };
 export interface CoinLiveReceipt extends CollectionRound { tableRoundId: string; slipStatus: string }
 export const COIN_LIVE_TIMING = { bettingWindowMs: 15000, revealDurationMs: 10000, settleDurationMs: 5000 };
-export function coinLiveMultiplier(rtp: number, cap: number) {
+export const COIN_PAYOUT_VERSION = 2 as const;
+/** Version 2 pays 98% profit; old rounds retain their snapshotted RTP price. */
+export function coinLiveMultiplier(rtp: number, cap: number, version: 1 | 2 = COIN_PAYOUT_VERSION) {
+  if (version === 2) return 1.98;
   return Math.min(cap, Math.floor((rtp * 2 + 1e-10) * 100) / 100);
 }
 export function normalizeCoinLiveBet(raw: unknown): CoinLiveBet {

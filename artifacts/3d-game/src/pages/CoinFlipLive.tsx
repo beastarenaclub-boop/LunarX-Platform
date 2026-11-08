@@ -173,6 +173,7 @@ export default function CoinFlipLive() {
         maxStakePaise: snapshot.config.maxStakePaise,
         rtp: 1 - snapshot.config.houseEdge,
         maxMultiplier: snapshot.config.maxMultiplier,
+        coinPayoutVersion: snapshot.config.coinPayoutVersion ?? 1,
       }
     : config.data;
   const stakePaise = paiseOf(stake);
@@ -194,7 +195,7 @@ export default function CoinFlipLive() {
   const latestReceipt = ownHistory[0];
   const receipt = ownHistory.find((r) => r.tableRoundId === snapshot?.roundId);
   const multiplier = configNow
-    ? coinLiveMultiplier(configNow.rtp, configNow.maxMultiplier)
+    ? coinLiveMultiplier(configNow.rtp, configNow.maxMultiplier, configNow.coinPayoutVersion ?? 1)
     : null;
   const potential =
     stakePaise !== null && multiplier !== null
@@ -647,17 +648,14 @@ export default function CoinFlipLive() {
             layout="fit"
             minValue={Number(configNow?.minStakePaise ?? 100) / 100}
             maxValue={
-              Math.min(
-                Number(wallet.data?.balance ?? 0),
-                Number(configNow?.maxStakePaise ?? 0),
-              ) / 100
+              Number(configNow?.maxStakePaise ?? 0) / 100
             }
             idSuffix="-coin-flip"
           />
           <div className="cf-return">
             <div>
               <span>Total return on a win</span>
-              <small>Includes your stake</small>
+              <small>{multiplier === 1.98 ? "Rate 0.98 · ₹100 wins ₹98 profit + ₹100 stake" : "Includes your stake"}</small>
             </div>
             <strong data-testid="coin-potential-return">
               {potential === null ? "—" : money(potential)}

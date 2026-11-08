@@ -229,3 +229,6 @@
   .jetx-page .jetx-betting-dock:not([data-panel-count="4"]) .jetx-bet-action > strong { font-size: 16px; }
   .jetx-layout:not([data-panels="4"]) .jetx-flight-center { margin-bottom: 12px; }
 }
+
+.jetx-quick-stakes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.jetx-quick-stakes button { min-width: 0; font-size: 10px; }

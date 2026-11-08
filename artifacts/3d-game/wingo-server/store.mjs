@@ -146,7 +146,7 @@ export function createStore(
       pending,
       lockSeconds: 5,
       minStake: 100,
-      maxStake: 1000000,
+      maxStake: 5000000,
     };
   }
   function state(token, duration = 30) {
@@ -183,10 +183,10 @@ export function createStore(
     if (
       !Number.isSafeInteger(stake) ||
       stake < 100 ||
-      stake > 1000000 ||
+      stake > 5000000 ||
       stake % 100
     )
-      throw new Fault("Use a whole-coin stake from 1 to 10,000.");
+      throw new Fault("Use a whole-coin stake from 1 to 50,000.");
     if (typeof request !== "string" || !/^[a-zA-Z0-9-]{16,80}$/.test(request))
       throw new Fault("Invalid request identifier.");
     return transaction(() => {

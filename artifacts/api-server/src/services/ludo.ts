@@ -324,13 +324,13 @@ export async function joinLudo(userId: string, input: LudoJoin) {
   )
     throw badRequest("Choose an available game mode");
   if (
-    ![2, 4].includes(input.capacity) ||
+    ![2, 3, 4].includes(input.capacity) ||
     (variant === "team" && input.capacity !== 4)
   )
     throw badRequest("Team Up requires four players");
   if (input.roomCode && (mode !== "private" || !/^\d{8}$/.test(input.roomCode)))
     throw badRequest("Enter an eight-digit private room code");
-  if (!LUDO.entries.includes(input.entryPaise as (typeof LUDO.entries)[number]))
+  if (![...LUDO.entries, 1000, 5000].includes(input.entryPaise))
     throw badRequest("Choose an available entry fee");
   const id = await db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(${QUEUE_LOCK})`);
@@ -563,7 +563,7 @@ export async function previewLudoRoom(
     throw notFound("Private room not found or no longer open");
   return {
     code,
-    capacity: r.capacity as 2 | 4,
+    capacity: r.capacity as 2 | 3 | 4,
     entryPaise: String(r.entryPaise),
     prizePaise: String(prize(r)),
     variant: stateOf(r).variant ?? "classic",
@@ -776,7 +776,7 @@ function publicMatch(r: Room, m: Member, payout = 0n): LudoMatch {
     mode: modeOf(r),
     id: r.id,
     status: refunded ? "cancelled" : (r.status as LudoMatch["status"]),
-    capacity: r.capacity as 2 | 4,
+    capacity: r.capacity as 2 | 3 | 4,
     entryPaise: String(r.entryPaise),
     prizePaise: String(prize(r)),
     commissionPaise: String(r.entryPaise * BigInt(r.capacity) - prize(r)),

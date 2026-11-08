@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { db, betsTable, type Bet } from "@workspace/db";
 import { and, desc, eq, sql } from "drizzle-orm";
-import { collectionGame, collectionMultiplier, collectionPayout, collectionSteps, progressive, normalizeSevenBets, sevenPayout, SEVEN_PAYOUT_VERSION, SEVEN_TOTAL_RETURN, type SevenPayoutVersion, type CollectionCode, type CollectionOptions, type CollectionRound } from "@workspace/api-zod/instant-collection";
+import { COIN_PAYOUT_VERSION, collectionGame, collectionMultiplier, collectionPayout, collectionSteps, progressive, normalizeSevenBets, sevenPayout, SEVEN_PAYOUT_VERSION, SEVEN_TOTAL_RETURN, type SevenPayoutVersion, type CollectionCode, type CollectionOptions, type CollectionRound } from "@workspace/api-zod/instant-collection";
 import { requireGameConfig } from "./rtp";
 import { postEntry, publishWalletBalance } from "./wallet";
 import { badRequest, conflict, notFound } from "../lib/errors";
@@ -32,7 +32,7 @@ export function instantReceipt(bet: Bet): CollectionRound {
 }
 export async function instantConfig(code: CollectionCode) {
   const c = await requireGameConfig(code);
-  return { enabled: c.enabled && !isRetiredGame(code), minStakePaise: c.minStakePaise.toString(), maxStakePaise: c.maxStakePaise.toString(), rtp: 1 - c.houseEdge, maxMultiplier: code === "7up7down" ? SEVEN_TOTAL_RETURN : c.maxMultiplier, ...(code === "7up7down" ? { sevenPayoutVersion: SEVEN_PAYOUT_VERSION } : {}) };
+  return { ...(code === "coin-flip" ? { coinPayoutVersion: COIN_PAYOUT_VERSION } : {}), enabled: c.enabled && !isRetiredGame(code), minStakePaise: c.minStakePaise.toString(), maxStakePaise: c.maxStakePaise.toString(), rtp: 1 - c.houseEdge, maxMultiplier: code === "7up7down" ? SEVEN_TOTAL_RETURN : c.maxMultiplier, ...(code === "7up7down" ? { sevenPayoutVersion: SEVEN_PAYOUT_VERSION } : {}) };
 }
 export async function instantState(userId: string, code: CollectionCode) {
   const active = await db.select().from(betsTable).where(and(owned(userId, code), eq(betsTable.status, "placed"))).limit(1);

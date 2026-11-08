@@ -128,7 +128,7 @@ test("six enters yard, earns extra turn, third six forfeits without moving", () 
 });
 
 test("no token can leave its yard on any non-six for any seat in two- or four-player games", () => {
-  for (const capacity of [2, 4])
+  for (const capacity of [2, 3, 4])
     for (let seat = 0; seat < capacity; seat++) {
       for (let dice = 1; dice <= 6; dice++) {
         const s = initial(capacity);
@@ -213,7 +213,7 @@ test("dice reproduce from seed and nonce with no obvious frequency bias", () => 
   assert.ok(counts.every((n) => n > 1800 && n < 2200));
 });
 test("computer completes full 2- and 4-player matches with only legal moves", () => {
-  for (const n of [2, 4])
+  for (const n of [2, 3, 4])
     for (let game = 0; game < 30; game++) {
       const s = initial(n);
       let steps = 0;

@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { useAuth } from "./auth";
 
-export const DEFAULT_BUTTON_VALUES = [100, 500, 1000, 2000, 5000, 10000];
+export const DEFAULT_BUTTON_VALUES = [100, 500, 1000, 10000, 25000, 50000];
 const eventName = "account-button-values";
 const key = (id: string) => `account:${id}:button-values:v1`;
 export function validButtonValues(values: unknown): values is number[] {
@@ -47,7 +47,10 @@ export function useButtonValues() {
   );
   try {
     const parsed: unknown = JSON.parse(raw || "null");
-    return validButtonValues(parsed) ? parsed : null;
+    if (!validButtonValues(parsed)) return null;
+    // Saved copies of the former default should follow the updated ladder.
+    const oldDefault = [100, 500, 1000, 2000, 5000, 10000];
+    return parsed.every((value, i) => value === oldDefault[i]) ? DEFAULT_BUTTON_VALUES : parsed;
   } catch {
     return null;
   }

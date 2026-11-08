@@ -40,7 +40,7 @@ export function logDatabaseTarget(): void {
  * existing config and historical settlement data are preserved.
  */
 export async function ensureGameConfigDefaults(): Promise<void> {
-  await db.insert(gameConfigTable).values({ gameCode:"ludo", enabled:true, settlementMode:"house_edge", houseEdge:0.10, rtpMin:90, rtpMax:90, maxMultiplier:3.6, minStakePaise:1000n, maxStakePaise:50000n, bettingWindowMs:20000 }).onConflictDoNothing();
+  await db.insert(gameConfigTable).values({ gameCode:"ludo", enabled:true, settlementMode:"house_edge", houseEdge:0.10, rtpMin:90, rtpMax:90, maxMultiplier:3.6, minStakePaise:1000n, maxStakePaise:5_000_000n, bettingWindowMs:20000 }).onConflictDoNothing();
   for (const gameCode of POKER_GAMES) {
     await db.insert(gameConfigTable).values({ gameCode, enabled: true, settlementMode: "house_edge",
       minStakePaise: BigInt(POKER_CONFIG.minStakePaise), maxStakePaise: BigInt(POKER_CONFIG.maxStakePaise),
@@ -66,7 +66,7 @@ export async function ensureGameConfigDefaults(): Promise<void> {
   }).onConflictDoNothing();
   for (const game of INSTANT_COLLECTION) {
     await db.insert(gameConfigTable).values({ gameCode: game.code, enabled: true, rtpMin: 97, rtpMax: 97,
-      houseEdge: .03, maxMultiplier: 1000, settlementMode: "house_edge", minStakePaise: 100n, maxStakePaise: 1_000_000n,
+      houseEdge: .03, maxMultiplier: 1000, settlementMode: "house_edge", minStakePaise: 100n, maxStakePaise: ["7up7down", "coin-flip"].includes(game.code) ? 5_000_000n : 1_000_000n,
       ...(game.code === "7up7down" ? { bettingWindowMs: 12_000, revealDurationMs: 3_000, settleDurationMs: 4_000 } : {}),
     }).onConflictDoNothing();
   }
@@ -82,7 +82,7 @@ export async function ensureGameConfigDefaults(): Promise<void> {
   await db.insert(gameConfigTable).values({
     gameCode: "chicken-road", enabled: true, rtpMin: 98, rtpMax: 98,
     houseEdge: 0.02, maxMultiplier: 1000, settlementMode: "house_edge",
-    minStakePaise: 100n, maxStakePaise: 1_000_000n,
+    minStakePaise: 100n, maxStakePaise: 5_000_000n,
   }).onConflictDoNothing();
   await db.insert(gameConfigTable).values({
     gameCode: "vegetable-bowl", enabled: true,

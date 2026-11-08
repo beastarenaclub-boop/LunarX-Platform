@@ -27,7 +27,7 @@ function initial(key: string, maxValue: number, legacyKey?: string, allowed: rea
   // capped game's limit, so visiting that game cannot shrink the shared rack.
   try {
     if (!localStorage.getItem(key)) {
-      const previousKey = key.replace("table-coins:v3:", "table-coins:v2:");
+      const previousKey = key.replace("table-coins:v4:", "table-coins:v3:");
       const previous = JSON.parse(localStorage.getItem(previousKey) ?? (legacyKey ? localStorage.getItem(legacyKey) : null) ?? "null");
       localStorage.setItem(key, JSON.stringify({ ...defaults(Infinity, allowed), showCustom: previous?.showCustom !== false }));
     }
@@ -38,7 +38,7 @@ function initial(key: string, maxValue: number, legacyKey?: string, allowed: rea
 
 export function useCoinPreferences(game: string, userId?: string, maxValue = Infinity, allowed: readonly number[] = LIVE_TABLE_COIN_VALUES) {
   const accountValues = useButtonValues();
-  const key = `table-coins:v3:${userId ?? "guest"}`;
+  const key = `table-coins:v4:${userId ?? "guest"}`;
   const legacyKey = `table-coins:v1:${game}:${userId ?? "guest"}`;
   const [stored, setStored] = useState(() => initial(key, maxValue, legacyKey, allowed));
   const current = stored.key === key ? stored : initial(key, maxValue, legacyKey, allowed);

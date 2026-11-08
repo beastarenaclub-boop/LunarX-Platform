@@ -1,6 +1,6 @@
 /** Ludo Live rules v1. All money is integer paise; only the server changes a match. */
 export const LUDO = {
-  entries: [1000, 5000, 10000, 50000],
+  entries: [10000, 50000, 100000, 1000000, 2500000, 5000000],
   commissionBps: 1000,
   queueMs: 20000,
   privateQueueMs: 300000,
@@ -15,7 +15,7 @@ export type LudoColor = (typeof LUDO_COLORS)[number];
 export type LudoVariant = "classic" | "quick" | "team";
 export type LudoMode = "online" | "computer" | "private";
 export type LudoJoin = {
-  capacity: 2 | 4;
+  capacity: 2 | 3 | 4;
   entryPaise: number;
   requestId: string;
   mode?: LudoMode;
@@ -39,7 +39,7 @@ export const LUDO_VARIANTS = {
 } as const;
 export type LudoRoomPreview = {
   code: string;
-  capacity: 2 | 4;
+  capacity: 2 | 3 | 4;
   entryPaise: string;
   prizePaise: string;
   variant: LudoVariant;
@@ -80,7 +80,7 @@ export type LudoMatch = {
   mode?: LudoMode;
   id: string;
   status: "waiting" | "playing" | "finished" | "cancelled";
-  capacity: 2 | 4;
+  capacity: 2 | 3 | 4;
   entryPaise: string;
   prizePaise: string;
   commissionPaise: string;
@@ -165,7 +165,7 @@ export type LudoChat = {
   balancePaise: string;
 };
 export const ludoColors = (capacity: number): LudoColor[] =>
-  capacity === 2 ? ["red", "yellow"] : [...LUDO_COLORS];
+  capacity === 2 ? ["red", "yellow"] : LUDO_COLORS.slice(0, capacity);
 export const LUDO_SAFE = [0, 8, 13, 21, 26, 34, 39, 47];
 export const ludoOffset = (color: LudoColor) => LUDO_COLORS.indexOf(color) * 13;
 // [row, column] on a 15 x 15 board, clockwise from red's start.

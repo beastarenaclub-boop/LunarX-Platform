@@ -50,8 +50,19 @@ test('old SQLite rounds without a payout version retain old odds after upgrade',
   store=createStore(file,{now:()=>time,draw:()=>0});
   try {
     assert.equal(store.state(token).bets[0].payout,900);
-    assert.equal(store.state(token).round.payoutVersion,3);
+    assert.equal(store.state(token).round.payoutVersion,PAYOUT_VERSION);
     store.tick();
     assert.equal(store.state(token).player.balance,1000800);
   } finally {store.close();}
+});
+
+test('red, green, big and small pay 98% profit on all winning outcomes, preserving older rounds', () => {
+  for (let result = 0; result < 10; result++) {
+    for (const pick of ['red', 'green', 'big', 'small']) {
+      const wins = pick === 'red' ? result % 2 === 0 : pick === 'green' ? result % 2 === 1 : pick === 'big' ? result >= 5 : result < 5;
+      assert.equal(multiplierFor(pick, result, PAYOUT_VERSION), wins ? 1.98 : 0);
+      assert.equal(multiplierFor(pick, result, 3), wins ? 1.7 : 0);
+    }
+    assert.equal(multiplierFor('violet', result, PAYOUT_VERSION), result === 0 || result === 5 ? 4.25 : 0);
+  }
 });

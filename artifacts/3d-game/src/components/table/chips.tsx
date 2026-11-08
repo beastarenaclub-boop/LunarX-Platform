@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import "./chips.css";
-import { useButtonValues } from "@/lib/buttonValues";
+import { DEFAULT_BUTTON_VALUES, useButtonValues } from "@/lib/buttonValues";
 
 /**
  * Shared coin/chip control used by EVERY game.
@@ -46,7 +46,7 @@ export const COIN_DENOMINATIONS: CoinDenomination[] = [
 export const COIN_VALUES: number[] = COIN_DENOMINATIONS.map((c) => c.value);
 
 /** Shared betting presets, lowest first; each game applies its own stake cap. */
-export const LIVE_TABLE_COIN_VALUES: readonly number[] = [100, 500, 1000, 2000, 5000, 10000];
+export const LIVE_TABLE_COIN_VALUES: readonly number[] = DEFAULT_BUTTON_VALUES;
 
 /**
  * Short label: 1000 → "1k", 12500 → "12.5k", 250 → "250".

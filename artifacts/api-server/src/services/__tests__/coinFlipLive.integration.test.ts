@@ -128,7 +128,7 @@ test("one shared result settles opposite bets exactly once, with exact paise", a
   assert.deepEqual(ha.outcome, hb.outcome);
   assert.notEqual(ha.status, hb.status);
   const paid = collectionPayout(10101n, coinLiveMultiplier(0.97, 1000));
-  assert.equal(paid, 19595n);
+  assert.equal(paid, 19999n);
   const winner = ha.status === "won" ? a : b,
     loser = winner === a ? b : a;
   assert.equal(await getBalanceByUser(winner), 100000n - 10101n + paid);
@@ -275,7 +275,7 @@ test("restart recovery cannot strand a wager racing admission", async () => {
   await assert.rejects(placeCoinLive(await user(), input(r.id)), /closed/);
 });
 
-test("payout uses the accepted round's cap despite later config changes", async () => {
+test("legacy payout uses the accepted round's cap despite later config changes", async () => {
   await db
     .update(gameConfigTable)
     .set({ maxMultiplier: 1.5 })
@@ -284,6 +284,9 @@ test("payout uses the accepted round's cap despite later config changes", async 
   const a = await user(),
     b = await user(),
     r = await createTableRound("coin-flip");
+  // Model a round accepted before the new fixed 0.98 profit rate.
+  await db.update(tableRoundsTable).set({ config: { ...(r.config as Record<string, unknown>), coinPayoutVersion: 1 } })
+    .where(eq(tableRoundsTable.id, r.id));
   await placeCoinLive(a, input(r.id, "heads", "10101"));
   await placeCoinLive(b, input(r.id, "tails", "10101"));
   await db

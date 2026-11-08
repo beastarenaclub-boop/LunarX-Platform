@@ -1,4 +1,4 @@
-import { COIN_LIVE_TIMING, coinLiveMultiplier, collectionPayout, normalizeCoinLiveBet, type CoinLiveOutcome } from "@workspace/api-zod/instant-collection";
+import { COIN_LIVE_TIMING, COIN_PAYOUT_VERSION, coinLiveMultiplier, collectionPayout, normalizeCoinLiveBet, type CoinLiveOutcome } from "@workspace/api-zod/instant-collection";
 import { settleCoinLive, refundCoinLive, voidCoinLiveRound } from "./coinFlipLive";
 import { W20_VERSION, normalizeW20Bets, w20Stake, w20Payout, type W20Bet, type W20Outcome } from "@workspace/api-zod/wheel20-live";
 import { deriveW20Outcome } from "./wheel20LiveMath";
@@ -154,6 +154,7 @@ export interface RoundConfigSnapshot {
   lucky7PayoutVersion?: Lucky7PayoutVersion;
   /** Missing on legacy rounds, which retain their accepted RTP-based odds. */
   sevenPayoutVersion?: SevenPayoutVersion;
+  coinPayoutVersion?: 1 | 2;
   payoutVersion?: number;
   roulettePayoutBase?: number;
   houseEdge: number;
@@ -578,7 +579,7 @@ const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdapter> = 
   "coin-flip": {
     validate: raw => ({ totalStake: BigInt(normalizeCoinLiveBet(raw).amount) }),
     derive: (seed, client, nonce, cfg) => { const value = instantDraw("coin", seed, client, `coin-live:${nonce}`, "heads", 1 - cfg.houseEdge).outcome[0] as 0 | 1; return { value, side: value === 0 ? "heads" : "tails" }; },
-    settle: (raw, outcome, cap, edge) => { const bet = normalizeCoinLiveBet(raw); return { settled: raw, totalPayout: bet.side === (outcome as CoinLiveOutcome).side ? collectionPayout(BigInt(bet.amount), coinLiveMultiplier(1 - edge, cap)) : 0n }; },
+    settle: (raw, outcome, cap, edge, cfg) => { const bet = normalizeCoinLiveBet(raw); return { settled: raw, totalPayout: bet.side === (outcome as CoinLiveOutcome).side ? collectionPayout(BigInt(bet.amount), coinLiveMultiplier(1 - edge, cap, cfg.coinPayoutVersion ?? 1)) : 0n }; },
     async insertAudit({ round }) { return round.id; },
   },
   "7up7down": {
@@ -833,7 +834,7 @@ export async function createTableRound(gameCode: TableGameCode): Promise<TableRo
   if (["teen-patti", "teen-patti-live"].includes(gameCode)) {
     snap.teenPattiPayouts = teenPattiPayouts(snap.maxMultiplier, snap.payoutVersion);
   }
-  if (gameCode === "coin-flip") Object.assign(snap, COIN_LIVE_TIMING);
+  if (gameCode === "coin-flip") Object.assign(snap, COIN_LIVE_TIMING, { coinPayoutVersion: COIN_PAYOUT_VERSION });
   if (gameCode === "7up7down") {
     snap.sevenPayoutVersion = SEVEN_PAYOUT_VERSION;
     snap.maxMultiplier = SEVEN_TOTAL_RETURN;

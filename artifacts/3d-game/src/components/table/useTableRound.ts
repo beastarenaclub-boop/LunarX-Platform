@@ -29,6 +29,8 @@ export interface RoundConfigSnapshot {
   roulettePayoutBase?: number;
   vegetableOutcomeVersion?: 1 | 2;
   sevenPayoutVersion?: 1 | 2;
+  coinPayoutVersion?: 1 | 2;
+  payoutVersion?: number;
   houseEdge: number;
   maxMultiplier: number;
   maxStakePaise: string;

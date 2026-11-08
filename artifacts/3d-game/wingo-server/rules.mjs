@@ -1,12 +1,18 @@
 import { createHash } from "node:crypto";
 
 export const DURATIONS = [30];
-export const PAYOUT_VERSION = 3;
+export const PAYOUT_VERSION = 4;
 export const hash = (value) => createHash("sha256").update(value).digest("hex");
 export function colorsFor(number) {
   return [number % 2 ? "green" : "red", ...([0, 5].includes(number) ? ["violet"] : [])];
 }
 export function multiplierFor(pick, number, version = 1) {
+  if (version === 4) {
+    if (pick === "big") return number >= 5 ? 1.98 : 0;
+    if (pick === "small") return number < 5 ? 1.98 : 0;
+    if (pick === "red" || pick === "green") return colorsFor(number).includes(pick) ? 1.98 : 0;
+    return multiplierFor(pick, number, 3);
+  }
   if (version === 3) {
     if (/^[0-9]$/.test(pick)) return Number(pick) === number ? 1.98 : 0;
     return multiplierFor(pick, number, 2);

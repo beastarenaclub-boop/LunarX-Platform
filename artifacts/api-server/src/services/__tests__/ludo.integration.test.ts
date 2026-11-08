@@ -91,7 +91,7 @@ async function user(amount = 100000n, channel: "b2c" | "b2b" = "b2c") {
   if (amount) await postEntry({ userId: id, type: "adjustment", amount });
   return id;
 }
-const input = (capacity: 2 | 4 = 2, entryPaise = 1000) => ({
+const input = (capacity: 2 | 3 | 4 = 2, entryPaise = 1000) => ({
   capacity,
   entryPaise,
   requestId: randomUUID(),
@@ -102,6 +102,42 @@ const action = (
   token?: number,
 ) => ({ type, token, version: t.match!.version, requestId: randomUUID() });
 const balance = async (id: string) => (await getBalanceByUser(id)).balance;
+
+test("three human seats start together and the winner receives exactly 90% of the three-seat pool", async () => {
+  const a = await user(), b = await user(), c = await user();
+  const first = await joinLudo(a, input(3, 10000));
+  const second = await joinLudo(b, input(3, 10000));
+  assert.equal(second.match!.status, "waiting");
+  const third = await joinLudo(c, input(3, 10000));
+  assert.equal(third.match!.status, "playing");
+  assert.equal(third.match!.id, first.match!.id);
+  assert.equal(third.match!.state.players.length, 3);
+  assert.equal(third.match!.prizePaise, "27000");
+  const current = await ludoTable(a);
+  const state = structuredClone(current.match!.state);
+  state.turn = 0; state.phase = "move"; state.dice = 1;
+  state.players[0]!.tokens = [56, 56, 56, 55];
+  await db.update(ludoMatches).set({ state }).where(eq(ludoMatches.id, current.match!.id));
+  const move = action(current, "move", 3);
+  const won = await actLudo(a, current.match!.id, move);
+  assert.equal(won.match!.payoutPaise, "27000");
+  await actLudo(a, current.match!.id, move);
+  assert.equal(await balance(a), 117000n);
+  assert.equal(await balance(b), 90000n);
+  assert.equal(await balance(c), 90000n);
+});
+
+test("all six requested entry amounts debit correctly in three-player computer tables", async () => {
+  for (const entry of LUDO.entries) {
+    const id = await user(BigInt(entry) + 100000n);
+    const join = { ...input(3, entry), mode: "computer" as const };
+    const result = await joinLudo(id, join);
+    await joinLudo(id, join);
+    assert.equal(result.match!.state.players.length, 3);
+    assert.equal(result.match!.prizePaise, String(BigInt(entry) * 27n / 10n));
+    assert.equal(await balance(id), 100000n);
+  }
+});
 
 test("private rooms preview terms without charging, isolate channels and public queues, reject changed terms and start only when full", async () => {
   const a = await user(),
@@ -421,7 +457,7 @@ test("empty seats automatically become labelled computers at the queue deadline"
 });
 
 test("Computer mode starts private 2/4-seat games immediately and retries cannot debit twice or change mode", async () => {
-  for (const capacity of [2, 4] as const) {
+  for (const capacity of [2, 3, 4] as const) {
     const waitingUser = await user(),
       owner = await user(),
       other = await user();
@@ -819,7 +855,7 @@ test("HTTP rejects anonymous access and forged dice/payout; valid requests never
     assert.equal((await fetch(`${base}/state`)).status, 401);
     for (const body of [
       { ...input(), dice: 6 },
-      { ...input(), capacity: 3 },
+      { ...input(), capacity: 5 },
       { ...input(), entryPaise: -1 },
       { ...input(), requestId: "x" },
     ])

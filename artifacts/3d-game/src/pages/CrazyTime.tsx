@@ -30,6 +30,7 @@ import {
 } from "@workspace/api-client-react";
 import {
   CRAZY_TIME_SPOTS,
+  crazyTimeReturnRange,
   CRAZY_TIME_RTP,
   CRAZY_TIME_ROUND_TIMING,
   type CrazyTimeSpot,
@@ -661,7 +662,7 @@ export default function CrazyTime() {
                   </span>
                   {spot.profit == null && <b>{spot.label}</b>}
                   <small>
-                    {spot.profit == null ? "BONUS" : `${spot.profit}:1`}
+                    {crazyTimeReturnRange(spot.id, round.config?.payoutVersion ?? 1).map(n => n.toFixed(2)).join("–")}×
                   </small>
                   {amounts.has(spot.id) && (
                     <em data-testid={`crazy-stake-${spot.id}`}>
@@ -673,7 +674,7 @@ export default function CrazyTime() {
             </div>
             <div className="ct-bet-hint">
               <span>
-                Choose coins, then tap a spot. Bets submit at timer end.
+                Rates show total winning returns, including stake and possible boosts. Choose coins, then tap a spot.
               </span>
               <button onClick={() => setModal("picks")} disabled={!canEdit}>
                 Bonus picks <span>↗</span>

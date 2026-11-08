@@ -195,7 +195,7 @@ async function setup(
       if (slip && slip.status === "pending") {
         const multiplier =
           slip.bets[0].side === side
-            ? coinLiveMultiplier(0.97, options.cap ?? 1000)
+            ? coinLiveMultiplier(0.97, options.cap ?? 1000, 1)
             : 0;
         const payout = collectionPayout(BigInt(slip.totalStake), multiplier);
         balance += payout;
