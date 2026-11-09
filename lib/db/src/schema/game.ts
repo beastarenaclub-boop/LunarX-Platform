@@ -12,6 +12,8 @@ import { nanoid } from "nanoid";
 import { partnersTable } from "./partners";
 
 export const gameConfigTable = pgTable("game_config", {
+  ftDigitReturn: doublePrecision("ft_digit_return").notNull().default(9),
+  maxPerSpotPaise: bigint("max_per_spot_paise", { mode: "bigint" }).notNull().default(sql`500000`),
   id: text("id")
     .primaryKey()
     .$defaultFn(() => nanoid()),

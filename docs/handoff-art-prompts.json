@@ -1,0 +1,24 @@
+{
+  "hero": "Use case: ads-marketing. Create a polished wide website hero background for an existing adult casino game lobby, the LunarX / Crypto777 collection. New games are American Roulette, Mini Roulette, Top 10 Target and Rummy Royale. Photorealistic premium 3D still-life, elegant emerald velvet and dark near-black background with warm brushed-gold lighting, restrained ruby accents. On the RIGHT two-thirds, a beautifully detailed tilted roulette wheel, a smaller jewel-like numbered target wheel, refined playing cards and a few casino chips arranged as one cohesive sculptural composition. LEFT third is clean dark negative space for HTML headline and buttons. Strong clear silhouettes, cinematic studio lighting, tasteful and sophisticated, no people, no currency notes, no jackpot or winning promises, NO TEXT, NO LOGOS, no watermark, no UI. Landscape banner, approximately 2.5:1 aspect ratio. Keep main objects inside central safe area so responsive cropping looks good.",
+  "cards": [
+    {
+      "id": "roulette-american",
+      "prompt": "Use case: stylized-concept. Asset type: adult casino lobby game cover artwork for roulette-american. Subject: a majestic polished walnut American roulette wheel with green 0 and 00 pockets, ruby and black pocket rim, brass spindle and ivory ball, a few tasteful chips; strong diagonal close-up composition. Premium cinematic 3D editorial product illustration, dark emerald velvet backdrop, sophisticated brushed gold edge lights, crisp readable central silhouette, physically believable materials. LANDSCAPE 4:3 composition suitable for a small game tile, main object in middle upper 70%, calm dark space at bottom for HTML game title. No title text, no promotional copy, no logos, no people, no banknotes, no winnings claims, no watermark. Cohesive luxury aesthetic, restrained details, high resolution."
+    },
+    {
+      "id": "roulette-mini",
+      "prompt": "Use case: stylized-concept. Asset type: adult casino lobby game cover artwork for roulette-mini. Subject: a compact elegant roulette wheel with nineteen spacious pockets, one green zero pocket, alternating ruby and black pockets, luminous brass spindle, ivory ball; intimate angled close-up composition. Premium cinematic 3D editorial product illustration, dark emerald velvet backdrop, sophisticated brushed gold edge lights, crisp readable central silhouette, physically believable materials. LANDSCAPE 4:3 composition suitable for a small game tile, main object in middle upper 70%, calm dark space at bottom for HTML game title. No title text, no promotional copy, no logos, no people, no banknotes, no winnings claims, no watermark. Cohesive luxury aesthetic, restrained details, high resolution."
+    },
+    {
+      "id": "fun-target",
+      "prompt": "Use case: stylized-concept. Asset type: adult casino lobby game cover artwork for fun-target. Subject: a playful yet sophisticated circular Top 10 Target wheel with TEN broad colorful segments showing the digits 0 through 9 exactly once, a small gold pointer at the top and a luminous central medallion; warm amber and emerald, centered iconic composition. Premium cinematic 3D editorial product illustration, dark emerald velvet backdrop, sophisticated brushed gold edge lights, crisp readable central silhouette, physically believable materials. LANDSCAPE 4:3 composition suitable for a small game tile, main object in middle upper 70%, calm dark space at bottom for HTML game title. No title text, no promotional copy, no logos, no people, no banknotes, no winnings claims, no watermark. Cohesive luxury aesthetic, restrained details, high resolution."
+    },
+    {
+      "id": "rummy-royale",
+      "prompt": "Use case: stylized-concept. Asset type: adult casino lobby game cover artwork for rummy-royale. Subject: beautiful tactile ivory playing cards forming a rummy sequence 4, 5, 6 of hearts fanned in front of a royal green card deck, subtle gold filigree card backs and a few casino chips, elegant dark card-room atmosphere; centered iconic composition. Premium cinematic 3D editorial product illustration, dark emerald velvet backdrop, sophisticated brushed gold edge lights, crisp readable central silhouette, physically believable materials. LANDSCAPE 4:3 composition suitable for a small game tile, main object in middle upper 70%, calm dark space at bottom for HTML game title. No title text, no promotional copy, no logos, no people, no banknotes, no winnings claims, no watermark. Cohesive luxury aesthetic, restrained details, high resolution."
+    }
+  ],
+  "tool": "built-in image_gen",
+  "format": "JPEG quality 88, original pixel dimensions",
+  "date": "2026-11-09"
+}

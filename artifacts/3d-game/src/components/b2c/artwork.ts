@@ -1,7 +1,8 @@
 import { b2cMedia, b2cBanner } from "./media";
 import { POKER_ART } from "../poker/artwork";
 import { POKER_GAMES } from "@workspace/api-zod/poker";
-import colourTradingBanner from "@/assets/lobby/colour-trading-banner.svg";
+import colourTradingBanner from "@/assets/lobby/colour-trading-banner-v2.webp";
+import { HANDOFF_BANNER } from "../lobby/handoff-artwork";
 
 type StorefrontBanner = {
   src: string;
@@ -12,9 +13,11 @@ type StorefrontBanner = {
   position: string;
   poker?: boolean;
   megaBall?: boolean;
+  handoff?: boolean;
 };
 
 export const B2C_BANNERS: StorefrontBanner[] = [
+  { src:HANDOFF_BANNER, width:1983, height:793, alt:"New table collection: roulette wheels, Top 10 Target and Rummy Royale cards on emerald velvet", position:"center", handoff:true },
   { src: `${import.meta.env.BASE_URL}media/mega-ball/banner.jpg`, width: 1672, height: 941, alt: "NEW GAME — Mega Ball. Every ball. A big moment.", position: "center", megaBall: true },
   ...POKER_GAMES.map((game) => ({
     src: POKER_ART[game].src,
@@ -104,7 +107,7 @@ const positions: Record<string, [keyof typeof atlases, number]> = {
 };
 
 export function b2cArtwork(id: string) {
-  if (id === "wingo") return { src: colourTradingBanner, width: 1200, height: 675, viewBox: "0 0 1200 675" };
+  if (id === "wingo") return { src: colourTradingBanner, width: 1672, height: 941, viewBox: "0 0 1672 941" };
   const position = positions[id];
   if (!position) return null;
   const [key, cell] = position;
@@ -121,6 +124,7 @@ export const B2C_AVATAR = b2cMedia("player-avatar.png");
 export const B2C_LOTTERY = b2cMedia("lottery.png");
 
 export const B2C_GAME_ORDER = [
+  "roulette-american", "roulette-mini", "fun-target", "rummy-royale",
   "mega-ball",
   "ludo",
   "teen-patti-joker",

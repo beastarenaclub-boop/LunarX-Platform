@@ -606,6 +606,7 @@ export function deriveOutcome(
       );
     case "dice":
       return deriveDiceOutcome(serverSeed, clientSeed, nonce, config);
+    case "speed-auto-roulette":
     case "roulette":
       return deriveRouletteOutcome(serverSeed, clientSeed, nonce);
     case "sic-bo":
@@ -683,6 +684,7 @@ export async function updateGameConfig(
   patch: Partial<
     Pick<
       GameConfig,
+      | "ftDigitReturn"
       | "rtpMin"
       | "rtpMax"
       | "maxMultiplier"

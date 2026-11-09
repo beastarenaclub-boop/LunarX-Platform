@@ -60,6 +60,7 @@ const NAV = [
   { href: "/lottery", label: "Irland Lotto", icon: Dice5 },
   { href: "/prize-lotto", label: "Prize Lotto", icon: Dice5 },
   { href: "/b2c-rtp", label: "B2C RTP", icon: Shield },
+  { href: "/game-control", label: "Game Control", icon: Shield },
   { href: "/rtp", label: "Game Defaults", icon: Shield },
   { href: "/agents", label: "Legacy Agents", icon: UserCheck },
   { href: "/partners", label: "Partners", icon: Building2 },
@@ -110,7 +111,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <p className="text-xs text-slate-400 mt-1">Lunar platform</p>
       </div>
       <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
-        {NAV.filter(item => !["/bets", "/accounts"].includes(item.href) || user?.role === "admin" || user?.role === "super_admin").map((item) => {
+        {NAV.filter(item => !["/bets", "/accounts", "/game-control"].includes(item.href) || user?.role === "admin" || user?.role === "super_admin").map((item) => {
           const Active =
             location === item.href ||
             (item.href !== "/" && location.startsWith(item.href));

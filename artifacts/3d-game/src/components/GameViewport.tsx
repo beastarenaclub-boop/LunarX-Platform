@@ -3,7 +3,8 @@ import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { fitGameViewport } from "../../../../lib/game-ui/fitViewport";
 import { GameInformationProvider } from "./game/GameInformation";
 
-const nativeInstant = (game?: string) => game === "mega-ball" || game === "ludo" || game?.startsWith("poker-") || INSTANT_COLLECTION.some(g => g.code === game);
+const KIT_GAMES = new Set(["roulette-american", "roulette-mini", "fun-target", "rummy-royale"]);
+const nativeInstant = (game?: string) => KIT_GAMES.has(game ?? "") || game === "mega-ball" || game === "speed-auto-roulette" || game === "ludo" || game?.startsWith("poker-") || INSTANT_COLLECTION.some(g => g.code === game);
 const layouts: Record<string, string> = {
   ludo: "ludo",
   "lucky-7": "dealer", "teen-patti-live": "dealer",
@@ -11,6 +12,7 @@ const layouts: Record<string, string> = {
   "andar-bahar-live": "andar-bahar-live",
   "teen-patti-joker": "teenpatti-joker",
   "crazy-time": "crazy-time",
+  "speed-auto-roulette": "speed-roulette",
   roulette: "roulette", mines: "mines", plinko: "plinko", dice: "dice",
   baccarat: "baccarat-studio", "teen-patti": "cards", "andar-bahar": "cards", blackjack: "blackjack",
   "dragon-tiger": "dragon-tiger", rummy: "rummy", "vegetable-bowl": "vegetable",

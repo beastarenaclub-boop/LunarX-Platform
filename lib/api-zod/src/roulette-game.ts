@@ -1,5 +1,8 @@
 /** Shared European roulette terms. Multipliers include the original stake. */
 export const ROULETTE_PAYOUT_BASE = 36;
+export const SPEED_ROULETTE_CODE = "speed-auto-roulette";
+export const SPEED_ROULETTE_TIMING = { bettingWindowMs: 12_000, revealDurationMs: 9_000, settleDurationMs: 4_000 } as const;
+export const isRouletteGame = (code: string) => code === "roulette" || code === SPEED_ROULETTE_CODE;
 export const ROULETTE_HOUSE_EDGE = 1 / 37;
 export const ROULETTE_RTP_PERCENT = (36 / 37) * 100;
 export const ROULETTE_LIMITS = {

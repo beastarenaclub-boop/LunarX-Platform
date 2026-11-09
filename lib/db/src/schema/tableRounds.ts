@@ -6,6 +6,7 @@ import {
   bigint,
   jsonb,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -30,6 +31,8 @@ export const tableRoundsTable = pgTable(
       .primaryKey()
       .$defaultFn(() => nanoid()),
     gameCode: text("game_code").notNull(),
+    partnerId: text("partner_id"),
+    resultSource: text("result_source").notNull().default("drawn"),
     phase: text("phase").notNull().default("betting"), // betting|reveal|settling|settled|voided
     serverSeed: text("server_seed").notNull(),
     serverSeedHash: text("server_seed_hash").notNull(),
@@ -88,6 +91,7 @@ export const tableRoundBetsTable = pgTable(
       .notNull()
       .references(() => tableRoundsTable.id, { onDelete: "cascade" }),
     gameCode: text("game_code").notNull(),
+    idempotencyKey: text("idempotency_key"),
     userId: text("user_id").notNull(),
     betId: text("bet_id").notNull(),
     bets: jsonb("bets").notNull(),
@@ -103,6 +107,7 @@ export const tableRoundBetsTable = pgTable(
       .defaultNow(),
   },
   (t) => [
+    uniqueIndex("table_slip_idempotency_idx").on(t.userId, t.idempotencyKey),
     index("table_round_bets_round_id_idx").on(t.roundId),
     index("table_round_bets_user_id_idx").on(t.userId),
     index("table_round_bets_status_idx").on(t.status),

@@ -1,3 +1,7 @@
+import handoffGamesRouter from "./handoffGames";
+import managedResultVerification from "./managedResultVerification";
+import rummyRoyaleRouter from "../games/rummy/routes";
+import speedAutoRouletteRouter from "./speedAutoRoulette";
 import { Router } from "express";
 import instantCollectionRouter from "./instantCollection";
 import virtualSportsRouter from "./virtualSports";
@@ -38,6 +42,9 @@ import reportsRouter from "./reports";
 
 // The same routers run against either the real store or the isolated demo worker.
 const router = Router();
+router.use(managedResultVerification);
+router.use(handoffGamesRouter);
+router.use("/rummy-royale", rummyRoyaleRouter);
 router.use("/ludo", ludoRouter);
 router.use("/reports", reportsRouter);
 router.use("/instant", instantCollectionRouter);
@@ -52,6 +59,7 @@ router.use("/chicken-road", chickenRoadRouter);
 router.use("/plinko", plinkoRouter);
 router.use("/dice", diceRouter);
 router.use("/horse-racing", horseRacingRouter);
+router.use("/speed-auto-roulette", speedAutoRouletteRouter);
 router.use("/roulette", rouletteRouter);
 router.use("/baccarat", baccaratRouter);
 router.use("/teen-patti", teenPattiRouter);

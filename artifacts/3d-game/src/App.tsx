@@ -33,6 +33,10 @@ import { installAudioAutostart } from "@/game/audioAutostart";
 import { B2C_STANDALONE } from "@/components/b2c/config";
 import { DemoSessionBanner, DemoWallet } from "@/components/b2c/DemoSession";
 
+const AmericanRoulette = lazy(() => import("@/games/roulette/Roulette"));
+const RouletteMini = lazy(() => import("@/games/roulette/RouletteMini"));
+const FunTarget = lazy(() => import("@/games/fun-target/FunTarget"));
+const RummyRoyale = lazy(() => import("@/games/rummy/Rummy"));
 const B2C = lazy(() => import("@/pages/B2C"));
 const AccountReport = lazy(() => import("@/pages/AccountReport"));
 const AccountSettings = lazy(() => import("@/pages/AccountSettings"));
@@ -41,6 +45,7 @@ const Lunar = lazy(() => import("@/pages/Lunar"));
 const Mines = lazy(() => import("@/pages/Mines"));
 const Plinko = lazy(() => import("@/pages/Plinko"));
 const Dice = lazy(() => import("@/pages/Dice"));
+const SpeedAutoRoulette = lazy(() => import("@/pages/SpeedAutoRoulette"));
 const Roulette = lazy(() => import("@/pages/Roulette"));
 const Baccarat = lazy(() => import("@/pages/Baccarat"));
 const TeenPatti = lazy(() => import("@/pages/TeenPatti"));
@@ -76,12 +81,14 @@ const VirtualSports = lazy(() => import("@/pages/VirtualSports"));
 // Routes where background music is allowed to play. Everything else (lobby,
 // wallet, profile, history, etc.) stays silent on open.
 const GAME_ROUTES = new Set([
+  "/roulette-american", "/roulette-mini", "/fun-target", "/rummy-royale",
   "/ludo",
   ...INSTANT_COLLECTION.map(g => `/${g.code}`),
   "/mines",
   "/chicken-road",
   "/plinko",
   "/dice",
+  "/speed-auto-roulette",
   "/roulette",
   "/baccarat",
   "/blackjack",
@@ -280,7 +287,12 @@ function App() {
               <Dice />
             </Protected>
           </Route>
-          <Route path="/roulette">
+          <Route path="/speed-auto-roulette"><Protected><SpeedAutoRoulette /></Protected></Route>
+          <Route path="/roulette-american"><Protected><AmericanRoulette /></Protected></Route>
+<Route path="/roulette-mini"><Protected><RouletteMini /></Protected></Route>
+<Route path="/fun-target"><Protected><FunTarget /></Protected></Route>
+<Route path="/rummy-royale"><Protected><RummyRoyale /></Protected></Route>
+<Route path="/roulette">
             <Protected>
               <Roulette />
             </Protected>

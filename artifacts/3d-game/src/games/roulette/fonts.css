@@ -1,0 +1,29 @@
+/*
+ * The cabinet's four faces.
+ *
+ * Named with a `Roulette` prefix because two of them ("Comic", "News706") are
+ * common family names that would otherwise collide with whatever the host page
+ * or the operating system already has under that name — and a meter that
+ * silently falls back to a system face is the kind of difference nobody
+ * notices until the numbers no longer fit their box.
+ */
+@font-face {
+  font-family: "RouletteLegacy";
+  src: url("@/assets/handoff/roulette/fonts/LegacyRuntime.ttf") format("truetype");
+  font-display: block;
+}
+@font-face {
+  font-family: "RouletteDigiface";
+  src: url("@/assets/handoff/roulette/fonts/digifaw.ttf") format("truetype");
+  font-display: block;
+}
+@font-face {
+  font-family: "RouletteComic";
+  src: url("@/assets/handoff/roulette/fonts/comic.ttf") format("truetype");
+  font-display: block;
+}
+@font-face {
+  font-family: "RouletteNews706";
+  src: url("@/assets/handoff/roulette/fonts/News706b_0.ttf") format("truetype");
+  font-display: block;
+}

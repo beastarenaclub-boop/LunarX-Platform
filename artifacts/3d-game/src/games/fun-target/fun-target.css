@@ -1,0 +1,58 @@
+@font-face{font-family:FTMeter;src:url("./assets/BAUBODKC.ttf") format("truetype");font-display:swap}
+@font-face{font-family:FTAction;src:url("./assets/Vagroln_0.ttf") format("truetype");font-display:swap}
+@font-face{font-family:FTClock;src:url("./assets/digifaw_0.ttf") format("truetype");font-display:swap}
+@font-face{font-family:FTNumbers;src:url("./assets/timesbd_0.ttf") format("truetype");font-display:swap}
+.ft-page{position:fixed;inset:0;width:100%;height:100%;height:100dvh;margin:0;padding:0;overflow:hidden;background:#ccba7c;color:#f4e5d0;font-family:Arial,sans-serif;isolation:isolate}
+.ft-page,.ft-page *{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+.ft-cabinet-host{width:100%;height:100%;overflow:hidden;position:relative;background:#ccba7c;isolation:isolate;touch-action:manipulation}
+.ft-cabinet{position:absolute;left:0;top:0;width:1024px;height:720px;transform-origin:0 0;overflow:hidden}
+.ft-art{position:absolute;pointer-events:none;user-select:none;object-fit:fill}
+.ft-wheel{left:289.25px;top:29.25px;width:445.5px;height:445.5px;z-index:2;will-change:transform}
+.ft-logo{left:438.74px;top:178.74px;width:146.52px;height:146.52px;z-index:3}
+.ft-text{position:absolute;z-index:12;transform:translate(-50%,-50%);margin:0;color:#3e1c1c;text-align:center;line-height:1.1;pointer-events:none;white-space:nowrap;font-family:FTNumbers,serif}
+.ft-score,.ft-winner{font-family:FTMeter,serif;font-size:27px;width:215px;overflow:hidden;text-overflow:ellipsis}
+.ft-score{left:116px;top:99.36px}.ft-winner{left:912.5px;top:100.62px}
+.ft-clock{left:113.48px;top:263.52px;font-family:FTClock,monospace;font-size:26px}
+.ft-history{left:912.5px;top:264.06px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));align-items:center;font-family:FTMeter,serif;font-size:18px;width:178px;white-space:nowrap;letter-spacing:0;word-spacing:0;overflow:hidden}.ft-history span{min-width:0;text-align:center}
+.ft-amount{font-size:23px;width:88px;overflow:hidden;text-overflow:ellipsis}
+.ft-total{left:33.2px;top:702px;font-size:15px;color:white;max-width:65px;overflow:hidden}
+.ft-message{left:512px;top:700.74px;font-size:20px;width:810px;overflow:hidden;text-overflow:ellipsis}
+.ft-hit{position:absolute;z-index:14;margin:0;border:0;padding:0;background:transparent;color:white;cursor:pointer;touch-action:none;border-radius:50%;font-family:FTNumbers,serif;font-size:22px;line-height:1}
+.ft-hit:focus-visible,.ft-control button:focus-visible,.ft-control a:focus-visible{outline:3px solid white;outline-offset:3px}
+.ft-coin-hit{border-radius:8px}
+.ft-hit:not(:disabled):hover{box-shadow:0 0 14px 3px #fff9}
+.ft-control{position:absolute;z-index:16}
+.ft-control-bet{--ft-button-normal:url("./assets/BetOk.png");--ft-button-flash:url("./assets/BetOkG.png")}
+.ft-control-take{--ft-button-normal:url("./assets/Take.png");--ft-button-flash:url("./assets/TakeG.png")}
+.ft-control-cancel{--ft-button-normal:url("./assets/CancelBet.png");--ft-button-flash:url("./assets/CancelBetG.png")}
+.ft-control-exit{--ft-button-normal:url("./assets/Exit.png");--ft-button-flash:url("./assets/ExitG.png")}
+.ft-control button::before,.ft-control a::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--ft-button-flash) center/100% 100% no-repeat;opacity:0}
+.ft-control button:not(:disabled):active::before,.ft-control a:active::before,.ft-control button[aria-pressed=true]:not(:disabled)::before{opacity:1}
+.ft-control .ft-take-ready::before,.ft-control .ft-bet-ready::before{animation:ft-button-flash .466s steps(1,end) infinite}
+/* Auto-take (2026-09-26): a win's Take glows ONCE, 0.8 s, then the page presses it (AUTO_TAKE_AFTER_MS) — long enough for the 0.76 s win jingle, which the take cue would otherwise cut. */
+.ft-control .ft-take-ready::before{animation:ft-button-flash .8s steps(1,end) 1}
+.ft-control button,.ft-control a{display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:relative;isolation:isolate;background:var(--ft-button-normal) center/100% 100% no-repeat;border:0;color:#fff;font-family:FTAction,Arial,sans-serif;font-size:19px;line-height:1;cursor:pointer;text-decoration:none;text-shadow:1px 1px #593213;padding:0 4px}
+.ft-control:nth-last-of-type(3) button{font-size:14px}
+.ft-hindi .ft-control button,.ft-hindi .ft-control a{font-family:Arial,sans-serif;font-size:14px}
+.ft-hindi .ft-message{font-family:Arial,sans-serif;font-size:18px}
+.ft-star{animation:ft-sparkle .667s ease-in-out infinite}
+.ft-title{animation:ft-title 1s ease-in-out infinite}
+.ft-result-flash{animation:ft-result .5s steps(1,end) infinite}
+.ft-clock-flash{animation:ft-flash .466s steps(1,end) infinite}
+.ft-modal-shade{position:fixed;inset:0;z-index:100;background:#000a;display:grid;place-items:center;padding:24px}
+.ft-modal{position:relative;max-width:640px;max-height:85vh;overflow:auto;padding:28px;background:#251929;border:1px solid #826342;border-radius:12px;color:#e8d5bf}
+.ft-modal h2{font-family:Georgia,serif;color:#f5ce90}.ft-modal p{font-size:13px;line-height:1.65}
+.ft-modal-close{position:absolute;right:14px;top:10px;background:transparent;color:#eee;border:0;font-size:25px;cursor:pointer}
+.ft-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@keyframes ft-sparkle{0%,100%{transform:scale(1)}50%{transform:scale(2.25)}}
+@keyframes ft-title{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes ft-result{0%,100%{visibility:visible}50%{visibility:hidden}}
+@keyframes ft-button-flash{0%,100%{opacity:0}50%{opacity:1}}
+@keyframes ft-flash{0%,100%{opacity:1}50%{opacity:.25}}
+@media(prefers-reduced-motion:reduce){.ft-star,.ft-title,.ft-result-flash,.ft-clock-flash,.ft-control .ft-take-ready::before,.ft-control .ft-bet-ready::before{animation:none}}
+.ft-control:has([data-testid="btn-cancel-specific"]) button{font-size:14px}.ft-control:has([data-testid="btn-clear"]) button{font-size:16px}
+.ft-screen-controls{position:absolute;z-index:30;top:max(10px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));display:flex;gap:10px}
+.ft-screen-controls button{display:grid;place-items:center;width:42px;height:42px;padding:7px;border:2px solid #f4db80;border-radius:50%;background:#64480ddb;color:#fff1ab;box-shadow:0 0 0 2px #96701e,inset 0 0 0 2px #96701e;cursor:pointer}
+.ft-screen-controls button:hover{background:#866313}.ft-screen-controls button:focus-visible{outline:3px solid white;outline-offset:4px}
+.ft-screen-controls svg{width:100%;height:100%;stroke-width:2.5}
+@media(orientation:portrait){.ft-screen-controls{top:auto;bottom:max(5px,env(safe-area-inset-bottom));right:max(3px,env(safe-area-inset-right));flex-direction:column;gap:7px}.ft-screen-controls button{width:22px;height:22px;padding:3px;border-width:1px;box-shadow:0 0 0 1px #96701e;transform:rotate(90deg)}}

@@ -23,6 +23,7 @@ import PromotionsPage from "@/pages/promotions";
 import FraudPage from "@/pages/fraud";
 import AuditPage from "@/pages/audit";
 import LogsPage from "@/pages/logs";
+import GameControl from "@/pages/game-control";
 import RtpConfigPage from "@/pages/rtp-config";
 import B2cRtpPage from "@/pages/b2c-rtp";
 import GamesPage from "@/pages/games";
@@ -84,6 +85,7 @@ function ProtectedRoutes() {
         <Route path="/integration-demo" component={IntegrationDemoPage} />
         <Route path="/audit" component={AuditPage} />
         <Route path="/logs" component={LogsPage} />
+        <Route path="/game-control" component={GameControl} />
         <Route path="/rtp" component={RtpConfigPage} />
         <Route path="/b2c-rtp" component={B2cRtpPage} />
         <Route path="/games" component={GamesPage} />

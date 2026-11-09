@@ -1,3 +1,4 @@
+import gameControlRouter from "./gameControl";
 import gameplayRouter from "./gameplay";
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
@@ -29,6 +30,7 @@ router.use((req, _res, next) => {
   next();
 });
 
+router.use("/admin/game-control", gameControlRouter);
 router.use(gameplayRouter);
 router.use(healthRouter);
 router.use("/auth", authRouter);

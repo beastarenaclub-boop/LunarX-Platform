@@ -84,6 +84,7 @@ import { getLoginDestination } from "@/lib/loginDestination";
 import { toast } from "sonner";
 import "@/components/b2c/b2c.css";
 import "@/components/lobby/new-game.css";
+import { HANDOFF_ART } from "@/components/lobby/handoff-artwork";
 
 function RegistryListener({ code }: { code: string }) {
   const qc = useQueryClient();
@@ -137,6 +138,7 @@ function GameTile({
         <span>{game.name}</span>
       </span>
       {isNew && <span className="game-new-badge">NEW</span>}
+      {HANDOFF_ART[game.id] && <span className="b2c-game-title">{game.name}</span>}
       {!game.enabled && (
         <span className="b2c-game-unavailable">Unavailable</span>
       )}
@@ -545,7 +547,7 @@ export default function B2C({
           {!browse && (
             <>
               <section
-                className={`b2c-hero${(activeBanner.poker || activeBanner.megaBall) ? " b2c-poker-hero" : ""}`}
+                className={`b2c-hero${(activeBanner.poker || activeBanner.megaBall) ? " b2c-poker-hero" : ""}${activeBanner.handoff?" b2c-handoff-hero":""}`}
                 ref={bannerRef}
                 aria-label="Featured games"
                 aria-roledescription="carousel"
@@ -561,6 +563,7 @@ export default function B2C({
                   fetchPriority="high"
                 />
                 {activeBanner.megaBall && (<div className="b2c-poker-hero-copy"><button onClick={() => navigate("/mega-ball")}>Play Mega Ball <ChevronRight size={15} /></button><small>NEW GAME · 20 balls + Mega Ball</small></div>)}
+                {activeBanner.handoff&&<div className="b2c-handoff-copy"><span>JUST ADDED · THE TABLE COLLECTION</span><h1>New tables.<br/>New classics.</h1><p>American & Mini Roulette<br/>Top 10 Target · Rummy Royale</p><button onClick={()=>chooseCategory("new")}>Explore new games <ChevronRight size={16}/></button></div>}
                 {activeBanner.poker && (
                   <div className="b2c-poker-hero-copy">
                     <button

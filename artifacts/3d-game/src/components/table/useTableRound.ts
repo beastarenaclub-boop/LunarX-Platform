@@ -20,6 +20,8 @@ import {
 export type RoundPhase = "betting" | "reveal" | "settling";
 
 export interface RoundConfigSnapshot {
+  paytable?: Record<string, number>;
+  maxPerSpotPaise?: string | null;
   masterRtpBps?: number; pricingVersion?: string;
   baccaratPayouts?: BaccaratPayouts;
   teenPattiPayouts?: {
@@ -59,6 +61,7 @@ export interface MyBet {
 }
 
 export interface TableRoundSnapshot {
+  resultSource?: string;
   roundId: string;
   gameCode: string;
   phase: string;
@@ -105,10 +108,11 @@ export interface TableRoundState<TOutcome = unknown> {
   recent: { roundId: string; outcome: unknown; settledAt: string | null }[];
   /** Convert a server-epoch timestamp to local Date.now() time. */
   toLocalTime: (serverTs: number) => number;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
 }
 
 interface Options {
+  croupierVoice?: boolean;
   /** A video table only needs React updates when its displayed second or cutoff changes. */
   wholeSecondCountdown?: boolean;
   /** A filmed dealer can provide its own synchronized betting greeting. */
@@ -135,6 +139,8 @@ interface Options {
  */
 export function useTableRound<TOutcome = unknown>(
   game:
+    | "roulette-american" | "roulette-mini" | "fun-target"
+    | "speed-auto-roulette"
     | "roulette"
     | "baccarat"
     | "blackjack"
@@ -165,9 +171,9 @@ export function useTableRound<TOutcome = unknown>(
   const emitBettingOpen = useCallback((roundId: string) => {
     if (lastBettingRoundRef.current === roundId) return;
     lastBettingRoundRef.current = roundId;
-    if (game !== "mega-ball" && optsRef.current.roundOpenVoice !== false) {
+    if (optsRef.current.croupierVoice !== false && game !== "mega-ball" && optsRef.current.roundOpenVoice !== false) {
       preloadCroupierRoundVoice();
-      voiceRoundOpen(game, roundId);
+      voiceRoundOpen(game === "speed-auto-roulette" ? "roulette" : game, roundId);
     }
     optsRef.current.onBettingOpen?.(roundId);
   }, [game]);
@@ -308,7 +314,7 @@ export function useTableRound<TOutcome = unknown>(
   }, [snapshot, emitResult, emitBettingOpen]);
 
   const refetch = useCallback(() => {
-    void qc.invalidateQueries({ queryKey: ["table-round", game] });
+    return qc.invalidateQueries({ queryKey: ["table-round", game] });
   }, [qc, game]);
 
   useRealtimeTopic<TableRoundsEvent>(
@@ -346,7 +352,7 @@ export function useTableRound<TOutcome = unknown>(
           lastClosedRoundRef.current = ev.roundId;
           if (optsRef.current.roundClosedVoice !== false) {
             preloadCroupierRoundVoice();
-            if (game !== "mega-ball") voiceBetsClosed(game, ev.roundId);
+            if (optsRef.current.croupierVoice !== false && game !== "mega-ball") voiceBetsClosed(game === "speed-auto-roulette" ? "roulette" : game, ev.roundId);
           }
         }
         // Accepted taps may not have reached an earlier snapshot yet. Fetch

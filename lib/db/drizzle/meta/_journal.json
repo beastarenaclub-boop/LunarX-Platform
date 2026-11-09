@@ -456,6 +456,13 @@
       "when": 1794268800002,
       "tag": "0064_b2c_rtp",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1794268800003,
+      "tag": "0065_handoff_game_control",
+      "breakpoints": true
     }
   ]
 }

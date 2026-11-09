@@ -184,6 +184,9 @@ const CARD_PAYTABLES: Record<string, CardPaytable> = {
 };
 
 export const GAME_TYPE_META: Record<string, GameTypeMeta> = {
+  ...Object.fromEntries(["roulette-american","roulette-mini"].map(code=>[code,{engineType:"roulette" as const,label:code==="roulette-mini"?"Roulette Mini":"American Roulette",editableFields:["enabled","minStakePaise","maxStakePaise","bettingWindowMs","revealDurationMs","settleDurationMs"],capFloors:{maxMultiplier:code==="roulette-mini"?18:36},rtpNote:"Fixed wheel payouts. Result mode, target RTP and budgets are in Game Control."}])),
+  "fun-target":{engineType:"card_fixed",label:"Top 10 Target",editableFields:["enabled","minStakePaise","maxStakePaise","bettingWindowMs","revealDurationMs","settleDurationMs","ftDigitReturn"],capFloors:{maxMultiplier:10},rtpNote:"Ten digits; default total return 9x. Result controls and editable digit return are in Game Control."},
+  "rummy-royale":{engineType:"skill",label:"Rummy Royale Classic",editableFields:["enabled","minStakePaise","maxStakePaise","houseEdge","rtpMin","rtpMax","maxMultiplier"],capFloors:{maxMultiplier:1},rtpNote:"Computer opponents. Game Control selects deals; player actions determine settlement."},
   ...Object.fromEntries(POKER_GAMES.map(code => [code, { engineType: "card_fixed" as const, label: POKER_TITLES[code], editableFields: ["enabled"], capFloors: {}, rtpNote: "Poker prices, bonus paytables and timing are defined in the versioned poker configuration. Six-player odds depend on the public starting hands." }])),
   "ludo": { engineType:"card_fixed", label:"Ludo Live", editableFields:["enabled"], capFloors:{}, rtpNote:"Multiplayer Ludo. Fixed 10% commission, winner receives 90% of the seat pool. Computer seats are funded by the house. Dice and legal moves are identical for every seat." },
   "teen-patti-joker": {
@@ -397,6 +400,7 @@ function serializeGameTypeMeta(code: string): (GameTypeMeta & { gameCode: string
 }
 
 export const UpdateConfigBody = z.object({
+  ftDigitReturn: z.number().min(1).max(10).multipleOf(.01).optional(),
   rtpMin: z.number().min(0).max(100).optional(),
   rtpMax: z.number().min(0).max(100).optional(),
   maxMultiplier: z.number().min(2).max(100000).optional(),
@@ -435,7 +439,7 @@ router.put(
         const editable = new Set(typeMeta.editableFields);
         // Reject fields that are not editable for this engine type.
         const ALL_FIELDS = [
-          "rtpMin","rtpMax","houseEdge","maxMultiplier","maxStakePaise",
+          "ftDigitReturn","rtpMin","rtpMax","houseEdge","maxMultiplier","maxStakePaise",
           "bettingWindowMs","turboBettingWindowMs","interRoundDelayMs",
           "revealDurationMs","settleDurationMs","minStakePaise",
           "minAutoCashout","maxAutoCashout",
@@ -463,6 +467,7 @@ router.put(
       }
 
       const patch: Record<string, unknown> = {};
+      if (input.ftDigitReturn !== undefined) { if (gameCode !== "fun-target") throw badRequest("Digit return is only available for Top 10 Target"); patch.ftDigitReturn=input.ftDigitReturn; }
       if (input.rtpMin !== undefined) patch.rtpMin = input.rtpMin;
       if (input.rtpMax !== undefined) patch.rtpMax = input.rtpMax;
       if (input.maxMultiplier !== undefined)
@@ -598,7 +603,12 @@ const GAME_META: Record<string, { title: string; route: string }> = {
   fury: { title: "Fury Flight", route: "/fury" },
   "bike-racing": { title: "Bike Racing", route: "/bike-racing" },
   "horse-racing": { title: "Wild Trails", route: "/horse-riding" },
+  "speed-auto-roulette": { title: "Speed Auto Roulette", route: "/speed-auto-roulette" },
   roulette: { title: "Roulette", route: "/roulette" },
+  "roulette-american": {title:"American Roulette",route:"/roulette-american"},
+  "roulette-mini": {title:"Roulette Mini",route:"/roulette-mini"},
+  "fun-target": {title:"Top 10 Target",route:"/fun-target"},
+  "rummy-royale": {title:"Rummy Royale Classic",route:"/rummy-royale"},
   baccarat: { title: "Baccarat VIP", route: "/baccarat" },
   blackjack: { title: "Blackjack", route: "/blackjack" },
   "teen-patti": { title: "Teen Patti 20/20", route: "/teen-patti" },

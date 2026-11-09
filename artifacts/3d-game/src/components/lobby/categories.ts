@@ -33,7 +33,7 @@ const GAME_FAMILIES: (LobbyCategory & {
 })[] = [
   { id: "mega-ball", name: "Mega Ball", icon: CircleDot, gameIds: ["mega-ball"], minimumGames: 1 },
   { id: "ludo", name: "Ludo", icon: Dice5, gameIds: ["ludo"], minimumGames: 1 },
-  { id: "roulette", name: "Roulette", icon: CircleDot, gameIds: ["roulette"], minimumGames: 1 },
+  { id: "roulette", name: "Roulette", icon: CircleDot, gameIds: ["roulette", "speed-auto-roulette"], minimumGames: 1 },
   { id: "poker", name: "Poker", icon: Spade, gameIds: ["poker-one-day", "poker-20-20", "poker-six-players"], minimumGames: 3 },
   { id: "teen-patti", name: "Teen Patti", icon: Spade, gameIds: ["teen-patti", "teen-patti-live", "teen-patti-joker"], minimumGames: 1 },
   { id: "baccarat", name: "Baccarat", icon: Club, gameIds: ["baccarat"], minimumGames: 1 },

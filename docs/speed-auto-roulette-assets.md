@@ -1,0 +1,24 @@
+# Speed Auto Roulette photographic scene
+
+## Saved assets
+
+- `artifacts/3d-game/public/media/speed-auto-roulette/table-photoreal-v2.png`: 1741 × 903, generated with the built-in `image_gen` tool in edit mode. The selected output was copied unchanged into this project.
+- `artifacts/3d-game/public/media/speed-auto-roulette/banner.jpg`: browser capture of the actual game scene with a title overlay, produced by `capture-speed-roulette-banner.ts`.
+
+The input was a frame at 8 seconds from the user-provided `C:\Users\hacker\Videos\Screen Recordings\Screen Recording 2026-10-26 222637.mp4`, inspected locally as `.cache/speed-auto-roulette/reference-3d.jpg`. The built-in output was `C:\Users\hacker\.codex\generated_images\01a17924-99e9-75a1-b1a7-056432cf51a4\exec-77d654ad-4bb8-4a9b-bc7c-f687c1ffe0fe.png`.
+
+## Final prompt
+
+Edit the supplied roulette game screenshot into a clean photographic game background plate. This is a very precise cleanup edit, NOT a redesign. Preserve the EXACT camera viewpoint, perspective, framing, positions, scale, rich orange/brown burl-wood roulette wheel on the upper LEFT, its black polished reflective spindle, gold wheel separators, royal blue felt table on the right, the full printed European roulette betting grid, oval racetrack, all stacks of detailed chips behind the wheel, tan leather chairs on the upper right, red wood and soft beige leather padded table edge with elongated brass recessed cup/ashtray holders, and patterned casino carpet. Keep the photographic realism and all natural shadows/reflections/textures of the input. Do not simplify anything into flat colors, geometric blocks, or a cartoon. Keep every printed number and table marking in its original position and orientation. Remove ONLY software UI overlays: the top-left title/close icon and yellow price, all icons and history numbers along the very top, the neighbours minus/2/plus controls above the racetrack, the chat text and translucent chat boxes in the bottom-left, balance/total-bet pills along the bottom, all buttons/icons at bottom right and tiny timestamp at top right. Reconstruct the exact underlying surface where each overlay used to be. Remove any tiny ivory roulette ball, leaving a clean empty ball track, because a real-time ball will be drawn by the game. Do not remove or alter the physical wheel, printed numbers, or spindle. No new text, no UI, no watermark, no new objects, no people. Retain the wide approximately 1.93:1 aspect ratio and the exact source composition, including narrow black side margins. The result must look like the SAME casino photograph with just the interface cleaned away. Output a high quality sharp image.
+
+## Runtime treatment
+
+The saved image remains unchanged. `wheelVisual.ts` builds a tilted 3D rotor with a recessed brass floor, raised radial dividers, bevelled rims and 37 correctly ordered numbered wedges. Narrow upright serif numerals replace the old inverted bold labels. Photographic brass grain remains on the recessed surfaces; metallic dividers use environment reflections. The ball is an illuminated sphere with a height-dependent contact shadow. The stationary spindle occludes the ball when it passes behind it.
+
+`wheelMotion.ts` controls a presentation trajectory from the server's result. The calibrated outer track is raised above the pocket floor: the ball first counter-rotates around the rim, drops down the bowl, skips over the dividers and settles inside its pocket. Angular interpolation runs relative to the continuously moving rotor. After capture, the ball and pocket keep rotating together; the wheel no longer freezes at the result. This is an authored animation, not a general-purpose physics simulation. All 37 results are checked against the actual scene transforms and pocket centers.
+
+The betting grid and racetrack use calibrated coordinates against the photographed print, including the curved end of the racetrack. These effects run against live round data; the background is not a recording of a game. `scripts/capture-speed-roulette-motion.ts` records a complete mocked round and diagnostic samples to `.cache/speed-auto-roulette/motion-review` for visual inspection.
+
+This is a fixed-camera photographic presentation, not a reconstruction of the original provider's 3D assets or an exact pixel-for-pixel copy. Mobile contains the complete table at the same angle; the larger Table bets panel remains available for touch interaction.
+
+`WoodenResultMarker.ts` adds a real-time turned wooden peg with a rounded cap, thin brass collars, contact shadow and two golden halo rings, based on the winning-number marker visible around 9 seconds in the supplied recording. Its geometry and wood-grain material are generated in code. It appears only after the ball lands on the authoritative result and is positioned on the corresponding printed main-table cell.

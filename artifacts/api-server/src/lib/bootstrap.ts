@@ -1,3 +1,4 @@
+import { SPEED_ROULETTE_CODE, SPEED_ROULETTE_TIMING } from "@workspace/api-zod/roulette-game";
 import { RETIRED_GAME_CODES } from "./retiredGames";
 import { POKER_GAMES, POKER_CONFIG } from "@workspace/api-zod/poker";
 import { INSTANT_COLLECTION } from "@workspace/api-zod/instant-collection";
@@ -40,6 +41,11 @@ export function logDatabaseTarget(): void {
  * existing config and historical settlement data are preserved.
  */
 export async function ensureGameConfigDefaults(): Promise<void> {
+  for (const [gameCode, cap, edge] of [["roulette-american",36,2/38],["roulette-mini",18,1/19],["fun-target",10,.1],["rummy-royale",4,.03]] as const) {
+    await db.insert(gameConfigTable).values({gameCode,enabled:true,settlementMode:"house_edge",houseEdge:edge,rtpMin:(1-edge)*100,rtpMax:(1-edge)*100,
+      maxMultiplier:cap,minStakePaise:500n,maxStakePaise:5_000_000n,bettingWindowMs:20000,revealDurationMs:6000,settleDurationMs:5000}).onConflictDoNothing();
+  }
+  await db.insert(gameConfigTable).values({ gameCode: SPEED_ROULETTE_CODE, enabled: true, settlementMode: "house_edge", houseEdge: ROULETTE_HOUSE_EDGE, rtpMin: ROULETTE_RTP_PERCENT, rtpMax: ROULETTE_RTP_PERCENT, maxMultiplier: 36, minStakePaise: 1000n, maxStakePaise: 50_000_000n, ...SPEED_ROULETTE_TIMING }).onConflictDoNothing();
   await db.insert(gameConfigTable).values({ gameCode:"ludo", enabled:true, settlementMode:"house_edge", houseEdge:0.10, rtpMin:90, rtpMax:90, maxMultiplier:3.6, minStakePaise:1000n, maxStakePaise:5_000_000n, bettingWindowMs:20000 }).onConflictDoNothing();
   for (const gameCode of POKER_GAMES) {
     await db.insert(gameConfigTable).values({ gameCode, enabled: true, settlementMode: "house_edge",

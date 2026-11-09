@@ -49,3 +49,6 @@ export * from "./ludoSocial";
 export * from "./snakes";
 
 export * from "./b2cRtp";
+
+export * from "./resultEngine";
+export * from "./rummyRoyale";

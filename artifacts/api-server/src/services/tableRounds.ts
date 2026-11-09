@@ -1,4 +1,10 @@
+import { isDeepStrictEqual } from "node:util";
+import { handoffAdapters, HANDOFF_TABLE_CODES } from "./handoffGames";
+import { creditPendingWin } from "./pendingWins";
+import { decideOutcomeFor, settleBank, type DecidedOutcome } from "./resultEngine/engine";
+import { tableOutcomeSpace } from "./resultEngine/tableSpace";
 import { playerTableConfig, assertTablePricing } from "./masterRtp";
+import { isRouletteGame, SPEED_ROULETTE_CODE } from "@workspace/api-zod/roulette-game";
 import { COIN_LIVE_TIMING, COIN_PAYOUT_VERSION, coinLiveMultiplier, collectionPayout, normalizeCoinLiveBet, type CoinLiveOutcome } from "@workspace/api-zod/instant-collection";
 import { settleCoinLive, refundCoinLive, voidCoinLiveRound } from "./coinFlipLive";
 import { W20_VERSION, normalizeW20Bets, w20Stake, w20Payout, type W20Bet, type W20Outcome } from "@workspace/api-zod/wheel20-live";
@@ -30,12 +36,13 @@ import { settleSevenLive, type SevenOutcome } from "./sevenUpDownLive";
  * round without a restart. A snapshot of the config used is persisted on the
  * round row so verification of historical rounds stays stable.
  *
- * Provable fairness: the round's serverSeedHash + clientSeed + nonce are
+ * Natural draw verification: the round's serverSeedHash + clientSeed + nonce are
  * broadcast at round creation (before any bets exist); the outcome is
  * derived only at the reveal transition and the serverSeed is disclosed with
  * it. Per-player audit rows are written into the existing per-game round
  * tables at settlement so the existing /:id and /:id/verify endpoints keep
- * working unchanged.
+ * working for natural draws. Managed draws carry resultSource and their
+ * verification endpoints reject seed-only proofs.
  *
  * Restart safety: on boot, unsettled rounds whose outcome was already
  * revealed are settled idempotently; rounds still in the betting phase (no
@@ -118,10 +125,12 @@ import { CRAZY_TIME_VERSION, CRAZY_TIME_MAX_RETURN, type CrazyTimeOutcome } from
 import { deriveCrazyTimeOutcome, validateCrazyTimeBets, settleCrazyTimeBets, type CrazyTimeBetInput } from "./crazyTimeMath";
 
 export const TABLE_GAME_CODES = [
+  ...HANDOFF_TABLE_CODES,
   "teen-patti-joker",
   "coin-flip",
   "wheel-2-live",
   "lucky-7-live",
+  SPEED_ROULETTE_CODE,
   "roulette",
   "baccarat",
   "blackjack",
@@ -142,6 +151,8 @@ export function isTableGame(code: string): code is TableGameCode {
 
 /** Config snapshot persisted on every round row. */
 export interface RoundConfigSnapshot {
+  maxPerSpotPaise?: string;
+  paytable?: Record<string, number>;
   masterRtpBps?: number; pricingVersion?: string; rtpPolicy?: { source: string; revision: number; playerRtpBps: number };
   baccaratPayouts?: ReturnType<typeof baccaratPayouts>;
   teenPattiPayouts?: ReturnType<typeof teenPattiPayouts>;
@@ -177,7 +188,7 @@ interface SettleOutcome {
   totalPayout: bigint;
 }
 
-interface TableGameAdapter {
+export interface TableGameAdapter {
   /**
    * Validate raw slip bets + compute total stake. Throws known errors.
    * `houseEdge` comes from the round's config snapshot; games with edge-scaled
@@ -559,7 +570,8 @@ const lucky7Adapter: TableGameAdapter = {
   },
 };
 
-const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdapter> = {
+export const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdapter> = {
+  ...handoffAdapters,
   "teen-patti-joker": {
     validate: bets => ({ totalStake: jokerStake(normalizeJokerBets(bets as JokerBet[])) }),
     derive: (seed, client, nonce) => deriveJokerOutcome(seed, client, nonce),
@@ -569,13 +581,13 @@ const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdapter> = 
   "wheel-2-live": {
     validate: bets => ({ totalStake: w20Stake(normalizeW20Bets(bets as W20Bet[])) }),
     derive: (seed, client, nonce) => deriveW20Outcome(seed, client, nonce),
-    settle: (bets, outcome, _cap, _edge, cfg) => ({ settled: bets, totalPayout: w20Payout(bets as W20Bet[], outcome as W20Outcome, cfg.wheel20Version) }),
+    settle: (bets, outcome, _cap, _edge, cfg) => ({ settled: bets, totalPayout: w20Payout(bets as W20Bet[], outcome as W20Outcome, cfg.wheel20Version, cfg.masterRtpBps) }),
     async insertAudit({ round }) { return round.id; },
   },
   "lucky-7-live": {
     validate: bets => ({ totalStake: l7Stake(normalizeL7Bets(bets as L7Bet[])) }),
     derive: (seed, client, nonce) => deriveL7Card(seed, client, nonce),
-    settle: (bets, card, _cap, _edge, cfg) => ({ settled: bets, totalPayout: l7Payout(bets as L7Bet[], card as L7Card, cfg.lucky7CardVersion) }),
+    settle: (bets, card, _cap, _edge, cfg) => ({ settled: bets, totalPayout: l7Payout(bets as L7Bet[], card as L7Card, cfg.lucky7CardVersion, cfg.masterRtpBps) }),
     async insertAudit({ round }) { return round.id; },
   },
   "coin-flip": {
@@ -617,6 +629,7 @@ const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdapter> = 
     // The shared round and slip already persist the seeds, input and exact payout.
     async insertAudit({ round }) { return round.id; },
   },
+  [SPEED_ROULETTE_CODE]: { ...rouletteAdapter, async insertAudit({ round }) { return round.id; } },
   roulette: rouletteAdapter,
   baccarat: baccaratAdapter,
   "teen-patti": teenPattiAdapter,
@@ -704,7 +717,10 @@ const OUTCOME_DISCLOSE_LEAD_MS: Partial<Record<TableGameCode, number>> = {
   // toward the camera. The client tracks the face through that physical turn.
   "lucky-7-live": 1_500,
   "7up7down": 650,
+  [SPEED_ROULETTE_CODE]: 3_600,
   roulette: 3_600,
+  "roulette-american": 3_600,
+  "roulette-mini": 3_600,
 };
 
 interface DisclosableRound {
@@ -833,6 +849,8 @@ async function advancePhase(
 export async function createTableRound(gameCode: TableGameCode): Promise<TableRound> {
   const cfg = await requireGameConfig(gameCode);
   const snap = snapshotConfig(cfg);
+  if ((HANDOFF_TABLE_CODES as readonly string[]).includes(gameCode)) snap.maxPerSpotPaise = String(cfg.maxPerSpotPaise);
+  if (gameCode === "fun-target") snap.paytable = { ftDigitReturn: cfg.ftDigitReturn };
   if (["teen-patti", "teen-patti-live"].includes(gameCode)) {
     snap.teenPattiPayouts = teenPattiPayouts(snap.maxMultiplier, snap.payoutVersion);
   }
@@ -855,7 +873,7 @@ export async function createTableRound(gameCode: TableGameCode): Promise<TableRo
     snap.lucky7CardVersion = L7_VERSION;
     snap.maxMultiplier = 12;
   }
-  if (gameCode === "roulette") {
+  if (isRouletteGame(gameCode)) {
     snap.roulettePayoutBase = ROULETTE_PAYOUT_BASE;
     snap.houseEdge = ROULETTE_HOUSE_EDGE;
     snap.maxMultiplier = Math.max(snap.maxMultiplier, ROULETTE_PAYOUT_BASE);
@@ -906,12 +924,25 @@ export async function createTableRound(gameCode: TableGameCode): Promise<TableRo
  * the server seed, and (blackjack) deal every queued hand.
  */
 export async function revealTableRound(round: TableRound): Promise<TableRound> {
-  let outcome: unknown = null;
+  const closed = await advancePhase(round.id, "betting", { phase: "reveal" });
+  if (!closed) {
+    const [fresh] = await db.select().from(tableRoundsTable).where(eq(tableRoundsTable.id, round.id));
+    return fresh ?? round;
+  }
+  let decision: DecidedOutcome | undefined;
+  let outcome: unknown = { dealt: true };
   if (round.gameCode !== "blackjack") {
     const adapter = ADAPTERS[round.gameCode as Exclude<TableGameCode, "blackjack">];
-    outcome = adapter.derive(round.serverSeed, round.clientSeed, round.nonce, roundCfg(round));
-  } else {
-    outcome = { dealt: true };
+    const cfg = roundCfg(round);
+    const derive = (seed: { serverSeed: string; clientSeed: string; nonce: number }) => adapter.derive(seed.serverSeed, seed.clientSeed, seed.nonce, cfg);
+    decision = await decideOutcomeFor({ gameCode: round.gameCode, partnerId: null, roundId: round.id,
+      seed: round, space: tableOutcomeSpace(round.gameCode, derive), drawHonest: () => derive(round),
+      payoutFor: (bets, result, slip) => {
+        const pricing = (slip?.pricingConfig as RoundConfigSnapshot | null) ?? cfg;
+        return adapter.settle(bets, result, pricing.maxMultiplier, pricing.houseEdge, pricing).totalPayout;
+      },
+    });
+    outcome = decision.outcome;
   }
   // Count-dependent timing is published only when betting closes. Publishing
   // it at round creation would disclose the winning card-count range.
@@ -927,11 +958,14 @@ export async function revealTableRound(round: TableRound): Promise<TableRound> {
         };
       })()
     : {};
-  const updated = await advancePhase(round.id, "betting", {
-    phase: "reveal",
-    outcome,
-    ...dealerTiming,
+  const updated = await db.transaction(async tx => {
+    const [saved] = await tx.update(tableRoundsTable).set({ outcome,
+      resultSource: decision?.source ?? "drawn", ...dealerTiming,
+    }).where(and(eq(tableRoundsTable.id, round.id), eq(tableRoundsTable.phase, "reveal"), sql`${tableRoundsTable.outcome} IS NULL`)).returning();
+    if (saved && decision) await decision.commit(tx);
+    return saved;
   });
+  if (updated) decision?.afterCommit?.();
   if (!updated) {
     // Someone else advanced it (or it was voided) — return the fresh row.
     const rows = await db
@@ -1077,19 +1111,20 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
               userId: slip.userId,
               multiplier: creditMultiplier,
               maxMultiplierCap: cfg.maxMultiplier,
+              tablePayoutPaise: slipPayout,
               ...(["teen-patti", "teen-patti-live"].includes(round.gameCode) ? { teenPattiPayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "vegetable-bowl" ? { vegetablePayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "crazy-time" ? { crazyTimePayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "mega-ball" ? { megaBallPayoutPaise: slipPayout } : {}),
-              ...(round.gameCode === "roulette" ? { roulettePayoutPaise: slipPayout } : {}),
+              ...(isRouletteGame(round.gameCode) ? { roulettePayoutPaise: slipPayout } : {}),
             });
             payoutAmount = out.payoutAmount;
           } else {
-            await settleLoss(slip.betId, slip.userId, 0, round.gameCode === "vegetable-bowl", round.gameCode === "crazy-time", round.gameCode === "roulette", round.gameCode === "mega-ball");
+            await settleLoss(slip.betId, slip.userId, 0, round.gameCode === "vegetable-bowl", round.gameCode === "crazy-time", isRouletteGame(round.gameCode), round.gameCode === "mega-ball");
           }
         } catch (err) {
           if ((err as Error).message !== "BET_ALREADY_SETTLED") throw err;
-          if (["teen-patti", "teen-patti-live", "vegetable-bowl", "crazy-time", "mega-ball", "roulette"].includes(round.gameCode)) {
+          {
             // A restart can occur after wallet credit but before the slip receipt.
             const [credited] = await db.select({ payout: betsTable.payoutAmount }).from(betsTable).where(eq(betsTable.id, slip.betId));
             payoutAmount = credited?.payout ?? 0n;
@@ -1105,10 +1140,11 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
           cfg,
         });
         totalPayout += payoutAmount;
-        await db
-          .update(tableRoundBetsTable)
+        const [receipt] = await db.update(tableRoundBetsTable)
           .set({ status: "settled", payoutAmount, auditRoundId })
-          .where(eq(tableRoundBetsTable.id, slip.id));
+          .where(and(eq(tableRoundBetsTable.id, slip.id), eq(tableRoundBetsTable.status, "pending"))).returning();
+        if (receipt && (HANDOFF_TABLE_CODES as readonly string[]).includes(round.gameCode)) await creditPendingWin({ userId: slip.userId,
+          gameCode: round.gameCode, partnerId: null, amountPaise: payoutAmount, roundId: round.id });
       } catch (err) {
         logger.error(
           { err, roundId: round.id, slipId: slip.id },
@@ -1118,24 +1154,24 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
     }
   }
 
-  if (["roulette", "teen-patti", "teen-patti-live"].includes(round.gameCode)) {
-    // Rebuild from receipts so a restart cannot count the same credit twice.
-    await db.update(tableRoundsTable).set({
-      totalPayout: sql`(select coalesce(sum(${tableRoundBetsTable.payoutAmount}), 0) from ${tableRoundBetsTable} where ${tableRoundBetsTable.roundId} = ${round.id} and ${tableRoundBetsTable.status} = 'settled')`,
-    }).where(eq(tableRoundsTable.id, round.id));
-  } else if (totalPayout > 0n) {
-    await db
-      .update(tableRoundsTable)
-      .set({ totalPayout: sql`${tableRoundsTable.totalPayout} + ${totalPayout}` })
-      .where(eq(tableRoundsTable.id, round.id));
-  }
+  await db.update(tableRoundsTable).set({
+    totalPayout: sql`(select coalesce(sum(payout_amount),0) from table_round_bets where round_id = ${round.id} and status = 'settled')`,
+  }).where(eq(tableRoundsTable.id, round.id));
 }
 
 /** settling → settled: final broadcast with anonymous totals. */
 export async function finishTableRound(round: TableRound): Promise<TableRound | null> {
-  const updated = await advancePhase(round.id, "settling", {
-    phase: "settled",
-    settledAt: new Date(),
+  const updated = await db.transaction(async tx => {
+    const [pending] = await tx.select({ id: tableRoundBetsTable.id }).from(tableRoundBetsTable)
+      .where(and(eq(tableRoundBetsTable.roundId, round.id), eq(tableRoundBetsTable.status, "pending"))).limit(1);
+    if (pending) throw new Error("ROUND_HAS_PENDING_SLIPS");
+    const [done] = await tx.update(tableRoundsTable).set({ phase: "settled", settledAt: new Date(),
+      totalStake: sql`(select coalesce(sum(total_stake),0) from table_round_bets where round_id = ${round.id} and status = 'settled')`,
+      totalPayout: sql`(select coalesce(sum(payout_amount),0) from table_round_bets where round_id = ${round.id} and status = 'settled')`,
+    }).where(and(eq(tableRoundsTable.id, round.id), eq(tableRoundsTable.phase, "settling"))).returning();
+    if (done && done.gameCode !== "blackjack") await settleBank({ gameCode: done.gameCode, partnerId: null,
+      roundId: done.id, totalStakePaise: done.totalStake, totalPayoutPaise: done.totalPayout }, tx);
+    return done;
   });
   if (!updated) return null;
   bus.publish({
@@ -1171,18 +1207,30 @@ export interface PlacedTableBet {
  * table. Rejects with BETTING_CLOSED outside the betting window.
  */
 export async function placeTableBets(input: Parameters<typeof placeTableBetsUnlocked>[0]): Promise<PlacedTableBet> {
-  if (input.gameCode !== "roulette") return placeTableBetsUnlocked(input);
+  if (!isRouletteGame(input.gameCode) && !(HANDOFF_TABLE_CODES as readonly string[]).includes(input.gameCode)) return placeTableBetsUnlocked(input);
   return withRouletteAdmission(input.userId, () => placeTableBetsUnlocked(input));
 }
 
 async function placeTableBetsUnlocked(input: {
+  idempotencyKey?: string;
+  partnerId?: string | null;
+  partnerPlayerRef?: string | null;
   pricingVersion?: string;
   roundId?: string;
   gameCode: TableGameCode;
   userId: string;
   bets: unknown[];
 }): Promise<PlacedTableBet> {
-  if (["teen-patti", "teen-patti-live"].includes(input.gameCode) && !(await requireGameConfig(input.gameCode)).enabled) {
+  if (input.idempotencyKey) {
+    const [prior] = await db.select().from(tableRoundBetsTable).where(and(eq(tableRoundBetsTable.userId,input.userId),eq(tableRoundBetsTable.idempotencyKey,input.idempotencyKey)));
+    if (prior) {
+      if (prior.gameCode !== input.gameCode || (input.roundId && prior.roundId !== input.roundId) || !isDeepStrictEqual(prior.bets, input.bets)) throw new Error("IDEMPOTENCY_KEY_REUSED");
+      if (prior.status === "refunded") throw new Error("PRIOR_PLACEMENT_VOIDED");
+      const [savedRound] = await db.select().from(tableRoundsTable).where(eq(tableRoundsTable.id,prior.roundId));
+      return {slipId:prior.id,roundId:prior.roundId,betId:prior.betId,gameCode:prior.gameCode,phase:savedRound.phase,bettingEndsAt:savedRound.bettingEndsAt.toISOString(),totalStake:String(prior.totalStake)};
+    }
+  }
+  if (!(await requireGameConfig(input.gameCode)).enabled) {
     throw new Error("GAME_DISABLED");
   }
   const round = await getOpenRound(input.gameCode);
@@ -1192,7 +1240,7 @@ async function placeTableBetsUnlocked(input: {
   const cfg = await playerTableConfig(roundCfg(round), input.gameCode, input.userId);
   assertTablePricing(cfg, input.pricingVersion);
 
-  if (input.gameCode === "roulette") {
+  if (isRouletteGame(input.gameCode)) {
     const previous = await db.select({ bets: tableRoundBetsTable.bets })
       .from(tableRoundBetsTable)
       .where(and(eq(tableRoundBetsTable.roundId, round.id), eq(tableRoundBetsTable.userId, input.userId), inArray(tableRoundBetsTable.status, ["pending", "settled"])));
@@ -1229,6 +1277,17 @@ async function placeTableBetsUnlocked(input: {
     ).totalStake;
   }
   if (totalStake <= 0n) throw new Error("INVALID_STAKE");
+  if ((HANDOFF_TABLE_CODES as readonly string[]).includes(input.gameCode) && cfg.maxPerSpotPaise && BigInt(cfg.maxPerSpotPaise)>0n) {
+    const previous = await db.select({bets:tableRoundBetsTable.bets}).from(tableRoundBetsTable)
+      .where(and(eq(tableRoundBetsTable.roundId,round.id),eq(tableRoundBetsTable.userId,input.userId),inArray(tableRoundBetsTable.status,["pending","settled"])));
+    const totals = new Map<string,bigint>();
+    for(const raw of [...previous.flatMap(s=>s.bets as unknown[]),...input.bets]) {
+      const b=raw as {type:string;selection:number[];amountPaise:string};
+      const key=JSON.stringify([b.type,[...b.selection].sort((a,b)=>a-b)]);
+      const amount=(totals.get(key)??0n)+BigInt(b.amountPaise);totals.set(key,amount);
+      if(amount>BigInt(cfg.maxPerSpotPaise))throw new Error("SPOT_LIMIT_EXCEEDED");
+    }
+  }
   if (totalStake > BigInt(cfg.maxStakePaise)) throw new Error("STAKE_TOO_LARGE");
   if (BigInt(cfg.minStakePaise) > 0n && totalStake < BigInt(cfg.minStakePaise)) {
     throw new Error("STAKE_TOO_SMALL");
@@ -1237,6 +1296,7 @@ async function placeTableBetsUnlocked(input: {
   // Debit the wallet (creates the auditable bets row).
   const bet = await placeBet({
     tableRoundPlacement: true,
+    partnerId: input.partnerId, partnerPlayerRef: input.partnerPlayerRef,
     userId: input.userId,
     gameCode: input.gameCode,
     roundId: round.id,
@@ -1251,32 +1311,18 @@ async function placeTableBetsUnlocked(input: {
 
   let slip: TableRoundBet | undefined;
   try {
-    [slip] = await db
-      .insert(tableRoundBetsTable)
-      .values({
-        roundId: round.id,
-        gameCode: input.gameCode,
-        userId: input.userId,
-        betId: bet.id,
-        bets: betsJson,
-        pricingConfig: cfg,
-        totalStake,
-      })
-      .returning();
-    if (!slip) throw new Error("SLIP_PERSIST_FAILED");
-    // Late-insert guard: if the round left the betting phase while we were
-    // debiting, void the slip so no bet ever lands on a revealed outcome.
-    const fresh = await db
-      .select({ phase: tableRoundsTable.phase, bettingEndsAt: tableRoundsTable.bettingEndsAt })
-      .from(tableRoundsTable)
-      .where(eq(tableRoundsTable.id, round.id))
-      .limit(1);
-    if (!fresh[0] || fresh[0].phase !== "betting" || (["crazy-time", "mega-ball", "roulette", "teen-patti", "teen-patti-live"].includes(input.gameCode) && fresh[0].bettingEndsAt.getTime() <= Date.now())) {
-      await refundSlip(slip);
-      throw new Error("BETTING_CLOSED");
-    }
+    slip = await db.transaction(async tx => {
+      const [fresh] = await tx.select().from(tableRoundsTable).where(eq(tableRoundsTable.id, round.id)).for("update");
+      if (!fresh || fresh.phase !== "betting" || fresh.bettingEndsAt.getTime() <= Date.now()) throw new Error("BETTING_CLOSED");
+      const [accepted] = await tx.insert(tableRoundBetsTable).values({ roundId: round.id, gameCode: input.gameCode,
+        userId: input.userId, betId: bet.id, bets: betsJson, pricingConfig: cfg, totalStake, idempotencyKey: input.idempotencyKey }).returning();
+      if (!accepted) throw new Error("SLIP_PERSIST_FAILED");
+      await tx.update(tableRoundsTable).set({ totalStake: sql`${tableRoundsTable.totalStake} + ${totalStake}`,
+        playerCount: sql`${tableRoundsTable.playerCount} + 1` }).where(eq(tableRoundsTable.id, round.id));
+      return accepted;
+    });
   } catch (err) {
-    if ((err as Error).message !== "BETTING_CLOSED") {
+    {
       try {
         await refundStake(bet.id, input.userId, totalStake);
         await db
@@ -1293,17 +1339,8 @@ async function placeTableBetsUnlocked(input: {
     throw err;
   }
 
-  const [bumped] = await db
-    .update(tableRoundsTable)
-    .set({
-      totalStake: sql`${tableRoundsTable.totalStake} + ${totalStake}`,
-      playerCount: sql`${tableRoundsTable.playerCount} + 1`,
-    })
-    .where(eq(tableRoundsTable.id, round.id))
-    .returning({
-      totalStake: tableRoundsTable.totalStake,
-      playerCount: tableRoundsTable.playerCount,
-    });
+  const [bumped] = await db.select({ totalStake: tableRoundsTable.totalStake, playerCount: tableRoundsTable.playerCount })
+    .from(tableRoundsTable).where(eq(tableRoundsTable.id, round.id));
 
   bus.publish({
     topic: topic(input.gameCode),
@@ -1351,6 +1388,7 @@ async function refundSlip(slip: TableRoundBet): Promise<void> {
 // ---------------------------------------------------------------------------
 
 export interface TableRoundSnapshot {
+  resultSource: string;
   roundId: string;
   gameCode: string;
   phase: string;
@@ -1458,7 +1496,7 @@ export async function getTableRoundSnapshot(
 
   // A player's receipt must not disappear behind the 100-row public feed.
   // Crazy Time accepts a single combined slip per user, so this stays small.
-  const personalSlips = (gameCode === "mega-ball" || gameCode === "teen-patti" || gameCode === "teen-patti-live" || gameCode === "coin-flip" || gameCode === "wheel-2-live" || gameCode === "teen-patti-joker" || gameCode === "crazy-time" || gameCode === "7up7down" || gameCode === "lucky-7-live") && userId
+  const personalSlips = userId
     ? await db.select({ id: tableRoundBetsTable.id, userId: tableRoundBetsTable.userId,
       totalStake: tableRoundBetsTable.totalStake, bets: tableRoundBetsTable.bets, pricingConfig: tableRoundBetsTable.pricingConfig,
       status: tableRoundBetsTable.status, payoutAmount: tableRoundBetsTable.payoutAmount,
@@ -1487,6 +1525,7 @@ export async function getTableRoundSnapshot(
     gameCode: round.gameCode,
     phase: round.phase,
     now: Date.now(),
+    resultSource: revealed ? round.resultSource : "pending",
     bettingEndsAt: round.bettingEndsAt.getTime(),
     revealEndsAt: round.revealEndsAt.getTime(),
     settleEndsAt: round.settleEndsAt.getTime(),
@@ -1553,10 +1592,8 @@ export async function recoverTableRound(
       return round;
     }
     await settlePendingSlips(round);
-    await advancePhase(round.id, round.phase, {
-      phase: "settled",
-      settledAt: new Date(),
-    });
+    if (round.phase !== "settling") await advancePhase(round.id, round.phase, { phase: "settling" });
+    await finishTableRound(round);
     logger.info(
       { roundId: round.id, gameCode: round.gameCode },
       "[table-rounds] recovered + settled expired round",
@@ -1662,6 +1699,7 @@ async function runGameLoop(gameCode: TableGameCode): Promise<void> {
     } catch (err) {
       logger.error({ err, gameCode }, "[table-rounds] round loop error — backing off");
       await sleepUntil(Date.now() + 5000);
+      resumed = await recoverTableRounds(gameCode);
     }
   }
 }

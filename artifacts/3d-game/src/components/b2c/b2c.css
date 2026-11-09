@@ -141,6 +141,26 @@
 .b2c-main {
   min-width: 0;
 }
+.b2c-game-title { position:absolute; inset:auto 0 0; padding:24px 10px 10px; color:#fff3cd; background:linear-gradient(transparent,#02150ef2); font-weight:800; font-size:clamp(11px,1.2vw,16px); text-align:left; line-height:1.2; pointer-events:none; }
+.b2c-hero.b2c-handoff-hero { min-height:300px; aspect-ratio:3.1; background:#02150e; }
+.b2c-handoff-hero > img { object-fit:cover; }
+.b2c-handoff-copy { position:absolute; inset:0; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding:24px 6%; color:#fff8e8; background:linear-gradient(90deg,#00100cc9,transparent 65%); }
+.b2c-handoff-copy > span { font-size:10px; font-weight:800; letter-spacing:2px; color:#e8ca87; }
+.b2c-handoff-copy h1 { margin:12px 0; font-size:clamp(30px,4vw,60px); letter-spacing:-1.8px; line-height:1; font-weight:800; }
+.b2c-handoff-copy p { margin:0 0 18px; color:#d1dcce; font-size:14px; line-height:1.5; }
+.b2c-handoff-copy button { display:flex; gap:10px; align-items:center; border:1px solid #f0d697; background:#e7c37a; color:#172018; padding:11px 16px; border-radius:7px; font-size:13px; font-weight:800; }
+.b2c-hero.b2c-handoff-hero > button { top:auto; bottom:14px; transform:none; width:30px; height:30px; }
+.b2c-handoff-hero .b2c-banner-prev { left:auto; right:48px; }
+.b2c-handoff-hero .b2c-banner-next { right:10px; }
+@media(max-width:650px){
+  .b2c-hero.b2c-handoff-hero { min-height:230px; aspect-ratio:1.65; }
+  .b2c-handoff-hero > img { object-position:68% center!important; opacity:.65; }
+  .b2c-handoff-copy { padding:20px 24px; background:linear-gradient(90deg,#00100cec,transparent); }
+  .b2c-handoff-copy > span { font-size:8px; letter-spacing:1.5px; }
+  .b2c-handoff-copy h1 { font-size:34px; margin:9px 0; letter-spacing:-1px; }
+  .b2c-handoff-copy p { font-size:11px; margin-bottom:12px; }
+  .b2c-handoff-copy button { font-size:11px; padding:9px 12px; }
+}
 .b2c-hero {
   position: relative;
   width: 100%;

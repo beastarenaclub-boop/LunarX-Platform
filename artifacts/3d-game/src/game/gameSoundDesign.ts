@@ -68,6 +68,7 @@ export function audioGameForRoute(route: string): GameAudioId | null {
   if (name === "play") return "lunar";
   if (name === "lunar-colour-trading") return "wingo";
   if (name === "lottery") return "lottery-2d";
+  if (name === "speed-auto-roulette") return "roulette";
   if (name === "prize-lotto") return "lottery-3d";
   return isGameAudioId(name) ? name : null;
 }

@@ -9,6 +9,7 @@ import lottery from "@/assets/lobby/lottery.svg";
 import prizeLotto from "@/assets/lobby/prize-lotto.svg";
 import rummy from "@/assets/lobby/rummy.svg";
 import { POKER_ART } from "@/components/poker/artwork";
+import { HANDOFF_ART } from "./handoff-artwork";
 import crazyTime from "@/assets/crazy-time/studio-v2-lobby.jpg";
 import teenPattiLive from "@/assets/teenpatti/naina-betting-poster.jpg";
 import { SPORTS } from "../../../../../lib/virtual-sports/catalog.mjs";
@@ -61,6 +62,7 @@ export interface RegistryEntry {
 
 // Share the storefront's curated trending order across both lobbies.
 export const TOP_GAME_IDS = [
+  "roulette-american", "roulette-mini", "fun-target", "rummy-royale",
   "mega-ball",
   "ludo",
   "roulette",
@@ -103,7 +105,7 @@ const game = (
   accent,
   route: `/${id}`,
   provider: "Lunar Originals",
-  artwork: poster(id),
+  artwork: HANDOFF_ART[id] ?? poster(id),
   enabled: true,
   ...extra,
 });
@@ -119,7 +121,12 @@ const crash = (id: string) => {
 // One catalog for every view. Only implemented player routes belong here.
 // The top section and remaining section partition this list, never repeat it.
 export const LOBBY_GAMES: LobbyGame[] = [
+  game("roulette-american", "American Roulette", "table", "#d9b96d", { label: "NEW", tags: ["roulette", "american", "38 pockets"] }),
+  game("roulette-mini", "Roulette Mini", "table", "#64cabc", { label: "NEW", tags: ["roulette", "mini", "19 pockets"] }),
+  game("fun-target", "Top 10 Target", "table", "#ff8b43", { label: "NEW", tags: ["target", "wheel", "digits"] }),
+  game("rummy-royale", "Rummy Royale Classic", "table", "#e3c175", { label: "NEW", tags: ["rummy", "cards"] }),
   game("mega-ball", "Mega Ball", "live", "#e4ca74", { artwork: `${import.meta.env.BASE_URL}media/mega-ball/banner.jpg`, artworkHasTitle: true, label: "NEW", tags: ["mega ball", "bingo", "lottery", "game show", "51 balls"] }),
+  game("speed-auto-roulette", "Speed Auto Roulette", "table", "#d9b96d", { artwork: `${import.meta.env.BASE_URL}media/speed-auto-roulette/banner.jpg`, artworkHasTitle: true, label: "NEW", tags: ["roulette", "speed auto roulette", "auto roulette", "3d", "table games"] }),
   ...SPORTS.map(s => game(`virtual-${s.id}`, s.name, "racing", s.color, { route: `/virtual-sports/${s.id}`, artwork: `${import.meta.env.BASE_URL}media/virtual-sports/${s.id}.jpg`, provider: "Arena Virtual Sports", label: "NEW" })),
   ...INSTANT_COLLECTION.map(g => game(g.code, g.name, "instant", g.accent, { artwork: import.meta.env.BASE_URL + 'media/instant/' + g.code + '.svg', label: "INSTANT" })),
   crash("jetx"),
@@ -151,7 +158,7 @@ export const LOBBY_GAMES: LobbyGame[] = [
     label: "NEW",
     tags: ["ludo", "board game", "multiplayer", "2 players", "4 players", "computer"],
   }),
-  game("poker-one-day", "Poker 1-Day", "table", "#f3ce41", { artwork: POKER_ART["poker-one-day"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "1 day", "holdem"] }),
+  game("poker-one-day", "Poker", "table", "#f3ce41", { artwork: POKER_ART["poker-one-day"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "1 day", "holdem"] }),
   game("poker-20-20", "20-20 Poker", "table", "#84c5ee", { artwork: POKER_ART["poker-20-20"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "20-20", "holdem"] }),
   game("poker-six-players", "Poker 6 Players", "table", "#00b48a", { artwork: POKER_ART["poker-six-players"].src, artworkHasTitle: true, label: "NEW", tags: ["poker", "6 players", "holdem"] }),
   game("lucky-7", "Lucky 7", "table", "#f9d364"),

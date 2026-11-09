@@ -1,3 +1,4 @@
+import { isRouletteGame } from "@workspace/api-zod/roulette-game";
 import {
   db,
   betsTable,
@@ -84,7 +85,7 @@ export async function placeBet(input: PlaceBetInput): Promise<Bet> {
   if (input.gameCode === "wheel-2-live") throw badRequest("Use the Wheel 2.0 Live table to confirm your bet.");
   if (input.gameCode === "lucky-7-live") throw badRequest("Use the Lucky 7 Live table to confirm your bet.");
   if (input.gameCode === "7up7down") throw badRequest("Use the 7 Up 7 Down table to confirm your bet.");
-  if (input.gameCode === "roulette" && !input.tableRoundPlacement) {
+  if (isRouletteGame(input.gameCode) && !input.tableRoundPlacement) {
     throw badRequest("Roulette bets must use the current table and its per-selection limits.");
   }
   if (input.gameCode === "chicken-road") throw badRequest("Use the Chicken Road game to place a bet.");
@@ -300,6 +301,8 @@ function emitSettledWebhook(bet: Bet): void {
 }
 
 export interface CashOutInput {
+  /** Exact server-only accepted table return; never accepted on a public route. */
+  tablePayoutPaise?: bigint;
   /** Exact server-computed roulette return; public routes never accept this. */
   roulettePayoutPaise?: bigint;
   /** Exact, server-only wheel settlement; never accepted from public requests. */
@@ -332,7 +335,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   if (isTeenPatti && (input.teenPattiPayoutPaise === undefined || input.teenPattiPayoutPaise < 0n || input.teenPattiPayoutPaise > existing.stakeAmount * 876n)) {
     throw badRequest("Teen Patti payouts are settled by the game server.");
   }
-  if (existing.gameCode === "roulette" && (input.roulettePayoutPaise === undefined || input.roulettePayoutPaise < 0n || input.roulettePayoutPaise > existing.stakeAmount * 36n)) {
+  if (isRouletteGame(existing.gameCode) && (input.roulettePayoutPaise === undefined || input.roulettePayoutPaise < 0n || input.roulettePayoutPaise > existing.stakeAmount * 36n)) {
     throw badRequest("Roulette bets settle automatically on the winning pocket.");
   }
   if (existing.gameCode === "chicken-road") throw badRequest("Use the Chicken Road game to cash out.");
@@ -360,9 +363,9 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   const cfg = await requireGameConfig(existing.gameCode);
   const liveCap = cfg.maxMultiplier;
   const snapshotCap = input.maxMultiplierCap ?? Number.POSITIVE_INFINITY;
-  const cappedMultiplier = isTeenPatti
+  const cappedMultiplier = input.tablePayoutPaise !== undefined ? Number(input.tablePayoutPaise) / Number(existing.stakeAmount) : isTeenPatti
     ? Number(input.teenPattiPayoutPaise!) / Number(existing.stakeAmount)
-    : existing.gameCode === "roulette"
+    : isRouletteGame(existing.gameCode)
     ? Number(input.roulettePayoutPaise!) / Number(existing.stakeAmount)
     : Math.min(input.multiplier, liveCap, snapshotCap);
   const stake = existing.stakeAmount;
@@ -371,7 +374,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   // The round-end settlement service later sums every bet, takes 5% as
   // company profit, and splits 95% across winners weighted by stake×multiplier.
   // The legacy 'house_edge' mode keeps the per-bet immediate credit path.
-  const isPariMutuel = !isTeenPatti && existing.gameCode !== "roulette" && existing.gameCode !== "vegetable-bowl" && existing.gameCode !== "crazy-time" && existing.gameCode !== "mega-ball" && ((existing.metadata as { settlementMode?: string } | null)?.settlementMode ?? cfg.settlementMode) === "pari_mutuel";
+  const isPariMutuel = !isTeenPatti && !isRouletteGame(existing.gameCode) && existing.gameCode !== "vegetable-bowl" && existing.gameCode !== "crazy-time" && existing.gameCode !== "mega-ball" && ((existing.metadata as { settlementMode?: string } | null)?.settlementMode ?? cfg.settlementMode) === "pari_mutuel";
   // Free bets settle immediately at stake × multiplier straight to the CASH
   // wallet even in pari-mutuel mode: their stake never entered the shared
   // pool (no debit happened), so they cannot participate in the 95/5 split.
@@ -379,8 +382,8 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
     | { useBonus?: boolean; freeBet?: boolean }
     | null;
   const isFreeBet = !!existingMeta?.freeBet;
-  const payout =
-    existing.gameCode === "mega-ball" ? input.megaBallPayoutPaise! : isTeenPatti ? input.teenPattiPayoutPaise! : existing.gameCode === "roulette" ? input.roulettePayoutPaise! : existing.gameCode === "crazy-time" ? input.crazyTimePayoutPaise! : existing.gameCode === "vegetable-bowl" ? input.vegetablePayoutPaise! : isPariMutuel && !isFreeBet
+  const payout = input.tablePayoutPaise !== undefined ? input.tablePayoutPaise :
+    existing.gameCode === "mega-ball" ? input.megaBallPayoutPaise! : isTeenPatti ? input.teenPattiPayoutPaise! : isRouletteGame(existing.gameCode) ? input.roulettePayoutPaise! : existing.gameCode === "crazy-time" ? input.crazyTimePayoutPaise! : existing.gameCode === "vegetable-bowl" ? input.vegetablePayoutPaise! : isPariMutuel && !isFreeBet
       ? 0n
       : BigInt(Math.floor(Number(stake) * cappedMultiplier));
   // CRITICAL: settle the bet status FIRST with a conditional UPDATE on
@@ -401,7 +404,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
     .returning();
   // Shared Teen Patti slips use the local cash wallet. Commit the settled bet
   // and its credit together, so a process restart cannot leave an unpaid win.
-  const atomicTeenPattiCredit = isTeenPatti && !existing.partnerId && !existingMeta?.useBonus && !isFreeBet;
+  const atomicTeenPattiCredit = (isTeenPatti || input.tablePayoutPaise !== undefined) && !existing.partnerId && !existingMeta?.useBonus && !isFreeBet;
   let updated: Bet | undefined;
   if (atomicTeenPattiCredit) {
     const result = await db.transaction(async (tx) => {
@@ -410,7 +413,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
       const { entry } = await postEntry({
         userId: input.userId, type: "win", amount: payout,
         scope: toWalletScope(existing.gameCode), refType: "bet", refId: existing.id,
-        memo: `Teen Patti return @${cappedMultiplier.toFixed(2)}×`,
+        memo: `Game return @${cappedMultiplier.toFixed(2)}×`,
       }, tx);
       return { bet, balance: entry.balanceAfter };
     });
@@ -638,7 +641,7 @@ export async function settleLoss(
   const existing = rows[0];
   if (!existing) throw new Error("BET_NOT_FOUND");
   if (existing.userId !== userId) throw new Error("BET_NOT_FOUND");
-  if (existing.gameCode === "roulette" && !rouletteTableSettlement) {
+  if (isRouletteGame(existing.gameCode) && !rouletteTableSettlement) {
     throw badRequest("Roulette bets settle automatically on the winning pocket.");
   }
   if (existing.gameCode === "chicken-road") throw badRequest("Chicken Road outcomes are settled by the game server.");

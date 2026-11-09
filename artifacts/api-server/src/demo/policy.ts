@@ -1,8 +1,9 @@
 // Closed allowlist: a demo request must never reach real money/account routes.
 export const DEMO_GAME_ROOTS = new Set([
+  "roulette-american", "roulette-mini", "fun-target", "rummy-royale",
   "ludo",
   "instant", "virtual-sports", "mines", "chicken-road", "plinko", "dice",
-  "horse-racing", "bike-racing", "roulette", "baccarat", "teen-patti",
+  "horse-racing", "bike-racing", "roulette", "speed-auto-roulette", "baccarat", "teen-patti",
   "teen-patti-live", "blackjack", "andar-bahar", "lucky-7", "lucky-7-live",
   "wheel-2-live", "teen-patti-joker", "7up7down", "crazy-time", "mega-ball", "dragon-tiger",
   "dragon-tiger-one-day", "rummy", "vegetable-bowl", "wingo", "forex",

@@ -1,0 +1,15 @@
+{
+  "frames": 18,
+  "fps": 5.0,
+  "loopSeconds": 3.6,
+  "size1x": [
+    512,
+    116
+  ],
+  "size2x": [
+    1024,
+    232
+  ],
+  "baseRow": 2,
+  "order": "row-major (calm, sparkle) x 9"
+}

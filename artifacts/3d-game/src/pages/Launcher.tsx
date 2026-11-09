@@ -1,3 +1,8 @@
+import AmericanRoulette from "@/games/roulette/Roulette";
+import RouletteMini from "@/games/roulette/RouletteMini";
+import FunTarget from "@/games/fun-target/FunTarget";
+import RummyRoyale from "@/games/rummy/Rummy";
+import SpeedAutoRoulette from "@/pages/SpeedAutoRoulette";
 import { useEffect, useRef, useState } from "react";
 import Mines from "@/pages/Mines";
 import Plinko from "@/pages/Plinko";
@@ -56,12 +61,18 @@ function walletScopeFor(code: string): (typeof WALLET_SCOPES)[number] {
 
 function GameByCode({ code }: { code: string }) {
   switch (code) {
+    case "roulette-american": return <AmericanRoulette embedded />;
+    case "roulette-mini": return <RouletteMini embedded />;
+    case "fun-target": return <FunTarget embedded />;
+    case "rummy-royale": return <RummyRoyale embedded />;
     case "mines":
       return <Mines />;
     case "plinko":
       return <Plinko />;
     case "dice":
       return <Dice />;
+    case "speed-auto-roulette":
+      return <SpeedAutoRoulette />;
     case "roulette":
       return <Roulette />;
     case "baccarat":
@@ -170,7 +181,7 @@ export default function Launcher() {
   //    hook used by TopBar so it's already polling/invalidated by writes.
   //    Wallets are scoped per game, so this has to read the launched game's
   //    own wallet; lunar's balance is not the one the player can bet with.
-  const walletScope = walletScopeFor(game);
+  const walletScope = walletScopeFor(game === "speed-auto-roulette" ? "roulette" : game);
   const balance = useGetWalletBalance(
     { game: walletScope },
     {

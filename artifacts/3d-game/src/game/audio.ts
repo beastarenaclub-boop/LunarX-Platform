@@ -598,6 +598,9 @@ export function preloadCroupierVoice() {
 }
 
 export type CroupierGame =
+  | "roulette-american"
+  | "roulette-mini"
+  | "fun-target"
   | "lunar"
   | "aviator"
   | "jetx"
@@ -1217,3 +1220,6 @@ function pauseMusic() {
   try { musicSource?.stop(); } catch { /* already ended */ }
   musicSource = null;
 }
+
+/** Imported cabinets share the app's gesture-unlocked audio context. */
+export function sharedAudioContext(): AudioContext | null { return tryEnsure(); }

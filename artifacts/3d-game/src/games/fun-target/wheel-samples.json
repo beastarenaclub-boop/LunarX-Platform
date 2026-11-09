@@ -1,0 +1,1807 @@
+[
+  {
+    "time": 0,
+    "unity_degrees_unwrapped": 0.00018669334718786362,
+    "flutter_clockwise_radians": -3.258413599997117e-06
+  },
+  {
+    "time": 0.016666668,
+    "unity_degrees_unwrapped": -5.013609155521778,
+    "flutter_clockwise_radians": 0.08750398717198747
+  },
+  {
+    "time": 0.033333335,
+    "unity_degrees_unwrapped": -10.055163006775985,
+    "flutter_clockwise_radians": 0.17549570129297382
+  },
+  {
+    "time": 0.050000004,
+    "unity_degrees_unwrapped": -15.123709170485796,
+    "flutter_clockwise_radians": 0.2639585201390376
+  },
+  {
+    "time": 0.06666667,
+    "unity_degrees_unwrapped": -20.219577386762495,
+    "flutter_clockwise_radians": 0.3528981987607965
+  },
+  {
+    "time": 0.083333336,
+    "unity_degrees_unwrapped": -25.342221149689152,
+    "flutter_clockwise_radians": 0.4423051988306185
+  },
+  {
+    "time": 0.1,
+    "unity_degrees_unwrapped": -30.491525373495534,
+    "flutter_clockwise_radians": 0.5321775117228909
+  },
+  {
+    "time": 0.11666667,
+    "unity_degrees_unwrapped": -35.667172391384156,
+    "flutter_clockwise_radians": 0.6225095931060731
+  },
+  {
+    "time": 0.13333334,
+    "unity_degrees_unwrapped": -40.86893309012066,
+    "flutter_clockwise_radians": 0.713297444199866
+  },
+  {
+    "time": 0.15,
+    "unity_degrees_unwrapped": -46.09670291652412,
+    "flutter_clockwise_radians": 0.8045392402070187
+  },
+  {
+    "time": 0.16666667,
+    "unity_degrees_unwrapped": -51.350158194484806,
+    "flutter_clockwise_radians": 0.8962293319137066
+  },
+  {
+    "time": 0.18333334,
+    "unity_degrees_unwrapped": -56.62896556151614,
+    "flutter_clockwise_radians": 0.9883619010469361
+  },
+  {
+    "time": 0.2,
+    "unity_degrees_unwrapped": -61.93312674098971,
+    "flutter_clockwise_radians": 1.0809369776852158
+  },
+  {
+    "time": 0.21666667,
+    "unity_degrees_unwrapped": -67.26231287542242,
+    "flutter_clockwise_radians": 1.173948822182696
+  },
+  {
+    "time": 0.23333333,
+    "unity_degrees_unwrapped": -72.61619789622739,
+    "flutter_clockwise_radians": 1.2673917435689477
+  },
+  {
+    "time": 0.25,
+    "unity_degrees_unwrapped": -77.99456445851439,
+    "flutter_clockwise_radians": 1.3612619484600244
+  },
+  {
+    "time": 0.26666668,
+    "unity_degrees_unwrapped": -83.39740600457228,
+    "flutter_clockwise_radians": 1.4555593224022754
+  },
+  {
+    "time": 0.28333336,
+    "unity_degrees_unwrapped": -88.82418335257094,
+    "flutter_clockwise_radians": 1.5502744548974983
+  },
+  {
+    "time": 0.30000004,
+    "unity_degrees_unwrapped": -94.27489482981966,
+    "flutter_clockwise_radians": 1.6454073167517322
+  },
+  {
+    "time": 0.31666672,
+    "unity_degrees_unwrapped": -99.74909662849782,
+    "flutter_clockwise_radians": 1.740950162057262
+  },
+  {
+    "time": 0.3333334,
+    "unity_degrees_unwrapped": -105.24679419609262,
+    "flutter_clockwise_radians": 1.8369030858906747
+  },
+  {
+    "time": 0.35000008,
+    "unity_degrees_unwrapped": -110.76756542037432,
+    "flutter_clockwise_radians": 1.9332587210037488
+  },
+  {
+    "time": 0.36666676,
+    "unity_degrees_unwrapped": -116.3112658375602,
+    "flutter_clockwise_radians": 2.0300145460278256
+  },
+  {
+    "time": 0.38333344,
+    "unity_degrees_unwrapped": -121.87759983134544,
+    "flutter_clockwise_radians": 2.1271654014850636
+  },
+  {
+    "time": 0.40000013,
+    "unity_degrees_unwrapped": -127.46655266531951,
+    "flutter_clockwise_radians": 2.224711030176579
+  },
+  {
+    "time": 0.4166668,
+    "unity_degrees_unwrapped": -133.07758080896383,
+    "flutter_clockwise_radians": 2.322641945705238
+  },
+  {
+    "time": 0.4333335,
+    "unity_degrees_unwrapped": -138.71068374051532,
+    "flutter_clockwise_radians": 2.420958138964556
+  },
+  {
+    "time": 0.45000017,
+    "unity_degrees_unwrapped": -144.36553334298034,
+    "flutter_clockwise_radians": 2.5196538832326634
+  },
+  {
+    "time": 0.46666685,
+    "unity_degrees_unwrapped": -150.041802523076,
+    "flutter_clockwise_radians": 2.6187234696548116
+  },
+  {
+    "time": 0.48333353,
+    "unity_degrees_unwrapped": -155.73960097836186,
+    "flutter_clockwise_radians": 2.718168812814597
+  },
+  {
+    "time": 0.5000002,
+    "unity_degrees_unwrapped": -161.45816392851228,
+    "flutter_clockwise_radians": 2.8179765647772816
+  },
+  {
+    "time": 0.5166668,
+    "unity_degrees_unwrapped": -167.19781691352125,
+    "flutter_clockwise_radians": 2.918152407287609
+  },
+  {
+    "time": 0.5333335,
+    "unity_degrees_unwrapped": -172.95779767417622,
+    "flutter_clockwise_radians": 3.0186830364125656
+  },
+  {
+    "time": 0.55000013,
+    "unity_degrees_unwrapped": -178.738432606185,
+    "flutter_clockwise_radians": 3.1195741488319175
+  },
+  {
+    "time": 0.5666668,
+    "unity_degrees_unwrapped": -184.539066453195,
+    "flutter_clockwise_radians": 3.2208143081648672
+  },
+  {
+    "time": 0.58333343,
+    "unity_degrees_unwrapped": -190.35969918454708,
+    "flutter_clockwise_radians": 3.3224035138763113
+  },
+  {
+    "time": 0.6000001,
+    "unity_degrees_unwrapped": -196.19989311037807,
+    "flutter_clockwise_radians": 3.4243341268370355
+  },
+  {
+    "time": 0.61666673,
+    "unity_degrees_unwrapped": -202.05953932249878,
+    "flutter_clockwise_radians": 3.5266042462405562
+  },
+  {
+    "time": 0.6333334,
+    "unity_degrees_unwrapped": -207.93842016251892,
+    "flutter_clockwise_radians": 3.6292100732313175
+  },
+  {
+    "time": 0.65000004,
+    "unity_degrees_unwrapped": -213.83631522474408,
+    "flutter_clockwise_radians": 3.7321477610042626
+  },
+  {
+    "time": 0.6666667,
+    "unity_degrees_unwrapped": -219.752898667497,
+    "flutter_clockwise_radians": 3.835411622549282
+  },
+  {
+    "time": 0.68333334,
+    "unity_degrees_unwrapped": -225.68806170959985,
+    "flutter_clockwise_radians": 3.93899975927666
+  },
+  {
+    "time": 0.7,
+    "unity_degrees_unwrapped": -231.64147325283224,
+    "flutter_clockwise_radians": 4.042906392432302
+  },
+  {
+    "time": 0.71666664,
+    "unity_degrees_unwrapped": -237.61302407884392,
+    "flutter_clockwise_radians": 4.147129615796393
+  },
+  {
+    "time": 0.7333333,
+    "unity_degrees_unwrapped": -243.60227995425686,
+    "flutter_clockwise_radians": 4.251661850566764
+  },
+  {
+    "time": 0.74999994,
+    "unity_degrees_unwrapped": -249.60924381227866,
+    "flutter_clockwise_radians": 4.356503147937546
+  },
+  {
+    "time": 0.7666666,
+    "unity_degrees_unwrapped": -255.63336167673805,
+    "flutter_clockwise_radians": 4.461643839200571
+  },
+  {
+    "time": 0.78333324,
+    "unity_degrees_unwrapped": -261.6748467723795,
+    "flutter_clockwise_radians": 4.567087645829679
+  },
+  {
+    "time": 0.7999999,
+    "unity_degrees_unwrapped": -267.7331732454995,
+    "flutter_clockwise_radians": 4.672825389946358
+  },
+  {
+    "time": 0.81666654,
+    "unity_degrees_unwrapped": -273.80810715474615,
+    "flutter_clockwise_radians": 4.778852988503763
+  },
+  {
+    "time": 0.8333332,
+    "unity_degrees_unwrapped": -279.89954399725747,
+    "flutter_clockwise_radians": 4.885168617582873
+  },
+  {
+    "time": 0.84999985,
+    "unity_degrees_unwrapped": -286.0070437877368,
+    "flutter_clockwise_radians": 4.991764597991601
+  },
+  {
+    "time": 0.8666665,
+    "unity_degrees_unwrapped": -292.130723540027,
+    "flutter_clockwise_radians": 5.098642972006776
+  },
+  {
+    "time": 0.88333315,
+    "unity_degrees_unwrapped": -298.2700220402795,
+    "flutter_clockwise_radians": 5.205793944598932
+  },
+  {
+    "time": 0.8999998,
+    "unity_degrees_unwrapped": -304.42473469124235,
+    "flutter_clockwise_radians": 5.313213944872382
+  },
+  {
+    "time": 0.91666645,
+    "unity_degrees_unwrapped": -310.5948505480414,
+    "flutter_clockwise_radians": 5.420902781803036
+  },
+  {
+    "time": 0.9333331,
+    "unity_degrees_unwrapped": -316.780052655847,
+    "flutter_clockwise_radians": 5.528854923485538
+  },
+  {
+    "time": 0.94999975,
+    "unity_degrees_unwrapped": -322.9800085242223,
+    "flutter_clockwise_radians": 5.63706456686703
+  },
+  {
+    "time": 0.9666664,
+    "unity_degrees_unwrapped": -329.19460354772554,
+    "flutter_clockwise_radians": 5.745529711705217
+  },
+  {
+    "time": 0.98333305,
+    "unity_degrees_unwrapped": -335.42340945698123,
+    "flutter_clockwise_radians": 5.854242883289408
+  },
+  {
+    "time": 0.9999997,
+    "unity_degrees_unwrapped": -341.6663125878617,
+    "flutter_clockwise_radians": 5.9632020978063345
+  },
+  {
+    "time": 1.0166664,
+    "unity_degrees_unwrapped": -347.9233109428343,
+    "flutter_clockwise_radians": 6.072407320392475
+  },
+  {
+    "time": 1.0333331,
+    "unity_degrees_unwrapped": -354.1939716735014,
+    "flutter_clockwise_radians": 6.181850996418129
+  },
+  {
+    "time": 1.0499997,
+    "unity_degrees_unwrapped": -360.47785460572726,
+    "flutter_clockwise_radians": 6.291525443395346
+  },
+  {
+    "time": 1.0666664,
+    "unity_degrees_unwrapped": -366.7749612847869,
+    "flutter_clockwise_radians": 6.401430688294263
+  },
+  {
+    "time": 1.083333,
+    "unity_degrees_unwrapped": -373.0851815850657,
+    "flutter_clockwise_radians": 6.511564809060313
+  },
+  {
+    "time": 1.0999997,
+    "unity_degrees_unwrapped": -379.40807946516077,
+    "flutter_clockwise_radians": 6.621920195335342
+  },
+  {
+    "time": 1.1166663,
+    "unity_degrees_unwrapped": -385.743433900319,
+    "flutter_clockwise_radians": 6.732492989509679
+  },
+  {
+    "time": 1.133333,
+    "unity_degrees_unwrapped": -392.09103291319093,
+    "flutter_clockwise_radians": 6.843279491880636
+  },
+  {
+    "time": 1.1499996,
+    "unity_degrees_unwrapped": -398.45075575125725,
+    "flutter_clockwise_radians": 6.954277594919171
+  },
+  {
+    "time": 1.1666663,
+    "unity_degrees_unwrapped": -404.82228549502986,
+    "flutter_clockwise_radians": 7.065481767336754
+  },
+  {
+    "time": 1.1833329,
+    "unity_degrees_unwrapped": -411.2052868244768,
+    "flutter_clockwise_radians": 7.176886156694778
+  },
+  {
+    "time": 1.1999996,
+    "unity_degrees_unwrapped": -417.59976719897855,
+    "flutter_clockwise_radians": 7.288490893183994
+  },
+  {
+    "time": 1.2166662,
+    "unity_degrees_unwrapped": -424.0052847404716,
+    "flutter_clockwise_radians": 7.4002882645773
+  },
+  {
+    "time": 1.2333329,
+    "unity_degrees_unwrapped": -430.4216113809313,
+    "flutter_clockwise_radians": 7.512274290336749
+  },
+  {
+    "time": 1.2499995,
+    "unity_degrees_unwrapped": -436.8486606964449,
+    "flutter_clockwise_radians": 7.624447462080508
+  },
+  {
+    "time": 1.2666662,
+    "unity_degrees_unwrapped": -443.28608426866987,
+    "flutter_clockwise_radians": 7.7368016987613295
+  },
+  {
+    "time": 1.2833328,
+    "unity_degrees_unwrapped": -449.73378559176126,
+    "flutter_clockwise_radians": 7.849335316034469
+  },
+  {
+    "time": 1.2999995,
+    "unity_degrees_unwrapped": -456.19132036450264,
+    "flutter_clockwise_radians": 7.96204055938083
+  },
+  {
+    "time": 1.3166661,
+    "unity_degrees_unwrapped": -462.65868435535333,
+    "flutter_clockwise_radians": 8.074917354946095
+  },
+  {
+    "time": 1.3333328,
+    "unity_degrees_unwrapped": -469.1354573211886,
+    "flutter_clockwise_radians": 8.187958368104079
+  },
+  {
+    "time": 1.3499994,
+    "unity_degrees_unwrapped": -475.62161924774483,
+    "flutter_clockwise_radians": 8.301163249539982
+  },
+  {
+    "time": 1.3666661,
+    "unity_degrees_unwrapped": -482.11652907308223,
+    "flutter_clockwise_radians": 8.41452081061225
+  },
+  {
+    "time": 1.3833327,
+    "unity_degrees_unwrapped": -488.62050866399113,
+    "flutter_clockwise_radians": 8.528036668956124
+  },
+  {
+    "time": 1.3999994,
+    "unity_degrees_unwrapped": -495.13289907679143,
+    "flutter_clockwise_radians": 8.641699323834802
+  },
+  {
+    "time": 1.416666,
+    "unity_degrees_unwrapped": -501.653712228206,
+    "flutter_clockwise_radians": 8.755508983234334
+  },
+  {
+    "time": 1.4333327,
+    "unity_degrees_unwrapped": -508.18260550828336,
+    "flutter_clockwise_radians": 8.869459667483017
+  },
+  {
+    "time": 1.4499993,
+    "unity_degrees_unwrapped": -514.7193705359227,
+    "flutter_clockwise_radians": 8.983547739644541
+  },
+  {
+    "time": 1.466666,
+    "unity_degrees_unwrapped": -521.2637859879927,
+    "flutter_clockwise_radians": 9.097769336901557
+  },
+  {
+    "time": 1.4833326,
+    "unity_degrees_unwrapped": -527.815522397117,
+    "flutter_clockwise_radians": 9.212118708963565
+  },
+  {
+    "time": 1.4999993,
+    "unity_degrees_unwrapped": -534.3745802592687,
+    "flutter_clockwise_radians": 9.326595864486933
+  },
+  {
+    "time": 1.5166659,
+    "unity_degrees_unwrapped": -540.9405230888948,
+    "flutter_clockwise_radians": 9.441193185361621
+  },
+  {
+    "time": 1.5333326,
+    "unity_degrees_unwrapped": -547.5131323079314,
+    "flutter_clockwise_radians": 9.555906856680743
+  },
+  {
+    "time": 1.5499992,
+    "unity_degrees_unwrapped": -554.0922973402783,
+    "flutter_clockwise_radians": 9.670734948527276
+  },
+  {
+    "time": 1.5666659,
+    "unity_degrees_unwrapped": -560.6775850439669,
+    "flutter_clockwise_radians": 9.785669901147738
+  },
+  {
+    "time": 1.5833325,
+    "unity_degrees_unwrapped": -567.2689887376466,
+    "flutter_clockwise_radians": 9.900711597930565
+  },
+  {
+    "time": 1.5999992,
+    "unity_degrees_unwrapped": -573.8661885149593,
+    "flutter_clockwise_radians": 10.015854455456507
+  },
+  {
+    "time": 1.6166658,
+    "unity_degrees_unwrapped": -580.468848339307,
+    "flutter_clockwise_radians": 10.131092608780525
+  },
+  {
+    "time": 1.6333325,
+    "unity_degrees_unwrapped": -587.0769739339922,
+    "flutter_clockwise_radians": 10.246426157793092
+  },
+  {
+    "time": 1.6499991,
+    "unity_degrees_unwrapped": -593.690020554792,
+    "flutter_clockwise_radians": 10.361845594913932
+  },
+  {
+    "time": 1.6666658,
+    "unity_degrees_unwrapped": -600.3081988870692,
+    "flutter_clockwise_radians": 10.477354597296317
+  },
+  {
+    "time": 1.6833324,
+    "unity_degrees_unwrapped": -606.9307529084349,
+    "flutter_clockwise_radians": 10.592939969860339
+  },
+  {
+    "time": 1.6999991,
+    "unity_degrees_unwrapped": -613.5578925672053,
+    "flutter_clockwise_radians": 10.708605376895376
+  },
+  {
+    "time": 1.7166657,
+    "unity_degrees_unwrapped": -620.1890755128163,
+    "flutter_clockwise_radians": 10.824341352598385
+  },
+  {
+    "time": 1.7333324,
+    "unity_degrees_unwrapped": -626.8241931608072,
+    "flutter_clockwise_radians": 10.940146001813009
+  },
+  {
+    "time": 1.749999,
+    "unity_degrees_unwrapped": -633.4630314879846,
+    "flutter_clockwise_radians": 11.056015589129846
+  },
+  {
+    "time": 1.7666657,
+    "unity_degrees_unwrapped": -640.1053588494681,
+    "flutter_clockwise_radians": 11.17194607158304
+  },
+  {
+    "time": 1.7833323,
+    "unity_degrees_unwrapped": -646.7508652563877,
+    "flutter_clockwise_radians": 11.287932038846165
+  },
+  {
+    "time": 1.799999,
+    "unity_degrees_unwrapped": -653.3995290246557,
+    "flutter_clockwise_radians": 11.403973112460497
+  },
+  {
+    "time": 1.8166656,
+    "unity_degrees_unwrapped": -660.0509379981631,
+    "flutter_clockwise_radians": 11.520062098944896
+  },
+  {
+    "time": 1.8333323,
+    "unity_degrees_unwrapped": -666.7047400930971,
+    "flutter_clockwise_radians": 11.636192853277592
+  },
+  {
+    "time": 1.849999,
+    "unity_degrees_unwrapped": -673.3609526796711,
+    "flutter_clockwise_radians": 11.752365678625994
+  },
+  {
+    "time": 1.8666656,
+    "unity_degrees_unwrapped": -680.0191293360381,
+    "flutter_clockwise_radians": 11.868572783459026
+  },
+  {
+    "time": 1.8833323,
+    "unity_degrees_unwrapped": -686.67938563129,
+    "flutter_clockwise_radians": 11.98481618483785
+  },
+  {
+    "time": 1.8999989,
+    "unity_degrees_unwrapped": -693.3411662534982,
+    "flutter_clockwise_radians": 12.10108619074094
+  },
+  {
+    "time": 1.9166656,
+    "unity_degrees_unwrapped": -700.0042628709233,
+    "flutter_clockwise_radians": 12.217379165093506
+  },
+  {
+    "time": 1.9333322,
+    "unity_degrees_unwrapped": -706.6685607070926,
+    "flutter_clockwise_radians": 12.333693104668194
+  },
+  {
+    "time": 1.9499989,
+    "unity_degrees_unwrapped": -713.3338419442712,
+    "flutter_clockwise_radians": 12.450024207828362
+  },
+  {
+    "time": 1.9666655,
+    "unity_degrees_unwrapped": -719.9997787009767,
+    "flutter_clockwise_radians": 12.566366751962583
+  },
+  {
+    "time": 1.9833322,
+    "unity_degrees_unwrapped": -726.6661529078327,
+    "flutter_clockwise_radians": 12.682716931042249
+  },
+  {
+    "time": 1.9999988,
+    "unity_degrees_unwrapped": -733.3327463228131,
+    "flutter_clockwise_radians": 12.799070936025428
+  },
+  {
+    "time": 2.0166655,
+    "unity_degrees_unwrapped": -739.9994481647182,
+    "flutter_clockwise_radians": 12.915426833415442
+  },
+  {
+    "time": 2.033332,
+    "unity_degrees_unwrapped": -746.6658202915628,
+    "flutter_clockwise_radians": 13.031776976192058
+  },
+  {
+    "time": 2.0499988,
+    "unity_degrees_unwrapped": -753.3316480959124,
+    "flutter_clockwise_radians": 13.148117618748943
+  },
+  {
+    "time": 2.0666654,
+    "unity_degrees_unwrapped": -759.9969295576724,
+    "flutter_clockwise_radians": 13.264448725828796
+  },
+  {
+    "time": 2.083332,
+    "unity_degrees_unwrapped": -766.6612275808427,
+    "flutter_clockwise_radians": 13.380762668667266
+  },
+  {
+    "time": 2.0999987,
+    "unity_degrees_unwrapped": -773.3243230823284,
+    "flutter_clockwise_radians": 13.497055623543014
+  },
+  {
+    "time": 2.1166654,
+    "unity_degrees_unwrapped": -779.986216015028,
+    "flutter_clockwise_radians": 13.613327589633965
+  },
+  {
+    "time": 2.133332,
+    "unity_degrees_unwrapped": -786.6462491467785,
+    "flutter_clockwise_radians": 13.729567096074918
+  },
+  {
+    "time": 2.1499987,
+    "unity_degrees_unwrapped": -793.3045388231412,
+    "flutter_clockwise_radians": 13.845776173478997
+  },
+  {
+    "time": 2.1666653,
+    "unity_degrees_unwrapped": -799.960751715949,
+    "flutter_clockwise_radians": 13.961949004172189
+  },
+  {
+    "time": 2.183332,
+    "unity_degrees_unwrapped": -806.6146649362763,
+    "flutter_clockwise_radians": 14.078081698008878
+  },
+  {
+    "time": 2.1999986,
+    "unity_degrees_unwrapped": -813.2660676786873,
+    "flutter_clockwise_radians": 14.19417057574013
+  },
+  {
+    "time": 2.2166653,
+    "unity_degrees_unwrapped": -819.9146225123939,
+    "flutter_clockwise_radians": 14.310209748087695
+  },
+  {
+    "time": 2.233332,
+    "unity_degrees_unwrapped": -826.5601301082845,
+    "flutter_clockwise_radians": 14.42619573610228
+  },
+  {
+    "time": 2.2499986,
+    "unity_degrees_unwrapped": -833.2024572130123,
+    "flutter_clockwise_radians": 14.54212621407424
+  },
+  {
+    "time": 2.2666652,
+    "unity_degrees_unwrapped": -839.8412920076917,
+    "flutter_clockwise_radians": 14.657995739737357
+  },
+  {
+    "time": 2.2833319,
+    "unity_degrees_unwrapped": -846.4765225661267,
+    "flutter_clockwise_radians": 14.773802359610992
+  },
+  {
+    "time": 2.2999985,
+    "unity_degrees_unwrapped": -853.1077063553387,
+    "flutter_clockwise_radians": 14.889538350037613
+  },
+  {
+    "time": 2.3166652,
+    "unity_degrees_unwrapped": -859.7346262380757,
+    "flutter_clockwise_radians": 15.005199921257253
+  },
+  {
+    "time": 2.3333318,
+    "unity_degrees_unwrapped": -866.3572924081404,
+    "flutter_clockwise_radians": 15.120787251185323
+  },
+  {
+    "time": 2.3499985,
+    "unity_degrees_unwrapped": -872.9753623990425,
+    "flutter_clockwise_radians": 15.236294362653997
+  },
+  {
+    "time": 2.3666651,
+    "unity_degrees_unwrapped": -879.5885128714735,
+    "flutter_clockwise_radians": 15.351715612327736
+  },
+  {
+    "time": 2.3833318,
+    "unity_degrees_unwrapped": -886.1964763489761,
+    "flutter_clockwise_radians": 15.467046331861692
+  },
+  {
+    "time": 2.3999984,
+    "unity_degrees_unwrapped": -892.7993575940621,
+    "flutter_clockwise_radians": 15.582288349706625
+  },
+  {
+    "time": 2.416665,
+    "unity_degrees_unwrapped": -899.3964457421549,
+    "flutter_clockwise_radians": 15.697429258935138
+  },
+  {
+    "time": 2.4333317,
+    "unity_degrees_unwrapped": -905.9879062989226,
+    "flutter_clockwise_radians": 15.812471948166072
+  },
+  {
+    "time": 2.4499984,
+    "unity_degrees_unwrapped": -912.5731923459535,
+    "flutter_clockwise_radians": 15.927406871872405
+  },
+  {
+    "time": 2.466665,
+    "unity_degrees_unwrapped": -919.1523039035324,
+    "flutter_clockwise_radians": 16.042234030408167
+  },
+  {
+    "time": 2.4833317,
+    "unity_degrees_unwrapped": -925.7250229785328,
+    "flutter_clockwise_radians": 16.15694961907556
+  },
+  {
+    "time": 2.4999983,
+    "unity_degrees_unwrapped": -932.2909116569333,
+    "flutter_clockwise_radians": 16.27154599483307
+  },
+  {
+    "time": 2.516665,
+    "unity_degrees_unwrapped": -938.8499148489607,
+    "flutter_clockwise_radians": 16.386022196182765
+  },
+  {
+    "time": 2.5333316,
+    "unity_degrees_unwrapped": -945.4017007046496,
+    "flutter_clockwise_radians": 16.50037243125013
+  },
+  {
+    "time": 2.5499983,
+    "unity_degrees_unwrapped": -951.9461184199928,
+    "flutter_clockwise_radians": 16.614594068008714
+  },
+  {
+    "time": 2.566665,
+    "unity_degrees_unwrapped": -958.4828835975019,
+    "flutter_clockwise_radians": 16.72868214278596
+  },
+  {
+    "time": 2.5833316,
+    "unity_degrees_unwrapped": -965.0117798465074,
+    "flutter_clockwise_radians": 16.842632878852214
+  },
+  {
+    "time": 2.5999982,
+    "unity_degrees_unwrapped": -971.5325840837974,
+    "flutter_clockwise_radians": 16.95644238267092
+  },
+  {
+    "time": 2.616665,
+    "unity_degrees_unwrapped": -978.0450393092872,
+    "flutter_clockwise_radians": 17.070106168744427
+  },
+  {
+    "time": 2.6333315,
+    "unity_degrees_unwrapped": -984.5488526028228,
+    "flutter_clockwise_radians": 17.1836191246516
+  },
+  {
+    "time": 2.6499982,
+    "unity_degrees_unwrapped": -991.0439771064391,
+    "flutter_clockwise_radians": 17.29698043256667
+  },
+  {
+    "time": 2.6666648,
+    "unity_degrees_unwrapped": -997.5300862844008,
+    "flutter_clockwise_radians": 17.410184393365924
+  },
+  {
+    "time": 2.6833315,
+    "unity_degrees_unwrapped": -1004.0068594013596,
+    "flutter_clockwise_radians": 17.52322540916151
+  },
+  {
+    "time": 2.6999981,
+    "unity_degrees_unwrapped": -1010.474225468254,
+    "flutter_clockwise_radians": 17.63610224096057
+  },
+  {
+    "time": 2.7166648,
+    "unity_degrees_unwrapped": -1016.9317646875882,
+    "flutter_clockwise_radians": 17.748807561914617
+  },
+  {
+    "time": 2.7333314,
+    "unity_degrees_unwrapped": -1023.3794613851834,
+    "flutter_clockwise_radians": 17.86134109845762
+  },
+  {
+    "time": 2.749998,
+    "unity_degrees_unwrapped": -1029.816941997301,
+    "flutter_clockwise_radians": 17.97369633067237
+  },
+  {
+    "time": 2.7666647,
+    "unity_degrees_unwrapped": -1036.2439309031502,
+    "flutter_clockwise_radians": 18.085868448068588
+  },
+  {
+    "time": 2.7833314,
+    "unity_degrees_unwrapped": -1042.6603208912813,
+    "flutter_clockwise_radians": 18.197855579453478
+  },
+  {
+    "time": 2.799998,
+    "unity_degrees_unwrapped": -1049.0658350652448,
+    "flutter_clockwise_radians": 18.309652892072304
+  },
+  {
+    "time": 2.8166647,
+    "unity_degrees_unwrapped": -1055.4602586241965,
+    "flutter_clockwise_radians": 18.421256636943106
+  },
+  {
+    "time": 2.8333313,
+    "unity_degrees_unwrapped": -1061.8433154221404,
+    "flutter_clockwise_radians": 18.532661994409033
+  },
+  {
+    "time": 2.849998,
+    "unity_degrees_unwrapped": -1068.214788842503,
+    "flutter_clockwise_radians": 18.64386518379766
+  },
+  {
+    "time": 2.8666646,
+    "unity_degrees_unwrapped": -1074.5745149395088,
+    "flutter_clockwise_radians": 18.754863343715424
+  },
+  {
+    "time": 2.8833313,
+    "unity_degrees_unwrapped": -1080.9220554572953,
+    "flutter_clockwise_radians": 18.865648825154544
+  },
+  {
+    "time": 2.899998,
+    "unity_degrees_unwrapped": -1087.2575201404302,
+    "flutter_clockwise_radians": 18.976223543519065
+  },
+  {
+    "time": 2.9166646,
+    "unity_degrees_unwrapped": -1093.580363135745,
+    "flutter_clockwise_radians": 19.08657797187397
+  },
+  {
+    "time": 2.9333313,
+    "unity_degrees_unwrapped": -1099.8904179722663,
+    "flutter_clockwise_radians": 19.19670920475266
+  },
+  {
+    "time": 2.949998,
+    "unity_degrees_unwrapped": -1106.187688719541,
+    "flutter_clockwise_radians": 19.306617313182127
+  },
+  {
+    "time": 2.9666646,
+    "unity_degrees_unwrapped": -1112.4716277880152,
+    "flutter_clockwise_radians": 19.41629273992171
+  },
+  {
+    "time": 2.9833312,
+    "unity_degrees_unwrapped": -1118.7422324485538,
+    "flutter_clockwise_radians": 19.525735437339005
+  },
+  {
+    "time": 2.9999979,
+    "unity_degrees_unwrapped": -1124.9990675274212,
+    "flutter_clockwise_radians": 19.634937810219522
+  },
+  {
+    "time": 3.0166645,
+    "unity_degrees_unwrapped": -1131.2421353789782,
+    "flutter_clockwise_radians": 19.7438998996546
+  },
+  {
+    "time": 3.0333312,
+    "unity_degrees_unwrapped": -1137.471102332876,
+    "flutter_clockwise_radians": 19.852615881998037
+  },
+  {
+    "time": 3.0499978,
+    "unity_degrees_unwrapped": -1143.6855902224743,
+    "flutter_clockwise_radians": 19.961079156996842
+  },
+  {
+    "time": 3.0666645,
+    "unity_degrees_unwrapped": -1149.8854347367617,
+    "flutter_clockwise_radians": 20.06928685688287
+  },
+  {
+    "time": 3.083331,
+    "unity_degrees_unwrapped": -1156.070750593005,
+    "flutter_clockwise_radians": 20.177240983850126
+  },
+  {
+    "time": 3.0999978,
+    "unity_degrees_unwrapped": -1162.2407625909905,
+    "flutter_clockwise_radians": 20.284928008102526
+  },
+  {
+    "time": 3.1166644,
+    "unity_degrees_unwrapped": -1168.3956916417285,
+    "flutter_clockwise_radians": 20.39235178526455
+  },
+  {
+    "time": 3.133331,
+    "unity_degrees_unwrapped": -1174.5349907683892,
+    "flutter_clockwise_radians": 20.499502768789593
+  },
+  {
+    "time": 3.1499977,
+    "unity_degrees_unwrapped": -1180.6585049575324,
+    "flutter_clockwise_radians": 20.606378253182733
+  },
+  {
+    "time": 3.1666644,
+    "unity_degrees_unwrapped": -1186.766052919676,
+    "flutter_clockwise_radians": 20.71297507434561
+  },
+  {
+    "time": 3.183331,
+    "unity_degrees_unwrapped": -1192.8574926223864,
+    "flutter_clockwise_radians": 20.81929075334461
+  },
+  {
+    "time": 3.1999977,
+    "unity_degrees_unwrapped": -1198.9324239844136,
+    "flutter_clockwise_radians": 20.92531830744465
+  },
+  {
+    "time": 3.2166643,
+    "unity_degrees_unwrapped": -1204.9908047781362,
+    "flutter_clockwise_radians": 21.031056999634696
+  },
+  {
+    "time": 3.233331,
+    "unity_degrees_unwrapped": -1211.0321875195464,
+    "flutter_clockwise_radians": 21.136499019845466
+  },
+  {
+    "time": 3.2499976,
+    "unity_degrees_unwrapped": -1217.056469176222,
+    "flutter_clockwise_radians": 21.241642569821952
+  },
+  {
+    "time": 3.2666643,
+    "unity_degrees_unwrapped": -1223.0633193115004,
+    "flutter_clockwise_radians": 21.34648188235643
+  },
+  {
+    "time": 3.283331,
+    "unity_degrees_unwrapped": -1229.0525762838208,
+    "flutter_clockwise_radians": 21.451014136271446
+  },
+  {
+    "time": 3.2999976,
+    "unity_degrees_unwrapped": -1235.0240185762455,
+    "flutter_clockwise_radians": 21.555235465367094
+  },
+  {
+    "time": 3.3166642,
+    "unity_degrees_unwrapped": -1240.9774845681295,
+    "flutter_clockwise_radians": 21.65914304883098
+  },
+  {
+    "time": 3.3333309,
+    "unity_degrees_unwrapped": -1246.9126461508383,
+    "flutter_clockwise_radians": 21.762731160087128
+  },
+  {
+    "time": 3.3499975,
+    "unity_degrees_unwrapped": -1252.8292842025037,
+    "flutter_clockwise_radians": 21.86599597473747
+  },
+  {
+    "time": 3.3666642,
+    "unity_degrees_unwrapped": -1258.7271245242437,
+    "flutter_clockwise_radians": 21.968932707108713
+  },
+  {
+    "time": 3.3833308,
+    "unity_degrees_unwrapped": -1264.606005097795,
+    "flutter_clockwise_radians": 22.07153852944872
+  },
+  {
+    "time": 3.3999975,
+    "unity_degrees_unwrapped": -1270.4657616522402,
+    "flutter_clockwise_radians": 22.173810574689107
+  },
+  {
+    "time": 3.4166641,
+    "unity_degrees_unwrapped": -1276.3059561373852,
+    "flutter_clockwise_radians": 22.2757411974117
+  },
+  {
+    "time": 3.4333308,
+    "unity_degrees_unwrapped": -1282.126533470254,
+    "flutter_clockwise_radians": 22.377329436237208
+  },
+  {
+    "time": 3.4499974,
+    "unity_degrees_unwrapped": -1287.9272222586137,
+    "flutter_clockwise_radians": 22.47857055447761
+  },
+  {
+    "time": 3.466664,
+    "unity_degrees_unwrapped": -1293.707692788652,
+    "flutter_clockwise_radians": 22.579458797541278
+  },
+  {
+    "time": 3.4833307,
+    "unity_degrees_unwrapped": -1299.4678368110633,
+    "flutter_clockwise_radians": 22.679992276121425
+  },
+  {
+    "time": 3.4999974,
+    "unity_degrees_unwrapped": -1305.2073264880876,
+    "flutter_clockwise_radians": 22.780165268369725
+  },
+  {
+    "time": 3.516664,
+    "unity_degrees_unwrapped": -1310.926108775984,
+    "flutter_clockwise_radians": 22.879976848498252
+  },
+  {
+    "time": 3.5333307,
+    "unity_degrees_unwrapped": -1316.623740155492,
+    "flutter_clockwise_radians": 22.979419275635614
+  },
+  {
+    "time": 3.5499973,
+    "unity_degrees_unwrapped": -1322.3001211226178,
+    "flutter_clockwise_radians": 23.0784908131095
+  },
+  {
+    "time": 3.566664,
+    "unity_degrees_unwrapped": -1327.95491775414,
+    "flutter_clockwise_radians": 23.177185632860247
+  },
+  {
+    "time": 3.5833306,
+    "unity_degrees_unwrapped": -1333.587963726085,
+    "flutter_clockwise_radians": 23.27550083198689
+  },
+  {
+    "time": 3.5999973,
+    "unity_degrees_unwrapped": -1339.1990444794735,
+    "flutter_clockwise_radians": 23.373432665728803
+  },
+  {
+    "time": 3.616664,
+    "unity_degrees_unwrapped": -1344.7879183813493,
+    "flutter_clockwise_radians": 23.47097691679532
+  },
+  {
+    "time": 3.6333306,
+    "unity_degrees_unwrapped": -1350.3543299547428,
+    "flutter_clockwise_radians": 23.56812912627215
+  },
+  {
+    "time": 3.6499972,
+    "unity_degrees_unwrapped": -1355.8978985851456,
+    "flutter_clockwise_radians": 23.664882651182957
+  },
+  {
+    "time": 3.666664,
+    "unity_degrees_unwrapped": -1361.4187718386445,
+    "flutter_clockwise_radians": 23.7612400670418
+  },
+  {
+    "time": 3.6833305,
+    "unity_degrees_unwrapped": -1366.9164755193042,
+    "flutter_clockwise_radians": 23.857193097568324
+  },
+  {
+    "time": 3.6999972,
+    "unity_degrees_unwrapped": -1372.3907071828937,
+    "flutter_clockwise_radians": 23.95273646411489
+  },
+  {
+    "time": 3.7166638,
+    "unity_degrees_unwrapped": -1377.841391566304,
+    "flutter_clockwise_radians": 24.047868853092435
+  },
+  {
+    "time": 3.7333305,
+    "unity_degrees_unwrapped": -1383.2681354644365,
+    "flutter_clockwise_radians": 24.142583401777358
+  },
+  {
+    "time": 3.7499971,
+    "unity_degrees_unwrapped": -1388.6708448509964,
+    "flutter_clockwise_radians": 24.23687846910123
+  },
+  {
+    "time": 3.7666638,
+    "unity_degrees_unwrapped": -1394.0494012040297,
+    "flutter_clockwise_radians": 24.33075198646572
+  },
+  {
+    "time": 3.7833304,
+    "unity_degrees_unwrapped": -1399.40328740676,
+    "flutter_clockwise_radians": 24.42419492848046
+  },
+  {
+    "time": 3.799997,
+    "unity_degrees_unwrapped": -1404.732389824695,
+    "flutter_clockwise_radians": 24.51720531184942
+  },
+  {
+    "time": 3.8166637,
+    "unity_degrees_unwrapped": -1410.0364669542107,
+    "flutter_clockwise_radians": 24.6097789215392
+  },
+  {
+    "time": 3.8333304,
+    "unity_degrees_unwrapped": -1415.3153852764508,
+    "flutter_clockwise_radians": 24.701913427206144
+  },
+  {
+    "time": 3.849997,
+    "unity_degrees_unwrapped": -1420.5688123545574,
+    "flutter_clockwise_radians": 24.793603026732526
+  },
+  {
+    "time": 3.8666637,
+    "unity_degrees_unwrapped": -1425.7965841975497,
+    "flutter_clockwise_radians": 24.884844857935796
+  },
+  {
+    "time": 3.8833303,
+    "unity_degrees_unwrapped": -1430.9983742588588,
+    "flutter_clockwise_radians": 24.975633221503156
+  },
+  {
+    "time": 3.899997,
+    "unity_degrees_unwrapped": -1436.1740461177715,
+    "flutter_clockwise_radians": 25.065965736444
+  },
+  {
+    "time": 3.9166636,
+    "unity_degrees_unwrapped": -1441.323325544389,
+    "flutter_clockwise_radians": 25.155837616543682
+  },
+  {
+    "time": 3.9333303,
+    "unity_degrees_unwrapped": -1446.4458855483222,
+    "flutter_clockwise_radians": 25.24524315474329
+  },
+  {
+    "time": 3.949997,
+    "unity_degrees_unwrapped": -1451.5417251072506,
+    "flutter_clockwise_radians": 25.334182333199966
+  },
+  {
+    "time": 3.9666636,
+    "unity_degrees_unwrapped": -1456.6104357508282,
+    "flutter_clockwise_radians": 25.422648022761273
+  },
+  {
+    "time": 3.9833302,
+    "unity_degrees_unwrapped": -1461.651934226185,
+    "flutter_clockwise_radians": 25.510638770390525
+  },
+  {
+    "time": 3.999997,
+    "unity_degrees_unwrapped": -1466.6657302641827,
+    "flutter_clockwise_radians": 25.59814601927703
+  },
+  {
+    "time": 4.0166636,
+    "unity_degrees_unwrapped": -1471.6518246245887,
+    "flutter_clockwise_radians": 25.685169782681236
+  },
+  {
+    "time": 4.0333304,
+    "unity_degrees_unwrapped": -1476.6100775361494,
+    "flutter_clockwise_radians": 25.771707621134567
+  },
+  {
+    "time": 4.0499973,
+    "unity_degrees_unwrapped": -1481.5398884786778,
+    "flutter_clockwise_radians": 25.85774905358253
+  },
+  {
+    "time": 4.066664,
+    "unity_degrees_unwrapped": -1486.4412617256023,
+    "flutter_clockwise_radians": 25.94329415461053
+  },
+  {
+    "time": 4.083331,
+    "unity_degrees_unwrapped": -1491.3139456825043,
+    "flutter_clockwise_radians": 26.028338533067572
+  },
+  {
+    "time": 4.099998,
+    "unity_degrees_unwrapped": -1496.1578038795296,
+    "flutter_clockwise_radians": 26.112879807105383
+  },
+  {
+    "time": 4.116665,
+    "unity_degrees_unwrapped": -1500.972263145772,
+    "flutter_clockwise_radians": 26.196907973004464
+  },
+  {
+    "time": 4.133332,
+    "unity_degrees_unwrapped": -1505.7575243242104,
+    "flutter_clockwise_radians": 26.280426536136076
+  },
+  {
+    "time": 4.1499987,
+    "unity_degrees_unwrapped": -1510.5131441989636,
+    "flutter_clockwise_radians": 26.3634277609238
+  },
+  {
+    "time": 4.1666656,
+    "unity_degrees_unwrapped": -1515.238864988603,
+    "flutter_clockwise_radians": 26.44590714823295
+  },
+  {
+    "time": 4.1833324,
+    "unity_degrees_unwrapped": -1519.934540176419,
+    "flutter_clockwise_radians": 26.527862140864546
+  },
+  {
+    "time": 4.1999993,
+    "unity_degrees_unwrapped": -1524.599830428776,
+    "flutter_clockwise_radians": 26.609286816329373
+  },
+  {
+    "time": 4.216666,
+    "unity_degrees_unwrapped": -1529.2345831819716,
+    "flutter_clockwise_radians": 26.690178511888508
+  },
+  {
+    "time": 4.233333,
+    "unity_degrees_unwrapped": -1533.8385940923386,
+    "flutter_clockwise_radians": 26.770533661072154
+  },
+  {
+    "time": 4.25,
+    "unity_degrees_unwrapped": -1538.4114802158877,
+    "flutter_clockwise_radians": 26.850345580246845
+  },
+  {
+    "time": 4.266667,
+    "unity_degrees_unwrapped": -1542.9532361118947,
+    "flutter_clockwise_radians": 26.929614174454034
+  },
+  {
+    "time": 4.283334,
+    "unity_degrees_unwrapped": -1547.463341928745,
+    "flutter_clockwise_radians": 27.008330370571418
+  },
+  {
+    "time": 4.3000007,
+    "unity_degrees_unwrapped": -1551.9418734774931,
+    "flutter_clockwise_radians": 27.086495491751513
+  },
+  {
+    "time": 4.3166676,
+    "unity_degrees_unwrapped": -1556.3884058960216,
+    "flutter_clockwise_radians": 27.164102122751505
+  },
+  {
+    "time": 4.3333344,
+    "unity_degrees_unwrapped": -1560.8028433542027,
+    "flutter_clockwise_radians": 27.24114859102013
+  },
+  {
+    "time": 4.3500013,
+    "unity_degrees_unwrapped": -1565.184678822186,
+    "flutter_clockwise_radians": 27.317626047217107
+  },
+  {
+    "time": 4.366668,
+    "unity_degrees_unwrapped": -1569.5340357219743,
+    "flutter_clockwise_radians": 27.393536645462746
+  },
+  {
+    "time": 4.383335,
+    "unity_degrees_unwrapped": -1573.8505644392071,
+    "flutter_clockwise_radians": 27.468874283835348
+  },
+  {
+    "time": 4.400002,
+    "unity_degrees_unwrapped": -1578.1338842191883,
+    "flutter_clockwise_radians": 27.54363231691182
+  },
+  {
+    "time": 4.416669,
+    "unity_degrees_unwrapped": -1582.3838899744562,
+    "flutter_clockwise_radians": 27.617808910569952
+  },
+  {
+    "time": 4.433336,
+    "unity_degrees_unwrapped": -1586.600314063447,
+    "flutter_clockwise_radians": 27.691399393583243
+  },
+  {
+    "time": 4.4500027,
+    "unity_degrees_unwrapped": -1590.7829315754489,
+    "flutter_clockwise_radians": 27.76439984051925
+  },
+  {
+    "time": 4.4666696,
+    "unity_degrees_unwrapped": -1594.9316151773414,
+    "flutter_clockwise_radians": 27.836808028995772
+  },
+  {
+    "time": 4.4833364,
+    "unity_degrees_unwrapped": -1599.0458764202315,
+    "flutter_clockwise_radians": 27.9086154339714
+  },
+  {
+    "time": 4.5000033,
+    "unity_degrees_unwrapped": -1603.1257114470036,
+    "flutter_clockwise_radians": 27.979821988126762
+  },
+  {
+    "time": 4.51667,
+    "unity_degrees_unwrapped": -1607.1710013924962,
+    "flutter_clockwise_radians": 28.05042561687343
+  },
+  {
+    "time": 4.533337,
+    "unity_degrees_unwrapped": -1611.181127619846,
+    "flutter_clockwise_radians": 28.12041552296126
+  },
+  {
+    "time": 4.550004,
+    "unity_degrees_unwrapped": -1615.156106614309,
+    "flutter_clockwise_radians": 28.189791994112255
+  },
+  {
+    "time": 4.566671,
+    "unity_degrees_unwrapped": -1619.0958009065073,
+    "flutter_clockwise_radians": 28.258552631033144
+  },
+  {
+    "time": 4.583338,
+    "unity_degrees_unwrapped": -1622.9996229771943,
+    "flutter_clockwise_radians": 28.326687179578656
+  },
+  {
+    "time": 4.6000047,
+    "unity_degrees_unwrapped": -1626.8677774057703,
+    "flutter_clockwise_radians": 28.394199210332904
+  },
+  {
+    "time": 4.6166716,
+    "unity_degrees_unwrapped": -1630.6996909242746,
+    "flutter_clockwise_radians": 28.461078717882486
+  },
+  {
+    "time": 4.6333385,
+    "unity_degrees_unwrapped": -1634.49522824105,
+    "flutter_clockwise_radians": 28.527323340942527
+  },
+  {
+    "time": 4.6500053,
+    "unity_degrees_unwrapped": -1638.2543726815147,
+    "flutter_clockwise_radians": 28.592932788486678
+  },
+  {
+    "time": 4.666672,
+    "unity_degrees_unwrapped": -1641.9764287095652,
+    "flutter_clockwise_radians": 28.65789492111986
+  },
+  {
+    "time": 4.683339,
+    "unity_degrees_unwrapped": -1645.6617241648037,
+    "flutter_clockwise_radians": 28.722215460722555
+  },
+  {
+    "time": 4.700006,
+    "unity_degrees_unwrapped": -1649.30967397418,
+    "flutter_clockwise_radians": 28.78588419584367
+  },
+  {
+    "time": 4.716673,
+    "unity_degrees_unwrapped": -1652.9200308728905,
+    "flutter_clockwise_radians": 28.84889681089826
+  },
+  {
+    "time": 4.73334,
+    "unity_degrees_unwrapped": -1656.4927810555819,
+    "flutter_clockwise_radians": 28.911253064937455
+  },
+  {
+    "time": 4.7500067,
+    "unity_degrees_unwrapped": -1660.027457318168,
+    "flutter_clockwise_radians": 28.97294480371167
+  },
+  {
+    "time": 4.7666736,
+    "unity_degrees_unwrapped": -1663.5239138677255,
+    "flutter_clockwise_radians": 29.033969482654367
+  },
+  {
+    "time": 4.7833405,
+    "unity_degrees_unwrapped": -1666.9821626385522,
+    "flutter_clockwise_radians": 29.09432731005834
+  },
+  {
+    "time": 4.8000073,
+    "unity_degrees_unwrapped": -1670.401476914508,
+    "flutter_clockwise_radians": 29.154005602334216
+  },
+  {
+    "time": 4.816674,
+    "unity_degrees_unwrapped": -1673.7820910079242,
+    "flutter_clockwise_radians": 29.213008449003652
+  },
+  {
+    "time": 4.833341,
+    "unity_degrees_unwrapped": -1677.1235157604478,
+    "flutter_clockwise_radians": 29.271327312642825
+  },
+  {
+    "time": 4.850008,
+    "unity_degrees_unwrapped": -1680.4255319787649,
+    "flutter_clockwise_radians": 29.32895836760671
+  },
+  {
+    "time": 4.866675,
+    "unity_degrees_unwrapped": -1683.6879715865794,
+    "flutter_clockwise_radians": 29.385898680410545
+  },
+  {
+    "time": 4.883342,
+    "unity_degrees_unwrapped": -1686.9106306109136,
+    "flutter_clockwise_radians": 29.442144691054285
+  },
+  {
+    "time": 4.9000087,
+    "unity_degrees_unwrapped": -1690.0932569866754,
+    "flutter_clockwise_radians": 29.497692000172144
+  },
+  {
+    "time": 4.9166756,
+    "unity_degrees_unwrapped": -1693.2357099589929,
+    "flutter_clockwise_radians": 29.552538151128164
+  },
+  {
+    "time": 4.9333425,
+    "unity_degrees_unwrapped": -1696.3375135401238,
+    "flutter_clockwise_radians": 29.606674836369052
+  },
+  {
+    "time": 4.9500093,
+    "unity_degrees_unwrapped": -1699.3985486465012,
+    "flutter_clockwise_radians": 29.660099977494472
+  },
+  {
+    "time": 4.966676,
+    "unity_degrees_unwrapped": -1702.418814763388,
+    "flutter_clockwise_radians": 29.71281356552057
+  },
+  {
+    "time": 4.983343,
+    "unity_degrees_unwrapped": -1705.397582186756,
+    "flutter_clockwise_radians": 29.764802864709488
+  },
+  {
+    "time": 5.00001,
+    "unity_degrees_unwrapped": -1708.3351896185698,
+    "flutter_clockwise_radians": 29.816073786525696
+  },
+  {
+    "time": 5.016677,
+    "unity_degrees_unwrapped": -1711.230948230274,
+    "flutter_clockwise_radians": 29.866614308642912
+  },
+  {
+    "time": 5.033344,
+    "unity_degrees_unwrapped": -1714.0848343508985,
+    "flutter_clockwise_radians": 29.91642401792478
+  },
+  {
+    "time": 5.0500107,
+    "unity_degrees_unwrapped": -1716.896719935255,
+    "flutter_clockwise_radians": 29.965500679561167
+  },
+  {
+    "time": 5.0666776,
+    "unity_degrees_unwrapped": -1719.6660065810368,
+    "flutter_clockwise_radians": 30.013833849461566
+  },
+  {
+    "time": 5.0833445,
+    "unity_degrees_unwrapped": -1722.3928153135153,
+    "flutter_clockwise_radians": 30.06142563991545
+  },
+  {
+    "time": 5.1000113,
+    "unity_degrees_unwrapped": -1725.0770143849418,
+    "flutter_clockwise_radians": 30.108273751490817
+  },
+  {
+    "time": 5.116678,
+    "unity_degrees_unwrapped": -1727.7177692896576,
+    "flutter_clockwise_radians": 30.154363619316296
+  },
+  {
+    "time": 5.133345,
+    "unity_degrees_unwrapped": -1730.3154258035534,
+    "flutter_clockwise_radians": 30.199701278319655
+  },
+  {
+    "time": 5.150012,
+    "unity_degrees_unwrapped": -1732.8696206593083,
+    "flutter_clockwise_radians": 30.244280388290083
+  },
+  {
+    "time": 5.166679,
+    "unity_degrees_unwrapped": -1735.3798754723837,
+    "flutter_clockwise_radians": 30.288092599842283
+  },
+  {
+    "time": 5.183346,
+    "unity_degrees_unwrapped": -1737.846428461012,
+    "flutter_clockwise_radians": 30.33114207066875
+  },
+  {
+    "time": 5.2000127,
+    "unity_degrees_unwrapped": -1740.26842520988,
+    "flutter_clockwise_radians": 30.373413888409097
+  },
+  {
+    "time": 5.2166796,
+    "unity_degrees_unwrapped": -1742.646232424876,
+    "flutter_clockwise_radians": 30.414914453288453
+  },
+  {
+    "time": 5.2333465,
+    "unity_degrees_unwrapped": -1744.9793638395317,
+    "flutter_clockwise_radians": 30.45563527835591
+  },
+  {
+    "time": 5.2500134,
+    "unity_degrees_unwrapped": -1747.26744629806,
+    "flutter_clockwise_radians": 30.495569850814352
+  },
+  {
+    "time": 5.2666802,
+    "unity_degrees_unwrapped": -1749.5104916925586,
+    "flutter_clockwise_radians": 30.53471837822005
+  },
+  {
+    "time": 5.283347,
+    "unity_degrees_unwrapped": -1751.7081253448644,
+    "flutter_clockwise_radians": 30.573074321205414
+  },
+  {
+    "time": 5.300014,
+    "unity_degrees_unwrapped": -1753.8602251431198,
+    "flutter_clockwise_radians": 30.610635548516477
+  },
+  {
+    "time": 5.316681,
+    "unity_degrees_unwrapped": -1755.9664279009323,
+    "flutter_clockwise_radians": 30.64739572135489
+  },
+  {
+    "time": 5.333348,
+    "unity_degrees_unwrapped": -1758.0263622574716,
+    "flutter_clockwise_radians": 30.683348358251454
+  },
+  {
+    "time": 5.3500147,
+    "unity_degrees_unwrapped": -1760.0404027937325,
+    "flutter_clockwise_radians": 30.718499996877835
+  },
+  {
+    "time": 5.3666816,
+    "unity_degrees_unwrapped": -1762.007566611421,
+    "flutter_clockwise_radians": 30.752833482422602
+  },
+  {
+    "time": 5.3833485,
+    "unity_degrees_unwrapped": -1763.928221840067,
+    "flutter_clockwise_radians": 30.78635523995812
+  },
+  {
+    "time": 5.4000154,
+    "unity_degrees_unwrapped": -1765.8017529672668,
+    "flutter_clockwise_radians": 30.819054526766358
+  },
+  {
+    "time": 5.4166822,
+    "unity_degrees_unwrapped": -1767.6281737975278,
+    "flutter_clockwise_radians": 30.85093158378142
+  },
+  {
+    "time": 5.433349,
+    "unity_degrees_unwrapped": -1769.406979909359,
+    "flutter_clockwise_radians": 30.881977607187473
+  },
+  {
+    "time": 5.450016,
+    "unity_degrees_unwrapped": -1771.1380587455064,
+    "flutter_clockwise_radians": 30.912190632489835
+  },
+  {
+    "time": 5.466683,
+    "unity_degrees_unwrapped": -1772.8212847718733,
+    "flutter_clockwise_radians": 30.9415684687052
+  },
+  {
+    "time": 5.48335,
+    "unity_degrees_unwrapped": -1774.45653960744,
+    "flutter_clockwise_radians": 30.970109049694994
+  },
+  {
+    "time": 5.5000167,
+    "unity_degrees_unwrapped": -1776.0433303639757,
+    "flutter_clockwise_radians": 30.997803772936756
+  },
+  {
+    "time": 5.5166836,
+    "unity_degrees_unwrapped": -1777.5814190988376,
+    "flutter_clockwise_radians": 31.02464848554793
+  },
+  {
+    "time": 5.5333505,
+    "unity_degrees_unwrapped": -1779.0707997296925,
+    "flutter_clockwise_radians": 31.050643081371778
+  },
+  {
+    "time": 5.5500174,
+    "unity_degrees_unwrapped": -1780.5108622446767,
+    "flutter_clockwise_radians": 31.075776913692803
+  },
+  {
+    "time": 5.5666842,
+    "unity_degrees_unwrapped": -1781.901732010785,
+    "flutter_clockwise_radians": 31.100052170577836
+  },
+  {
+    "time": 5.583351,
+    "unity_degrees_unwrapped": -1783.2432844990306,
+    "flutter_clockwise_radians": 31.123466678586045
+  },
+  {
+    "time": 5.600018,
+    "unity_degrees_unwrapped": -1784.5347886574905,
+    "flutter_clockwise_radians": 31.146007678454367
+  },
+  {
+    "time": 5.616685,
+    "unity_degrees_unwrapped": -1785.7763654433138,
+    "flutter_clockwise_radians": 31.167677281283314
+  },
+  {
+    "time": 5.633352,
+    "unity_degrees_unwrapped": -1786.967649762896,
+    "flutter_clockwise_radians": 31.188469114987402
+  },
+  {
+    "time": 5.6500187,
+    "unity_degrees_unwrapped": -1788.1085198619255,
+    "flutter_clockwise_radians": 31.208381054553023
+  },
+  {
+    "time": 5.6666856,
+    "unity_degrees_unwrapped": -1789.1987292825636,
+    "flutter_clockwise_radians": 31.227408798479416
+  },
+  {
+    "time": 5.6833525,
+    "unity_degrees_unwrapped": -1790.2381579299845,
+    "flutter_clockwise_radians": 31.245550250716462
+  },
+  {
+    "time": 5.7000194,
+    "unity_degrees_unwrapped": -1791.2261954909945,
+    "flutter_clockwise_radians": 31.262794759289463
+  },
+  {
+    "time": 5.7166862,
+    "unity_degrees_unwrapped": -1792.1629632152235,
+    "flutter_clockwise_radians": 31.279144440403673
+  },
+  {
+    "time": 5.733353,
+    "unity_degrees_unwrapped": -1793.0479729906372,
+    "flutter_clockwise_radians": 31.294590774896974
+  },
+  {
+    "time": 5.75002,
+    "unity_degrees_unwrapped": -1793.8813471448977,
+    "flutter_clockwise_radians": 31.309135897789847
+  },
+  {
+    "time": 5.766687,
+    "unity_degrees_unwrapped": -1794.662353359859,
+    "flutter_clockwise_radians": 31.322767027719458
+  },
+  {
+    "time": 5.783354,
+    "unity_degrees_unwrapped": -1795.3912350631874,
+    "flutter_clockwise_radians": 31.335488413300084
+  },
+  {
+    "time": 5.8000207,
+    "unity_degrees_unwrapped": -1796.0675046393194,
+    "flutter_clockwise_radians": 31.347291544034654
+  },
+  {
+    "time": 5.8166876,
+    "unity_degrees_unwrapped": -1796.6911616700281,
+    "flutter_clockwise_radians": 31.35817641262373
+  },
+  {
+    "time": 5.8333545,
+    "unity_degrees_unwrapped": -1797.2614742753372,
+    "flutter_clockwise_radians": 31.368130245352003
+  },
+  {
+    "time": 5.8500214,
+    "unity_degrees_unwrapped": -1797.7788083676785,
+    "flutter_clockwise_radians": 31.377159428596173
+  },
+  {
+    "time": 5.8666883,
+    "unity_degrees_unwrapped": -1798.2425535873929,
+    "flutter_clockwise_radians": 31.385253309570576
+  },
+  {
+    "time": 5.883355,
+    "unity_degrees_unwrapped": -1798.652709895415,
+    "flutter_clockwise_radians": 31.392411887593386
+  },
+  {
+    "time": 5.900022,
+    "unity_degrees_unwrapped": -1799.0089110343722,
+    "flutter_clockwise_radians": 31.398628770267543
+  },
+  {
+    "time": 5.916689,
+    "unity_degrees_unwrapped": -1799.3107910049298,
+    "flutter_clockwise_radians": 31.403897569699595
+  },
+  {
+    "time": 5.933356,
+    "unity_degrees_unwrapped": -1799.5583495520495,
+    "flutter_clockwise_radians": 31.408218281438288
+  },
+  {
+    "time": 5.9500227,
+    "unity_degrees_unwrapped": -1799.7513427472154,
+    "flutter_clockwise_radians": 31.411586648127876
+  },
+  {
+    "time": 5.9666896,
+    "unity_degrees_unwrapped": -1799.8894042849747,
+    "flutter_clockwise_radians": 31.413996276532142
+  },
+  {
+    "time": 5.9833565,
+    "unity_degrees_unwrapped": -1799.9725341777053,
+    "flutter_clockwise_radians": 31.41544716686712
+  },
+  {
+    "time": 6,
+    "unity_degrees_unwrapped": -1800.0000000000005,
+    "flutter_clockwise_radians": 31.41592653589794
+  }
+]
