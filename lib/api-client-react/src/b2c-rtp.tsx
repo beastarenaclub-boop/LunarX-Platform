@@ -6,16 +6,16 @@ type Policy = { gameCode: string; playerRtpBps: number | null; revision: number 
 type Policies = { policies: Policy[] };
 const key = ["b2c-rtp"] as const;
 const queryOptions = { queryKey:key,queryFn:({signal}:{signal:AbortSignal})=>customFetch<Policies>("/api/game/b2c-rtp",{signal,cache:"no-store"}),staleTime:0 };
-const names: Record<string,string> = {jetx:"JetX",fury:"Fury Flight",mines:"Mines",plinko:"Plinko",dice:"Dice",ludo:"Ludo","lucky-7-live":"Lucky 7 Live","wheel-2-live":"Wheel 2.0","poker-20-20":"Poker 20/20","crazy-time":"Crazy Time","chicken-road":"Chicken Road","7up7down":"7 Up Down","coin-flip":"Coin Flip",wingo:"Colour"};
+const names: Record<string,string> = {lunar:"Aviator / Lunar",jetx:"JetX",fury:"Fury Flight",mines:"Mines",plinko:"Plinko",dice:"Dice",ludo:"Ludo","lucky-7-live":"Lucky 7 Live","wheel-2-live":"Wheel 2.0","poker-20-20":"Poker 20/20","crazy-time":"Crazy Time","chicken-road":"Chicken Road","7up7down":"7 Up Down","coin-flip":"Coin Flip",wingo:"Colour"};
 const value = (policy:Policy) => policy.playerRtpBps === null ? "" : String(policy.playerRtpBps/100);
 
-export function B2cRtp() {
+export function B2cRtp({ embedded = false, initialGame = "jetx" }: { embedded?: boolean; initialGame?: string } = {}) {
  const query = useQuery({...queryOptions,refetchInterval:5000,retry:false});
- const [game,setGame] = useState("jetx");
+ const [game,setGame] = useState(initialGame);
  const policy = query.data?.policies.find(p=>p.gameCode===game);
  return <section className="b2c-rtp" aria-label="B2C RTP settings">
   <style>{`.b2c-rtp,.b2c-rtp *{box-sizing:border-box}.b2c-rtp{font-family:system-ui,sans-serif;max-width:800px;color:#172b3a;background:white;border:1px solid #dce4e8;border-radius:12px;padding:24px}.b2c-rtp h1{font-size:24px;font-weight:700;margin-bottom:12px}.b2c-rtp h2{font-size:20px;font-weight:700;margin:20px 0 12px}.b2c-rtp p{line-height:1.6;margin:12px 0}.b2c-rtp label{display:grid;gap:6px;margin:16px 0;font-weight:600}.b2c-rtp input,.b2c-rtp select{width:100%;padding:10px;border:1px solid #acbdc9;border-radius:6px;background:white;color:#172b3a}.b2c-rtp button{padding:10px 18px;border:1px solid #acbdc9;border-radius:6px;margin:4px 8px 4px 0}.b2c-rtp button[type=submit]{background:#047857;color:white;border-color:#047857}.b2c-rtp button:disabled{opacity:.5;cursor:not-allowed}.b2c-rtp [role=alert]{color:#b42318}.b2c-rtp [role=status]{color:#047857}.b2c-rtp .rtp-saved{background:#edf7f2;border-radius:8px;padding:12px}@media(max-width:480px){.b2c-rtp{padding:16px}}`}</style>
-  <h1>B2C RTP</h1>
+  {embedded ? <h2>B2C player RTP</h2> : <h1>B2C RTP</h1>}
   <p>Set player RTP separately for each B2C game. These settings apply only to B2C players; B2B masters keep their own policies.</p>
   <p>New rounds use the saved target. Accepted bets and active rounds keep their original terms. Actual returns and profit are not guaranteed; rounding and payout caps can reduce returns. Ludo uses this as the pool return, with the remaining percentage as commission.</p>
   {query.isPending && <p>Loading RTP settings...</p>}

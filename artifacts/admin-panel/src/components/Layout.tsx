@@ -59,7 +59,7 @@ const NAV = [
   { href: "/games", label: "Games", icon: ToggleRight },
   { href: "/lottery", label: "Irland Lotto", icon: Dice5 },
   { href: "/prize-lotto", label: "Prize Lotto", icon: Dice5 },
-  { href: "/b2c-rtp", label: "B2C RTP", icon: Shield },
+  { href: "/b2c-rtp", label: "B2C Game Control", icon: Shield },
   { href: "/game-control", label: "Game Control", icon: Shield },
   { href: "/rtp", label: "Game Defaults", icon: Shield },
   { href: "/agents", label: "Legacy Agents", icon: UserCheck },

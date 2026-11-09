@@ -475,6 +475,10 @@ function Editor({
 }
 
 export default function GameControl() {
+  return <GameControlPanel />;
+}
+
+export function GameControlPanel({ embedded = false, initialGame = "" }: { embedded?: boolean; initialGame?: string } = {}) {
   const qc = useQueryClient(),
     { toast } = useToast();
   const query = useQuery<Response>({
@@ -482,7 +486,7 @@ export default function GameControl() {
     queryFn: () => customFetch(API),
   });
   const [search, setSearch] = useState(""),
-    [selected, setSelected] = useState("");
+    [selected, setSelected] = useState(initialGame);
   const [budgetMode, setBudgetMode] = useState("per_game"),
     [budget, setBudget] = useState("");
   useEffect(() => {
@@ -528,7 +532,7 @@ export default function GameControl() {
     <div className="space-y-6 max-w-6xl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Game Control</h1>
+          {embedded ? <h2 className="text-xl font-semibold">Result modes and budgets</h2> : <h1 className="text-2xl font-semibold">Game Control</h1>}
           <p className="text-slate-500">
             Result modes, RTP targets and loss budgets across your games.
           </p>

@@ -4,6 +4,18 @@ Integrated from `handoff-kit/game-integration-kit-2026-11-09.zip`.
 
 ## Operator entry point
 
+The same result controls are also available under **B2C Game Control**
+(`/admin/b2c-rtp`). The **Result modes & budgets** tab opens American Roulette
+initially and uses the existing shared Game Control settings. These table modes
+apply to shared rounds for both B2C and agent players; this is not a separate
+result stream. The **B2C player RTP** tab retains the existing B2C-only policies
+and opens Aviator / Lunar initially. Switching tabs preserves unsaved edits and
+does not save anything. Current percentages, modes and budgets remain unchanged.
+
+After building the admin app, run `node tools/test-b2c-controls.mjs` for desktop
+and mobile coverage of settings saves, draft retention, existing-page consistency
+and admin access restrictions.
+
 Open **Operator Console → Game Control** (`/admin/game-control`) as an admin or super admin. All configured games appear in the list. Support and player accounts cannot read or change the engine settings.
 
 For connected games, select Normal, Collect, Distribute, Auto or RTP, edit the parameters and save. Settings take effect at the next result decision. The 90% RTP preset sets a 1,000-basis-point house hold. This is a target over settled history, not a guaranteed individual return.
