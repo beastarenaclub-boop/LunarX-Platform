@@ -220,7 +220,6 @@ function PokerTable({
       data-phase={phase ?? "loading"}
     >
       <div className="pk-shell">
-        <RtpDisclosure houseEdge={data?.masterRtpBps == null ? undefined : 1 - data.masterRtpBps / 10000} />
         {data?.masterRtpBps != null && <p style={{padding:8,fontSize:12}}>Posted odds are total returns. Main bets split ties at these odds. Each confirmed bet keeps its accepted rates.</p>}
         <header className="pk-header">
           <Link href="/" aria-label="Back to lobby" className="pk-home">
@@ -615,6 +614,7 @@ function PokerTable({
                 ? "Check the revealed cards against the pre-round commitment."
                 : "Your current table and game information."}
           </DialogDescription>
+          {info === "rules" && <RtpDisclosure inRules houseEdge={data?.masterRtpBps == null ? undefined : 1 - data.masterRtpBps / 10000} />}
           {info === "rules" && (
             <div className="pk-rule-copy">
               <p>

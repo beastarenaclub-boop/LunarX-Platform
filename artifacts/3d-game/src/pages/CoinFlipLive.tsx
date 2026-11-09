@@ -404,7 +404,6 @@ export default function CoinFlipLive() {
       : "");
   return (
     <div className="cf-page cfl-page" data-testid="collection-page">
-      <RtpDisclosure houseEdge={snapshot?.config?.masterRtpBps === undefined ? undefined : 1 - snapshot?.config!.masterRtpBps! / 10000} />
       <header className="cf-header">
         <div className="cf-brand">
           <Link href="/" className="cf-icon" aria-label="Back to lobby">
@@ -810,6 +809,7 @@ export default function CoinFlipLive() {
             <DialogDescription>
               Shared 30-second stadium rounds.
             </DialogDescription>
+          {panel === "rules" && <RtpDisclosure inRules houseEdge={snapshot?.config?.masterRtpBps === undefined ? undefined : 1 - snapshot?.config!.masterRtpBps! / 10000} />}
           </DialogHeader>
           {panel === "rules" ? (
             <div>

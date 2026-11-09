@@ -248,7 +248,6 @@ export default function Wheel20Live() {
       ref={root}
       data-phase={round?.phase ?? "connecting"}
     >
-      <RtpDisclosure houseEdge={round?.config?.masterRtpBps === undefined ? undefined : 1 - round?.config!.masterRtpBps! / 10000} />
       <audio
         ref={music}
         src={`${import.meta.env.BASE_URL}media/lucky7-live/lounge-loop-v1.mp3`}
@@ -622,6 +621,7 @@ export default function Wheel20Live() {
               ? "Choose your numbers, select a chip, and confirm before betting closes."
               : "Confirmed bets and settled returns from your shared wallet."}
           </DialogDescription>
+          {panel === "rules" && <RtpDisclosure inRules houseEdge={round?.config?.masterRtpBps === undefined ? undefined : 1 - round?.config!.masterRtpBps! / 10000} />}
           {panel === "rules" ? (
             <>
               <p>

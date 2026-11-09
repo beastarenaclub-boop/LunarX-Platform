@@ -20,14 +20,21 @@ async function setup(page:Page){
  });
 }
 for(const route of ["jetx","fury","mines","plinko","dice","lucky-7-live","wheel-2-live","coin-flip","7up7down","crazy-time","chicken-road","poker-20-20","wingo"]){
- test(`${route}: player sees 70% RTP on mobile`,async({page},info)=>{
+ test(`${route}: RTP is inside game information, not on the play screen`,async({page},info)=>{
   await setup(page);await page.setViewportSize({width:390,height:844});
   const errors:string[]=[];page.on('pageerror',e=>{errors.push(e.message);console.error(e.message);});
   await page.goto('/'+route);
+  await expect(page.getByTestId('rtp-disclosure').first()).not.toBeVisible();
+  await expect(page.getByText(/theoretical RTP|House edge/i).filter({visible:true})).toHaveCount(0);
+  if(route==='jetx') await page.getByRole('button',{name:'Settings',exact:true}).click();
+  if(['jetx','fury','mines','plinko','dice','wingo'].includes(route)) await page.getByTestId('btn-game-rules').first().click();
+  else await page.getByRole('button',{name:/Game rules|How to play|^Rules$/i}).first().click();
   await expect(page.getByTestId('rtp-disclosure').first()).toBeVisible();
   await expect(page.getByTestId('rtp-disclosure').first()).toContainText('70.00');
   expect(errors).toEqual([]);
-  await page.screenshot({path:info.outputPath(`${route}.png`)});
+  await page.screenshot({path:info.outputPath(`${route}-rules.png`)});
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('rtp-disclosure').first()).not.toBeVisible();
  });
 }
 test('master form saves 70% only for the selected master with revision',async({page})=>{

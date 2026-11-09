@@ -447,7 +447,6 @@ export default function CrazyTime() {
 
   return (
     <div className="ct-page" data-testid="crazy-time-page">
-      <RtpDisclosure houseEdge={round.config?.masterRtpBps === undefined ? undefined : 1 - round.config!.masterRtpBps! / 10000} />
       <header className="ct-header">
         <Link href="/" className="ct-icon-btn" aria-label="Back to lobby">
           <ArrowLeft size={20} />
@@ -842,6 +841,7 @@ export default function CrazyTime() {
                   ? "Confirmed wallet settlements for your account."
                   : "An original virtual adaptation with a 54-segment wheel."}
           </DialogDescription>
+          {modal === "rules" && <RtpDisclosure inRules houseEdge={round.config?.masterRtpBps === undefined ? undefined : 1 - round.config!.masterRtpBps! / 10000} />}
           {modal === "rules" && (
             <div className="ct-rules">
               {rulesPaytable}

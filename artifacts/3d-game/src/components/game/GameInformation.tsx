@@ -50,9 +50,9 @@ export function GameInformationTarget() {
   );
 }
 
-export function GameInformationSection({ children }: { children: ReactNode }) {
+export function GameInformationSection({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
   const context = useContext(InformationContext);
   // Embedded/standalone pages without a viewport retain their information.
-  if (!context) return <>{children}</>;
+  if (!context) return <>{fallback ?? children}</>;
   return context.target ? createPortal(children, context.target) : null;
 }

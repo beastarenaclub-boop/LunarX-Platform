@@ -263,7 +263,6 @@ export default function Lucky7Live() {
   );
   return (
     <div ref={root} className="l7-live">
-      <RtpDisclosure houseEdge={game.snapshot?.config?.masterRtpBps === undefined ? undefined : 1 - game.snapshot?.config!.masterRtpBps! / 10000} />
       <link
         rel="preload"
         as="image"
@@ -631,6 +630,7 @@ export default function Lucky7Live() {
                   ? "Confirmed bets and returns from your shared wallet."
                   : "Personalize your table experience."}
             </DialogDescription>
+          {panel === "rules" && <RtpDisclosure inRules houseEdge={game.snapshot?.config?.masterRtpBps === undefined ? undefined : 1 - game.snapshot?.config!.masterRtpBps! / 10000} />}
           </DialogHeader>
           {panel === "rules" && (
             <div className="l7-rules">

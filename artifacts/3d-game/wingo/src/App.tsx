@@ -441,11 +441,12 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+  const rtpTerms = data?.masterRtpBps != null && <p data-testid="rtp-disclosure" style={{padding:"10px 16px",fontSize:12,background:"#e8f5ec",color:"#183a29"}}>New bets: theoretical RTP {(data.masterRtpBps / 100).toFixed(2)}%, house edge {(100 - data.masterRtpBps / 100).toFixed(2)}%, before rounding. No guaranteed return or profit.</p>;
   return (
     <div
       className={`wingo-theme app${onBackToLobby ? " wingo-integrated" : ""}`}
     >
-      {data?.masterRtpBps != null && <p data-testid="rtp-disclosure" style={{padding:"10px 16px",fontSize:12,background:"#e8f5ec",color:"#183a29"}}>New bets: theoretical RTP {(data.masterRtpBps / 100).toFixed(2)}%, house edge {(100 - data.masterRtpBps / 100).toFixed(2)}%, before rounding. No guaranteed return or profit.</p>}
+      {rtpTerms && (Secondary === Fragment ? <details><summary>Game information</summary>{rtpTerms}</details> : <Secondary>{rtpTerms}</Secondary>)}
       <header className="topbar">
         <div className="topbar-inner">
           {onBackToLobby && (
@@ -1464,7 +1465,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
           <p>
             Each result is randomly selected on the server and committed before
             the reveal. The history lets you check that commitment. Past results
-            do not predict future draws. Returns include your stake; there is no extra fee. {data?.masterRtpBps != null ? `Master player RTP ${(data.masterRtpBps / 100).toFixed(2)}% before paise rounding. Every pick uses the posted total return; accepted bets keep their rates. No guaranteed return or profit.` : payoutVersion >= 4 ? "Red, Green, Big, Small and number bets return ₹1.98 per ₹1 on a win: ₹1 stake plus ₹0.98 profit. Red/Green include 0/5 and have 99% theoretical RTP; Big/Small have 99%, numbers 19.8%, and Violet 85%, before paise rounding." : payoutVersion === 3 ? "Every winning number bet from 0 to 9 returns ₹1.98 per ₹1: your ₹1 stake plus ₹0.98 profit. Number-pick theoretical RTP is 19.8%; colour and size picks remain at 85%, before paise rounding." : pricingV2 ? "Theoretical RTP is 85% on every pick, before paise rounding; it is not a guarantee per round." : ""}
+            do not predict future draws. Returns include your stake; there is no extra fee. {data?.masterRtpBps != null ? `Player RTP ${(data.masterRtpBps / 100).toFixed(2)}% before paise rounding. Every pick uses the posted total return; accepted bets keep their rates. No guaranteed return or profit.` : payoutVersion >= 4 ? "Red, Green, Big, Small and number bets return ₹1.98 per ₹1 on a win: ₹1 stake plus ₹0.98 profit. Red/Green include 0/5 and have 99% theoretical RTP; Big/Small have 99%, numbers 19.8%, and Violet 85%, before paise rounding." : payoutVersion === 3 ? "Every winning number bet from 0 to 9 returns ₹1.98 per ₹1: your ₹1 stake plus ₹0.98 profit. Number-pick theoretical RTP is 19.8%; colour and size picks remain at 85%, before paise rounding." : pricingV2 ? "Theoretical RTP is 85% on every pick, before paise rounding; it is not a guarantee per round." : ""}
           </p>
         </div>
       </Modal>
