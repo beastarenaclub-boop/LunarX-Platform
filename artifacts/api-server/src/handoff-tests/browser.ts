@@ -1,6 +1,7 @@
 import { chromium, expect } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
+import { RECONNECTED_ENGINE_GAMES } from "../services/resultEngine/scope";
 
 export async function browserChecks(base: string) {
   const shots = resolve("../../tmp/handoff-browser");
@@ -69,6 +70,21 @@ export async function browserChecks(base: string) {
     await expect(page.getByLabel("Winning digit total return")).toHaveValue(
       "9.5",
     );
+    for (const code of RECONNECTED_ENGINE_GAMES) {
+      await page.getByRole("button").filter({has:page.getByText(code,{exact:true})}).click();
+      await expect(page.getByLabel("Result mode",{exact:true})).toBeVisible();
+    }
+    await page.getByRole("button").filter({has:page.getByText("roulette",{exact:true})}).click();
+    await page.getByLabel("Result mode",{exact:true}).selectOption("auto");
+    await page.getByRole("button",{name:"Save game settings",exact:true}).click();
+    await expect(page.getByLabel("Result mode",{exact:true})).toHaveValue("auto");
+    await page.reload();
+    await page.getByRole("button").filter({has:page.getByText("roulette",{exact:true})}).click();
+    await expect(page.getByLabel("Result mode",{exact:true})).toHaveValue("auto");
+    await page.getByRole("button").filter({has:page.getByText("lunar",{exact:true})}).click();
+    await expect(page.getByLabel("Result mode",{exact:true})).toHaveCount(0);
+    await expect(page.getByRole("link",{name:"Open Game Defaults for RTP, payouts and limits"})).toBeVisible();
+    await page.getByRole("button", { name: /^fun-target/ }).click();
     await page.screenshot({
       path: resolve(shots, "admin-desktop.png"),
       fullPage: true,

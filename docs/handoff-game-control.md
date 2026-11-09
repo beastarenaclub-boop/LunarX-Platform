@@ -25,13 +25,13 @@ The existing European Roulette and Rummy remain available at their existing rout
 
 ## Engine coverage
 
-The shared result engine covers only the three selected scheduled table games:
+The shared result engine covers all 17 available scheduled tables with outcome adapters:
 
-`roulette-american`, `roulette-mini`, `fun-target`.
+`roulette-american`, `roulette-mini`, `fun-target`, `roulette`, `baccarat`, `teen-patti`, `teen-patti-live`, `teen-patti-joker`, `andar-bahar`, `lucky-7`, `lucky-7-live`, `wheel-2-live`, `coin-flip`, `7up7down`, `vegetable-bowl`, `crazy-time`, `mega-ball`.
 
-The four-game release withdraws Rummy Royale and Speed Auto Roulette. Existing Rummy and European Roulette retain their original graphics and game rules. Already funded Royale hands remain reachable at the old route until finished; new deals are disabled. Revealed Speed rounds settle on their accepted terms; interrupted unrevealed rounds refund through normal restart recovery.
+The four-game graphics selection remains: American Roulette, Mini Roulette, Fun Target and Aviator/Lunar use the new graphics; all other games keep their existing graphics. Rummy Royale Classic and Speed Auto Roulette stay withdrawn. Already funded Royale hands remain reachable at the old route until finished; new deals are disabled. Revealed Speed rounds settle on their accepted terms; interrupted unrevealed rounds refund through normal restart recovery.
 
-All pre-existing table games draw directly from their original seeds again and do not read imported Collect, Auto, RTP or forced-result settings. Their existing per-game payout/RTP settings remain available. Shared budgets include only the selected three table games. Aviator retains its independent crash RTP controls and cannot use a forced table result.
+Every listed table now reads the imported Normal, Collect, Distribute, Auto and RTP modes, result controls and shared budgets. Existing operator modes and parameters resume without resetting. Normal still uses the game's natural seed draw. Accepted rounds from the intervening rollback keep their old draw and payout path until settled. Aviator retains its independent crash RTP controls and cannot use a forced table result.
 
 Crash games, blackjack, the existing multiplayer Rummy, poker, Ludo, standalone instant games and other independent engines retain their own draw logic and existing Game Defaults controls. Game Control identifies those games and links to their settings. This follows the kit's distinction between steerable tables and games with committed draws or player-dependent outcomes.
 
@@ -47,7 +47,7 @@ Compared with the supplied selectors, unbacked-result streaks cannot force an ex
 
 ## Migration, builds and checks
 
-`0065_handoff_game_control.sql` is additive. `0067_four_selected_games.sql` disables only the two withdrawn games and adjusts combined budget floors to preserve remaining headroom after excluding old-game banks. No wallets, accepted bets, game settings or history are deleted. Previously managed rounds retain their accepted prices and can complete their historical bank entries. New legacy rounds use the pre-kit payout path.
+`0065_handoff_game_control.sql` is additive. `0067_four_selected_games.sql` withdrew the two extra games and temporarily disconnected the existing table engines. `0068_restore_table_engines.sql` reconnects the existing tables, adds their historical banks back to combined budget floors without changing remaining headroom, and applies an existing same-each allowance to the reconnected games. Individual settings, wallets, accepted bets and history remain intact. Old accepted rounds retain their saved draw/pricing version; new rounds use the imported engine and exact accepted payout path.
 
 For a configured environment, apply migrations with `pnpm --filter @workspace/db migrate`, then build/restart the API, player and admin apps. The existing API Docker entrypoint runs migrations before starting. This change does not itself deploy or modify a running database.
 
@@ -59,4 +59,4 @@ pnpm handoff:test
 pnpm handoff:test:browser
 ```
 
-The browser command expects production player/admin builds. Integration tests use isolated PGlite databases, including upgrades from the 0064 schema through the four-game scope change. They cover the three retained table controls, original seed draws for all 14 pre-existing table adapters despite stale forced/Collect settings, restricted budgets, permissions, accepted pricing, wallet totals, retry safety and settlement of withdrawn-game bets. Browser checks save/reload settings, verify the lobby selection and exercise desktop/mobile controls. Screenshots are written to `tmp/handoff-browser`.
+The browser command expects production player/admin builds. Integration tests use isolated PGlite databases, including upgrades from the 0064 schema through withdrawal and reconnection. They cover every table adapter, all five mode settings on the reconnected games, funded bets, forced and natural outcomes, exact accepted payouts, wallet/bank totals, retry safety, old-round compatibility and shared budgets. Browser checks save/reload both existing and new game controls and verify the retained lobby graphics at desktop/mobile sizes. Screenshots are written to `tmp/handoff-browser`.

@@ -279,7 +279,7 @@ export function getGameRules(code: string): GameRules {
     "vegetable-bowl": "Normal/Hard return 1.87× and Risk returns 18.96× including stake. Junk loses every spot.",
     "forex-trading": "New rounds have independent 50/50 UP/DOWN results. Correct predictions return 1.70× including stake; incorrect predictions return zero. Market quotes and bet totals do not decide results.",
   };
-  const managed = new Set(["roulette-american", "roulette-mini", "fun-target"]).has(code);
+  const managed = new Set(["roulette-american", "roulette-mini", "fun-target", "roulette", "baccarat", "teen-patti", "teen-patti-live", "teen-patti-joker", "andar-bahar", "lucky-7", "lucky-7-live", "wheel-2-live", "coin-flip", "7up7down", "vegetable-bowl", "crazy-time", "mega-ball"]).has(code);
   return { ...rules, ...(managed ? { fairness: "This game supports configured result modes: Normal, Collect, Distribute, Auto and RTP. Managed results can depend on the accepted bets and settled history. Seed-only verification applies to natural draws; it does not verify managed results." } : {}), ...(payouts[code] ? { payouts: payouts[code] } : {}),
     ...(code === "roulette" ? { limits: "₹10 minimum on every selection. Single numbers (including zero): ₹20,000 maximum; multi-number and outside selections: ₹1,00,000 maximum. Limits combine all bets on the same selection per player per round. The overall table slip limit also applies. Auto bet sends only your selected chips for the current round; a new round requires a new selection." } : {}),
     rtp: managed ? "Posted payouts are fixed when bets are accepted. Normal mode uses the natural draw; configured result modes can change outcome frequencies. RTP settings are long-run targets, not guarantees for a round or session."

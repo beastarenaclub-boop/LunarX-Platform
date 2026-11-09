@@ -477,6 +477,13 @@
       "when": 1794268800005,
       "tag": "0067_four_selected_games",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1794268800006,
+      "tag": "0068_restore_table_engines",
+      "breakpoints": true
     }
   ]
 }

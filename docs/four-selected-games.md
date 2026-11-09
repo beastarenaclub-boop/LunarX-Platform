@@ -1,5 +1,7 @@
 # Four selected games
 
+Historical release note: the later table-engine restoration keeps this graphics selection but reconnects the imported result logic for every available table adapter. See `table-engine-restoration.md` for current behavior.
+
 Keep American Roulette, Mini Roulette, Fun Target and Aviator/Lunar from the handoff release. Restore every other existing game's pre-handoff graphics and draw/payout path, using production commit `9d3401defe792f9af100ea84a2f8afa96375c931` as the reference.
 
 The original Rummy and European Roulette stay in the lobby. Rummy Royale and Speed Auto Roulette are withdrawn; no new stakes are accepted. Existing paid Royale hands can still finish. Table recovery completes already revealed rounds and refunds interrupted unrevealed rounds. Accepted pricing, wallet receipts, bet history and bank history remain intact.

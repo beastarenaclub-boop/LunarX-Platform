@@ -45,7 +45,7 @@ test('Lunar: migration, saved settings, committed rounds, ownership, wallet and 
   app.use('/api/game',gameRouter); app.use('/api/crash',crashRouter); app.use('/api/bets',betsRouter); app.use('/api/wallet',walletRouter);
   app.use(errorHandler);
   if(process.env.LUNAR_BROWSER){
-    const web=resolve(process.env.FOUR_GAMES_BROWSER ? '../../tmp/four-games-release-web' : '../../tmp/lunar-release-web');
+    const web=resolve(process.env.TABLE_ENGINES_BROWSER ? '../../tmp/table-engines-release-web' : process.env.FOUR_GAMES_BROWSER ? '../../tmp/four-games-release-web' : '../../tmp/lunar-release-web');
     app.use(express.static(web)); app.get(/^(?!\/api\/).*/ ,(_req,res)=>res.sendFile(resolve(web,'index.html')));
   }
   const server=app.listen(0,'127.0.0.1'); await new Promise<void>(r=>server.once('listening',r));

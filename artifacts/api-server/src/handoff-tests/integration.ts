@@ -69,7 +69,7 @@ test("New game routes work in isolated demo sessions while admin controls stay p
 after(async () => {
   await memory.close();
 });
-test("Migration 0065 upgrades the prior schema and preserves existing game settings", async () => {
+test("Migrations preserve settings and budget headroom through withdrawal and engine reconnection", async () => {
   const prior = new PGlite();
   try {
     await prior.exec(
@@ -113,6 +113,21 @@ test("Migration 0065 upgrades the prior schema and preserves existing game setti
     assert.equal(3000n - BigInt(budgets.rows[0].floor_paise), 10000n, "Combined budget headroom survives removal of legacy banks");
     assert.equal(String(budgets.rows[1].floor_paise), "1500");
     assert.equal((await prior.query<{count:number}>("SELECT count(*)::int AS count FROM game_config WHERE game_code IN ('rummy-royale','speed-auto-roulette') AND enabled")).rows[0].count, 0);
+    const reconnect = await readFile(resolve("../../lib/db/drizzle/0068_restore_table_engines.sql"), "utf8");
+    await prior.exec("BEGIN; SAVEPOINT before_reconnect;");
+    await prior.exec(reconnect);
+    const combined = (await prior.query<{floor_paise:bigint}>("SELECT floor_paise FROM engine_bank_budget WHERE scope='local'")).rows[0];
+    assert.equal(String(combined.floor_paise), "2000");
+    assert.equal(12000n - BigInt(combined.floor_paise), 10000n, "Reconnected banks must not add or remove shared headroom");
+    assert.deepEqual((await prior.query("SELECT * FROM game_engine_config WHERE stream_key IN ('roulette','roulette-american','roulette-mini') ORDER BY stream_key")).rows, settingsBefore);
+    assert.equal((await prior.query<{count:number}>("SELECT count(*)::int AS count FROM game_config WHERE game_code IN ('rummy-royale','speed-auto-roulette') AND enabled")).rows[0].count, 0);
+    await prior.exec("ROLLBACK TO SAVEPOINT before_reconnect; UPDATE engine_bank_budget SET mode='same_each',floor_paise=1500 WHERE scope='local';");
+    await prior.exec(reconnect);
+    const restoredFloor = (await prior.query<{min_bank_floor_paise:bigint}>("SELECT min_bank_floor_paise FROM game_engine_config WHERE stream_key='roulette'")).rows[0];
+    assert.equal(String(restoredFloor.min_bank_floor_paise), "7500");
+    assert.equal((await prior.query<{min_bank_floor_paise:bigint}>("SELECT min_bank_floor_paise FROM game_engine_config WHERE stream_key='roulette-american'")).rows[0].min_bank_floor_paise.toString(), "0");
+    assert.equal((await prior.query<{count:number}>("SELECT count(*)::int AS count FROM game_engine_config")).rows[0].count, 16);
+    await prior.exec("ROLLBACK;");
   } finally {
     await prior.close();
   }
@@ -140,7 +155,7 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
     refId: "fund",
   });
   const supported = RESULT_ENGINE_GAMES;
-  assert.equal(supported.length, 3);
+  assert.equal(supported.length, 17);
   for (const code of supported) {
     const state = await engineStateFor(code, null);
     assert.equal(state.mode, "normal");
@@ -197,9 +212,9 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
     app.get("/admin/{*path}", (_req, res) =>
       res.sendFile(resolve("../admin-panel/dist/public/index.html")),
     );
-    app.use(express.static(resolve(process.env.FOUR_GAMES_BROWSER ? "../../tmp/four-games-release-web" : "../3d-game/dist/public")));
+    app.use(express.static(resolve(process.env.TABLE_ENGINES_BROWSER ? "../../tmp/table-engines-release-web" : process.env.FOUR_GAMES_BROWSER ? "../../tmp/four-games-release-web" : "../3d-game/dist/public")));
     app.get(/^(?!\/api\/).*/, (_req, res) =>
-      res.sendFile(resolve(process.env.FOUR_GAMES_BROWSER ? "../../tmp/four-games-release-web/index.html" : "../3d-game/dist/public/index.html")),
+      res.sendFile(resolve(process.env.TABLE_ENGINES_BROWSER ? "../../tmp/table-engines-release-web/index.html" : process.env.FOUR_GAMES_BROWSER ? "../../tmp/four-games-release-web/index.html" : "../3d-game/dist/public/index.html")),
     );
   }
   const server = app.listen(0, "127.0.0.1");
@@ -421,7 +436,8 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
       budgetPaise: "50000",
       updatedBy: "admin",
     });
-    assert.equal((await engineStateFor("roulette",null)).minBankFloorPaise, 0n, "Shared budgets must never edit old game controls");
+    assert.equal((await engineStateFor("roulette",null)).bankPaise - (await engineStateFor("roulette",null)).minBankFloorPaise, 50000n, "Shared budgets must include reconnected games");
+    assert.equal((await engineStateFor("speed-auto-roulette",null)).minBankFloorPaise, 0n, "Withdrawn games stay outside shared controls");
     assert.deepEqual((await bankBudgetView(null)).games.map(g=>g.gameCode).sort(), [...RESULT_ENGINE_GAMES].sort());
     const before = await engineStateFor("fun-target", null);
     await settleBank({

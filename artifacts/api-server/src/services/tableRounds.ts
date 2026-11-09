@@ -153,7 +153,7 @@ export function isTableGame(code: string): code is TableGameCode {
 
 /** Config snapshot persisted on every round row. */
 export interface RoundConfigSnapshot {
-  /** New legacy rounds use the pre-kit payout path; accepted older rounds retain theirs. */
+  /** Rounds accepted during the graphics rollback retain their original draw/pricing. */
   legacyRulesVersion?: 1;
   maxPerSpotPaise?: string;
   paytable?: Record<string, number>;
@@ -940,7 +940,7 @@ export async function revealTableRound(round: TableRound): Promise<TableRound> {
     const adapter = ADAPTERS[round.gameCode as Exclude<TableGameCode, "blackjack">];
     const cfg = roundCfg(round);
     const derive = (seed: { serverSeed: string; clientSeed: string; nonce: number }) => adapter.derive(seed.serverSeed, seed.clientSeed, seed.nonce, cfg);
-    if (usesResultEngine(round.gameCode)) {
+    if (usesResultEngine(round.gameCode) && cfg.legacyRulesVersion !== 1) {
     decision = await decideOutcomeFor({ gameCode: round.gameCode, partnerId: null, roundId: round.id,
       seed: round, space: tableOutcomeSpace(round.gameCode, derive), drawHonest: () => derive(round),
       payoutFor: (bets, result, slip) => {
@@ -950,7 +950,7 @@ export async function revealTableRound(round: TableRound): Promise<TableRound> {
     });
     outcome = decision.outcome;
     } else {
-      // Restore the original seed draw for every pre-existing table game.
+      // Honour rounds already accepted under the original draw rules.
       outcome = derive(round);
     }
   }
@@ -1180,7 +1180,7 @@ export async function finishTableRound(round: TableRound): Promise<TableRound | 
       totalPayout: sql`(select coalesce(sum(payout_amount),0) from table_round_bets where round_id = ${round.id} and status = 'settled')`,
     }).where(and(eq(tableRoundsTable.id, round.id), eq(tableRoundsTable.phase, "settling"))).returning();
     if (done && done.gameCode !== "blackjack") {
-      const [priorDecision] = usesResultEngine(done.gameCode) ? [true] : await tx.select({id:roundDecisionTable.id})
+      const [priorDecision] = usesResultEngine(done.gameCode) && roundCfg(done).legacyRulesVersion !== 1 ? [true] : await tx.select({id:roundDecisionTable.id})
         .from(roundDecisionTable).where(eq(roundDecisionTable.roundId,done.id)).limit(1);
       // Finish the ledger of an already-managed round, but never connect a
       // newly created legacy round to the imported bank or result engine.
