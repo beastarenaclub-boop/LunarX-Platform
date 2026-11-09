@@ -6,7 +6,8 @@
   import * as design from '/src/game/gameSoundDesign.ts';
   import * as recordings from '/src/game/publicDemoSounds.ts';
   import * as seven from '/src/game/sevenSoundDesign.ts';
-  window.soundTest = { audio, design, recordings, seven, events: [], sources: [] };
+  import * as lunarKit from '/src/game/lunarKitSounds.ts';
+  window.soundTest = { audio, design, recordings, seven, lunarKit, events: [], sources: [] };
   const start = AudioBufferSourceNode.prototype.start;
   AudioBufferSourceNode.prototype.start = function(...args) {
     const entry = { loop: this.loop, ended: false, length: this.buffer?.length ?? 0, offset: args[1] ?? 0, duration: args[2] ?? this.buffer?.duration ?? 0 };

@@ -29,3 +29,16 @@ debit, exact auto-cashout/loss settlement, replay protection and late bets in
 PGlite. `--browser` uses the prepared production player bundle to verify the
 lobby entry, desktop/mobile kit interface, actual bet placement, reload
 recovery and fairness dialog. Test funds and database are isolated.
+
+The Lunar audio integration uses the handoff archive's exact `takeoff.mp3`,
+`flyAway.mp3`, `cashout.mp3`, `click.mp3` and `music/ambient.mp3` recordings.
+Their checksums are stored in `src/assets/audio/lunar-kit/manifest.json`.
+The kit's recorded flight cues replace the previous generated Lunar sounds;
+its continuous synthesized engine hum remains disabled. Background music
+loops with the kit's two-second fade and follows the existing Music control.
+Sound mute, browser gesture unlock, hidden-tab handling and route cleanup
+continue through the shared audio context. Other game sound packs are unchanged.
+
+`lunar-kit-audio.spec.ts` verifies archive checksums, exact decoded waveforms,
+audible flight/music recordings, no extra engine loop, mute/music controls,
+navigation cleanup and failed/late downloads.

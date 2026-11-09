@@ -1,0 +1,30 @@
+{
+  "archive": "handoff-kit/game-integration-kit-2026-11-09.zip",
+  "files": {
+    "click.mp3": {
+      "archivePath": "client/src/assets/audio/click.mp3",
+      "bytes": 8821,
+      "sha256": "b8469ab76c6d001c83d7c8650e17bacc65217151dcbe7c33ec0018a7aef835ea"
+    },
+    "takeoff.mp3": {
+      "archivePath": "client/src/assets/audio/takeoff.mp3",
+      "bytes": 58558,
+      "sha256": "3a4c5c966c62acc15aaf9c6f6ed6f77b8266bd2a0d5fa821a09684a2fe00c7c9"
+    },
+    "cashout.mp3": {
+      "archivePath": "client/src/assets/audio/cashout.mp3",
+      "bytes": 17180,
+      "sha256": "dd35c8ddddf004ba5820ea3ecca9bea1253ee002a6d05883c73292a9261d21ff"
+    },
+    "flyAway.mp3": {
+      "archivePath": "client/src/assets/audio/flyAway.mp3",
+      "bytes": 111848,
+      "sha256": "a6a8e667e62d670b8a0c99130e462b72f11978f7cdec974dfb44df088b61fa60"
+    },
+    "ambient.mp3": {
+      "archivePath": "client/src/assets/audio/music/ambient.mp3",
+      "bytes": 518911,
+      "sha256": "0c1feababe6aaa457b9c7c32be15f4d3a62fd6399d55afaf6c55e73dc52ee388"
+    }
+  }
+}

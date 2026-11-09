@@ -4,6 +4,7 @@ import { Lucky7DiceRecordings } from "./lucky7DiceRecordings";
 import { PublicDemoSoundBank } from "./publicDemoSounds";
 import { renderFurySound } from "./furySounds";
 import { FuryHelicopterRecording } from "./furyHelicopterRecording";
+import { LunarKitSoundBank } from "./lunarKitSounds";
 
 /** Original, locally synthesized sound designs. No downloads or audio service required. */
 type Instrument = "bell" | "wood" | "pluck" | "brass" | "glass" | "pulse" | "air";
@@ -183,14 +184,17 @@ export class GameSoundBank {
   private diceRoll: { source: AudioBufferSourceNode; gain: GainNode } | null = null;
   private publicSounds: PublicDemoSoundBank;
   private furyHelicopter: FuryHelicopterRecording;
+  private lunarSounds: LunarKitSoundBank;
   constructor(private context: AudioContext) {
     this.publicSounds = new PublicDemoSoundBank(context);
     this.furyHelicopter = new FuryHelicopterRecording(context);
+    this.lunarSounds = new LunarKitSoundBank(context);
   }
-  preload(game: GameAudioId) { return game === "fury" ? this.furyHelicopter.preload() : this.publicSounds.preload(game); }
-  hasRecording(game: GameAudioId, cue: GameSoundCue) { return game === "fury" && cue === "engine" || this.publicSounds.has(game, cue); }
-  ready(game: GameAudioId, cue: GameSoundCue) { return game === "fury" && cue === "engine" ? this.furyHelicopter.ready() : this.publicSounds.ready(game, cue); }
+  preload(game: GameAudioId) { return game === "lunar" ? this.lunarSounds.preload() : game === "fury" ? this.furyHelicopter.preload() : this.publicSounds.preload(game); }
+  hasRecording(game: GameAudioId, cue: GameSoundCue) { return game === "lunar" ? this.lunarSounds.has(cue) : game === "fury" && cue === "engine" || this.publicSounds.has(game, cue); }
+  ready(game: GameAudioId, cue: GameSoundCue) { return game === "lunar" ? this.lunarSounds.ready(cue) : game === "fury" && cue === "engine" ? this.furyHelicopter.ready() : this.publicSounds.ready(game, cue); }
   async prepare(game: GameAudioId, cue: GameSoundCue) {
+    if (game === "lunar") return this.lunarSounds.prepare(cue);
     if (game === "fury" && cue === "engine") {
       await this.furyHelicopter.preload();
       return this.furyHelicopter.ready();
@@ -211,11 +215,13 @@ export class GameSoundBank {
   }
   play(game: GameAudioId, cue: GameSoundCue, destination: AudioNode, volume = 1, loop = false): AudioBufferSourceNode | null {
     if (this.context.state !== "running") return null;
+    // The kit deliberately disables the generated hum under its recorded takeoff.
+    if (game === "lunar" && cue === "engine") return null;
     // Fury's rotor continues across takeoff and stops with the round. No
     // overlapping generated launch or fly-away effect is needed.
     if (game === "fury" && (cue === "launch" || cue === "crash")) return null;
     if (!this.ready(game, cue)) { void this.prepare(game, cue); return null; }
-    const recording = this.publicSounds.take(game, cue);
+    const recording = game === "lunar" ? this.lunarSounds.take(cue) : this.publicSounds.take(game, cue);
     const key = `${game}:${cue}`;
     const now = this.context.currentTime;
     if (!loop && now - (this.last.get(key) ?? -Infinity) < (cue === "impact" ? .045 : .06)) return null;
@@ -238,7 +244,13 @@ export class GameSoundBank {
     const source = this.context.createBufferSource(), gain = this.context.createGain();
     source.buffer = buffer;
     source.loop = loop;
-    gain.gain.value = Math.max(0, Math.min(1, volume)) * (recording ? .65 : 1);
+    gain.gain.value = Math.max(0, Math.min(1, volume)) * (recording && game !== "lunar" ? .65 : 1);
+    if (game === "lunar" && ["select", "bet", "clear"].includes(cue)) gain.gain.value *= .5;
+    if (game === "lunar" && cue === "music") {
+      const level = gain.gain.value;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(level, now + 2);
+    }
     if (game === "fury" && loop && cue === "engine") {
       const level = gain.gain.value;
       gain.gain.setValueAtTime(0, now);

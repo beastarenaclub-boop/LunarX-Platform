@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 import { existsSync } from "node:fs";
 export default defineConfig({
   testDir: "./tests",
-  testMatch: ["game-audio.spec.ts", "public-demo-audio.spec.ts", "audio-autostart.spec.ts"],
+  testMatch: ["game-audio.spec.ts", "public-demo-audio.spec.ts", "audio-autostart.spec.ts", "lunar-kit-audio.spec.ts"],
   workers: 1,
   retries: 0,
   timeout: 60000,

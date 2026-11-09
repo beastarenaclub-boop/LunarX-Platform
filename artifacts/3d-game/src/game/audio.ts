@@ -915,6 +915,7 @@ let engineSource: AudioBufferSourceNode | null = null;
 let engineRequest = 0;
 let enginePending = false;
 function startEngineHum() {
+  if (activeAudioGame === "lunar") return; // The handoff kit uses recorded flight cues without a second hum.
   if (engineSource || enginePending || !activeAudioGame || !CRASH_AUDIO_GAMES.has(activeAudioGame) || !tabVisible || soundOff) return;
   const c = tryEnsure();
   if (!c || c.state !== "running") return;
@@ -1208,7 +1209,7 @@ export function startMusic() {
     });
     return;
   }
-  musicSource = gameSounds.play(activeAudioGame, "music", musicGain!, .55, true);
+  musicSource = gameSounds.play(activeAudioGame, "music", musicGain!, activeAudioGame === "lunar" ? 1 : .55, true);
 }
 let musicRequest = 0;
 export function stopMusic() {
