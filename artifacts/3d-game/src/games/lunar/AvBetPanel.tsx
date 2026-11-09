@@ -383,6 +383,7 @@ export default function AvBetPanel({
             Auto Cash Out
             <Switch
               checked={panel.autoCashOutEnabled}
+              disabled={amountLocked}
               onCheckedChange={(on) => setPanelAutoCash(panelIdx, on, panel.autoCashOut)}
               className={AUTO_SWITCH}
               data-testid={`switch-autocash-${panelIdx}`}
@@ -398,8 +399,9 @@ export default function AvBetPanel({
               value={
                 autoCashDraft ?? panel.autoCashOut.toFixed(2)
               }
-              onFocus={() => setAutoCashDraft(String(panel.autoCashOut))}
+              onFocus={() => setAutoCashDraft(panel.autoCashOut.toFixed(2))}
               onBlur={() => setAutoCashDraft(null)}
+              disabled={amountLocked || !panel.autoCashOutEnabled}
               onChange={(e) => {
                 const raw = e.target.value.replace(/[^0-9.]/gu, "");
                 setAutoCashDraft(raw);
@@ -421,6 +423,7 @@ export default function AvBetPanel({
             />
             <button
               onClick={() => setPanelAutoCash(panelIdx, false)}
+              disabled={amountLocked}
               className="text-[#6b6b6b] transition-colors hover:text-white"
               aria-label="Clear auto cash out"
             >

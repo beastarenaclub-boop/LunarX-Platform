@@ -29,10 +29,18 @@ export async function browserChecks(base:string){
       // Actual HTTP placement from the kit control, then reload recovery.
       const button=page.getByTestId('btn-bet-0');
       await expect(button).toBeEnabled({timeout:45000});
+      await page.getByTestId('btn-tab-auto-0').click();
+      const toggle=page.getByTestId('switch-autocash-0');
+      if(await toggle.getAttribute('aria-checked')!=='true') await toggle.click();
+      const auto=page.getByTestId('input-autocash-0');
+      await auto.fill('1.01'); await auto.blur();
+      await expect(auto).toHaveValue('1.01');
       const receipt=page.waitForResponse(r=>r.url().endsWith('/api/bets/place')&&r.request().method()==='POST');
       await button.click(); const response=await receipt; expect(response.status()).toBe(200);
+      expect(response.request().postDataJSON().autoCashOut).toBe(1.01);
       const bet=await response.json(); expect(bet.gameCode).toBe('lunar');
       await expect(page.getByTestId('bet-accepted-0')).toContainText('Bet placed');
+      await expect(auto).toBeDisabled(); await expect(toggle).toBeDisabled();
       await page.reload(); await expect(page.getByTestId('aviator-canvas')).toBeVisible();
       await expect(page.getByTestId('bet-accepted-0').or(page.getByTestId('btn-cashout-0'))).toBeVisible({timeout:15000});
       await page.getByTestId('btn-menu').click();

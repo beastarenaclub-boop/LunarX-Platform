@@ -5,7 +5,6 @@ import { useAuth } from "@/lib/auth";
 import { useStore } from "@/game/store";
 import { initEngine, setActiveCrashGame } from "@/game/engine";
 import RealtimeBridge from "@/components/lunar/RealtimeBridge";
-import CrashWinReceipt from "@/components/CrashWinReceipt";
 
 import AvHeader from "@/games/lunar/AvHeader";
 import AvHistoryStrip from "@/games/lunar/AvHistoryStrip";
@@ -234,7 +233,6 @@ export default function AviatorPro({
       style={{ height: embedded ? '100dvh' : 'var(--fit-height, 100dvh)', fontFamily: 'Roboto, "Helvetica Neue", Arial, sans-serif' }}
     >
       {embedded && <RealtimeBridge />}
-      <CrashWinReceipt key={gameCode} game={gameCode} userId={user.id} />
       {!embedded && <ChromeBar onBack={() => navigate("/")} />}
 
       {/* .main-container — width: calc(100% - 360px) while the chat drawer is open */}
