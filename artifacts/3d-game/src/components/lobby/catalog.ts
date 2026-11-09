@@ -122,10 +122,10 @@ const crash = (id: string) => {
 // One catalog for every view. Only implemented player routes belong here.
 // The top section and remaining section partition this list, never repeat it.
 export const LOBBY_GAMES: LobbyGame[] = [
-  { ...crash("lunar"), label: "NEW", tags: ["lunar", "aviator", "crash", "plane"] },
-  game("roulette-american", "American Roulette", "table", "#d9b96d", { label: "NEW", tags: ["roulette", "american", "38 pockets"] }),
-  game("roulette-mini", "Roulette Mini", "table", "#64cabc", { label: "NEW", tags: ["roulette", "mini", "19 pockets"] }),
-  game("fun-target", "Top 10 Target", "table", "#ff8b43", { label: "NEW", tags: ["target", "wheel", "digits"] }),
+  { ...crash("lunar"), artworkHasTitle: true, artworkFit: "contain", label: "NEW", tags: ["lunar", "aviator", "crash", "plane"] },
+  game("roulette-american", "American Roulette", "table", "#d9b96d", { artworkHasTitle: true, artworkFit: "contain", label: "NEW", tags: ["roulette", "american", "38 pockets"] }),
+  game("roulette-mini", "Roulette Mini", "table", "#64cabc", { artworkHasTitle: true, artworkFit: "contain", label: "NEW", tags: ["roulette", "mini", "19 pockets"] }),
+  game("fun-target", "Top 10 Target", "table", "#ff8b43", { artworkHasTitle: true, artworkFit: "contain", label: "NEW", tags: ["target", "wheel", "digits"] }),
   game("mega-ball", "Mega Ball", "live", "#e4ca74", { artwork: `${import.meta.env.BASE_URL}media/mega-ball/banner.jpg`, artworkHasTitle: true, label: "NEW", tags: ["mega ball", "bingo", "lottery", "game show", "51 balls"] }),
   ...SPORTS.map(s => game(`virtual-${s.id}`, s.name, "racing", s.color, { route: `/virtual-sports/${s.id}`, artwork: `${import.meta.env.BASE_URL}media/virtual-sports/${s.id}.jpg`, provider: "Arena Virtual Sports", label: "NEW" })),
   ...INSTANT_COLLECTION.map(g => game(g.code, g.name, "instant", g.accent, { artwork: import.meta.env.BASE_URL + 'media/instant/' + g.code + '.svg', label: "INSTANT" })),

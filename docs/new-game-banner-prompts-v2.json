@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-11-09",
+  "tool": "Built-in image_gen.imagegen",
+  "scope": "Lobby card banners only. No in-game graphics or game logic changes.",
+  "assets": [
+    {
+      "id": "roulette-american-v2",
+      "prompt": "Use case: ads-marketing. Create a premium finished casino game lobby banner, wide LANDSCAPE 2:1 aspect ratio, high resolution. Exact title text: \"AMERICAN\" above \"ROULETTE\", extremely crisp bold elegant condensed serif lettering, ivory and subtle brushed gold, in the left 45% of the image, vertically centered, readable even as a small 200px-wide card. On the right: magnificent realistic polished walnut American roulette wheel at a dramatic three-quarter angle, glossy ruby and black pocket ring with green zero pockets, precision brass spindle, one ivory ball, a few red and black casino chips in the foreground. Deep emerald-black background, cinematic warm studio light, refined champagne-gold rim highlights, tasteful depth and restrained particles. Strong simple composition, luxurious rather than ornate, professional gaming campaign art. Keep ALL title text and the complete key silhouette inside the central 85% safe area, no border or UI chrome. No people, no other text, no badges, no third-party logos, no watermark, no payout promises.",
+      "original": "output/new-game-banners-v2/roulette-american-v2.png",
+      "delivery": "artifacts/3d-game/src/assets/handoff/lobby/roulette-american-v2.webp"
+    },
+    {
+      "id": "roulette-mini-v2",
+      "prompt": "Use case: ads-marketing. Create a premium finished casino game lobby banner, wide LANDSCAPE 2:1 aspect ratio, high resolution. Exact title text: \"MINI\" above \"ROULETTE\", extremely crisp bold elegant condensed serif lettering, luminous ivory with subtle brushed gold, in the left 45% of the image, vertically centered, readable even as a small 200px-wide card. On the right: compact jewel-like roulette wheel at a beautiful three-quarter angle, fewer broad pockets than a full wheel, one green zero and ruby/black pockets, polished brass spindle and an ivory ball; two refined teal-and-gold casino chips. Deep teal-black velvet background, sophisticated aqua edge light and warm gold highlights. Premium photorealistic 3D product campaign art, strong silhouette, composed and refined, visually distinct from a larger American roulette wheel. Keep title and key objects inside central 85% safe area, no border or UI chrome. No people, no extra writing, no badges, no third-party logos, no watermark, no payout promises.",
+      "original": "output/new-game-banners-v2/roulette-mini-v2.png",
+      "delivery": "artifacts/3d-game/src/assets/handoff/lobby/roulette-mini-v2.webp"
+    },
+    {
+      "id": "fun-target-v2",
+      "prompt": "Use case: ads-marketing. Create a premium finished casino game lobby banner, wide LANDSCAPE 2:1 aspect ratio, high resolution. Exact title text: \"FUN\" above \"TARGET\", very large beautifully crafted ivory and warm gold display lettering, crisp and readable in the left 43% of the frame. On the right: a sophisticated circular ten-segment arcade target wheel facing camera with a slight tilt, digits 0 through 9 once each, alternating rich amber and deep emerald segments, jewel-like gold center and a small gold pointer at the top. A few tactile gold arcade tokens at the base. Dark chocolate-black and amber background, warm theatrical spotlight, restrained gold sparkles, rich physical materials and depth. High-end photorealistic 3D gaming campaign art, exciting but uncluttered, no casino room clutter. Keep title and key objects in central 85% safe area; no border, no UI. No people, no other text, no badges, no logos, no watermark, no promises about winning.",
+      "original": "output/new-game-banners-v2/fun-target-v2.png",
+      "delivery": "artifacts/3d-game/src/assets/handoff/lobby/fun-target-v2.webp"
+    },
+    {
+      "id": "aviator-lunar-v2",
+      "prompt": "Use case: ads-marketing. Create a premium finished crash-flight game lobby banner, wide LANDSCAPE 2:1 aspect ratio, high resolution. Exact title text: \"AVIATOR\", huge crisp slanted ivory lettering with refined ruby-red edges, occupying the left half and vertically centered, readable even as a 200px-wide card. A beautifully rendered sleek RED single-engine aerobatic propeller airplane with wings and believable proportions climbs diagonally across the right half, shown from a dramatic front three-quarter angle, glossy crimson paint, subtle warm cockpit reflections and a graceful red light trail. Deep midnight blue sky fading to charcoal, atmospheric cloud ribbons, restrained stars and cinematic red edge lighting. Premium 3D game key art, energetic clear silhouette, sophisticated rather than cartoonish. Keep all title and important aircraft parts within central 85% safe area so responsive cropping works. No other text, no logos or third-party brands, no official/certified badges, no people, no border, no UI, no multiplier numerals, no watermark.",
+      "original": "output/new-game-banners-v2/aviator-lunar-v2.png",
+      "delivery": "artifacts/3d-game/src/assets/handoff/lobby/aviator-lunar-v2.webp"
+    }
+  ]
+}

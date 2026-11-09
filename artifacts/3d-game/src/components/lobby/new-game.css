@@ -61,6 +61,12 @@
   background: currentColor;
 }
 
+/* These banners carry their own title on the left. */
+.new-game-card:is([data-game-id="lunar"], [data-game-id="roulette-american"], [data-game-id="roulette-mini"], [data-game-id="fun-target"]) .game-new-badge {
+  left: auto;
+  right: 5px;
+}
+
 @keyframes new-game-border-travel {
   to {
     --new-game-border-angle: 360deg;

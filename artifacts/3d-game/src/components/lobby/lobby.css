@@ -517,6 +517,23 @@
 .lobby-game:hover .lobby-game-art > img {
   transform: scale(1.06);
 }
+/* Keep the four landscape banners complete and readable in the classic lobby. */
+.lobby-game:is([data-game-id="lunar"], [data-game-id="roulette-american"], [data-game-id="roulette-mini"], [data-game-id="fun-target"]) {
+  grid-column: span 2;
+  align-self: start;
+}
+.lobby-game:is([data-game-id="lunar"], [data-game-id="roulette-american"], [data-game-id="roulette-mini"], [data-game-id="fun-target"]) .lobby-game-art {
+  aspect-ratio: 2;
+  background: #071410;
+}
+.lobby-game:is([data-game-id="lunar"], [data-game-id="roulette-american"], [data-game-id="roulette-mini"], [data-game-id="fun-target"]):hover .lobby-game-art > img {
+  transform: none;
+}
+@media (max-width: 767px) {
+  .lobby-game:is([data-game-id="lunar"], [data-game-id="roulette-american"], [data-game-id="roulette-mini"], [data-game-id="fun-target"]) {
+    grid-column: auto;
+  }
+}
 .lobby-game[data-game-id="ludo"] .lobby-game-art {
   background: #0b2017;
 }

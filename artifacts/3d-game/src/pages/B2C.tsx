@@ -103,7 +103,7 @@ function GameTile({
   onPlay: (game: LobbyGame) => void;
   duplicate?: boolean;
 }) {
-  const art = b2cArtwork(game.id);
+  const art = HANDOFF_ART[game.id] ? null : b2cArtwork(game.id);
   const isNew = isNewGame(game);
   return (
     <button
@@ -138,7 +138,7 @@ function GameTile({
         <span>{game.name}</span>
       </span>
       {isNew && <span className="game-new-badge">NEW</span>}
-      {HANDOFF_ART[game.id] && <span className="b2c-game-title">{game.name}</span>}
+      {HANDOFF_ART[game.id] && !game.artworkHasTitle && <span className="b2c-game-title">{game.name}</span>}
       {!game.enabled && (
         <span className="b2c-game-unavailable">Unavailable</span>
       )}
