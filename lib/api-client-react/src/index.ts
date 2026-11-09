@@ -26,3 +26,5 @@ export {
   useRealtimeResync,
   disconnectRealtime,
 } from "./realtime";
+
+export { B2cRtp } from "./b2c-rtp";

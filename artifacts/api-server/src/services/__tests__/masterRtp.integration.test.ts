@@ -284,3 +284,95 @@ test("admin and master edits from 30 to 5 percent reach every game's new prices"
     }
   }
 });
+
+
+import { listB2cRtp, updateB2cRtp } from "../b2cRtp";
+import { b2cRtpPoliciesTable } from "@workspace/db";
+async function b2cTarget(code: string, bps: number | null) {
+  const policy = (await listB2cRtp(admin)).find(p=>p.gameCode===code)!;
+  return updateB2cRtp(admin,code,{playerRtpBps:bps,revision:policy.revision});
+}
+test("B2C policies default to original rules, are admin-only, and isolate each game and channel",async()=>{
+  const policies = await listB2cRtp(admin);
+  assert.equal(policies.length,MASTER_RTP_GAMES.length); assert.ok(policies.every(p=>p.playerRtpBps===null&&p.revision===0));
+  for(const actor of [masterA,masterB,agentA,playerA,b2c,await user('support')]) {
+    await assert.rejects(listB2cRtp(actor),(e:any)=>e.status===403);
+    await assert.rejects(updateB2cRtp(actor,'mines',{playerRtpBps:500,revision:0}),(e:any)=>e.status===403);
+  }
+  for(const bps of [0,99,10001,500.1]) await assert.rejects(updateB2cRtp(admin,'mines',{playerRtpBps:bps,revision:0}));
+  await assert.rejects(updateB2cRtp(admin,'unknown',{playerRtpBps:500,revision:0}),(e:any)=>e.status===400);
+  await b2cTarget('mines',3000); const previous=(await getPlayerGameConfig('mines',b2c.id))!;
+  await b2cTarget('mines',500);
+  const fresh=(await getPlayerGameConfig('mines',b2c.id))!;
+  assert.equal(fresh.rtpPolicy.source,'b2c'); assert.equal(fresh.rtpPolicy.playerRtpBps,500); assert.equal(fresh.houseEdge,.95);
+  assert.equal((await getPlayerGameConfig('dice',b2c.id))!.houseEdge,.03,'other B2C game');
+  assert.equal((await getPlayerGameConfig('mines',playerA.id))!.rtpPolicy.playerRtpBps,8250,'configured master unchanged');
+  assert.equal((await getPlayerGameConfig('mines',playerB.id))!.houseEdge,.03,'inherited master unchanged');
+  assert.equal((await getGameConfig('mines'))!.houseEdge,.03,'company defaults unchanged');
+  const balance=(await getBalanceByUser(b2c.id)).balance;
+  await assert.rejects(createRound({userId:b2c.id,stakeAmount:10000n,mineCount:3,pricingVersion:previous.pricingVersion}),(e:any)=>e.status===409);
+  assert.equal((await getBalanceByUser(b2c.id)).balance,balance);
+  const round=await createRound({userId:b2c.id,stakeAmount:10000n,mineCount:3,pricingVersion:fresh.pricingVersion});
+  assert.equal(round.houseEdge,.95);
+  await b2cTarget('mines',8000);
+  const [stored]=await db.select().from(minesRoundsTable).where(eq(minesRoundsTable.id,round.id));assert.equal(stored.houseEdge,.95);
+  await assert.rejects(updateB2cRtp(admin,'mines',{playerRtpBps:7000,revision:1}),(e:any)=>e.status===409);
+  await b2cTarget('mines',null);
+  const reset=(await getPlayerGameConfig('mines',b2c.id))!; assert.equal(reset.houseEdge,.03);assert.equal(reset.rtpPolicy.source,'company');
+  await assert.rejects(requirePlayerGameConfig('mines',b2c.id,fresh.pricingVersion,true),(e:any)=>e.status===409);
+  const audit=await db.select().from(auditLogTable).where(eq(auditLogTable.action,'b2c.rtp_update'));assert.equal(audit.length,4);assert.equal((audit[1].after as any).playerRtpBps,500);
+});
+
+test("B2C RTP reaches all fourteen engines including fixed prices, while accepted bets retain terms",async()=>{
+  for(const game of MASTER_RTP_GAMES) await b2cTarget(game,500);
+  for(const game of MASTER_RTP_GAMES) {
+    assert.equal((await getPlayerGameConfig(game,b2c.id))!.rtpPolicy.playerRtpBps,500,game);
+    assert.equal((await getPlayerGameConfig(game,playerA.id))!.rtpPolicy.playerRtpBps,8250,game+' B2B');
+  }
+  for(const code of ['coin-flip','7up7down','lucky-7-live','wheel-2-live','crazy-time'] as const) {
+    await createTableRound(code);const cfg=(await getTableRoundSnapshot(code,b2c.id))!.config;
+    assert.equal(cfg.masterRtpBps,500,code);assert.equal((cfg as any).rtpPolicy.source,'b2c',code);
+  }
+  const chicken=await chickenConfig(b2c.id);assert.equal(chicken.version,4);assert.ok(Math.abs(chicken.rtp-.05)<1e-12);
+  const chickenRound=await startChicken(b2c.id,{requestId:randomUUID(),difficulty:'easy',stakeAmount:'10000',clientSeed:'b2c-test',pricingVersion:chicken.pricingVersion});
+  assert.ok(Math.abs(chickenRound.rtp!-.05)<1e-12);
+  const crash=await currentCrashRound(b2c.id,'fury');assert.equal(crash.houseEdge,.95);
+  await b2cTarget('fury',8000);assert.equal((await currentCrashRound(b2c.id,'fury',crash.id)).houseEdge,.95);
+  const plinko=(await getPlayerGameConfig('plinko',b2c.id))!;
+  const drop=await dropBall({userId:b2c.id,stakeAmount:10000n,rows:12,risk:'medium',pricingVersion:plinko.pricingVersion});assert.equal(drop.houseEdge,.95);
+  const dice=(await getPlayerGameConfig('dice',b2c.id))!;
+  assert.equal((await rollDice({userId:b2c.id,stakeAmount:10000n,target:50,direction:'under',pricingVersion:dice.pricingVersion})).houseEdge,.95);
+  assert.equal((await wingoState(b2c.id)).returns!.red,.1);
+  assert.equal((await pokerTable(b2c.id,'poker-20-20')).quotes[0].odds,10);
+  assert.equal((await ludoTable(b2c.id)).commissionBps,9500);
+  // Lock a B2C coin quote at 5%, edit to 80%, then settle the original rate.
+  const view=(await getTableRoundSnapshot('coin-flip',b2c.id))!;
+  const balance=(await getBalanceByUser(b2c.id)).balance;
+  await placeCoinLive(b2c.id,{roundId:view.roundId,side:'heads',stakeAmount:'10000',pricingVersion:view.config.pricingVersion});
+  await b2cTarget('coin-flip',8000);
+  const [round]=await db.update(tableRoundsTable).set({outcome:{side:'heads',value:0},phase:'settling'}).where(eq(tableRoundsTable.id,view.roundId)).returning();
+  await settleCoinLive(round);await settleCoinLive(round);
+  assert.equal((await getBalanceByUser(b2c.id)).balance,balance-10000n+1000n);
+});
+
+import express from "express";
+import gameRouter from "../../routes/game";
+import { errorHandler } from "../../middlewares/error";
+import { hashPassword } from "../../lib/password";
+test("B2C HTTP routes enforce admin role, password confirmation and saved revision",async()=>{
+  const password='volatile-test-confirmation';
+  await db.update(usersTable).set({passwordHash:await hashPassword(password)}).where(eq(usersTable.id,admin.id));
+  let actor: User | undefined;
+  const app=express();app.use(express.json());app.use((req,_res,next)=>{req.user=actor;next();});app.use('/api/game',gameRouter);app.use(errorHandler);
+  const server=app.listen(0,'127.0.0.1');await new Promise<void>(resolve=>server.once('listening',resolve));
+  const url=`http://127.0.0.1:${(server.address() as any).port}/api/game/b2c-rtp`;
+  try {
+    assert.equal((await fetch(url)).status,401);actor=masterA;assert.equal((await fetch(url)).status,403);
+    actor=admin;const before=(await (await fetch(url)).json() as any).policies.find((p:any)=>p.gameCode==='jetx');
+    const body=JSON.stringify({playerRtpBps:3000,revision:before.revision});
+    for(const confirm of ['', 'incorrect']) assert.equal((await fetch(url+'/jetx',{method:'PUT',headers:{'Content-Type':'application/json','X-Confirm-Password':confirm},body})).status,403);
+    const saved=await fetch(url+'/jetx',{method:'PUT',headers:{'Content-Type':'application/json','X-Confirm-Password':password},body});assert.equal(saved.status,200);assert.equal((await saved.json() as any).playerRtpBps,3000);
+    assert.equal((await fetch(url+'/jetx',{method:'PUT',headers:{'Content-Type':'application/json','X-Confirm-Password':password},body})).status,409);
+    const after=(await (await fetch(url)).json() as any).policies.find((p:any)=>p.gameCode==='jetx');assert.equal(after.playerRtpBps,3000);assert.equal(after.revision,before.revision+1);
+  } finally {server.closeAllConnections();await new Promise<void>((resolve,reject)=>server.close(e=>e?reject(e):resolve()));}
+});

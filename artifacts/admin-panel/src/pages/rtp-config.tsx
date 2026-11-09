@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRealtimeTopic } from "@workspace/api-client-react";
 import type { GameConfigUpdatedEvent, TableRoundsEvent } from "@workspace/api-zod";
@@ -586,6 +587,7 @@ export default function RtpConfigPage() {
 
   return (
     <div className="space-y-6">
+      <p className="rounded-md border border-emerald-200 bg-emerald-50 p-4">For B2C player RTP, including fixed-rate games, use <Link href="/b2c-rtp" className="font-semibold underline">B2C RTP</Link>. The controls below manage shared game defaults and limits.</p>
       <div>
         <h1 className="text-2xl font-semibold flex items-center gap-2">
           <Shield className="h-6 w-6 text-emerald-600" />

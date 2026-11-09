@@ -1,0 +1,1 @@
+export const RTP_POLICY_GAMES = ["jetx", "fury", "mines", "plinko", "dice", "ludo", "lucky-7-live", "wheel-2-live", "poker-20-20", "crazy-time", "chicken-road", "7up7down", "coin-flip", "wingo"] as const;

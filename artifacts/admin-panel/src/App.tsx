@@ -24,6 +24,7 @@ import FraudPage from "@/pages/fraud";
 import AuditPage from "@/pages/audit";
 import LogsPage from "@/pages/logs";
 import RtpConfigPage from "@/pages/rtp-config";
+import B2cRtpPage from "@/pages/b2c-rtp";
 import GamesPage from "@/pages/games";
 import LotteryPage from "@/pages/lottery";
 import PrizeLottoAdmin from "@/pages/prize-lotto";
@@ -84,6 +85,7 @@ function ProtectedRoutes() {
         <Route path="/audit" component={AuditPage} />
         <Route path="/logs" component={LogsPage} />
         <Route path="/rtp" component={RtpConfigPage} />
+        <Route path="/b2c-rtp" component={B2cRtpPage} />
         <Route path="/games" component={GamesPage} />
         <Route path="/lottery" component={LotteryPage} />
         <Route path="/prize-lotto" component={PrizeLottoAdmin} />

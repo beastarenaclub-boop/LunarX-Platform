@@ -21,11 +21,23 @@ import { isTableGame, getRoundCycleStatus } from "../services/tableRounds";
 import { z } from "zod";
 import { CRAZY_TIME_SPOTS, CRAZY_TIME_RTP } from "@workspace/api-zod/crazy-time-game";
 
+import { listB2cRtp, updateB2cRtp } from "../services/b2cRtp";
 import { getPlayerGameConfig } from "../services/masterRtp";
 
 const router: IRouter = Router();
 
 const adminOnly = requireRole("admin", "super_admin");
+
+router.get("/b2c-rtp", adminOnly, async (req,res,next) => {
+  try { res.set("Cache-Control","private, no-store").json({policies:await listB2cRtp(req.user!)}); } catch(e) { next(e); }
+});
+router.put("/b2c-rtp/:gameCode", adminOnly, requireStepUp, async (req,res,next) => {
+  try {
+    const policy = await updateB2cRtp(req.user!,String(req.params.gameCode),req.body);
+    res.set("Cache-Control","no-store").json({gameCode:policy.gameCode,playerRtpBps:policy.playerRtpBps,revision:policy.revision});
+  } catch(e) { next(e); }
+});
+
 
 // ── Static / non-parameterized routes must come first ─────────────────────
 // Expose engine classification + editable fields + cap floors per game code.

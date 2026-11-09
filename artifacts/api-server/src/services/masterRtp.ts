@@ -1,4 +1,4 @@
-import { db, networkNodesTable, usersTable, auditLogTable, type User } from "@workspace/db";
+import { db, b2cRtpPoliciesTable, networkNodesTable, usersTable, auditLogTable, type User } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { getGameConfig, sha256Hex } from "./rtp";
@@ -6,7 +6,8 @@ import { networkIdentity } from "./network";
 import { conflict, forbidden, notFound } from "../lib/errors";
 
 // Requested games with player-specific, snapshotted pricing. Ludo uses pool commission.
-export const MASTER_RTP_GAMES = ["jetx", "fury", "mines", "plinko", "dice", "ludo", "lucky-7-live", "wheel-2-live", "poker-20-20", "crazy-time", "chicken-road", "7up7down", "coin-flip", "wingo"] as const;
+import { RTP_POLICY_GAMES } from "./rtpPolicyGames";
+export const MASTER_RTP_GAMES = RTP_POLICY_GAMES;
 export const masterRtpInput = z.object({
   playerRtpBps: z.number().int().min(100).max(10000).nullable(),
   revision: z.number().int().min(0),
@@ -40,14 +41,14 @@ export async function updateMasterRtp(user: User, masterId: string, body: unknow
 export async function getPlayerGameConfig(gameCode: string, userId?: string) {
   const base = await getGameConfig(gameCode);
   if (!base) return null;
-  const master = await playerMaster(gameCode, userId);
-  const bps = master?.playerRtpBps ?? null;
+  const policy = await playerPolicy(gameCode, userId);
+  const bps = policy.playerRtpBps;
   const houseEdge = bps === null ? base.houseEdge : (10000 - bps) / 10000;
   // Never mutate the shared company-config cache. No player P&L is consulted.
-  const rtpPolicy = { source: bps === null ? "company" : "master", revision: master?.rtpRevision ?? 0,
+  const rtpPolicy = { source: policy.source, revision: policy.revision,
     playerRtpBps: Math.round((1 - houseEdge) * 10000) };
   const pricingVersion = sha256Hex(JSON.stringify([gameCode, houseEdge, base.maxMultiplier,
-    master?.id ?? null, rtpPolicy.revision])).slice(0, 32);
+    policy.ownerId, rtpPolicy.revision])).slice(0, 32);
   return { ...base, houseEdge, ...(bps === null ? {} : { rtpMin: bps / 100, rtpMax: bps / 100 }), rtpPolicy, pricingVersion };
 }
 
@@ -69,7 +70,7 @@ export async function playerTableConfig<T extends { houseEdge: number; maxMultip
   return { ...base, ...(custom ? { houseEdge, masterRtpBps: policy.masterRtpBps!,
     ...(gameCode === "coin-flip" ? { coinPayoutVersion: 1 as const } : {}),
     ...(gameCode === "7up7down" ? { sevenPayoutVersion: 1 as const } : {}),
-  } : {}), rtpPolicy: { ...policy.rtpPolicy, source: custom ? "master" : "company", playerRtpBps: Math.round((1-houseEdge)*10000) },
+  } : {}), rtpPolicy: { ...policy.rtpPolicy, source: policy.rtpPolicy.source, playerRtpBps: Math.round((1-houseEdge)*10000) },
     pricingVersion: sha256Hex(JSON.stringify([policy.pricingVersion, base])).slice(0,32) };
 }
 
@@ -78,24 +79,32 @@ export function assertTablePricing(cfg: { pricingVersion: string; rtpPolicy: { r
     throw conflict("Payout rules changed. Review the current rates and place your bet again.");
 }
 
-async function playerMaster(gameCode: string, userId?: string, reader: Pick<typeof db, "select"> = db) {
-  let master: typeof networkNodesTable.$inferSelect | undefined;
-  if (userId && (MASTER_RTP_GAMES as readonly string[]).includes(gameCode)) {
-    const [user] = await reader.select().from(usersTable).where(eq(usersTable.id, userId));
-    if (user?.role === "player" && user.channel === "b2b" && user.b2bAgentId) {
-      const [agent] = await reader.select().from(networkNodesTable).where(eq(networkNodesTable.id, user.b2bAgentId));
-      if (agent?.kind === "agent" && agent.parentId) {
-        [master] = await reader.select().from(networkNodesTable).where(eq(networkNodesTable.id, agent.parentId));
-        if (master?.kind !== "master") master = undefined;
-      }
+async function playerPolicy(gameCode: string, userId?: string, reader: Pick<typeof db, "select"> = db) {
+  const fallback = { ownerId: null as string | null, playerRtpBps: null as number | null, revision: 0, source: "company" as "company" | "master" | "b2c" };
+  if (!userId || !(MASTER_RTP_GAMES as readonly string[]).includes(gameCode)) return fallback;
+  const [user] = await reader.select().from(usersTable).where(eq(usersTable.id,userId));
+  if (user?.role !== "player") return fallback;
+  if (user.channel === "b2c") {
+    const [policy] = await reader.select().from(b2cRtpPoliciesTable).where(eq(b2cRtpPoliciesTable.gameCode,gameCode));
+    return { ownerId: "b2c", playerRtpBps: policy?.playerRtpBps ?? null, revision: policy?.revision ?? 0,
+      source: policy?.playerRtpBps == null ? "company" as const : "b2c" as const };
+  }
+  if (user.channel === "b2b" && user.b2bAgentId) {
+    const [agent] = await reader.select().from(networkNodesTable).where(eq(networkNodesTable.id,user.b2bAgentId));
+    if (agent?.kind === "agent" && agent.parentId) {
+      const [master] = await reader.select().from(networkNodesTable).where(eq(networkNodesTable.id,agent.parentId));
+      if (master?.kind === "master") return { ownerId:master.id,playerRtpBps:master.playerRtpBps,revision:master.rtpRevision,
+        source:master.playerRtpBps === null ? "company" as const : "master" as const };
     }
   }
-  return master;
+  return fallback;
 }
 
+// The existing masterRtpBps wire field now carries either an owning master's
+// target or the game's B2C target. Keeping it preserves historical receipts.
 export async function playerMasterPolicy(gameCode: string, userId?: string, reader: Pick<typeof db, "select"> = db) {
-  const master = await playerMaster(gameCode, userId, reader);
-  return { masterRtpBps: master?.playerRtpBps ?? null,
-    rtpPolicy: { revision: master?.rtpRevision ?? 0 },
-    pricingVersion: sha256Hex(JSON.stringify([gameCode, master?.id ?? null, master?.rtpRevision ?? 0, master?.playerRtpBps ?? null])).slice(0,32) };
+  const policy = await playerPolicy(gameCode, userId, reader);
+  return { masterRtpBps: policy.playerRtpBps,
+    rtpPolicy: { revision: policy.revision, source: policy.source },
+    pricingVersion: sha256Hex(JSON.stringify([gameCode, policy.ownerId, policy.revision, policy.playerRtpBps])).slice(0,32) };
 }

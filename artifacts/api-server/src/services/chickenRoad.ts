@@ -49,7 +49,7 @@ export function chickenReceipt(bet: Bet): ChickenRound {
 
 export async function chickenConfig(userId?: string) {
   const cfg = await requirePlayerGameConfig(CHICKEN_CODE, userId);
-  return { enabled: cfg.enabled, minStakePaise: cfg.minStakePaise.toString(), maxStakePaise: cfg.maxStakePaise.toString(), rtp: cfg.rtpPolicy.source === "master" ? 1 - cfg.houseEdge : CHICKEN_RTP, version: cfg.rtpPolicy.source === "master" ? 4 as const : CHICKEN_VERSION, pricingVersion: cfg.pricingVersion, rtpPolicy: cfg.rtpPolicy, roundDurationMs: CHICKEN_ROUND_DURATION_MS };
+  return { enabled: cfg.enabled, minStakePaise: cfg.minStakePaise.toString(), maxStakePaise: cfg.maxStakePaise.toString(), rtp: cfg.rtpPolicy.source !== "company" ? 1 - cfg.houseEdge : CHICKEN_RTP, version: cfg.rtpPolicy.source !== "company" ? 4 as const : CHICKEN_VERSION, pricingVersion: cfg.pricingVersion, rtpPolicy: cfg.rtpPolicy, roundDurationMs: CHICKEN_ROUND_DURATION_MS };
 }
 export async function chickenState(userId: string) {
   await recoverChickenRounds(userId);

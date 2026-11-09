@@ -449,6 +449,13 @@
       "when": 1794268800001,
       "tag": "0063_master_profit_bank",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1794268800002,
+      "tag": "0064_b2c_rtp",
+      "breakpoints": true
     }
   ]
 }
