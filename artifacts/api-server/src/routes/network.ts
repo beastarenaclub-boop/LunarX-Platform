@@ -18,6 +18,7 @@ import { weeklyStatus, assertBranchOperations } from "../services/networkWeekly"
 import weeklyRouter from "./networkWeekly";
 import brandingRouter from "./networkBranding";
 import rtpRouter from "./networkRtp";
+import bankFloorRouter from "./bankFloor";
 import reportsRouter from "./networkReports";
 import paymentHistoryRouter from "./networkPaymentHistory";
 import manualPaymentsRouter from "./networkManualPayments";
@@ -57,6 +58,7 @@ router.use(async(req,_res,next)=>{
 });
 router.use('/branding',brandingRouter);
 router.use('/rtp',rtpRouter);
+router.use('/bank-floor',bankFloorRouter);
 function isDuplicate(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
   const databaseError = error as { code?: string; cause?: unknown };

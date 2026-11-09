@@ -1,0 +1,11 @@
+import { Router, type IRouter } from "express";
+import { bankMasters, bankDetail, bankPreview, moveProfitToBank, distributeBank, distributionReceipt } from "../services/bankFloor";
+const router: IRouter=Router();
+router.use((_req,res,next)=>{res.set("Cache-Control","private, no-store");next();});
+router.get("/",async(req,res,next)=>{try{res.json(await bankMasters(req.user!));}catch(e){next(e);}});
+router.get("/:masterId",async(req,res,next)=>{try{res.json(await bankDetail(req.user!,String(req.params.masterId)));}catch(e){next(e);}});
+router.get("/:masterId/preview",async(req,res,next)=>{try{res.json(await bankPreview(req.user!,String(req.params.masterId),String(req.query.amountPaise??"")));}catch(e){next(e);}});
+router.get("/:masterId/distributions/:id",async(req,res,next)=>{try{res.json(await distributionReceipt(req.user!,String(req.params.masterId),String(req.params.id)));}catch(e){next(e);}});
+for(const kind of ["reserve","return"] as const)router.post(`/:masterId/${kind}`,async(req,res,next)=>{try{res.json(await moveProfitToBank(req.user!,String(req.params.masterId),kind,req.body));}catch(e){next(e);}});
+router.post("/:masterId/distribute",async(req,res,next)=>{try{res.json(await distributeBank(req.user!,String(req.params.masterId),req.body));}catch(e){next(e);}});
+export default router;

@@ -1,5 +1,6 @@
 export * from "./users";
 export * from "./network";
+export * from "./bankFloor";
 export * from "./roles";
 export * from "./sessions";
 export * from "./kyc";

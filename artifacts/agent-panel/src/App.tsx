@@ -16,6 +16,7 @@ import { NetworkPanel, OperatorInsights, getOperatorPanel, type NetworkSection }
 
 const sectionRoutes: Record<NetworkSection, string> = {
   RTP: "/rtp",
+  "Bank floor": "/bank-floor",
   Overview: "/", Downline: "/downline", Agents: "/agents", Players: "/users",
   Ledger: "/ledger", Settlements: "/settlements", "Wallet ledger": "/transactions", Website: "/website",
   "Weekly account":"/weekly",
@@ -81,6 +82,7 @@ function ProtectedRoutes() {
     <Layout>
       <Switch>
         <Route path="/rtp"><PanelPage tab="RTP" /></Route>
+        <Route path="/bank-floor"><PanelPage tab="Bank floor" /></Route>
         <Route path="/downline" component={DownlinePage} />
         <Route path="/agents" component={AgentsPage} />
         <Route path="/users" component={UsersPage} />
