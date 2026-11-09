@@ -1,7 +1,7 @@
 import { parentPort, workerData } from "node:worker_threads";
 import express from "express";
 import { eq, lt, sql } from "drizzle-orm";
-import { db, memory, ready, usersTable, sessionsTable, gameConfigTable, tableRoundsTable } from "./database";
+import { db, memory, ready, usersTable, sessionsTable, tableRoundsTable } from "./database";
 import gameplayRouter from "../routes/gameplay";
 import { startGameEngines } from "../lib/gameEngines";
 import { attachRealtime } from "../realtime/gateway";
@@ -9,7 +9,7 @@ import { errorHandler } from "../middlewares/error";
 import { ensureGameConfigDefaults } from "../lib/bootstrap";
 import { demoRouteAllowed } from "./policy";
 import { demoPublicUser, type DemoSession } from "./sessions";
-import { invalidateConfigCache } from "../services/rtp";
+import { demoConfigurator } from "./configuration";
 
 if (!parentPort || !workerData.secret) throw new Error("Demo worker requires its private parent channel");
 await ready;
@@ -25,15 +25,8 @@ for (const column of identities.rows) {
 }
 await ensureGameConfigDefaults();
 
-async function configure(configs: (typeof gameConfigTable.$inferSelect)[]) {
-  for (const config of configs) {
-    const { id: _id, updatedBy: _updatedBy, ...fields } = config;
-    await db.insert(gameConfigTable).values({ ...fields, updatedBy: null })
-      .onConflictDoUpdate({ target: gameConfigTable.gameCode, set: { ...fields, updatedBy: null } });
-  }
-  invalidateConfigCache();
-}
-await configure(workerData.configs);
+const configure = demoConfigurator();
+await configure(workerData.configuration ?? { configs: workerData.configs });
 const sessions = new Map<string, DemoSession>();
 const app = express();
 app.disable("x-powered-by");
@@ -88,7 +81,7 @@ parentPort.on("message", async (message) => {
       const session = sessions.get(message.token);
       if (session) await discard(session);
     } else if (message.action === "configure") {
-      await configure(message.configs);
+      await configure(message.configuration ?? { configs: message.configs });
     }
     parentPort!.postMessage({ reply: message.requestId, ok: true });
   } catch {

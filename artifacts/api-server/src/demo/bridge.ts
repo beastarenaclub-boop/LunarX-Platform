@@ -4,7 +4,7 @@ import type { IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
 import type { RequestHandler } from "express";
 import { WebSocket, WebSocketServer } from "ws";
-import { db, gameConfigTable } from "@workspace/db";
+import { captureDemoConfiguration } from "./configurationSnapshot";
 import { requestSite, sessionCookie } from "../middlewares/siteChannel";
 import { demoSessions, demoPublicUser, isDemoToken, type DemoSession } from "./sessions";
 import { demoRouteAllowed } from "./policy";
@@ -21,14 +21,14 @@ const cookieOptions = { httpOnly: true, secure, sameSite: secure ? "none" as con
 async function startRuntime(): Promise<Runtime> {
   if (runtime) return runtime;
   runtime = (async () => {
-    const configs = await db.select().from(gameConfigTable);
+    const configuration = await captureDemoConfiguration();
     const secret = randomBytes(32).toString("hex");
     const worker = new Worker(new URL(import.meta.url.endsWith(".ts")
       ? "../../dist/demo-worker.mjs" : "./demo-worker.mjs", import.meta.url), {
       // The demo process receives no database URL, payment keys or other secrets.
       env: { NODE_ENV: "production", LOG_LEVEL: "silent" }, execArgv: [],
       stdout: true, stderr: true,
-      workerData: { secret, configs },
+      workerData: { secret, configuration },
     });
     // Some shared engines use console.error. Never retain demo game logs.
     worker.stdout?.resume(); worker.stderr?.resume();
@@ -208,10 +208,14 @@ export function demoUpgrade(req: IncomingMessage, socket: Duplex, head: Buffer):
 }
 
 // Configuration changes apply to future demo rounds just as they do to real games.
+let syncingConfiguration = false;
 setInterval(() => {
-  if (runtime) void runtime.then(async target => {
-    await command(target, { action: "configure", configs: await db.select().from(gameConfigTable) });
-  }).catch(() => {});
+  if (runtime && !syncingConfiguration) {
+    syncingConfiguration = true;
+    void runtime.then(async target => {
+      await command(target, { action: "configure", configuration: await captureDemoConfiguration() });
+    }).catch(() => {}).finally(() => { syncingConfiguration = false; });
+  }
 }, 30_000).unref();
 
 setInterval(() => {
