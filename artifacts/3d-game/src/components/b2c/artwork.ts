@@ -124,6 +124,7 @@ export const B2C_AVATAR = b2cMedia("player-avatar.png");
 export const B2C_LOTTERY = b2cMedia("lottery.png");
 
 export const B2C_GAME_ORDER = [
+  "lunar",
   "roulette-american", "roulette-mini", "fun-target", "rummy-royale",
   "mega-ball",
   "ludo",

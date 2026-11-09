@@ -1,5 +1,6 @@
 import {
   Send,
+  Plane,
   Flame,
   type LucideIcon,
 } from "lucide-react";
@@ -43,6 +44,13 @@ export interface CrashTheme {
 }
 
 export const CRASH_THEMES: Record<string, CrashTheme> = {
+  lunar: {
+    code: "lunar", name: "Aviator", namePrimary: "Aviator", nameAccent: "",
+    provider: "Lunar Originals", tagline: "Cash out before the plane flies away.", route: "/aviator-pro",
+    Icon: Plane, vehicleColor: "#e11d48", trailColor: "#e11d48", accent: "#e11d48", accentTo: "#fb7185",
+    canvasBg: "bg-[#0e0e0e]", cardBg: "bg-gradient-to-br from-red-950 to-black",
+    crashText: "Flew away!", crashTextHi: "Flew away!", sky: "stars", sunburst: true, sfxRate: 1,
+  },
   jetx: {
     code: "jetx",
     name: "JetX",

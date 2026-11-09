@@ -41,6 +41,7 @@ const B2C = lazy(() => import("@/pages/B2C"));
 const AccountReport = lazy(() => import("@/pages/AccountReport"));
 const AccountSettings = lazy(() => import("@/pages/AccountSettings"));
 const Launcher = lazy(() => import("@/pages/Launcher"));
+const AviatorPro = lazy(() => import("@/games/lunar/AviatorPro"));
 const Lunar = lazy(() => import("@/pages/Lunar"));
 const Mines = lazy(() => import("@/pages/Mines"));
 const Plinko = lazy(() => import("@/pages/Plinko"));
@@ -257,10 +258,13 @@ function App() {
           <Route path="/chicken-road-2"><Protected><Suspense fallback={<AuthSplash />}><RemovedInstantGame /></Suspense></Protected></Route>
           <Route path="/chicken-road-2.0"><Redirect to="/chicken-road-2" /></Route>
           <Route path="/chicken-road-pirate-edition"><Redirect to="/chicken-road-pirate" /></Route>
+          <Route path="/play"><Redirect to="/aviator-pro" /></Route>
+          <Route path="/lunar"><Redirect to="/aviator-pro" /></Route>
+          <Route path="/aviator"><Redirect to="/aviator-pro" /></Route>
           {CRASH_ROUTES.map(({ route, code }) => (
             <Route key={code} path={route}>
               <Protected>
-                <Lunar gameCode={code} />
+                {code === "lunar" ? <AviatorPro /> : <Lunar gameCode={code} />}
               </Protected>
             </Route>
           ))}

@@ -1,3 +1,4 @@
+import AviatorPro from "@/games/lunar/AviatorPro";
 import AmericanRoulette from "@/games/roulette/Roulette";
 import RouletteMini from "@/games/roulette/RouletteMini";
 import FunTarget from "@/games/fun-target/FunTarget";
@@ -61,6 +62,7 @@ function walletScopeFor(code: string): (typeof WALLET_SCOPES)[number] {
 
 function GameByCode({ code }: { code: string }) {
   switch (code) {
+    case "lunar": return <AviatorPro embedded />;
     case "roulette-american": return <AmericanRoulette embedded />;
     case "roulette-mini": return <RouletteMini embedded />;
     case "fun-target": return <FunTarget embedded />;
@@ -135,7 +137,7 @@ export default function Launcher() {
 
   // 1. Token exchange — burns the single-use token and sets the sid cookie.
   useEffect(() => {
-    if (game === "lunar" || game === "aviator") {
+    if (game === "aviator") {
       setError("This game is no longer available.");
       setStatus("error");
       return;

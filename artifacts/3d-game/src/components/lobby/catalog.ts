@@ -62,6 +62,7 @@ export interface RegistryEntry {
 
 // Share the storefront's curated trending order across both lobbies.
 export const TOP_GAME_IDS = [
+  "lunar",
   "roulette-american", "roulette-mini", "fun-target", "rummy-royale",
   "mega-ball",
   "ludo",
@@ -121,6 +122,7 @@ const crash = (id: string) => {
 // One catalog for every view. Only implemented player routes belong here.
 // The top section and remaining section partition this list, never repeat it.
 export const LOBBY_GAMES: LobbyGame[] = [
+  { ...crash("lunar"), label: "NEW", tags: ["lunar", "aviator", "crash", "plane"] },
   game("roulette-american", "American Roulette", "table", "#d9b96d", { label: "NEW", tags: ["roulette", "american", "38 pockets"] }),
   game("roulette-mini", "Roulette Mini", "table", "#64cabc", { label: "NEW", tags: ["roulette", "mini", "19 pockets"] }),
   game("fun-target", "Top 10 Target", "table", "#ff8b43", { label: "NEW", tags: ["target", "wheel", "digits"] }),

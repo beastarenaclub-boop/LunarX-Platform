@@ -11,7 +11,7 @@ import { EMOJIS } from "@/game/names";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-function RainCard() {
+export function RainCard() {
   const rain = useStore((s) => s.activeRain);
   const [claiming, setClaiming] = useState(false);
   const [, forceTick] = useState(0);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useStore } from "@/game/store";
 import { rotateServerSeed } from "@/game/engine";
 import { deriveCrash } from "@/game/rng";
@@ -18,11 +18,12 @@ import { ShieldCheck, RotateCw, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
+  terms?: ReactNode;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export default function ProvablyFairDialog({ open, onOpenChange }: Props) {
+export default function ProvablyFairDialog({ open, onOpenChange, terms }: Props) {
   const lang = useStore((s) => s.settings.language);
   useDialogSound(open);
   const serverSeedHash = useStore((s) => s.serverSeedHash);
@@ -66,6 +67,7 @@ export default function ProvablyFairDialog({ open, onOpenChange }: Props) {
         </DialogHeader>
 
         <div className="space-y-5 pt-2 text-sm">
+          {terms}
           <p className="text-xs text-muted-foreground">
             Each round's crash multiplier is derived from a hashed server seed (committed before the round),
             your client seed, and a nonce. The server reveals the seed after the crash and commits a fresh seed for the next round.

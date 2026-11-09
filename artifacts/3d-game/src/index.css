@@ -431,7 +431,7 @@
 /* Iframe launcher mode — hides platform chrome (top bar, banner strip,
  * demo signup nudge, chat panel) so the embedded game fills the iframe.
  * Toggled by Launcher.tsx via document.body.classList.add("launcher-mode"). */
-.launcher-mode header,
+.launcher-mode header:not([data-game-header]),
 .launcher-mode [data-banner-strip],
 .launcher-mode [data-demo-nudge],
 .launcher-mode [data-chat-panel] {

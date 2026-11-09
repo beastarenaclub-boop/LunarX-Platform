@@ -41,6 +41,14 @@ export function logDatabaseTarget(): void {
  * existing config and historical settlement data are preserved.
  */
 export async function ensureGameConfigDefaults(): Promise<void> {
+  // Kit Aviator uses the existing server-authoritative crash engine. Preserve
+  // operator settings on restart; migration 0066 reopens the retired row once.
+  await db.insert(gameConfigTable).values({
+    gameCode: "lunar", enabled: true, settlementMode: "house_edge",
+    rtpMin: 85, rtpMax: 85, houseEdge: 0.15, maxMultiplier: 1000,
+    minStakePaise: 100n, maxStakePaise: 50_000_000n,
+    bettingWindowMs: 15_000, turboBettingWindowMs: 15_000,
+  }).onConflictDoNothing();
   for (const [gameCode, cap, edge] of [["roulette-american",36,2/38],["roulette-mini",18,1/19],["fun-target",10,.1],["rummy-royale",4,.03]] as const) {
     await db.insert(gameConfigTable).values({gameCode,enabled:true,settlementMode:"house_edge",houseEdge:edge,rtpMin:(1-edge)*100,rtpMax:(1-edge)*100,
       maxMultiplier:cap,minStakePaise:500n,maxStakePaise:5_000_000n,bettingWindowMs:20000,revealDurationMs:6000,settleDurationMs:5000}).onConflictDoNothing();
@@ -463,7 +471,7 @@ export async function ensureGameConfigDefaults(): Promise<void> {
   // Apply the operator's 85% target to future rounds only. Every open round
   // retains its persisted payout version/configuration.
   await db.update(gameConfigTable).set({ houseEdge: 0.15, rtpMin: 85, rtpMax: 85, settlementMode: "house_edge" })
-    .where(inArray(gameConfigTable.gameCode, ["lunar", "aviator", "jetx", "fury", "mines", "dice", "plinko", "horse-racing", "bike-racing", "lucky-7", "chicken-road", "baccarat", "blackjack", "teen-patti", "teen-patti-live", "andar-bahar", "vegetable-bowl", "crazy-time"]));
+    .where(inArray(gameConfigTable.gameCode, ["aviator", "jetx", "fury", "mines", "dice", "plinko", "horse-racing", "bike-racing", "lucky-7", "chicken-road", "baccarat", "blackjack", "teen-patti", "teen-patti-live", "andar-bahar", "vegetable-bowl", "crazy-time"]));
   // Fixed European roulette terms apply only to newly created rounds.
   await db.update(gameConfigTable).set({ houseEdge: ROULETTE_HOUSE_EDGE,
     rtpMin: ROULETTE_RTP_PERCENT, rtpMax: ROULETTE_RTP_PERCENT,

@@ -65,7 +65,7 @@ export function isGameAudioId(value: string): value is GameAudioId {
 }
 export function audioGameForRoute(route: string): GameAudioId | null {
   const name = route.replace(/\/$/, "").slice(1);
-  if (name === "play") return "lunar";
+  if (name === "play" || name === "aviator-pro") return "lunar";
   if (name === "lunar-colour-trading") return "wingo";
   if (name === "lottery") return "lottery-2d";
   if (name === "speed-auto-roulette") return "roulette";

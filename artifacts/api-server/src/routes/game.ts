@@ -244,7 +244,7 @@ export const GAME_TYPE_META: Record<string, GameTypeMeta> = {
   },
   // ── Crash / plane games ────────────────────────────────────────────────
   ...Object.fromEntries(
-    ["jetx","fury"].map(
+    ["lunar","jetx","fury"].map(
       (code) => [code, {
         engineType: "crash" as EngineType,
         label: "Crash",
@@ -599,6 +599,7 @@ const GAME_META: Record<string, { title: string; route: string }> = {
   mines: { title: "Mines", route: "/mines" },
   plinko: { title: "Plinko", route: "/plinko" },
   dice: { title: "Dice", route: "/dice" },
+  lunar: { title: "Aviator", route: "/aviator-pro" },
   jetx: { title: "JetX", route: "/jetx" },
   fury: { title: "Fury Flight", route: "/fury" },
   "bike-racing": { title: "Bike Racing", route: "/bike-racing" },
