@@ -1,3 +1,4 @@
+import { RESULT_ENGINE_GAMES, usesResultEngine } from "../services/resultEngine/scope";
 import { rummyOutcomeSpace } from "../games/rummy/sim";
 import type { OutcomeSpace } from "../services/tableAdapter";
 import { Router } from "express";
@@ -78,7 +79,7 @@ export const engineConfigInput = z
   .strict();
 
 function capability(code: string) {
-  const supported = Object.hasOwn(ADAPTERS, code) || code === "rummy-royale";
+  const supported = usesResultEngine(code);
   return {
     supported,
     reason: supported
@@ -180,7 +181,7 @@ router.put("/budget", async (req, res, next) => {
       })
       .strict()
       .parse(req.body);
-    for (const code of [...Object.keys(ADAPTERS), "rummy-royale"])
+    for (const code of RESULT_ENGINE_GAMES)
       await engineStateFor(code, null);
     const before = await bankBudgetView(null);
     const after = await writeBankBudget({

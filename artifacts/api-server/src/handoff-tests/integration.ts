@@ -1,3 +1,6 @@
+import { RETIRED_GAME_CODES } from "../lib/retiredGames";
+import { legacyChecks } from "./legacy";
+import { RESULT_ENGINE_GAMES, usesResultEngine } from "../services/resultEngine/scope";
 import { test, after } from "node:test";
 import assert from "node:assert/strict";
 import express from "express";
@@ -96,6 +99,20 @@ test("Migration 0065 upgrades the prior schema and preserves existing game setti
     await prior.query(
       "SELECT * FROM game_engine_config, game_bank_ledger, round_decision, engine_bank_budget, pending_wins, rummy_rounds LIMIT 0",
     );
+    await prior.exec(`
+      INSERT INTO game_config(id,game_code,enabled) VALUES ('retire-rummy','rummy-royale',true),('retire-speed','speed-auto-roulette',true);
+      INSERT INTO game_engine_config(stream_key,game_code,bank_paise,mode) VALUES
+        ('roulette-american','roulette-american',1000,'rtp'),('roulette-mini','roulette-mini',2000,'normal'),('roulette','roulette',9000,'collect');
+      INSERT INTO engine_bank_budget(scope,mode,floor_paise) VALUES ('local','combined',2000),('other-scope','same_each',1500);
+    `);
+    const settingsBefore = (await prior.query("SELECT * FROM game_engine_config ORDER BY stream_key")).rows;
+    await prior.exec(await readFile(resolve("../../lib/db/drizzle/0067_four_selected_games.sql"), "utf8"));
+    assert.deepEqual((await prior.query("SELECT * FROM game_engine_config ORDER BY stream_key")).rows, settingsBefore);
+    const budgets = await prior.query<{scope:string;floor_paise:bigint}>("SELECT scope,floor_paise FROM engine_bank_budget ORDER BY scope");
+    assert.equal(String(budgets.rows[0].floor_paise), "-7000");
+    assert.equal(3000n - BigInt(budgets.rows[0].floor_paise), 10000n, "Combined budget headroom survives removal of legacy banks");
+    assert.equal(String(budgets.rows[1].floor_paise), "1500");
+    assert.equal((await prior.query<{count:number}>("SELECT count(*)::int AS count FROM game_config WHERE game_code IN ('rummy-royale','speed-auto-roulette') AND enabled")).rows[0].count, 0);
   } finally {
     await prior.close();
   }
@@ -122,8 +139,8 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
     refType: "test",
     refId: "fund",
   });
-  const supported = TABLE_GAME_CODES.filter((c) => c !== "blackjack");
-  assert.equal(supported.length, 18);
+  const supported = RESULT_ENGINE_GAMES;
+  assert.equal(supported.length, 3);
   for (const code of supported) {
     const state = await engineStateFor(code, null);
     assert.equal(state.mode, "normal");
@@ -180,9 +197,9 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
     app.get("/admin/{*path}", (_req, res) =>
       res.sendFile(resolve("../admin-panel/dist/public/index.html")),
     );
-    app.use(express.static(resolve("../3d-game/dist/public")));
+    app.use(express.static(resolve(process.env.FOUR_GAMES_BROWSER ? "../../tmp/four-games-release-web" : "../3d-game/dist/public")));
     app.get(/^(?!\/api\/).*/, (_req, res) =>
-      res.sendFile(resolve("../3d-game/dist/public/index.html")),
+      res.sendFile(resolve(process.env.FOUR_GAMES_BROWSER ? "../../tmp/four-games-release-web/index.html" : "../3d-game/dist/public/index.html")),
     );
   }
   const server = app.listen(0, "127.0.0.1");
@@ -210,7 +227,7 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
     ).json();
     assert.ok(
       listing.games.some(
-        (g: any) => g.game.gameCode === "rummy-royale" && g.supported,
+        (g: any) => g.game.gameCode === "rummy-royale" && !g.supported,
       ),
     );
     assert.ok(
@@ -221,6 +238,8 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
     const target = listing.games.find(
       (g: any) => g.game.gameCode === "fun-target",
     );
+    assert.deepEqual(listing.games.filter((g:any)=>g.supported).map((g:any)=>g.game.gameCode).sort(), [...RESULT_ENGINE_GAMES].sort());
+    await legacyChecks(request);
     assert.equal(
       (
         await request("/api/admin/game-control/fun-target", "admin", "PUT", {
@@ -402,6 +421,8 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
       budgetPaise: "50000",
       updatedBy: "admin",
     });
+    assert.equal((await engineStateFor("roulette",null)).minBankFloorPaise, 0n, "Shared budgets must never edit old game controls");
+    assert.deepEqual((await bankBudgetView(null)).games.map(g=>g.gameCode).sort(), [...RESULT_ENGINE_GAMES].sort());
     const before = await engineStateFor("fun-target", null);
     await settleBank({
       gameCode: "fun-target",
@@ -420,7 +441,19 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
       updatedBy: "admin",
     });
     assert.equal((await bankBudgetView(null)).budgetPaise, "100000");
-    const rummy = await createRound({ userId: "player", stakeAmount: 1000n });
+    // Model a hand funded BEFORE the rollback, then retire the game. Existing
+    // actions must still settle; no new deal may debit another stake.
+    (RETIRED_GAME_CODES as Set<string>).delete("rummy-royale");
+    await db.update(gameConfigTable).set({enabled:true}).where(eq(gameConfigTable.gameCode,"rummy-royale"));
+    invalidateConfigCache("rummy-royale");
+    let rummy;
+    try { rummy = await createRound({ userId: "player", stakeAmount: 1000n }); }
+    finally {
+      (RETIRED_GAME_CODES as Set<string>).add("rummy-royale");
+      await db.update(gameConfigTable).set({enabled:false}).where(eq(gameConfigTable.gameCode,"rummy-royale"));
+      invalidateConfigCache("rummy-royale");
+    }
+    await assert.rejects(createRound({userId:"player",stakeAmount:1000n}), /GAME_DISABLED/);
     assert.ok(rummy.round);
     const active = await getRound({
       userId: "player",
@@ -441,7 +474,7 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
     );
     assert.equal(
       (await request("/api/admin/game-control/rummy-royale/choices")).status,
-      200,
+      400,
     );
     assert.equal(
       (await request("/api/admin/game-control/fun-target/history")).status,

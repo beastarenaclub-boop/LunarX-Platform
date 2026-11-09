@@ -2,8 +2,7 @@ import AviatorPro from "@/games/lunar/AviatorPro";
 import AmericanRoulette from "@/games/roulette/Roulette";
 import RouletteMini from "@/games/roulette/RouletteMini";
 import FunTarget from "@/games/fun-target/FunTarget";
-import RummyRoyale from "@/games/rummy/Rummy";
-import SpeedAutoRoulette from "@/pages/SpeedAutoRoulette";
+import FinishRummyRoyale from "@/pages/FinishRummyRoyale";
 import { useEffect, useRef, useState } from "react";
 import Mines from "@/pages/Mines";
 import Plinko from "@/pages/Plinko";
@@ -66,7 +65,7 @@ function GameByCode({ code }: { code: string }) {
     case "roulette-american": return <AmericanRoulette embedded />;
     case "roulette-mini": return <RouletteMini embedded />;
     case "fun-target": return <FunTarget embedded />;
-    case "rummy-royale": return <RummyRoyale embedded />;
+    case "rummy-royale": return <FinishRummyRoyale embedded />;
     case "mines":
       return <Mines />;
     case "plinko":
@@ -74,7 +73,7 @@ function GameByCode({ code }: { code: string }) {
     case "dice":
       return <Dice />;
     case "speed-auto-roulette":
-      return <SpeedAutoRoulette />;
+      return <div className="p-6">This game is no longer available.</div>;
     case "roulette":
       return <Roulette />;
     case "baccarat":

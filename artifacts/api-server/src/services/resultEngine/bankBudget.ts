@@ -46,7 +46,8 @@
  * same vocabulary Game Control and the settings export already use.
  */
 import { db, gameEngineConfigTable, engineBankBudgetTable, partnersTable } from "@workspace/db";
-import { eq, isNull, sql } from "drizzle-orm";
+import { RESULT_ENGINE_GAMES } from "./scope";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 
 export const BANK_BUDGET_MODES = ["per_game", "same_each", "combined"] as const;
 export type BankBudgetMode = (typeof BANK_BUDGET_MODES)[number];
@@ -108,9 +109,9 @@ export async function combinedBankFor(partnerId: string | null): Promise<bigint>
     .select({ total: sql<string>`COALESCE(SUM(${gameEngineConfigTable.bankPaise}), 0)::text` })
     .from(gameEngineConfigTable)
     .where(
-      partnerId === null
+      and(inArray(gameEngineConfigTable.gameCode, [...RESULT_ENGINE_GAMES]), partnerId === null
         ? isNull(gameEngineConfigTable.partnerId)
-        : eq(gameEngineConfigTable.partnerId, partnerId),
+        : eq(gameEngineConfigTable.partnerId, partnerId)),
     );
   return BigInt(row?.total ?? "0");
 }
@@ -130,9 +131,9 @@ export async function scopeStreams(partnerId: string | null): Promise<
     })
     .from(gameEngineConfigTable)
     .where(
-      partnerId === null
+      and(inArray(gameEngineConfigTable.gameCode, [...RESULT_ENGINE_GAMES]), partnerId === null
         ? isNull(gameEngineConfigTable.partnerId)
-        : eq(gameEngineConfigTable.partnerId, partnerId),
+        : eq(gameEngineConfigTable.partnerId, partnerId)),
     );
   return rows
     .map((r) => ({
@@ -257,7 +258,7 @@ export async function writeBankBudget(args: {
   }
   const scope = scopeOf(args.partnerId);
   await db.transaction(async tx => {
-  const scopeFilter = args.partnerId === null ? isNull(gameEngineConfigTable.partnerId) : eq(gameEngineConfigTable.partnerId, args.partnerId);
+  const scopeFilter = and(inArray(gameEngineConfigTable.gameCode, [...RESULT_ENGINE_GAMES]), args.partnerId === null ? isNull(gameEngineConfigTable.partnerId) : eq(gameEngineConfigTable.partnerId, args.partnerId));
   const streams = await tx.select({bank:gameEngineConfigTable.bankPaise}).from(gameEngineConfigTable)
     .where(scopeFilter).orderBy(gameEngineConfigTable.streamKey).for("update");
   if (mode === "combined") floorPaise = streams.reduce((sum,row)=>sum+row.bank,0n) - budget!;
@@ -277,9 +278,9 @@ export async function writeBankBudget(args: {
       .update(gameEngineConfigTable)
       .set({ minBankFloorPaise: sql`${gameEngineConfigTable.bankPaise} - ${floorPaise}`, updatedBy:args.updatedBy, updatedAt:new Date() })
       .where(
-        args.partnerId === null
+        and(inArray(gameEngineConfigTable.gameCode, [...RESULT_ENGINE_GAMES]), args.partnerId === null
           ? isNull(gameEngineConfigTable.partnerId)
-          : eq(gameEngineConfigTable.partnerId, args.partnerId),
+          : eq(gameEngineConfigTable.partnerId, args.partnerId)),
       );
   }
   });

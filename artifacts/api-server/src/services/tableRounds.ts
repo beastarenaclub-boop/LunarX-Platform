@@ -1,3 +1,4 @@
+import { usesResultEngine } from "./resultEngine/scope";
 import { isDeepStrictEqual } from "node:util";
 import { handoffAdapters, HANDOFF_TABLE_CODES } from "./handoffGames";
 import { creditPendingWin } from "./pendingWins";
@@ -51,6 +52,7 @@ import { settleSevenLive, type SevenOutcome } from "./sevenUpDownLive";
 import {
   db,
   betsTable,
+  roundDecisionTable,
   usersTable,
   tableRoundsTable,
   tableRoundBetsTable,
@@ -151,6 +153,8 @@ export function isTableGame(code: string): code is TableGameCode {
 
 /** Config snapshot persisted on every round row. */
 export interface RoundConfigSnapshot {
+  /** New legacy rounds use the pre-kit payout path; accepted older rounds retain theirs. */
+  legacyRulesVersion?: 1;
   maxPerSpotPaise?: string;
   paytable?: Record<string, number>;
   masterRtpBps?: number; pricingVersion?: string; rtpPolicy?: { source: string; revision: number; playerRtpBps: number };
@@ -581,13 +585,13 @@ export const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdap
   "wheel-2-live": {
     validate: bets => ({ totalStake: w20Stake(normalizeW20Bets(bets as W20Bet[])) }),
     derive: (seed, client, nonce) => deriveW20Outcome(seed, client, nonce),
-    settle: (bets, outcome, _cap, _edge, cfg) => ({ settled: bets, totalPayout: w20Payout(bets as W20Bet[], outcome as W20Outcome, cfg.wheel20Version, cfg.masterRtpBps) }),
+    settle: (bets, outcome, _cap, _edge, cfg) => ({ settled: bets, totalPayout: w20Payout(bets as W20Bet[], outcome as W20Outcome, cfg.wheel20Version, cfg.legacyRulesVersion === 1 ? undefined : cfg.masterRtpBps) }),
     async insertAudit({ round }) { return round.id; },
   },
   "lucky-7-live": {
     validate: bets => ({ totalStake: l7Stake(normalizeL7Bets(bets as L7Bet[])) }),
     derive: (seed, client, nonce) => deriveL7Card(seed, client, nonce),
-    settle: (bets, card, _cap, _edge, cfg) => ({ settled: bets, totalPayout: l7Payout(bets as L7Bet[], card as L7Card, cfg.lucky7CardVersion, cfg.masterRtpBps) }),
+    settle: (bets, card, _cap, _edge, cfg) => ({ settled: bets, totalPayout: l7Payout(bets as L7Bet[], card as L7Card, cfg.lucky7CardVersion, cfg.legacyRulesVersion === 1 ? undefined : cfg.masterRtpBps) }),
     async insertAudit({ round }) { return round.id; },
   },
   "coin-flip": {
@@ -849,6 +853,7 @@ async function advancePhase(
 export async function createTableRound(gameCode: TableGameCode): Promise<TableRound> {
   const cfg = await requireGameConfig(gameCode);
   const snap = snapshotConfig(cfg);
+  if (!usesResultEngine(gameCode)) snap.legacyRulesVersion = 1;
   if ((HANDOFF_TABLE_CODES as readonly string[]).includes(gameCode)) snap.maxPerSpotPaise = String(cfg.maxPerSpotPaise);
   if (gameCode === "fun-target") snap.paytable = { ftDigitReturn: cfg.ftDigitReturn };
   if (["teen-patti", "teen-patti-live"].includes(gameCode)) {
@@ -935,6 +940,7 @@ export async function revealTableRound(round: TableRound): Promise<TableRound> {
     const adapter = ADAPTERS[round.gameCode as Exclude<TableGameCode, "blackjack">];
     const cfg = roundCfg(round);
     const derive = (seed: { serverSeed: string; clientSeed: string; nonce: number }) => adapter.derive(seed.serverSeed, seed.clientSeed, seed.nonce, cfg);
+    if (usesResultEngine(round.gameCode)) {
     decision = await decideOutcomeFor({ gameCode: round.gameCode, partnerId: null, roundId: round.id,
       seed: round, space: tableOutcomeSpace(round.gameCode, derive), drawHonest: () => derive(round),
       payoutFor: (bets, result, slip) => {
@@ -943,6 +949,10 @@ export async function revealTableRound(round: TableRound): Promise<TableRound> {
       },
     });
     outcome = decision.outcome;
+    } else {
+      // Restore the original seed draw for every pre-existing table game.
+      outcome = derive(round);
+    }
   }
   // Count-dependent timing is published only when betting closes. Publishing
   // it at round creation would disclose the winning card-count range.
@@ -1111,7 +1121,7 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
               userId: slip.userId,
               multiplier: creditMultiplier,
               maxMultiplierCap: cfg.maxMultiplier,
-              tablePayoutPaise: slipPayout,
+              ...(cfg.legacyRulesVersion === 1 ? {} : { tablePayoutPaise: slipPayout }),
               ...(["teen-patti", "teen-patti-live"].includes(round.gameCode) ? { teenPattiPayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "vegetable-bowl" ? { vegetablePayoutPaise: slipPayout } : {}),
               ...(round.gameCode === "crazy-time" ? { crazyTimePayoutPaise: slipPayout } : {}),
@@ -1169,8 +1179,14 @@ export async function finishTableRound(round: TableRound): Promise<TableRound | 
       totalStake: sql`(select coalesce(sum(total_stake),0) from table_round_bets where round_id = ${round.id} and status = 'settled')`,
       totalPayout: sql`(select coalesce(sum(payout_amount),0) from table_round_bets where round_id = ${round.id} and status = 'settled')`,
     }).where(and(eq(tableRoundsTable.id, round.id), eq(tableRoundsTable.phase, "settling"))).returning();
-    if (done && done.gameCode !== "blackjack") await settleBank({ gameCode: done.gameCode, partnerId: null,
-      roundId: done.id, totalStakePaise: done.totalStake, totalPayoutPaise: done.totalPayout }, tx);
+    if (done && done.gameCode !== "blackjack") {
+      const [priorDecision] = usesResultEngine(done.gameCode) ? [true] : await tx.select({id:roundDecisionTable.id})
+        .from(roundDecisionTable).where(eq(roundDecisionTable.roundId,done.id)).limit(1);
+      // Finish the ledger of an already-managed round, but never connect a
+      // newly created legacy round to the imported bank or result engine.
+      if (priorDecision) await settleBank({ gameCode: done.gameCode, partnerId: null,
+        roundId: done.id, totalStakePaise: done.totalStake, totalPayoutPaise: done.totalPayout }, tx);
+    }
     return done;
   });
   if (!updated) return null;
@@ -1676,7 +1692,7 @@ async function runGameLoop(gameCode: TableGameCode): Promise<void> {
   while (!engineStopped) {
     try {
       const cfg = await requireGameConfig(gameCode);
-      if (!cfg.enabled && !(gameCode === "coin-flip" && resumed)) {
+      if (!cfg.enabled && !resumed) {
         await sleepUntil(Date.now() + 5000);
         continue;
       }

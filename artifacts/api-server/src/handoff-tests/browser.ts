@@ -22,7 +22,7 @@ export async function browserChecks(base: string) {
         await lobby.screenshot({path: resolve(shots, `lobby-${route === "/" ? "lunar" : "b2c"}-${width}.png`), fullPage: false});
         if (route === "/b2c") {
           await lobby.getByRole("button", {name:"Explore new games", exact:true}).click();
-          for (const code of ["roulette-american", "roulette-mini", "fun-target", "rummy-royale"]) {
+          for (const code of ["roulette-american", "roulette-mini", "fun-target"]) {
             const tile = lobby.locator(`[data-game-id="${code}"]`).filter({visible:true}).first();
             await expect(tile).toBeEnabled();
             await tile.scrollIntoViewIfNeeded();
@@ -95,15 +95,12 @@ export async function browserChecks(base: string) {
         "roulette-american",
         "roulette-mini",
         "fun-target",
-        "rummy-royale",
       ]) {
         await game.goto(base + "/" + code);
         await game.waitForTimeout(1800);
         await expect(
           game.getByTestId(
-            code === "rummy-royale"
-              ? "rummy-page"
-              : code === "fun-target"
+            code === "fun-target"
                 ? "cabinet"
                 : "button-sound",
           ),
@@ -117,16 +114,6 @@ export async function browserChecks(base: string) {
           );
           await game.getByTestId("btn-place").click();
           expect((await placed).status()).toBe(200);
-        }
-        if (code === "rummy-royale" && size.width === 1440) {
-          await game.getByTestId("rummy-start").click();
-          await expect(
-            game.getByTestId("rummy-hand").getByRole("button"),
-          ).toHaveCount(13);
-          await expect(game.getByTestId("rummy-page")).toHaveAttribute(
-            "data-phase",
-            /playing|finished/,
-          );
         }
         await expect(game.locator("body")).not.toContainText(
           "Something went wrong",
@@ -148,6 +135,16 @@ export async function browserChecks(base: string) {
           fullPage: true,
         });
       }
+      await game.goto(base + "/b2c");
+      for (const retired of ["rummy-royale", "speed-auto-roulette"]) {
+        await expect(game.locator(`[data-game-id="${retired}"]`)).toHaveCount(0);
+      }
+      for (const retained of ["lunar", "roulette-american", "roulette-mini", "fun-target", "rummy", "roulette", "andar-bahar", "lucky-7"]) {
+        await expect(game.locator(`[data-game-id="${retained}"]`).first()).toBeAttached();
+      }
+      // The original /rummy game was already branded "Rummy Royale" before
+      // the kit. Identify the withdrawn game by its code, not that old title.
+      await expect(game.locator('[data-game-id="rummy"]').first()).toBeAttached();
       expect(failures).toEqual([]);
       await player.close();
     }

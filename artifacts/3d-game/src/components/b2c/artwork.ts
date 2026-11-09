@@ -17,7 +17,7 @@ type StorefrontBanner = {
 };
 
 export const B2C_BANNERS: StorefrontBanner[] = [
-  { src:HANDOFF_BANNER, width:1983, height:793, alt:"New table collection: roulette wheels, Top 10 Target and Rummy Royale cards on emerald velvet", position:"center", handoff:true },
+  { src:HANDOFF_BANNER, width:1983, height:793, alt:"Roulette wheels and gold chips on emerald velvet", position:"center", handoff:true },
   { src: `${import.meta.env.BASE_URL}media/mega-ball/banner.jpg`, width: 1672, height: 941, alt: "NEW GAME — Mega Ball. Every ball. A big moment.", position: "center", megaBall: true },
   ...POKER_GAMES.map((game) => ({
     src: POKER_ART[game].src,
@@ -125,7 +125,7 @@ export const B2C_LOTTERY = b2cMedia("lottery.png");
 
 export const B2C_GAME_ORDER = [
   "lunar",
-  "roulette-american", "roulette-mini", "fun-target", "rummy-royale",
+  "roulette-american", "roulette-mini", "fun-target",
   "mega-ball",
   "ludo",
   "teen-patti-joker",
