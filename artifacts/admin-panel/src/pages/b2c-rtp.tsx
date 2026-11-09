@@ -3,10 +3,11 @@ import { B2cRtp } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GameControlPanel } from "./game-control";
+import BulkGameControl from "./bulk-game-control";
 
 export default function B2cRtpPage() {
   const {user} = useAuth();
-  const [section, setSection] = useState("modes");
+  const [section, setSection] = useState(() => new URLSearchParams(window.location.search).get("section") === "bulk" ? "bulk" : "modes");
   if (user?.role !== "admin" && user?.role !== "super_admin") return <p>Only admin can manage B2C Game Control.</p>;
   return <div className="max-w-6xl space-y-6">
     <header>
@@ -14,10 +15,12 @@ export default function B2cRtpPage() {
       <p className="mt-2 text-slate-600">Manage game modes, loss budgets and B2C player RTP from one place.</p>
     </header>
     <Tabs value={section} onValueChange={setSection}>
-      <TabsList aria-label="B2C controls" className="mb-4 grid h-auto w-full grid-cols-2 sm:w-fit">
+      <TabsList aria-label="B2C controls" className="mb-4 grid h-auto w-full grid-cols-3">
+        <TabsTrigger value="bulk" className="whitespace-normal">All games / B2B + B2C</TabsTrigger>
         <TabsTrigger value="modes" className="whitespace-normal">Result modes &amp; budgets</TabsTrigger>
         <TabsTrigger value="rtp" className="whitespace-normal">B2C player RTP</TabsTrigger>
       </TabsList>
+      <TabsContent value="bulk" forceMount className="data-[state=inactive]:hidden"><BulkGameControl /></TabsContent>
       <TabsContent value="modes" forceMount className="space-y-5 data-[state=inactive]:hidden">
         <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
           Normal, Collect, Distribute, Auto and RTP are available for connected table games, including American Roulette, Mini Roulette and Fun Target.

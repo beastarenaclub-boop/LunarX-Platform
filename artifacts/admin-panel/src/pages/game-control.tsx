@@ -530,6 +530,7 @@ export function GameControlPanel({ embedded = false, initialGame = "" }: { embed
     item = data.games.find((g) => g.game.gameCode === selected);
   return (
     <div className="space-y-6 max-w-6xl">
+      {!embedded && <Link href="/b2c-rtp?section=bulk" className="inline-block rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 font-medium text-emerald-800">Manage all games / B2B + B2C together</Link>}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           {embedded ? <h2 className="text-xl font-semibold">Result modes and budgets</h2> : <h1 className="text-2xl font-semibold">Game Control</h1>}

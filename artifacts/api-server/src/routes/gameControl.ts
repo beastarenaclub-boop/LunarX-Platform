@@ -13,6 +13,8 @@ import {
   auditLogTable,
 } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
+import { requireStepUp } from "../middlewares/stepUp";
+import { listBulkControls, previewBulkControls, applyBulkControls } from "../services/bulkGameControl";
 import { badRequest, conflict, notFound } from "../lib/errors";
 import { ADAPTERS, type RoundConfigSnapshot } from "../services/tableRounds";
 import { tableOutcomeSpace } from "../services/resultEngine/tableSpace";
@@ -41,6 +43,15 @@ import {
 
 const router = Router();
 router.use(requireAuth, requireRole("admin", "super_admin"));
+router.get("/bulk", async (req, res, next) => {
+  try { res.set("Cache-Control", "private, no-store").json(await listBulkControls(req.user!)); } catch (error) { next(error); }
+});
+router.post("/bulk/preview", async (req, res, next) => {
+  try { res.set("Cache-Control", "private, no-store").json(await previewBulkControls(req.user!, req.body)); } catch (error) { next(error); }
+});
+router.put("/bulk", requireStepUp, async (req, res, next) => {
+  try { res.set("Cache-Control", "private, no-store").json(await applyBulkControls(req.user!, req.body)); } catch (error) { next(error); }
+});
 const wire = (v: unknown) =>
   JSON.parse(
     JSON.stringify(v, (_k, x) => (typeof x === "bigint" ? x.toString() : x)),

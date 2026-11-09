@@ -2,12 +2,18 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
 
-type Policy = { gameCode: string; playerRtpBps: number | null; revision: number };
+type Policy = { gameCode: string; playerRtpBps: number | null; revision: number;
+ defaultRtp?: { minPercent: number | null; maxPercent: number | null; source: string; note: string } };
 type Policies = { policies: Policy[] };
 const key = ["b2c-rtp"] as const;
 const queryOptions = { queryKey:key,queryFn:({signal}:{signal:AbortSignal})=>customFetch<Policies>("/api/game/b2c-rtp",{signal,cache:"no-store"}),staleTime:0 };
 const names: Record<string,string> = {lunar:"Aviator / Lunar",jetx:"JetX",fury:"Fury Flight",mines:"Mines",plinko:"Plinko",dice:"Dice",ludo:"Ludo","lucky-7-live":"Lucky 7 Live","wheel-2-live":"Wheel 2.0","poker-20-20":"Poker 20/20","crazy-time":"Crazy Time","chicken-road":"Chicken Road","7up7down":"7 Up Down","coin-flip":"Coin Flip",wingo:"Colour"};
 const value = (policy:Policy) => policy.playerRtpBps === null ? "" : String(policy.playerRtpBps/100);
+const originalReturn = (policy:Policy) => {
+ const r=policy.defaultRtp;
+ if(!r||r.minPercent===null||r.maxPercent===null)return r?"Varies by hand / bet":"Original game rules";
+ return Math.abs(r.maxPercent-r.minPercent)<.000001?`${r.minPercent.toFixed(2)}%`:`${r.minPercent.toFixed(2)}%–${r.maxPercent.toFixed(2)}%`;
+};
 
 export function B2cRtp({ embedded = false, initialGame = "jetx" }: { embedded?: boolean; initialGame?: string } = {}) {
  const query = useQuery({...queryOptions,refetchInterval:5000,retry:false});
@@ -33,7 +39,7 @@ function PolicyForm({policy}:{policy:Policy}) {
  useEffect(()=>{if(!dirty)accept(policy);},[policy.playerRtpBps,policy.revision,dirty]);
  const save=useMutation({mutationFn:(playerRtpBps:number|null)=>customFetch<Policy>(`/api/game/b2c-rtp/${policy.gameCode}`,{method:"PUT",headers:{"Content-Type":"application/json","X-Confirm-Password":password},body:JSON.stringify({playerRtpBps,revision})}),
   onMutate:async()=>{await qc.cancelQueries({queryKey:key,exact:true});},
-  onSuccess:fresh=>{qc.setQueryData<Policies>(key,old=>old&&({...old,policies:old.policies.map(p=>p.gameCode===fresh.gameCode?fresh:p)}));accept(fresh);setSaved(true);setReloadError(null);},
+  onSuccess:fresh=>{qc.setQueryData<Policies>(key,old=>old&&({...old,policies:old.policies.map(p=>p.gameCode===fresh.gameCode?{...p,...fresh}:p)}));accept(fresh);setSaved(true);setReloadError(null);},
   onSettled:()=>setPassword("")});
  const percent=Number(rtp), bps=Math.round(percent*100);
  const valid=rtp.trim()!==""&&Number.isFinite(percent)&&bps>=100&&bps<=10000&&Math.abs(bps/100-percent)<1e-8;
@@ -47,6 +53,7 @@ function PolicyForm({policy}:{policy:Policy}) {
  return <form onSubmit={submit} aria-label={`B2C RTP for ${names[policy.gameCode]??policy.gameCode}`}>
   <h2>{names[policy.gameCode]??policy.gameCode}</h2>
   <p className="rtp-saved" data-testid="b2c-saved-rtp"><strong>Current saved policy: </strong>{policy.playerRtpBps===null?"Original game rules":`Player RTP ${(policy.playerRtpBps/100).toFixed(2)}% / theoretical house edge ${((10000-policy.playerRtpBps)/100).toFixed(2)}%`}.</p>
+  {policy.defaultRtp&&<p data-testid="b2c-default-rtp"><strong>{policy.playerRtpBps===null?"Current original-rule return":"Original-rule return"}: {originalReturn(policy)}</strong><br/>Source: {policy.defaultRtp.source}. {policy.defaultRtp.note}</p>}
   <label>RTP policy<select aria-label="B2C RTP policy" value={inherit?"original":"custom"} onChange={e=>{setInherit(e.target.value==="original");edit();}} disabled={busy}><option value="original">Use original game rules</option><option value="custom">Set B2C player RTP</option></select></label>
   {!inherit&&<><label>Player RTP (%)<input aria-label="B2C player RTP" type="number" min="1" max="100" step="0.01" required value={rtp} onChange={e=>{setRtp(e.target.value);edit();}} disabled={busy}/></label>
   <p>{dirty?"Unsaved selection":"Player return target"}: {valid?percent.toFixed(2):"—"}%. House edge: {valid?(100-percent).toFixed(2):"—"}%.</p></>}

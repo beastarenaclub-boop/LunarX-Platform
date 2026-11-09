@@ -1,17 +1,20 @@
-import { db, b2cRtpPoliciesTable, auditLogTable, type User } from "@workspace/db";
+import { db, b2cRtpPoliciesTable, auditLogTable, gameConfigTable, type User } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { badRequest, conflict, forbidden } from "../lib/errors";
 import { RTP_POLICY_GAMES } from "./rtpPolicyGames";
+import { defaultRtpDisplay } from "./gameRtpDisplay";
 
 const inputSchema = z.object({ playerRtpBps: z.number().int().min(100).max(10000).nullable(), revision: z.number().int().min(0) }).strict();
 function admin(user: User) { if (user.role !== "admin" && user.role !== "super_admin") throw forbidden("Only admin can manage B2C RTP"); }
 export async function listB2cRtp(user: User) {
   admin(user);
   const rows = await db.select().from(b2cRtpPoliciesTable);
+  const configs = await db.select().from(gameConfigTable);
   return RTP_POLICY_GAMES.map(gameCode => {
     const row = rows.find(item => item.gameCode === gameCode);
-    return { gameCode, playerRtpBps: row?.playerRtpBps ?? null, revision: row?.revision ?? 0 };
+    return { gameCode, playerRtpBps: row?.playerRtpBps ?? null, revision: row?.revision ?? 0,
+      defaultRtp: defaultRtpDisplay(gameCode, configs.find(config => config.gameCode === gameCode)) };
   });
 }
 export async function updateB2cRtp(user: User, gameCode: string, body: unknown) {
