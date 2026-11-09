@@ -21,6 +21,8 @@ import { isTableGame, getRoundCycleStatus } from "../services/tableRounds";
 import { z } from "zod";
 import { CRAZY_TIME_SPOTS, CRAZY_TIME_RTP } from "@workspace/api-zod/crazy-time-game";
 
+import { getPlayerGameConfig } from "../services/masterRtp";
+
 const router: IRouter = Router();
 
 const adminOnly = requireRole("admin", "super_admin");
@@ -47,9 +49,9 @@ router.get("/config/game-type-meta", async (_req, res, next) => {
 // the fields the engine needs — no audit metadata, no updatedBy.
 router.get("/config/:gameCode/public", async (req, res, next) => {
   try {
-    const config = await getGameConfig(String(req.params.gameCode));
+    const config = await getPlayerGameConfig(String(req.params.gameCode), req.user?.id);
     if (!config) throw notFound("Game not found");
-    res.json({
+    res.set("Cache-Control", "private, no-store").vary("Cookie").json({
       gameCode: config.gameCode,
       houseEdge: config.houseEdge,
       maxMultiplier: config.maxMultiplier,
@@ -86,9 +88,9 @@ router.get("/config/:gameCode/round-status", adminOnly, async (req, res, next) =
 
 router.get("/config/:gameCode", adminOnly, async (req, res, next) => {
   try {
-    const config = await getGameConfig(String(req.params.gameCode));
+    const config = await getPlayerGameConfig(String(req.params.gameCode), req.user?.id);
     if (!config) throw notFound("Game not found");
-    res.json({
+    res.set("Cache-Control", "private, no-store").vary("Cookie").json({
       id: config.id,
       gameCode: config.gameCode,
       rtpMin: config.rtpMin,

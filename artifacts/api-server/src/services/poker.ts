@@ -1,3 +1,5 @@
+import { playerMasterPolicy } from "./masterRtp";
+import { masterPokerQuotes } from "./pokerMath";
 import { and, desc, eq, isNull, isNotNull, lte, sql } from "drizzle-orm";
 import {
   db,
@@ -30,8 +32,8 @@ import {
 } from "./pokerMath";
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 const lockId = (game: PokerGame) => 73482120 + POKER_GAMES.indexOf(game);
-const quoteId = (round: typeof rounds.$inferSelect) =>
-  `${round.game}:${round.id}:v1`;
+const quoteId = (round: typeof rounds.$inferSelect, pricingVersion?: string) =>
+  `${round.game}:${round.id}:v1${pricingVersion ? ":" + pricingVersion : ""}`;
 const slip = (b: typeof bets.$inferSelect) => ({
   id: b.id,
   requestId: b.requestId,
@@ -146,6 +148,9 @@ export async function pokerTable(
       .from(gameConfigTable)
       .where(eq(gameConfigTable.gameCode, game));
     const enabled = config?.enabled ?? true;
+    const policy = await playerMasterPolicy(game, userId, tx);
+    const version = policy.rtpPolicy.revision > 0 ? policy.pricingVersion : undefined;
+    const prices = policy.masterRtpBps === null ? round.quotes.map(q=>({...q, pricingVersion:version})) : masterPokerQuotes(round.quotes, policy.masterRtpBps, policy.pricingVersion);
     if (input) {
       const [existing] = await tx
         .select()
@@ -167,7 +172,7 @@ export async function pokerTable(
         if (
           existing.roundId !== input.roundId ||
           original.game !== game ||
-          input.quoteId !== quoteId(original) ||
+          input.quoteId !== quoteId(original, existing.selections[0]?.quote.pricingVersion) ||
           canonical(existing.selections) !== canonical(input.selections)
         )
           throw conflict("This request already has a different confirmed bet.");
@@ -175,7 +180,7 @@ export async function pokerTable(
         if (!enabled) throw conflict("This poker table is currently paused.");
         if (
           input.roundId !== round.id ||
-          input.quoteId !== quoteId(round) ||
+          input.quoteId !== quoteId(round, version) ||
           (await clock(tx)) >= round.closesAt.getTime()
         )
           throw conflict(
@@ -189,7 +194,7 @@ export async function pokerTable(
         try {
           locked = lockSelections(
             input.selections,
-            round.quotes,
+            prices,
             previous.reduce((sum, b) => sum + b.stakePaise, 0n),
           );
         } catch (error) {
@@ -257,8 +262,9 @@ export async function pokerTable(
       serverNow,
       balancePaise: String(await getBalance(wallet.id, tx)),
       round: publicRound(round, serverNow),
-      quoteId: quoteId(round),
-      quotes: round.quotes,
+      masterRtpBps: policy.masterRtpBps,
+      quoteId: quoteId(round, version),
+      quotes: prices,
       slips: current.map(slip),
       recent: recent.map((r) => slip(r.bet)),
       history: history.map((r) => ({ id: r.id, ...outcome(r.hands, r.board) })),

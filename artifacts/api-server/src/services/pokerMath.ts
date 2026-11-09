@@ -290,7 +290,7 @@ export function payout(
         (q.category === 8 && result.categories[q.player] === 9);
       return sum + (hit ? (amount * BigInt(q.odds)) / 100n : 0n);
     }
-    if (hands.length === 2 && result.winners.length === 2) return sum + debit; // main back/lay push on tie
+    if (q.masterRtpBps === undefined && hands.length === 2 && result.winners.length === 2) return sum + debit; // main back/lay push on tie
     if (q.kind === "lay") return sum + (!won ? debit + amount : 0n);
     return (
       sum +
@@ -369,4 +369,11 @@ export function publicRound(
       ? { nonce: r.nonce, outcome: outcome(r.hands, r.board) }
       : {}),
   };
+}
+
+export function masterPokerQuotes(quotes: PokerQuote[], rtpBps: number, pricingVersion: string): PokerQuote[] {
+  const counts = [0,58627800,31433400,6461620,6180020,4047644,3473184,224848,41584];
+  return quotes.map(q => ({ ...q, masterRtpBps: rtpBps, pricingVersion,
+    odds: q.kind === "back" ? Math.floor(rtpBps / 50) : q.kind === "category"
+      ? Math.floor(rtpBps * 133784560 / (counts[q.category!] * 100)) : q.odds }));
 }

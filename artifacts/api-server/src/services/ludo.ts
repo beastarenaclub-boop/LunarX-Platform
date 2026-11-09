@@ -1,3 +1,4 @@
+import { playerMasterPolicy, assertTablePricing } from "./masterRtp";
 import { randomBytes, randomInt, randomUUID } from "node:crypto";
 import { and, desc, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import {
@@ -381,7 +382,10 @@ export async function joinLudo(userId: string, input: LudoJoin) {
         BigInt(input.entryPaise) > config.maxStakePaise)
     )
       throw conflict("This entry fee is currently unavailable");
-    const basePool = channelPool(user);
+    const policy = await playerMasterPolicy("ludo", userId, tx);
+    assertTablePricing(policy, input.pricingVersion);
+    const commissionBps = policy.masterRtpBps === null ? LUDO.commissionBps : 10000 - policy.masterRtpBps;
+    const basePool = channelPool(user) + (policy.rtpPolicy.revision ? `:rtp:${policy.pricingVersion}` : "");
     let code = input.roomCode;
     if (mode === "private" && !code) {
       // Serialized with joins; never reuse a code, including completed rooms.
@@ -439,7 +443,7 @@ export async function joinLudo(userId: string, input: LudoJoin) {
           pool,
           status: "waiting",
           entryPaise: BigInt(input.entryPaise),
-          commissionBps: LUDO.commissionBps,
+          commissionBps,
           seed,
           commitment: commitment(seed),
           deadline: new Date(
@@ -546,12 +550,13 @@ export async function previewLudoRoom(
     .where(eq(usersTable.id, userId));
   if (!user || user.status !== "active")
     throw forbidden("An active player account is required");
+  const policy = await playerMasterPolicy("ludo", userId);
   const [r] = await db
     .select()
     .from(matches)
     .where(
       and(
-        eq(matches.pool, `${channelPool(user)}:private:${code}`),
+        eq(matches.pool, `${channelPool(user)}${policy.rtpPolicy.revision ? `:rtp:${policy.pricingVersion}` : ""}:private:${code}`),
         eq(matches.status, "waiting"),
       ),
     );
@@ -804,6 +809,7 @@ export async function ludoTable(
   matchId?: string,
 ): Promise<LudoTable> {
   const { balance } = await getBalanceByUser(userId);
+  const policy = await playerMasterPolicy("ludo", userId);
   return db.transaction(async (tx) => {
     const [config] = await tx
       .select()
@@ -836,6 +842,8 @@ export async function ludoTable(
       serverNow: await now(tx),
       balancePaise: String(balance),
       enabled: config?.enabled ?? true,
+      commissionBps: policy.masterRtpBps === null ? LUDO.commissionBps : 10000 - policy.masterRtpBps,
+      pricingVersion: policy.pricingVersion,
       entries: LUDO.entries.filter(
         (n) =>
           !config ||

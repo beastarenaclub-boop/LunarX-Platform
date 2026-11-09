@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
+import { NetworkRtp } from "./network-rtp";
 import { NetworkTree } from "./network-tree";
 import { NetworkReport } from "./network-report";
 import { OperatorInsights } from "./operator-insights";
@@ -162,7 +163,7 @@ function Pager({
   );
 }
 
-export type NetworkSection = "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account" | "Payment history" | "Manual payments" | "Collection report" | "Accounts & Tally";
+export type NetworkSection = "RTP" | "Overview" | "Downline" | "Agents" | "Players" | "Ledger" | "Settlements" | "Wallet ledger" | "Website" | "Weekly account" | "Payment history" | "Manual payments" | "Collection report" | "Accounts & Tally";
 
 export function NetworkPanel({
   initialTab = "Overview",
@@ -553,6 +554,7 @@ export function NetworkPanel({
       <nav className="net-tabs" aria-label="Network sections">
         {[
           "Overview",
+          ...(channel === "b2b" && role !== "agent" ? ["RTP"] : []),
           ...(channel === "b2b" ? ["Downline"] : []),
           ...(channel === "b2b" && role !== "agent" ? ["Agents"] : []),
           "Players",
@@ -623,6 +625,7 @@ export function NetworkPanel({
         {role==='agent'?<section className="net-card"><p>Weekly settlement is managed by your master. Contact your master about branch access.</p></section>:(role==='admin'?weeklyMaster:context.data.website?.masterId)&&<NetworkWeekly key={role==='admin'?weeklyMaster:context.data.website!.masterId} masterId={role==='admin'?weeklyMaster:context.data.website!.masterId} admin={role==='admin'}/>}
       </>}
       {(tab === "Overview" || tab === "Ledger") && <NetworkReport channel={channel} ledger={tab === "Ledger"} />}
+      {tab === "RTP" && channel === "b2b" && role !== "agent" && <NetworkRtp />}
       {tab === "Accounts & Tally" && <OperatorInsights key={channel} channel={channel} admin={role === "admin"} />}
       {tab === "Overview" && (
         <>

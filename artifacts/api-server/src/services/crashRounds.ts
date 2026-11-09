@@ -12,12 +12,12 @@ import {
   CRASH_GAME_CODES,
   deriveCrashPoint,
   generateSeed,
-  requireGameConfig,
   sha256Hex,
 } from "./rtp";
 import { cashOutBet, settleLoss } from "./bets";
 import { badRequest, notFound } from "../lib/errors";
 import { logger } from "../lib/logger";
+import { requirePlayerGameConfig } from "./masterRtp";
 
 type Config = {
   owner: string;
@@ -83,7 +83,7 @@ async function createCurrent(
 ) {
   if (isRetiredGame(gameCode)) throw badRequest("This game is no longer available.");
   if (!CRASH_GAME_CODES.has(gameCode)) throw badRequest("Unknown crash game.");
-  const cfg = await requireGameConfig(gameCode);
+  const cfg = await requirePlayerGameConfig(gameCode, userId);
   if (!cfg.enabled) throw badRequest("Game is temporarily disabled.");
   return db.transaction(async (tx) => {
     await tx.execute(
@@ -134,6 +134,7 @@ async function createCurrent(
         outcome: { crashPoint: threshold },
         config: {
           owner: userId,
+          rtpPolicy: cfg.rtpPolicy, pricingVersion: cfg.pricingVersion,
           version: 3,
           houseEdge: cfg.houseEdge,
           maxMultiplier: cfg.maxMultiplier,

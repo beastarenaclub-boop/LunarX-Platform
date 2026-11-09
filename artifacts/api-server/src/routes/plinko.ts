@@ -1,3 +1,4 @@
+import { requirePlayerGameConfig } from "../services/masterRtp";
 import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middlewares/auth";
@@ -17,7 +18,6 @@ import {
   PLINKO_ROWS_OPTIONS,
   PLINKO_RISK_OPTIONS,
   plinkoMultiplierTable,
-  requireGameConfig,
   sha256Hex,
   derivePlinkoOutcome,
 } from "../services/rtp";
@@ -32,6 +32,7 @@ const DropBody = z.object({
   rows: z.union([z.literal(8), z.literal(12), z.literal(16)]),
   risk: z.enum(["low", "medium", "high"]),
   useBonus: z.boolean().optional(),
+  pricingVersion: z.string().regex(/^[a-f0-9]{32}$/).optional(),
 });
 
 function mapKnownErr(e: unknown): never {
@@ -74,9 +75,9 @@ const RotateBody = z.object({
   clientSeed: z.string().trim().min(1).max(64).optional(),
 });
 
-router.get("/config", async (_req, res, next) => {
+router.get("/config", async (req, res, next) => {
   try {
-    const cfg = await requireGameConfig("plinko");
+    const cfg = await requirePlayerGameConfig("plinko", req.user?.id);
     const tables: Record<string, Record<string, number[]>> = {};
     for (const risk of PLINKO_RISK_OPTIONS) {
       tables[risk] = {};
@@ -89,7 +90,8 @@ router.get("/config", async (_req, res, next) => {
         );
       }
     }
-    res.json({
+    res.set("Cache-Control", "private, no-store").vary("Cookie").json({
+      pricingVersion: cfg.pricingVersion, rtpPolicy: cfg.rtpPolicy,
       enabled: cfg.enabled,
       houseEdge: cfg.houseEdge,
       maxMultiplier: cfg.maxMultiplier,
@@ -159,6 +161,7 @@ router.post(
           rows: input.rows,
           risk: input.risk,
           useBonus: input.useBonus,
+          pricingVersion: input.pricingVersion,
         });
         res.json(out);
       } catch (e) {

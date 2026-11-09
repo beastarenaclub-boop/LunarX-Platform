@@ -1,3 +1,4 @@
+import { playerTableConfig, assertTablePricing } from "./masterRtp";
 import { and, desc, eq, sql } from "drizzle-orm";
 import {
   db,
@@ -27,6 +28,7 @@ export async function placeL7Live(
   userId: string,
   roundId: string,
   raw: L7Bet[],
+  pricingVersion?: string,
 ) {
   let bets: L7Bet[];
   try {
@@ -87,7 +89,8 @@ export async function placeL7Live(
     )
       throw badRequest("Betting is closed. Please wait for the next round.");
     if (!config.enabled) throw badRequest("This table is paused.");
-    const cfg = round.config as RoundConfigSnapshot;
+    const cfg = await playerTableConfig(round.config as RoundConfigSnapshot, L7_GAME, userId, tx);
+    assertTablePricing(cfg, pricingVersion);
     if (stake < BigInt(cfg.minStakePaise) || stake > BigInt(cfg.maxStakePaise))
       throw badRequest("Your total bet is outside the table limits.");
     const [bet] = await tx
@@ -131,6 +134,7 @@ export async function placeL7Live(
         gameCode: L7_GAME,
         userId,
         betId: bet.id,
+        pricingConfig: cfg,
         bets,
         totalStake: stake,
       })
@@ -188,10 +192,12 @@ export async function settleL7Live(round: TableRound) {
         .for("update");
       if (!bet || bet.status !== "placed")
         throw new Error("L7_SLIP_STATE_MISMATCH");
+      const cfg = (slip.pricingConfig as unknown as RoundConfigSnapshot | null) ?? round.config as RoundConfigSnapshot;
       const payout = l7Payout(
         slip.bets as L7Bet[],
         card,
         cfg.lucky7CardVersion ?? L7_VERSION,
+        cfg.masterRtpBps,
       );
       let balance: bigint | undefined;
       if (payout > 0n)

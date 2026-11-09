@@ -141,7 +141,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
   const [data, setData] = useState<GameState | null>(null);
   const payoutVersion = data?.round.payoutVersion ?? 1;
   const pricingV2 = payoutVersion >= 2;
-  const payoutLabel = (pick: Pick) => pick === "violet" ? (pricingV2 ? "4.25×" : "4.5×") : /^\d$/.test(pick) ? (payoutVersion >= 3 ? "1.98×" : pricingV2 ? "8.5×" : "9×") : (payoutVersion >= 4 ? "1.98×" : pricingV2 ? "1.70×" : "2×");
+  const payoutLabel = (pick: Pick) => data?.returns?.[pick] !== undefined ? `${data.returns[pick].toFixed(2)}×` : pick === "violet" ? (pricingV2 ? "4.25×" : "4.5×") : /^\d$/.test(pick) ? (payoutVersion >= 3 ? "1.98×" : pricingV2 ? "8.5×" : "9×") : (payoutVersion >= 4 ? "1.98×" : pricingV2 ? "1.70×" : "2×");
   const sharedWallet = !!onOpenWallet;
   const balance = walletBalance === undefined ? data?.player.balance : Number(walletBalance);
   const lastBalance = useRef<number | undefined>(undefined);
@@ -365,6 +365,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
     try {
       const next = await api("bets", { ...selection, duration: mode,
         ...(payoutVersion >= 3 ? { payoutVersion } : {}),
+        pricingVersion: data?.pricingVersion,
       });
       accept(next);
       gameAudio.play("bet");
@@ -444,6 +445,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
     <div
       className={`wingo-theme app${onBackToLobby ? " wingo-integrated" : ""}`}
     >
+      {data?.masterRtpBps != null && <p data-testid="rtp-disclosure" style={{padding:"10px 16px",fontSize:12,background:"#e8f5ec",color:"#183a29"}}>New bets: theoretical RTP {(data.masterRtpBps / 100).toFixed(2)}%, house edge {(100 - data.masterRtpBps / 100).toFixed(2)}%, before rounding. No guaranteed return or profit.</p>}
       <header className="topbar">
         <div className="topbar-inner">
           {onBackToLobby && (
@@ -1462,7 +1464,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
           <p>
             Each result is randomly selected on the server and committed before
             the reveal. The history lets you check that commitment. Past results
-            do not predict future draws. Returns include your stake; there is no extra fee. {payoutVersion >= 4 ? "Red, Green, Big, Small and number bets return ₹1.98 per ₹1 on a win: ₹1 stake plus ₹0.98 profit. Red/Green include 0/5 and have 99% theoretical RTP; Big/Small have 99%, numbers 19.8%, and Violet 85%, before paise rounding." : payoutVersion === 3 ? "Every winning number bet from 0 to 9 returns ₹1.98 per ₹1: your ₹1 stake plus ₹0.98 profit. Number-pick theoretical RTP is 19.8%; colour and size picks remain at 85%, before paise rounding." : pricingV2 ? "Theoretical RTP is 85% on every pick, before paise rounding; it is not a guarantee per round." : ""}
+            do not predict future draws. Returns include your stake; there is no extra fee. {data?.masterRtpBps != null ? `Master player RTP ${(data.masterRtpBps / 100).toFixed(2)}% before paise rounding. Every pick uses the posted total return; accepted bets keep their rates. No guaranteed return or profit.` : payoutVersion >= 4 ? "Red, Green, Big, Small and number bets return ₹1.98 per ₹1 on a win: ₹1 stake plus ₹0.98 profit. Red/Green include 0/5 and have 99% theoretical RTP; Big/Small have 99%, numbers 19.8%, and Violet 85%, before paise rounding." : payoutVersion === 3 ? "Every winning number bet from 0 to 9 returns ₹1.98 per ₹1: your ₹1 stake plus ₹0.98 profit. Number-pick theoretical RTP is 19.8%; colour and size picks remain at 85%, before paise rounding." : pricingV2 ? "Theoretical RTP is 85% on every pick, before paise rounding; it is not a guarantee per round." : ""}
           </p>
         </div>
       </Modal>

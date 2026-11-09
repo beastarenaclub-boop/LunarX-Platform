@@ -1,3 +1,4 @@
+import { playerTableConfig, assertTablePricing } from "./masterRtp";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { isDeepStrictEqual } from "node:util";
 import {
@@ -28,6 +29,7 @@ export async function placeW20Live(
   userId: string,
   roundId: string,
   raw: W20Bet[],
+  pricingVersion?: string,
 ) {
   let bets: W20Bet[];
   try {
@@ -88,7 +90,8 @@ export async function placeW20Live(
     )
       throw badRequest("Betting is closed. Please wait for the next round.");
     if (!config.enabled) throw badRequest("This table is paused.");
-    const cfg = round.config as RoundConfigSnapshot;
+    const cfg = await playerTableConfig(round.config as RoundConfigSnapshot, W20_GAME, userId, tx);
+    assertTablePricing(cfg, pricingVersion);
     if (stake < BigInt(cfg.minStakePaise) || stake > BigInt(cfg.maxStakePaise))
       throw badRequest("Your total bet is outside the table limits.");
     const [bet] = await tx
@@ -132,6 +135,7 @@ export async function placeW20Live(
         gameCode: W20_GAME,
         userId,
         betId: bet.id,
+        pricingConfig: cfg,
         bets,
         totalStake: stake,
       })
@@ -189,10 +193,12 @@ export async function settleW20Live(round: TableRound) {
         .for("update");
       if (!bet || bet.status !== "placed")
         throw new Error("W20_SLIP_STATE_MISMATCH");
+      const cfg = (slip.pricingConfig as unknown as RoundConfigSnapshot | null) ?? round.config as RoundConfigSnapshot;
       const payout = w20Payout(
         slip.bets as W20Bet[],
         outcome,
         cfg.wheel20Version ?? W20_VERSION,
+        cfg.masterRtpBps,
       );
       let balance: bigint | undefined;
       if (payout > 0n)

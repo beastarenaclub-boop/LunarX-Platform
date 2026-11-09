@@ -12,6 +12,7 @@ import {
 import { usersTable } from "./users";
 type PokerGame = "poker-one-day" | "poker-20-20" | "poker-six-players";
 type PokerQuote = {
+  masterRtpBps?: number; pricingVersion?: string;
   id: string;
   label: string;
   player: number;

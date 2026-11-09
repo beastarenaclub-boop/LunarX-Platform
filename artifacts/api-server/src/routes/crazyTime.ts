@@ -46,6 +46,7 @@ function withPlacementSlot<T>(work: () => Promise<T>): Promise<T> {
 const betBody = z
   .object({
     roundId: z.string().min(1).max(100),
+    pricingVersion: z.string().regex(/^[a-f0-9]{32}$/).optional(),
     bets: z
       .array(
         z
@@ -214,13 +215,15 @@ router.get("/:id/verify", async (req, res, next) => {
         ),
       );
     const receipts = slips.map((slip) => {
+      const pricing = (slip.pricingConfig as unknown as RoundConfigSnapshot | null) ?? round.config as RoundConfigSnapshot;
       const computed = settleCrazyTimeBets(
         (slip.bets as CrazyTimeBet[]).map((b) => ({
           ...b,
           amountPaise: BigInt(b.amountPaise),
         })),
         outcome,
-        (round.config as RoundConfigSnapshot).payoutVersion ?? 1,
+        pricing.payoutVersion ?? 1,
+        pricing.masterRtpBps === undefined ? .85 : pricing.masterRtpBps / 10000,
       ).totalPayout.toString();
       return {
         id: slip.id,

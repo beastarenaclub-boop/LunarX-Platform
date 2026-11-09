@@ -1,3 +1,4 @@
+import { CrashRtpDisclosure } from "@/components/RtpDisclosure";
 import { useState } from "react";
 import TopBar from "./TopBar";
 import HistoryStrip from "./HistoryStrip";
@@ -15,9 +16,10 @@ import { setJetXPreferences, useJetXPreferences } from "./jetxPreferences";
 export default function JetXGame(_props: { userId: string }) {
   const [activityOpen, setActivityOpen] = useState(false);
   const preferences = useJetXPreferences();
-  return <div className="game-page jetx-page">
+  return <div className="game-page jetx-page" style={{ display: "flex", flexDirection: "column" }}>
+    <CrashRtpDisclosure />
     <Onboarding />
-    <main className="jetx-layout" data-game-screen="jetx" data-sidebar={preferences.sidebar} data-panels={preferences.panelCount}>
+    <main style={{ flex: 1, height: "auto", minHeight: 0 }} className="jetx-layout" data-game-screen="jetx" data-sidebar={preferences.sidebar} data-panels={preferences.panelCount}>
       <section className="jetx-stage" aria-label="JetX flight">
         <JetXScene />
         <TopBar onJetXActivityToggle={() => {

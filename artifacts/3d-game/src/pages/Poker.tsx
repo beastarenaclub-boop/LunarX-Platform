@@ -1,3 +1,4 @@
+import { RtpDisclosure } from "@/components/RtpDisclosure";
 import { DEFAULT_BUTTON_VALUES } from "@/lib/buttonValues";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "wouter";
@@ -219,6 +220,8 @@ function PokerTable({
       data-phase={phase ?? "loading"}
     >
       <div className="pk-shell">
+        <RtpDisclosure houseEdge={data?.masterRtpBps == null ? undefined : 1 - data.masterRtpBps / 10000} />
+        {data?.masterRtpBps != null && <p style={{padding:8,fontSize:12}}>Posted odds are total returns. Main bets split ties at these odds. Each confirmed bet keeps its accepted rates.</p>}
         <header className="pk-header">
           <Link href="/" aria-label="Back to lobby" className="pk-home">
             <House size={27} />
@@ -622,7 +625,7 @@ function PokerTable({
               <p>
                 {six
                   ? "All six starting hands are visible while betting. Odds are calculated for those hands and fixed for the round. On a tied win, the quoted total return is divided equally between the winning players."
-                  : "A/B winner and lay bets are refunded on a tie. Side bets settle independently of the match winner."}
+                  : data?.masterRtpBps != null ? "A/B winner bets split ties at their accepted total-return odds. Side bets settle independently." : "A/B winner and lay bets are refunded on a tie. Side bets settle independently of the match winner."}
               </p>
               <p>
                 Decimal odds include your stake. Bets are final once confirmed.

@@ -1,3 +1,4 @@
+import { requirePlayerGameConfig, assertTablePricing } from "./masterRtp";
 import { randomBytes } from "node:crypto";
 import { db, betsTable, type Bet } from "@workspace/db";
 import { and, desc, eq, sql } from "drizzle-orm";
@@ -12,6 +13,7 @@ import { logger } from "../lib/logger";
 export const CHICKEN_CODE = "chicken-road";
 interface Metadata {
   version: ChickenVersion;
+  rtp?: number; pricingVersion?: string;
   requestId: string;
   difficulty: ChickenDifficulty;
   step: number;
@@ -30,6 +32,7 @@ export function chickenReceipt(bet: Bet): ChickenRound {
   const active = bet.status === "placed";
   const totalSteps = CHICKEN_MODES[m.difficulty].returns.length;
   return {
+    rtp: m.rtp ?? (m.version === 2 ? null : m.version === 1 ? .98 : CHICKEN_RTP),
     id: bet.id, requestId: m.requestId, version: m.version, difficulty: m.difficulty,
     status: active ? "active" : bet.status === "lost" ? "busted" : "cashed_out",
     step: m.step, attemptedStep: m.attemptedStep, totalSteps,
@@ -37,16 +40,16 @@ export function chickenReceipt(bet: Bet): ChickenRound {
     cashoutAmount: chickenPayout(bet.stakeAmount, m.difficulty, m.step).toString(),
     multiplier: chickenReturn(m.difficulty, m.step) / 100,
     nextMultiplier: active && m.step < totalSteps ? chickenReturn(m.difficulty, m.step + 1) / 100 : null,
-    nextSurvival: active && m.step < totalSteps ? chickenSurvival(m.difficulty, m.step + 1, m.version) : null,
+    nextSurvival: active && m.step < totalSteps ? chickenSurvival(m.difficulty, m.step + 1, m.version, m.rtp) : null,
     serverSeedHash: chickenSeedHash(m.serverSeed), serverSeed: active ? null : m.serverSeed,
     clientSeed: m.clientSeed, createdAt: bet.placedAt.toISOString(),
     expiresAt: m.expiresAt ?? null, serverTime: Date.now(), endReason: m.endReason ?? null,
   };
 }
 
-export async function chickenConfig() {
-  const cfg = await requireGameConfig(CHICKEN_CODE);
-  return { enabled: cfg.enabled, minStakePaise: cfg.minStakePaise.toString(), maxStakePaise: cfg.maxStakePaise.toString(), rtp: CHICKEN_RTP, version: CHICKEN_VERSION, roundDurationMs: CHICKEN_ROUND_DURATION_MS };
+export async function chickenConfig(userId?: string) {
+  const cfg = await requirePlayerGameConfig(CHICKEN_CODE, userId);
+  return { enabled: cfg.enabled, minStakePaise: cfg.minStakePaise.toString(), maxStakePaise: cfg.maxStakePaise.toString(), rtp: cfg.rtpPolicy.source === "master" ? 1 - cfg.houseEdge : CHICKEN_RTP, version: cfg.rtpPolicy.source === "master" ? 4 as const : CHICKEN_VERSION, pricingVersion: cfg.pricingVersion, rtpPolicy: cfg.rtpPolicy, roundDurationMs: CHICKEN_ROUND_DURATION_MS };
 }
 export async function chickenState(userId: string) {
   await recoverChickenRounds(userId);
@@ -60,9 +63,9 @@ export async function getChickenRound(userId: string, id: string) {
   return resolveChicken(userId, id, "expire");
 }
 
-export async function startChicken(userId: string, input: { requestId: string; difficulty: ChickenDifficulty; stakeAmount: string; clientSeed: string }) {
+export async function startChicken(userId: string, input: { pricingVersion?: string; requestId: string; difficulty: ChickenDifficulty; stakeAmount: string; clientSeed: string }) {
   await recoverChickenRounds(userId);
-  const cfg = await chickenConfig();
+  const cfg = await chickenConfig(userId);
   const stake = BigInt(input.stakeAmount);
   let balance: bigint | undefined;
   const round = await db.transaction(async tx => {
@@ -74,11 +77,12 @@ export async function startChicken(userId: string, input: { requestId: string; d
       if (prior.stakeAmount !== stake || m.difficulty !== input.difficulty || m.clientSeed !== input.clientSeed) throw conflict("This request was already used for another bet.");
       return chickenReceipt(prior);
     }
+    assertTablePricing(cfg, input.pricingVersion);
     if (!cfg.enabled) throw badRequest("Chicken Road is temporarily unavailable.");
     if (stake <= 0n || stake < BigInt(cfg.minStakePaise) || stake > BigInt(cfg.maxStakePaise)) throw badRequest("Stake is outside the table limits.");
     const [active] = await tx.select({ id: betsTable.id }).from(betsTable).where(and(owned(userId), eq(betsTable.status, "placed"))).limit(1);
     if (active) throw conflict("Finish your current Chicken Road round first.");
-    const metadata: Metadata = { version: CHICKEN_VERSION, requestId: input.requestId, difficulty: input.difficulty, step: 0, attemptedStep: 0, serverSeed: randomBytes(32).toString("hex"), clientSeed: input.clientSeed, expiresAt: new Date(Date.now() + CHICKEN_ROUND_DURATION_MS).toISOString() };
+    const metadata: Metadata = { version: cfg.version, rtp: cfg.version === 4 ? cfg.rtp : undefined, pricingVersion: cfg.pricingVersion, requestId: input.requestId, difficulty: input.difficulty, step: 0, attemptedStep: 0, serverSeed: randomBytes(32).toString("hex"), clientSeed: input.clientSeed, expiresAt: new Date(Date.now() + CHICKEN_ROUND_DURATION_MS).toISOString() };
     const [bet] = await tx.insert(betsTable).values({ userId, gameCode: CHICKEN_CODE, stakeAmount: stake, multiplier: 1, metadata }).returning();
     try {
       const posted = await postEntry({ userId, type: "bet", amount: -stake, refType: "bet", refId: bet.id, memo: "Chicken Road stake" }, tx);
@@ -124,7 +128,7 @@ async function resolveChicken(userId: string, id: string, action: "step" | "cash
       next.endReason = "timeout";
     } else if (action === "step") {
       next.attemptedStep = m.step + 1;
-      if (chickenStepSafe(m.serverSeed, m.clientSeed, m.difficulty, next.attemptedStep, m.version)) {
+      if (chickenStepSafe(m.serverSeed, m.clientSeed, m.difficulty, next.attemptedStep, m.version, m.rtp)) {
         next.step++;
         if (next.step === CHICKEN_MODES[m.difficulty].returns.length) status = "cashed_out";
       } else status = "lost";

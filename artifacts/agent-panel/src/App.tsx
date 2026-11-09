@@ -15,6 +15,7 @@ import Login from "@/pages/login";
 import { NetworkPanel, OperatorInsights, getOperatorPanel, type NetworkSection } from "@workspace/api-client-react";
 
 const sectionRoutes: Record<NetworkSection, string> = {
+  RTP: "/rtp",
   Overview: "/", Downline: "/downline", Agents: "/agents", Players: "/users",
   Ledger: "/ledger", Settlements: "/settlements", "Wallet ledger": "/transactions", Website: "/website",
   "Weekly account":"/weekly",
@@ -79,6 +80,7 @@ function ProtectedRoutes() {
   return (
     <Layout>
       <Switch>
+        <Route path="/rtp"><PanelPage tab="RTP" /></Route>
         <Route path="/downline" component={DownlinePage} />
         <Route path="/agents" component={AgentsPage} />
         <Route path="/users" component={UsersPage} />

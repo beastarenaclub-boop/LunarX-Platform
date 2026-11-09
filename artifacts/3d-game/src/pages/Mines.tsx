@@ -1,3 +1,4 @@
+import { RtpDisclosure } from "@/components/RtpDisclosure";
 import { Treasure } from "@/components/instant/CollectionArt";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -10,14 +11,14 @@ import { AutoBetStatus, useSelectionBet } from "@/components/table/AutoBet";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
 import { InstantShell, StakeControl, Notice, FairnessDialog, SeedField, useInstantGame, request, errorMessage, stakeError, money } from "@/components/instant/InstantGame";
 
-interface MinesState {
+interface MinesState { houseEdge: number; multipliers?: number[];
   id: string; betId: string; stakeAmount: string; status: "active" | "cashed_out" | "busted";
   gridSize: number; mineCount: number; revealedIndexes: number[]; mineIndexes: number[] | null;
   serverSeed: string | null; serverSeedHash: string; clientSeed: string; nonce: number;
   multiplier: number; nextMultiplier: number; maxMultiplier: number; payoutAmount: string | null;
   createdAt: string; settledAt: string | null;
 }
-interface MinesConfig { enabled: boolean; houseEdge: number; maxStakePaise: string; maxMultiplier: number; multipliers: Record<string, number[]> }
+interface MinesConfig { pricingVersion: string; enabled: boolean; houseEdge: number; maxStakePaise: string; maxMultiplier: number; multipliers: Record<string, number[]> }
 
 export default function Mines() {
   const { user, sound, balance, refresh } = useInstantGame("mines");
@@ -31,7 +32,7 @@ export default function Mines() {
   const [detail, setDetail] = useState<MinesState | null>(null);
   const [verification, setVerification] = useState("");
   const [recoveryError, setRecoveryError] = useState(false);
-  const config = useQuery({ queryKey: ["mines.config"], queryFn: () => request<MinesConfig>("/api/mines/config"), staleTime: 60_000, retry: false });
+  const config = useQuery({ queryKey: ["mines.config", user?.id], queryFn: () => request<MinesConfig>("/api/mines/config"), staleTime: 10_000, refetchInterval: 15_000, enabled: !!user, retry: false });
   const active = useQuery({ queryKey: ["mines.active", user?.id], queryFn: () => request<MinesState | null>("/api/mines/active"), enabled: !!user, staleTime: Infinity, refetchOnWindowFocus: false, retry: false });
   const recent = useQuery({ queryKey: ["mines.recent", user?.id], queryFn: () => request<MinesState[]>("/api/mines/recent?limit=8"), enabled: !!user, retry: false });
   useEffect(() => { if (active.data !== undefined) { setRound(active.data); if (active.data) setMineCount(active.data.mineCount); setRecoveryError(false); } }, [active.data, active.dataUpdatedAt]);
@@ -70,23 +71,23 @@ export default function Mines() {
     if (validation) { toast.error(validation); return; }
     lock.current = true; setBusy("placing"); unlockAudio();
     try {
-      const state = await request<MinesState>("/api/mines/place", { stakeAmount: rupeesToPaise(stake), mineCount, useBonus: bonus });
+      const state = await request<MinesState>("/api/mines/place", { stakeAmount: rupeesToPaise(stake), mineCount, useBonus: bonus, pricingVersion: config.data?.pricingVersion });
       accept(state); notifyPlayStarted(); if (sound) sfx.bet();
-    } catch (error) { toast.error(errorMessage(error)); await recover(); }
+    } catch (error) { toast.error(errorMessage(error)); void config.refetch(); await recover(); }
     finally { lock.current = false; setBusy(null); }
   };
   const reveal = async (cellIndex: number) => {
     if (!round || !isActive || lock.current || recoveryError || round.revealedIndexes.includes(cellIndex)) return;
     lock.current = true; setBusy(`cell-${cellIndex}`); unlockAudio();
     try { accept(await request<MinesState>(`/api/mines/${round.id}/reveal`, { cellIndex })); }
-    catch (error) { toast.error(errorMessage(error)); await recover(round.id); }
+    catch (error) { toast.error(errorMessage(error)); void config.refetch(); await recover(round.id); }
     finally { lock.current = false; setBusy(null); }
   };
   const cashout = async () => {
     if (!round || !isActive || !picked || lock.current || recoveryError) return;
     lock.current = true; setBusy("cashing");
     try { accept(await request<MinesState>(`/api/mines/${round.id}/cashout`, {})); }
-    catch (error) { toast.error(errorMessage(error)); await recover(round.id); }
+    catch (error) { toast.error(errorMessage(error)); void config.refetch(); await recover(round.id); }
     finally { lock.current = false; setBusy(null); }
   };
   const randomPick = () => {
@@ -102,7 +103,7 @@ export default function Mines() {
       setVerification(hash === inspect.serverSeedHash ? "Verified: the revealed seed matches the committed hash." : "Mismatch: the seed does not match the commitment.");
     } catch { setVerification("Hash verification needs a secure browser connection (HTTPS or localhost)."); }
   };
-  const ladder = config.data?.multipliers?.[String(mines)] ?? [];
+  const ladder = isActive ? round.multipliers ?? [] : config.data?.multipliers?.[String(mines)] ?? [];
   const nextSteps = Array.from({ length: Math.min(5, safeTotal - picked) }, (_, i) => picked + i + 1);
   if (!user) return null;
   return <InstantShell game="mines" balance={balance.data?.balance} onFairness={() => { setDetail(null); setVerification(""); setFairness(true); }}>
@@ -112,6 +113,7 @@ export default function Mines() {
     {config.isError && <Notice onRetry={() => void config.refetch()}>Game settings couldn't load.</Notice>}
     {config.data?.enabled === false && <Notice>Mines is temporarily unavailable.</Notice>}
     {balance.isError && <Notice onRetry={() => void balance.refetch()}>Your wallet couldn't load.</Notice>}
+    <RtpDisclosure houseEdge={isActive ? round.houseEdge : config.data?.houseEdge} label={isActive ? "This round" : "New bets"} />
     <main className="instant-layout" data-game-screen="mines">
       <aside className="instant-controls">
         <div className="instant-control-title">{isActive ? "Your expedition" : "Make your move"}<span>{isActive ? "IN PLAY" : "MANUAL"}</span></div>
@@ -148,7 +150,7 @@ export default function Mines() {
     <FairnessDialog open={fairness} onOpenChange={setFairness}>
       <p>A secret seed determines the mine positions. Its hash is shown when the round starts; the seed and complete board are revealed when the round ends.</p>
       {inspect ? <><SeedField label="Round" value={inspect.id} /><SeedField label="Server seed hash" value={inspect.serverSeedHash} /><SeedField label="Server seed" value={inspect.serverSeed} /><SeedField label="Client seed" value={inspect.clientSeed} /><SeedField label="Nonce" value={inspect.nonce} /><SeedField label="Mine positions (numbered 1–25)" value={inspect.mineIndexes?.map(i => i + 1).join(", ") ?? null} />{inspect.serverSeed && <button onClick={() => void verifyHash()}>Verify seed hash</button>}{verification && <p role="status" className="instant-verification">{verification}</p>}</> : <p>Start a round to see its seed commitment.</p>}
-      {config.data && <p>House edge: {(config.data.houseEdge * 100).toFixed(2)}%. Payouts include your stake; a return below 1× is a net loss. A mine loses the round's stake.</p>}
+      {config.data && <p>House edge: {((detail?.houseEdge ?? (isActive ? round.houseEdge : config.data.houseEdge)) * 100).toFixed(2)}%. Payouts include your stake; a return below 1× is a net loss. A mine loses the round's stake.</p>}
     </FairnessDialog>
   </InstantShell>;
 }

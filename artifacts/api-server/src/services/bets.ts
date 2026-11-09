@@ -46,6 +46,9 @@ async function userDisplayName(userId: string): Promise<string | null> {
 }
 
 export interface PlaceBetInput {
+  /** Server-resolved terms only; never copied from a request body. */
+  pricingTerms?: { houseEdge: number; maxMultiplier: number; pricingVersion: string;
+    rtpPolicy: { source: string; revision: number; playerRtpBps: number } };
   crashTerms?: { crashAutoCashout?: number; crashPanel: number };
   /** Set only by the server's validated shared-round adapter. */
   tableRoundPlacement?: boolean;
@@ -136,7 +139,11 @@ export async function placeBet(input: PlaceBetInput): Promise<Bet> {
         partnerId: input.partnerId ?? null,
         partnerBetId: input.partnerBetId ?? null,
         partnerPlayerRef: input.partnerPlayerRef ?? null,
-        metadata: input.crashTerms ? { ...input.crashTerms, crashFunded: false, settlementMode: "house_edge", ...(freeBetGrantId ? { freeBet: true, grantId: freeBetGrantId } : useBonus ? { useBonus: true } : {}) } : freeBetGrantId
+        metadata: input.pricingTerms ? { ...(input.crashTerms ? { ...input.crashTerms, crashFunded: false, settlementMode: "house_edge", ...(freeBetGrantId ? { freeBet: true, grantId: freeBetGrantId } : useBonus ? { useBonus: true } : {}) } : freeBetGrantId
+          ? { freeBet: true, grantId: freeBetGrantId }
+          : useBonus
+            ? { useBonus: true }
+            : null), pricingTerms: input.pricingTerms } : input.crashTerms ? { ...input.crashTerms, crashFunded: false, settlementMode: "house_edge", ...(freeBetGrantId ? { freeBet: true, grantId: freeBetGrantId } : useBonus ? { useBonus: true } : {}) } : freeBetGrantId
           ? { freeBet: true, grantId: freeBetGrantId }
           : useBonus
             ? { useBonus: true }

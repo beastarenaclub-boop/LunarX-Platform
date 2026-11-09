@@ -124,13 +124,14 @@ export function settleCrazyTimeBets(
   bets: CrazyTimeBetInput[],
   outcome: CrazyTimeOutcome,
   payoutVersion = 1,
+  targetRtp = .85,
 ) {
   const { totalStake } = validateCrazyTimeBets(bets);
   let totalPayout = 0n;
   const settled = bets.map((bet) => {
     const didWin = bet.type === outcome.winner;
     const multiplier = didWin
-      ? crazyTimeReturn(outcome, bet.choice ?? 0, payoutVersion)
+      ? crazyTimeReturn(outcome, bet.choice ?? 0, payoutVersion, targetRtp)
       : 0;
     const payout = bet.amountPaise * BigInt(Math.round(multiplier * 10000)) / 10000n;
     totalPayout += payout;

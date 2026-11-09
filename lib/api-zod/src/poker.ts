@@ -67,6 +67,7 @@ export type PokerPhase =
   | "river"
   | "result";
 export interface PokerQuote {
+  masterRtpBps?: number; pricingVersion?: string;
   id: string;
   label: string;
   player: number;
@@ -115,6 +116,7 @@ export interface PokerPublicRound {
   nonce?: string;
 }
 export interface PokerTable {
+  masterRtpBps?: number | null;
   enabled: boolean;
   serverNow: number;
   balancePaise: string;

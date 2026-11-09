@@ -9,7 +9,6 @@ import {
 } from "@workspace/db";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import {
-  requireGameConfig,
   derivePlinkoOutcome,
   sha256Hex,
   generateSeed,
@@ -18,6 +17,7 @@ import {
 } from "./rtp";
 import { placeBet, cashOutBet, settleLoss, refundStake } from "./bets";
 import { postEntry } from "./wallet";
+import { requirePlayerGameConfig } from "./masterRtp";
 
 export const PLINKO_GAME_CODE = "plinko";
 
@@ -27,6 +27,7 @@ export interface DropBallInput {
   rows: number;
   risk: PlinkoRisk;
   useBonus?: boolean;
+  pricingVersion?: string;
 }
 
 export interface PlinkoPublicState {
@@ -307,7 +308,7 @@ export async function dropBall(input: DropBallInput): Promise<PlinkoPublicState>
   if (!PLINKO_RISK_OPTIONS.includes(input.risk)) {
     throw new Error("INVALID_PLINKO_RISK");
   }
-  const cfg = await requireGameConfig(PLINKO_GAME_CODE);
+  const cfg = await requirePlayerGameConfig(PLINKO_GAME_CODE, input.userId, input.pricingVersion, true);
   if (!cfg.enabled) throw new Error("GAME_DISABLED");
   if (input.stakeAmount <= 0n) throw new Error("INVALID_STAKE");
   if (input.stakeAmount > cfg.maxStakePaise) throw new Error("STAKE_TOO_LARGE");
@@ -316,6 +317,7 @@ export async function dropBall(input: DropBallInput): Promise<PlinkoPublicState>
   const bet = await placeBet({
     userId: input.userId,
     gameCode: PLINKO_GAME_CODE,
+    pricingTerms: { houseEdge: cfg.houseEdge, maxMultiplier: cfg.maxMultiplier, pricingVersion: cfg.pricingVersion, rtpPolicy: cfg.rtpPolicy },
     stakeAmount: input.stakeAmount,
     useBonus: input.useBonus,
   });

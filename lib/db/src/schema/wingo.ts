@@ -25,6 +25,8 @@ export const wingoBetsTable = pgTable("wingo_bets", {
   userId: text("user_id").notNull().references(() => usersTable.id),
   period: text("period").notNull().references(() => wingoRoundsTable.period),
   pick: text("pick").notNull(),
+  returnBps: integer("return_bps"),
+  pricingVersion: text("pricing_version"),
   stake: integer("stake").notNull(), // paise
   payout: integer("payout"), // paise; null until settled
   created: bigint("created", { mode: "number" }).notNull(),

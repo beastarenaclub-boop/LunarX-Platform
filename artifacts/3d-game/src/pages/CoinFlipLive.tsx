@@ -1,3 +1,4 @@
+import { RtpDisclosure } from "@/components/RtpDisclosure";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -227,6 +228,7 @@ export default function CoinFlipLive() {
     const input =
       pending ??
       (snapshot && {
+        pricingVersion: snapshot.config.pricingVersion,
         roundId: snapshot.roundId,
         side: plan?.side ?? side,
         stakeAmount: plan?.stakeAmount ?? String(stakePaise),
@@ -402,6 +404,7 @@ export default function CoinFlipLive() {
       : "");
   return (
     <div className="cf-page cfl-page" data-testid="collection-page">
+      <RtpDisclosure houseEdge={snapshot?.config?.masterRtpBps === undefined ? undefined : 1 - snapshot?.config!.masterRtpBps! / 10000} />
       <header className="cf-header">
         <div className="cf-brand">
           <Link href="/" className="cf-icon" aria-label="Back to lobby">
@@ -780,7 +783,7 @@ export default function CoinFlipLive() {
       <footer className="cf-footer">
         <span>
           COIN FLIP <i /> 30 SEC <i />{" "}
-          {((configNow?.rtp ?? 0.97) * 100).toFixed(0)}% target RTP
+          {((configNow?.coinPayoutVersion === 2 ? .99 : configNow?.rtp ?? .97) * 100).toFixed(2)}% target RTP
         </span>
         <div>
           <button

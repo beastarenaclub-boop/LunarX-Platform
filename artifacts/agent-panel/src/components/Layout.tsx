@@ -20,6 +20,7 @@ import {
 
 const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/rtp", label: "RTP settings", icon: ReceiptText, masterOnly: true },
   { href: "/downline", label: "Downline tree", icon: GitBranch },
   { href: "/agents", label: "Total Agents", icon: Users, masterOnly: true },
   { href: "/users", label: "Total Users", icon: Users },

@@ -17,6 +17,7 @@ export type Bet = {
   number: number | null;
 };
 export type GameState = {
+  masterRtpBps?: number | null; pricingVersion?: string; returns?: Record<string, number>;
   serverTime: number;
   player: { id: string; balance: number };
   round: {

@@ -20,7 +20,7 @@ import { useAuth } from "@/lib/auth";
 import type { TableRoundSnapshot } from "@/components/table/useTableRound";
 
 type Slip = Partial<Record<L7Spot, number>>;
-type Pending = { roundId: string; bets: L7Bet[] };
+type Pending = { pricingVersion?: string; roundId: string; bets: L7Bet[] };
 const endpoint = `/api/${L7_GAME}`;
 const total = (slip: Slip) =>
   Object.values(slip).reduce((a, b) => a + (b ?? 0), 0);
@@ -83,7 +83,7 @@ export function useLucky7Live() {
     try {
       const p = JSON.parse(localStorage.getItem(key) ?? "null");
       if (!p || typeof p.roundId !== "string") return null;
-      return { roundId: p.roundId, bets: normalizeL7Bets(p.bets) };
+      return { pricingVersion: p.pricingVersion, roundId: p.roundId, bets: normalizeL7Bets(p.bets) };
     } catch {
       return null;
     }
@@ -200,6 +200,7 @@ export function useLucky7Live() {
     if (lock.current || (!pending && (!ready || locked || total(draft) < min)))
       return;
     const payload = pending ?? {
+      pricingVersion: snapshot!.config.pricingVersion,
       roundId: snapshot!.roundId,
       bets: normalizeL7Bets(
         Object.entries(draft)

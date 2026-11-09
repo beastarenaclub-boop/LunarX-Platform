@@ -1,3 +1,4 @@
+import { RtpDisclosure } from "@/components/RtpDisclosure";
 import {
   useCallback,
   useEffect,
@@ -292,7 +293,7 @@ export default function CrazyTime() {
       }>("/api/crazy-time/bet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roundId: submittedRound, bets: payload }),
+        body: JSON.stringify({ roundId: submittedRound, bets: payload, pricingVersion: round.config?.pricingVersion }),
       });
       setLastBets(payload);
       if (currentRound.current === accepted.roundId)
@@ -437,7 +438,7 @@ export default function CrazyTime() {
           <tr key={s.id}>
             <td>{s.label}</td>
             <td>{s.count}/54</td>
-            <td>{(CRAZY_TIME_RTP[s.id] * 100).toFixed(2)}%</td>
+            <td>{(round.config?.masterRtpBps === undefined ? CRAZY_TIME_RTP[s.id] * 100 : round.config.masterRtpBps / 100).toFixed(2)}%</td>
           </tr>
         ))}
       </tbody>
@@ -446,6 +447,7 @@ export default function CrazyTime() {
 
   return (
     <div className="ct-page" data-testid="crazy-time-page">
+      <RtpDisclosure houseEdge={round.config?.masterRtpBps === undefined ? undefined : 1 - round.config!.masterRtpBps! / 10000} />
       <header className="ct-header">
         <Link href="/" className="ct-icon-btn" aria-label="Back to lobby">
           <ArrowLeft size={20} />
@@ -662,7 +664,7 @@ export default function CrazyTime() {
                   </span>
                   {spot.profit == null && <b>{spot.label}</b>}
                   <small>
-                    {crazyTimeReturnRange(spot.id, round.config?.payoutVersion ?? 1).map(n => n.toFixed(2)).join("–")}×
+                    {crazyTimeReturnRange(spot.id, round.config?.payoutVersion ?? 1, (round.config?.masterRtpBps ?? 8500) / 10000).map(n => n.toFixed(2)).join("–")}×
                   </small>
                   {amounts.has(spot.id) && (
                     <em data-testid={`crazy-stake-${spot.id}`}>

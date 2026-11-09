@@ -1,3 +1,4 @@
+import { playerTableConfig, assertTablePricing } from "./masterRtp";
 import { COIN_LIVE_TIMING, COIN_PAYOUT_VERSION, coinLiveMultiplier, collectionPayout, normalizeCoinLiveBet, type CoinLiveOutcome } from "@workspace/api-zod/instant-collection";
 import { settleCoinLive, refundCoinLive, voidCoinLiveRound } from "./coinFlipLive";
 import { W20_VERSION, normalizeW20Bets, w20Stake, w20Payout, type W20Bet, type W20Outcome } from "@workspace/api-zod/wheel20-live";
@@ -141,6 +142,7 @@ export function isTableGame(code: string): code is TableGameCode {
 
 /** Config snapshot persisted on every round row. */
 export interface RoundConfigSnapshot {
+  masterRtpBps?: number; pricingVersion?: string; rtpPolicy?: { source: string; revision: number; playerRtpBps: number };
   baccaratPayouts?: ReturnType<typeof baccaratPayouts>;
   teenPattiPayouts?: ReturnType<typeof teenPattiPayouts>;
   wheel20Version?: number;
@@ -605,7 +607,7 @@ const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdapter> = 
   "crazy-time": {
     validate: bets => validateCrazyTimeBets(toBetInputs<CrazyTimeBetInput>(bets)),
     derive: (serverSeed, clientSeed, nonce, cfg) => deriveCrazyTimeOutcome(serverSeed, clientSeed, nonce, cfg.crazyTimeVersion ?? 1),
-    settle: (bets, outcome, _max, _edge, cfg) => settleCrazyTimeBets(toBetInputs<CrazyTimeBetInput>(bets), outcome as CrazyTimeOutcome, cfg.payoutVersion ?? 1),
+    settle: (bets, outcome, _max, _edge, cfg) => settleCrazyTimeBets(toBetInputs<CrazyTimeBetInput>(bets), outcome as CrazyTimeOutcome, cfg.payoutVersion ?? 1, cfg.masterRtpBps === undefined ? .85 : cfg.masterRtpBps / 10000),
     async insertAudit({ round }) { return round.id; },
   },
   "vegetable-bowl": {
@@ -1055,6 +1057,7 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
     if (round.outcome == null) throw new Error("OUTCOME_MISSING");
     for (const slip of slips) {
       try {
+        const cfg = (slip.pricingConfig as unknown as RoundConfigSnapshot | null) ?? roundCfg(round);
         const { settled, totalPayout: slipPayout } = adapter.settle(
           slip.bets,
           round.outcome,
@@ -1173,6 +1176,7 @@ export async function placeTableBets(input: Parameters<typeof placeTableBetsUnlo
 }
 
 async function placeTableBetsUnlocked(input: {
+  pricingVersion?: string;
   roundId?: string;
   gameCode: TableGameCode;
   userId: string;
@@ -1185,7 +1189,8 @@ async function placeTableBetsUnlocked(input: {
   if (!round || (input.roundId != null && input.roundId !== round.id) || round.phase !== "betting" || round.bettingEndsAt.getTime() <= Date.now()) {
     throw new Error("BETTING_CLOSED");
   }
-  const cfg = roundCfg(round);
+  const cfg = await playerTableConfig(roundCfg(round), input.gameCode, input.userId);
+  assertTablePricing(cfg, input.pricingVersion);
 
   if (input.gameCode === "roulette") {
     const previous = await db.select({ bets: tableRoundBetsTable.bets })
@@ -1254,6 +1259,7 @@ async function placeTableBetsUnlocked(input: {
         userId: input.userId,
         betId: bet.id,
         bets: betsJson,
+        pricingConfig: cfg,
         totalStake,
       })
       .returning();
@@ -1429,6 +1435,7 @@ export async function getTableRoundSnapshot(
       userId: tableRoundBetsTable.userId,
       totalStake: tableRoundBetsTable.totalStake,
       bets: tableRoundBetsTable.bets,
+      pricingConfig: tableRoundBetsTable.pricingConfig,
       status: tableRoundBetsTable.status,
       payoutAmount: tableRoundBetsTable.payoutAmount,
       auditRoundId: tableRoundBetsTable.auditRoundId,
@@ -1453,7 +1460,7 @@ export async function getTableRoundSnapshot(
   // Crazy Time accepts a single combined slip per user, so this stays small.
   const personalSlips = (gameCode === "mega-ball" || gameCode === "teen-patti" || gameCode === "teen-patti-live" || gameCode === "coin-flip" || gameCode === "wheel-2-live" || gameCode === "teen-patti-joker" || gameCode === "crazy-time" || gameCode === "7up7down" || gameCode === "lucky-7-live") && userId
     ? await db.select({ id: tableRoundBetsTable.id, userId: tableRoundBetsTable.userId,
-      totalStake: tableRoundBetsTable.totalStake, bets: tableRoundBetsTable.bets,
+      totalStake: tableRoundBetsTable.totalStake, bets: tableRoundBetsTable.bets, pricingConfig: tableRoundBetsTable.pricingConfig,
       status: tableRoundBetsTable.status, payoutAmount: tableRoundBetsTable.payoutAmount,
       auditRoundId: tableRoundBetsTable.auditRoundId }).from(tableRoundBetsTable)
       .where(and(eq(tableRoundBetsTable.roundId, round.id), eq(tableRoundBetsTable.userId, userId)))
@@ -1490,7 +1497,7 @@ export async function getTableRoundSnapshot(
     serverSeed: revealed ? round.serverSeed : null,
     totalStake: round.totalStake.toString(),
     playerCount: round.playerCount,
-    config: roundCfg(round),
+    config: await playerTableConfig(roundCfg(round), gameCode, userId),
     liveBets: slips.map((s) => ({
       displayName: nameOf(s),
       totalStake: s.totalStake.toString(),
@@ -1502,6 +1509,7 @@ export async function getTableRoundSnapshot(
           .filter((s) => s.userId === userId)
           .map((s) => ({
             slipId: s.id,
+            pricingConfig: s.pricingConfig,
             totalStake: s.totalStake.toString(),
             bets: s.bets,
             status: s.status,

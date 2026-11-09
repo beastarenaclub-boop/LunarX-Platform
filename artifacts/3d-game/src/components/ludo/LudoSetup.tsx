@@ -134,6 +134,7 @@ export function LudoSetup({
   entry,
   onEntry,
   entries,
+  commissionBps = 1000,
   balance,
   enabled,
   busy,
@@ -155,6 +156,7 @@ export function LudoSetup({
   entry: number;
   onEntry: (n: number) => void;
   entries: number[];
+  commissionBps?: number;
   balance?: string;
   enabled: boolean;
   busy: boolean;
@@ -453,7 +455,7 @@ export function LudoSetup({
                     <Trophy size={18} />
                     {variant === "team" ? "TEAM PRIZE" : "WIN"}
                   </span>
-                  <b>{money(entry * capacity * 0.9)}</b>
+                  <b>{money(entry * capacity * (1 - commissionBps / 10000))}</b>
                   <small>
                     <Coins size={12} /> Entry: {money(entry)}
                   </small>
@@ -479,9 +481,9 @@ export function LudoSetup({
                 ))}
               </div>
               <p className="ld-fee">
-                Prize after 10% platform commission
+                Prize after {(commissionBps / 100).toFixed(2)}% platform commission
                 {variant === "team"
-                  ? ` · ${money((entry * capacity * 0.9) / 2)} per winning partner`
+                  ? ` · ${money((entry * capacity * (1 - commissionBps / 10000)) / 2)} per winning partner`
                   : ""}
               </p>
               <button

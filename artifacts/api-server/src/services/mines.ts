@@ -2,7 +2,6 @@ import crypto from "node:crypto";
 import { db, betsTable, minesRoundsTable, type MinesRound } from "@workspace/db";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import {
-  requireGameConfig,
   deriveMinesOutcome,
   minesMultiplier,
   sha256Hex,
@@ -10,6 +9,7 @@ import {
 } from "./rtp";
 import { placeBet, cashOutBet, settleLoss, refundStake } from "./bets";
 import { postEntry } from "./wallet";
+import { requirePlayerGameConfig } from "./masterRtp";
 
 export const MINES_GAME_CODE = "mines";
 export const MINES_GRID_SIZE = 25;
@@ -21,6 +21,7 @@ export interface CreateMinesRoundInput {
   stakeAmount: bigint;
   mineCount: number;
   useBonus?: boolean;
+  pricingVersion?: string;
 }
 
 export interface MinesPublicState {
@@ -40,6 +41,8 @@ export interface MinesPublicState {
   multiplier: number;
   nextMultiplier: number;
   maxMultiplier: number;
+  houseEdge: number;
+  multipliers: number[];
   payoutAmount: string | null;
   createdAt: string;
   settledAt: string | null;
@@ -80,6 +83,11 @@ function publicState(round: MinesRound, payoutAmount: bigint | null): MinesPubli
     multiplier: round.multiplier,
     nextMultiplier: next,
     maxMultiplier: round.maxMultiplier,
+    houseEdge: round.houseEdge,
+    multipliers: Array.from({length: round.gridSize - round.mineCount}, (_, i) => minesMultiplier({
+      gridSize: round.gridSize, mineCount: round.mineCount, revealedSafe: i + 1,
+      houseEdge: round.houseEdge, maxMultiplier: round.maxMultiplier, payoutVersion: round.payoutVersion,
+    })),
     payoutAmount: payoutAmount !== null ? payoutAmount.toString() : null,
     createdAt: round.createdAt.toISOString(),
     settledAt: round.settledAt ? round.settledAt.toISOString() : null,
@@ -107,7 +115,7 @@ export async function createRound(input: CreateMinesRoundInput): Promise<MinesPu
   if (input.mineCount < MIN_MINES || input.mineCount > MAX_MINES) {
     throw new Error("INVALID_MINE_COUNT");
   }
-  const cfg = await requireGameConfig(MINES_GAME_CODE);
+  const cfg = await requirePlayerGameConfig(MINES_GAME_CODE, input.userId, input.pricingVersion, true);
   if (!cfg.enabled) throw new Error("GAME_DISABLED");
   if (input.stakeAmount <= 0n) throw new Error("INVALID_STAKE");
   if (input.stakeAmount > cfg.maxStakePaise) throw new Error("STAKE_TOO_LARGE");
@@ -127,6 +135,7 @@ export async function createRound(input: CreateMinesRoundInput): Promise<MinesPu
     useBonus: input.useBonus,
     userId: input.userId,
     gameCode: MINES_GAME_CODE,
+    pricingTerms: { houseEdge: cfg.houseEdge, maxMultiplier: cfg.maxMultiplier, pricingVersion: cfg.pricingVersion, rtpPolicy: cfg.rtpPolicy },
     stakeAmount: input.stakeAmount,
   });
 

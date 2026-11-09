@@ -30,6 +30,7 @@ router.use((req, res, next) => {
 const Bet = z
   .object({
     roundId: z.string().min(1).max(100),
+    pricingVersion: z.string().regex(/^[a-f0-9]{32}$/).optional(),
     bets: z
       .array(
         z
@@ -85,7 +86,7 @@ router.post(
   async (req, res, next) => {
     try {
       const input = Bet.parse(req.body);
-      res.json(await placeW20Live(req.user!.id, input.roundId, input.bets));
+      res.json(await placeW20Live(req.user!.id, input.roundId, input.bets, input.pricingVersion));
     } catch (e) {
       next(e);
     }

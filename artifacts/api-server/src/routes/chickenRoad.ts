@@ -13,12 +13,13 @@ router.use(requireAuth);
 // require a dedicated integration rather than falling back to local cash.
 router.use((req, _res, next) => req.session?.partnerId ? next(badRequest("Chicken Road is available through the shared lobby wallet.")) : next());
 const Place = z.object({
+  pricingVersion: z.string().regex(/^[a-f0-9]{32}$/).optional(),
   requestId: z.string().uuid(), difficulty: z.enum(CHICKEN_DIFFICULTIES),
   stakeAmount: z.string().regex(/^\d{1,15}$/), clientSeed: z.string().min(8).max(64).regex(/^[a-zA-Z0-9_-]+$/),
 }).strict();
 const Move = z.object({ expectedStep: z.number().int().min(0).max(24) }).strict();
 const moveLimiter = rateLimit({ windowMs: 60000, limit: 240, keyGenerator: req => req.user!.id, standardHeaders: "draft-7", legacyHeaders: false });
-router.get("/config", async (_req, res, next) => { try { res.json(await chickenConfig()); } catch (e) { next(e); } });
+router.get("/config", async (req, res, next) => { try { res.set("Cache-Control", "private, no-store").json(await chickenConfig(req.user!.id)); } catch (e) { next(e); } });
 router.get("/state", async (req, res, next) => { try { res.json(await chickenState(req.user!.id)); } catch (e) { next(e); } });
 router.post("/place", bettingIpRateLimiter, bettingRateLimiter, async (req, res, next) => {
   try { res.json(await startChicken(req.user!.id, Place.parse(req.body))); } catch (e) { next(e); }

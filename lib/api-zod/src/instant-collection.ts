@@ -58,7 +58,7 @@ export interface CollectionState { round: CollectionRound | null; history: Colle
 export interface CollectionConfig { enabled: boolean; minStakePaise: string; maxStakePaise: string; rtp: number; maxMultiplier: number; sevenPayoutVersion?: SevenPayoutVersion; coinPayoutVersion?: 1 | 2 }
 export type CoinSide = "heads" | "tails";
 export type CoinLiveBet = { side: CoinSide; amount: string };
-export type CoinLiveInput = { roundId: string; side: CoinSide; stakeAmount: string };
+export type CoinLiveInput = { pricingVersion?: string; roundId: string; side: CoinSide; stakeAmount: string };
 export type CoinLiveOutcome = { side: CoinSide; value: 0 | 1 };
 export interface CoinLiveReceipt extends CollectionRound { tableRoundId: string; slipStatus: string }
 export const COIN_LIVE_TIMING = { bettingWindowMs: 15000, revealDurationMs: 10000, settleDurationMs: 5000 };

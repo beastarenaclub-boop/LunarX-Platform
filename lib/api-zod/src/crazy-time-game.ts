@@ -199,22 +199,22 @@ export function crazyTimeProfit(outcome: CrazyTimeOutcome, choice = 0): number {
 
 /** Display and settlement share the adjusted total return; legacy audits use v1. */
 export const CRAZY_TIME_RTP = Object.fromEntries(CRAZY_TIME_TYPES.map(type => [type, .85])) as Record<CrazyTimeSpot, number>;
-export function crazyTimeReturn(outcome: CrazyTimeOutcome, choice = 0, payoutVersion = 2) {
+export function crazyTimeReturn(outcome: CrazyTimeOutcome, choice = 0, payoutVersion = 2, targetRtp = .85) {
   const total = 1 + crazyTimeProfit(outcome, choice);
-  return crazyTimePrice(outcome.winner, total, payoutVersion);
+  return crazyTimePrice(outcome.winner, total, payoutVersion, targetRtp);
 }
 
-function crazyTimePrice(spot: CrazyTimeSpot, total: number, version: number) {
-  return version === 1 ? total : Math.min(CRAZY_TIME_MAX_RETURN, Math.floor(total * .85 / CRAZY_TIME_BASE_RTP[spot] * 10000) / 10000);
+function crazyTimePrice(spot: CrazyTimeSpot, total: number, version: number, targetRtp = .85) {
+  return version === 1 ? total : Math.min(CRAZY_TIME_MAX_RETURN, Math.floor(total * targetRtp / CRAZY_TIME_BASE_RTP[spot] * 10000) / 10000);
 }
 
 /** Possible winning total returns, including bonus prizes and Top Slot boosts. */
-export function crazyTimeReturnRange(type: CrazyTimeSpot, version = 2): [number, number] {
+export function crazyTimeReturnRange(type: CrazyTimeSpot, version = 2, targetRtp = .85): [number, number] {
   const spot = CRAZY_TIME_SPOTS.find(s => s.id === type)!;
   const prizes = spot.profit !== null ? [spot.profit] :
     (type === "coin-flip" ? CRAZY_COIN_PRIZES : type === "crazy-time" ? CRAZY_WHEEL_PRIZES : CRAZY_CASH_PRIZES).map(([prize]) => prize);
   const bonusBoost = type === "pachinko" ? 4 : type === "crazy-time" ? 9 : 1;
   const topBoost = Math.max(...CRAZY_TOP_PRIZES.map(([boost]) => boost));
-  return [crazyTimePrice(type, 1 + Math.min(...prizes), version),
-    crazyTimePrice(type, 1 + Math.min(CRAZY_TIME_MAX_RETURN - 1, Math.max(...prizes) * bonusBoost * topBoost), version)];
+  return [crazyTimePrice(type, 1 + Math.min(...prizes), version, targetRtp),
+    crazyTimePrice(type, 1 + Math.min(CRAZY_TIME_MAX_RETURN - 1, Math.max(...prizes) * bonusBoost * topBoost), version, targetRtp)];
 }

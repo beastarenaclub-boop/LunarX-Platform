@@ -1,3 +1,4 @@
+import { playerTableConfig, assertTablePricing } from "./masterRtp";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db, betsTable, tableRoundsTable, tableRoundBetsTable, type TableRound } from "@workspace/db";
 import { normalizeSevenBets, sevenPayout, type SevenBet, type CollectionRound } from "@workspace/api-zod/instant-collection";
@@ -10,7 +11,7 @@ export const SEVEN_CODE = "7up7down";
 export type SevenOutcome = { dice: number[]; total: number };
 
 /** One explicit slip per player/round. The round lock and ledger share a transaction. */
-export async function placeSevenLive(userId: string, roundId: string, rawBets: SevenBet[]) {
+export async function placeSevenLive(userId: string, roundId: string, rawBets: SevenBet[], pricingVersion?: string) {
   const stake = rawBets.reduce((sum, b) => sum + BigInt(b.amount), 0n);
   let bets: SevenBet[];
   try { bets = normalizeSevenBets(rawBets, stake); } catch (e) { throw badRequest((e as Error).message); }
@@ -25,7 +26,8 @@ export async function placeSevenLive(userId: string, roundId: string, rawBets: S
     }
     const [round] = await tx.select().from(tableRoundsTable).where(and(eq(tableRoundsTable.id, roundId), eq(tableRoundsTable.gameCode, SEVEN_CODE))).for("update");
     if (!round || round.phase !== "betting" || round.bettingEndsAt.getTime() <= Date.now()) throw badRequest("Betting is closed. Choose your chips for the next round.");
-    const cfg = round.config as RoundConfigSnapshot;
+    const cfg = await playerTableConfig(round.config as RoundConfigSnapshot, SEVEN_CODE, userId, tx);
+    assertTablePricing(cfg, pricingVersion);
     if (!config.enabled) throw badRequest("This table is paused.");
     if (stake < BigInt(cfg.minStakePaise) || stake > BigInt(cfg.maxStakePaise) || stake <= 0n) throw badRequest("Your total bet is outside the table limits.");
     const [bet] = await tx.insert(betsTable).values({ userId, gameCode: SEVEN_CODE, roundId, stakeAmount: stake, status: "placed", metadata: { version: 2, sevenLive: true, bets, settlementMode: "house_edge" } }).returning();
@@ -33,7 +35,7 @@ export async function placeSevenLive(userId: string, roundId: string, rawBets: S
       const debit = await postEntry({ userId, type: "bet", amount: -stake, refType: "bet", refId: bet.id, memo: "7 Up 7 Down table bet" }, tx);
       balance = debit.entry.balanceAfter;
     } catch (e) { if ((e as Error).message === "INSUFFICIENT_FUNDS") throw badRequest("Insufficient wallet balance."); throw e; }
-    const [slip] = await tx.insert(tableRoundBetsTable).values({ roundId, gameCode: SEVEN_CODE, userId, betId: bet.id, bets, totalStake: stake }).returning();
+    const [slip] = await tx.insert(tableRoundBetsTable).values({ roundId, gameCode: SEVEN_CODE, userId, betId: bet.id, bets, pricingConfig: cfg, totalStake: stake }).returning();
     if (round.bettingEndsAt.getTime() <= Date.now()) throw badRequest("Betting closed before your bet was accepted. No money was taken.");
     await tx.update(tableRoundsTable).set({ totalStake: sql`${tableRoundsTable.totalStake} + ${stake}`, playerCount: sql`${tableRoundsTable.playerCount} + 1` }).where(eq(tableRoundsTable.id, roundId));
     return { slipId: slip.id, roundId, totalStake: stake.toString(), status: "pending" };
@@ -54,6 +56,7 @@ export async function settleSevenLive(round: TableRound) {
       if (!slip || slip.status !== "pending") return null;
       const [bet] = await tx.select().from(betsTable).where(eq(betsTable.id, slip.betId)).for("update");
       if (!bet || bet.status !== "placed") throw new Error("SEVEN_SLIP_STATE_MISMATCH");
+      const cfg = (slip.pricingConfig as unknown as RoundConfigSnapshot | null) ?? round.config as RoundConfigSnapshot;
       const payout = sevenPayout(slip.bets as SevenBet[], outcome.dice, 1 - cfg.houseEdge, cfg.maxMultiplier, cfg.sevenPayoutVersion ?? 1);
       let balance: bigint | undefined;
       if (payout > 0n) {
@@ -72,7 +75,7 @@ export async function settleSevenLive(round: TableRound) {
 export async function sevenLiveHistory(userId: string): Promise<CollectionRound[]> {
   const rows = await db.select({ slip: tableRoundBetsTable, round: tableRoundsTable }).from(tableRoundBetsTable).innerJoin(tableRoundsTable, eq(tableRoundBetsTable.roundId, tableRoundsTable.id)).where(and(eq(tableRoundBetsTable.gameCode, SEVEN_CODE), eq(tableRoundBetsTable.userId, userId), eq(tableRoundBetsTable.status, "settled"))).orderBy(desc(tableRoundBetsTable.createdAt)).limit(20);
   return rows.map(({ slip, round }) => {
-    const cfg = round.config as RoundConfigSnapshot;
+    const cfg = (slip.pricingConfig as unknown as RoundConfigSnapshot | null) ?? round.config as RoundConfigSnapshot;
     return { id: round.id, gameCode: SEVEN_CODE, requestId: slip.id, status: slip.payoutAmount > 0n ? "won" : "lost", stakeAmount: slip.totalStake.toString(), payoutAmount: slip.payoutAmount.toString(), cashoutAmount: slip.payoutAmount.toString(), multiplier: Number(slip.payoutAmount) / Number(slip.totalStake), step: 0, options: { difficulty: "easy", mines: 3, choice: "up", bets: slip.bets as SevenBet[] }, outcome: (round.outcome as SevenOutcome).dice, revealed: [], hazards: null, serverSeed: round.serverSeed, serverSeedHash: round.serverSeedHash, clientSeed: round.clientSeed, createdAt: slip.createdAt.toISOString(), rtp: 1 - cfg.houseEdge, maxMultiplier: cfg.maxMultiplier, sevenPayoutVersion: cfg.sevenPayoutVersion ?? 1 };
   });
 }

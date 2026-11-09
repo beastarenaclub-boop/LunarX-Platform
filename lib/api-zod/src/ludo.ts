@@ -15,6 +15,7 @@ export type LudoColor = (typeof LUDO_COLORS)[number];
 export type LudoVariant = "classic" | "quick" | "team";
 export type LudoMode = "online" | "computer" | "private";
 export type LudoJoin = {
+  pricingVersion?: string;
   capacity: 2 | 3 | 4;
   entryPaise: number;
   requestId: string;
@@ -98,6 +99,7 @@ export type LudoMatch = {
   reason: string | null;
 };
 export type LudoTable = {
+  commissionBps?: number; pricingVersion?: string;
   serverNow: number;
   balancePaise: string;
   enabled: boolean;

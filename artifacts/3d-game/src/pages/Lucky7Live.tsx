@@ -1,3 +1,4 @@
+import { RtpDisclosure } from "@/components/RtpDisclosure";
 import { DEFAULT_BUTTON_VALUES } from "@/lib/buttonValues";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "wouter";
@@ -20,6 +21,7 @@ import {
 import {
   L7_LABELS,
   L7_PROFIT,
+  l7Return,
   L7_SPOTS,
   isRed,
   mainSpot,
@@ -248,7 +250,7 @@ export default function Lucky7Live() {
       className={`l7-spot l7-${spot} ${main ? "is-main" : ""} ${card && wins(spot, card) ? "is-winner" : ""}`}
     >
       <span>{spot === "seven" ? "7" : L7_LABELS[spot].toUpperCase()}</span>
-      <small>{L7_PROFIT[spot]}</small>
+      <small>{game.snapshot?.config.masterRtpBps === undefined ? L7_PROFIT[spot] : `${l7Return(spot, game.snapshot.config.masterRtpBps).toFixed(4)}× return`}</small>
       {main && card && mainSpot(card) === spot && (
         <span className="l7-winning-card" data-testid="l7-result-card">
           <PlayingCard card={card} />
@@ -261,6 +263,7 @@ export default function Lucky7Live() {
   );
   return (
     <div ref={root} className="l7-live">
+      <RtpDisclosure houseEdge={game.snapshot?.config?.masterRtpBps === undefined ? undefined : 1 - game.snapshot?.config!.masterRtpBps! / 10000} />
       <link
         rel="preload"
         as="image"
@@ -661,7 +664,7 @@ export default function Lucky7Live() {
                           }[s]
                         }
                       </td>
-                      <td>{L7_PROFIT[s]}</td>
+                      <td>{game.snapshot?.config.masterRtpBps === undefined ? L7_PROFIT[s] : `${l7Return(s, game.snapshot.config.masterRtpBps).toFixed(4)}× return`}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -673,7 +676,7 @@ export default function Lucky7Live() {
                 draw.
               </p>
               <p>
-                RTP: Up/Down/Seven/Even 92.31%, Red/Black 95%, Odd 96.92%,
+                {game.snapshot?.config.masterRtpBps === undefined ? "RTP: Up/Down/Seven/Even 92.31%, Red/Black 95%, Odd 96.92%," : `RTP: ${(game.snapshot.config.masterRtpBps / 100).toFixed(2)}% on each selection,`}
                 before paise rounding. The dealer is an AI-generated studio
                 video; cards and payouts are controlled by the game server.
               </p>

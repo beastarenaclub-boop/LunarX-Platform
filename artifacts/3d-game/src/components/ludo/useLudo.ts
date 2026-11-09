@@ -303,6 +303,7 @@ export function useLudo(userId: string) {
       body: {
         capacity,
         entryPaise,
+        pricingVersion: data?.pricingVersion,
         mode,
         variant,
         ...(roomCode ? { roomCode } : {}),

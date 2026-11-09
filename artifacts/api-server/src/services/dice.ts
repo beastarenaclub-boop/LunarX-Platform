@@ -9,7 +9,6 @@ import {
 } from "@workspace/db";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import {
-  requireGameConfig,
   deriveDiceOutcome,
   diceMultiplier,
   diceDidWin,
@@ -20,6 +19,7 @@ import {
 } from "./rtp";
 import { placeBet, cashOutBet, settleLoss, refundStake } from "./bets";
 import { postEntry } from "./wallet";
+import { requirePlayerGameConfig } from "./masterRtp";
 
 export const DICE_GAME_CODE = "dice";
 
@@ -29,6 +29,7 @@ export interface RollDiceInput {
   target: number;
   direction: DiceDirection;
   useBonus?: boolean;
+  pricingVersion?: string;
 }
 
 export interface DicePublicState {
@@ -270,7 +271,7 @@ export async function rollDice(input: RollDiceInput): Promise<DicePublicState> {
   if (input.direction !== "over" && input.direction !== "under") {
     throw new Error("INVALID_DICE_DIRECTION");
   }
-  const cfg = await requireGameConfig(DICE_GAME_CODE);
+  const cfg = await requirePlayerGameConfig(DICE_GAME_CODE, input.userId, input.pricingVersion, true);
   if (!cfg.enabled) throw new Error("GAME_DISABLED");
   if (input.stakeAmount <= 0n) throw new Error("INVALID_STAKE");
   if (input.stakeAmount > cfg.maxStakePaise) throw new Error("STAKE_TOO_LARGE");
@@ -279,6 +280,7 @@ export async function rollDice(input: RollDiceInput): Promise<DicePublicState> {
   const bet = await placeBet({
     userId: input.userId,
     gameCode: DICE_GAME_CODE,
+    pricingTerms: { houseEdge: cfg.houseEdge, maxMultiplier: cfg.maxMultiplier, pricingVersion: cfg.pricingVersion, rtpPolicy: cfg.rtpPolicy },
     stakeAmount: input.stakeAmount,
     useBonus: input.useBonus,
   });

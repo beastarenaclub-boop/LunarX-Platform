@@ -136,6 +136,7 @@ export function w20Payout(
   bets: W20Bet[],
   outcome: W20Outcome,
   version = W20_VERSION,
+  masterRtpBps?: number,
 ): bigint {
   if (version !== W20_VERSION || !validW20Outcome(outcome))
     throw new Error("Invalid Wheel 2.0 outcome or paytable version");
@@ -143,7 +144,7 @@ export function w20Payout(
     (sum, b) =>
       sum +
       (b.spot === outcome.winner
-        ? BigInt(b.amountPaise) * BigInt(w20Profit(outcome) + 1)
+        ? (BigInt(b.amountPaise) * BigInt(Math.round(w20Return(b.spot, b.spot === outcome.boostSpot ? outcome.boost : 1, masterRtpBps) * 10000))) / 10000n
         : 0n),
     0n,
   );
@@ -165,3 +166,11 @@ export type W20History = {
   status: string;
   createdAt: string;
 };
+
+export function w20Return(spot: W20Spot, boost = 1, rtpBps?: number): number {
+  const total = 1 + Number(spot) * boost;
+  if (rtpBps === undefined) return total;
+  const probability = W20_WHEEL.filter(s => s === spot).length / W20_WHEEL.length;
+  const meanBoost = 1 + (2.38 - 1) / W20_SPOTS.length;
+  return Math.floor((total * (rtpBps / 10000) / (probability * (1 + Number(spot) * meanBoost)) + 1e-10) * 10000) / 10000;
+}

@@ -1,3 +1,4 @@
+import { CrashRtpDisclosure } from "@/components/RtpDisclosure";
 import { GameInformationSection } from "@/components/game/GameInformation";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
@@ -55,6 +56,7 @@ export default function Lunar({ gameCode }: { gameCode: string }) {
     <div className={`game-page crash-page crash-focused flex flex-col bg-background text-foreground${isJetX ? " jetx-page" : ""}${isFury ? " fury-page" : ""}`}>
       <FlightTitle name={theme.name} />
       <TopBar />
+      <CrashRtpDisclosure />
       <CrashWinReceipt key={gameCode} game={gameCode} userId={user.id} />
       <Onboarding />
       <GameInformationSection>

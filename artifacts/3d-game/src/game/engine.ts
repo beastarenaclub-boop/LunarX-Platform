@@ -472,13 +472,14 @@ async function startBettingPhase() {
   latestSnapshot = null;
   if (phaseTimer) clearTimeout(phaseTimer);
   if (raf) cancelAnimationFrame(raf);
-  store.setState({phase:"crashed", countdownMs:0, roundId:"connecting"});
+  store.setState({phase:"crashed", countdownMs:0, roundId:"connecting", roundHouseEdge:undefined});
   const poll = async (roundId?: string): Promise<void> => {
     try {
       const snapshot = await getCrashRound(gameCode, roundId);
       if (generation !== engineGeneration || !engineRunning) return;
       const first = !latestSnapshot;
       latestSnapshot = snapshot;
+      store.setState({ roundHouseEdge: snapshot.houseEdge });
       snapshotReceivedAt = performance.now();
       const previous = store.getState();
       if (first) store.setState({roundId:snapshot.id, phase:snapshot.phase === "crashed" ? "flying" : snapshot.phase,

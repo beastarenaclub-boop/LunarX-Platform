@@ -1,3 +1,4 @@
+import { requirePlayerGameConfig } from "../services/masterRtp";
 import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middlewares/auth";
@@ -14,7 +15,6 @@ import {
   rotateActiveSeed,
 } from "../services/dice";
 import {
-  requireGameConfig,
   sha256Hex,
   deriveDiceOutcome,
   diceMultiplier,
@@ -34,6 +34,7 @@ const RollBody = z.object({
   target: z.number().min(DICE_MIN_TARGET).max(DICE_MAX_TARGET),
   direction: z.enum(["over", "under"]),
   useBonus: z.boolean().optional(),
+  pricingVersion: z.string().regex(/^[a-f0-9]{32}$/).optional(),
 });
 
 const RotateBody = z.object({
@@ -76,10 +77,11 @@ function mapKnownErr(e: unknown): never {
   }
 }
 
-router.get("/config", async (_req, res, next) => {
+router.get("/config", async (req, res, next) => {
   try {
-    const cfg = await requireGameConfig("dice");
-    res.json({
+    const cfg = await requirePlayerGameConfig("dice", req.user?.id);
+    res.set("Cache-Control", "private, no-store").vary("Cookie").json({
+      pricingVersion: cfg.pricingVersion, rtpPolicy: cfg.rtpPolicy,
       enabled: cfg.enabled,
       houseEdge: cfg.houseEdge,
       maxMultiplier: cfg.maxMultiplier,
@@ -148,6 +150,7 @@ router.post(
           target: input.target,
           direction: input.direction,
           useBonus: input.useBonus,
+          pricingVersion: input.pricingVersion,
         });
         res.json(out);
       } catch (e) {

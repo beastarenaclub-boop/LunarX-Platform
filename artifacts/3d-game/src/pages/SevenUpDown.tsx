@@ -1,3 +1,4 @@
+import { RtpDisclosure } from "@/components/RtpDisclosure";
 import { DEFAULT_BUTTON_VALUES } from "@/lib/buttonValues";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "wouter";
@@ -18,7 +19,7 @@ import type { TableRoundSnapshot } from "@/components/table/useTableRound";
 import DiceDome, { Pips } from "@/components/sevenupdown/DiceDome";
 import "@/components/sevenupdown/seven-up-down.css";
 
-type PendingBet = { roundId: string; bets: SevenBet[] };
+type PendingBet = { pricingVersion?: string; roundId: string; bets: SevenBet[] };
 type Outcome = { dice: number[]; total: number };
 type Slip = Partial<Record<SevenSpot, number>>;
 const endpoint = "/api/7up7down";
@@ -142,7 +143,7 @@ export default function SevenUpDown() {
   async function roll() {
     if (lock.current || !snapshot || confirmed || (!pending && !canRoll)) return;
     lock.current = true; setSending(true); setError(""); setChipsOpen(false);
-    const input: PendingBet = pending ?? { roundId: snapshot.roundId, bets: SEVEN_SPOTS.filter(spot => slip[spot]).map(spot => ({ spot, amount: String(slip[spot]) })) };
+    const input: PendingBet = pending ?? { pricingVersion: snapshot.config.pricingVersion, roundId: snapshot.roundId, bets: SEVEN_SPOTS.filter(spot => slip[spot]).map(spot => ({ spot, amount: String(slip[spot]) })) };
     remember(input);
     try {
       await request(`${endpoint}/bet`, input);
@@ -174,6 +175,7 @@ export default function SevenUpDown() {
   }
 
   return <main className="sud-page" data-testid="collection-page">
+      <RtpDisclosure houseEdge={snapshot?.config?.masterRtpBps === undefined ? undefined : 1 - snapshot?.config!.masterRtpBps! / 10000} />
     <div className="sud-ambient" aria-hidden="true" />
     <section className="sud-cabinet" aria-label="7 Up 7 Down dice game">
       <header className="sud-header"><Link href="/" aria-label="Back to lobby" onClick={() => cue("close")}><ArrowLeft size={17} /></Link><h1>7<span>up</span>7<span>down</span></h1><button onClick={() => setPanel("rules")} aria-label="Game rules"><CircleHelp size={18} /></button></header>

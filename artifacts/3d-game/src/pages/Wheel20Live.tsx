@@ -1,3 +1,4 @@
+import { RtpDisclosure } from "@/components/RtpDisclosure";
 import { DEFAULT_BUTTON_VALUES } from "@/lib/buttonValues";
 import {
   useCallback,
@@ -30,6 +31,7 @@ import {
   W20_WHEEL,
   W20_RTP,
   w20Profit,
+  w20Return,
   type W20Outcome,
   type W20Spot,
 } from "@workspace/api-zod/wheel20-live";
@@ -246,6 +248,7 @@ export default function Wheel20Live() {
       ref={root}
       data-phase={round?.phase ?? "connecting"}
     >
+      <RtpDisclosure houseEdge={round?.config?.masterRtpBps === undefined ? undefined : 1 - round?.config!.masterRtpBps! / 10000} />
       <audio
         ref={music}
         src={`${import.meta.env.BASE_URL}media/lucky7-live/lounge-loop-v1.mp3`}
@@ -317,7 +320,7 @@ export default function Wheel20Live() {
                 <span style={{ background: W20_COLORS[outcome!.winner] }}>
                   {outcome!.winner}
                 </span>
-                <strong>{w20Profit(outcome!)}:1</strong>
+                <strong>{round?.config.masterRtpBps === undefined ? `${w20Profit(outcome!)}:1` : `${w20Return(outcome!.winner, outcome!.winner === outcome!.boostSpot ? outcome!.boost : 1, round.config.masterRtpBps).toFixed(4)}× return`}</strong>
                 <small>
                   {outcome!.winner === outcome!.boostSpot
                     ? "POWER BOOST WIN"
@@ -474,10 +477,8 @@ export default function Wheel20Live() {
               {outcome?.boostSpot === spot && <em>{outcome.boost}× BOOST</em>}
               <span>{spot}</span>
               <small>
-                {outcome?.boostSpot === spot
-                  ? Number(spot) * outcome.boost
-                  : spot}
-                :1
+                {round?.config.masterRtpBps === undefined ? `${outcome?.boostSpot === spot ? Number(spot) * outcome.boost : spot}:1`
+                  : `${w20Return(spot, outcome?.boostSpot === spot ? outcome.boost : 1, round.config.masterRtpBps).toFixed(4)}× return`}
               </small>
               {!!game.shown[spot] && (
                 <b className="w20-wager">{money(game.shown[spot]!)}</b>
@@ -648,15 +649,15 @@ export default function Wheel20Live() {
                     <tr key={s}>
                       <td>{s}</td>
                       <td>{W20_WHEEL.filter((v) => v === s).length}/54</td>
-                      <td>{s}:1</td>
-                      <td>{(W20_RTP[s] * 100).toFixed(2)}%</td>
+                      <td>{round?.config.masterRtpBps === undefined ? `${s}:1` : `${w20Return(s, 1, round.config.masterRtpBps).toFixed(4)}× return`}</td>
+                      <td>{(round?.config.masterRtpBps === undefined ? W20_RTP[s] * 100 : round.config.masterRtpBps / 100).toFixed(2)}%</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               <p>
                 Boost weights: 2× 75%, 3× 20%, 5× 4%, 8× 1%; the boosted number
-                is uniform across nine choices. Maximum profit is 320:1. This is
+                is uniform across nine choices. Your posted total returns include these boosts and your RTP policy. This is
                 an independent Wheel 2.0 game with an animated studio presenter,
                 not a camera livestream.
               </p>

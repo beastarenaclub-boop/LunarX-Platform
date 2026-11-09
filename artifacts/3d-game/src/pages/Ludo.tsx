@@ -499,6 +499,7 @@ function LudoGame({
               entry={entry}
               onEntry={setEntry}
               entries={entries}
+              commissionBps={data?.commissionBps}
               balance={data?.balancePaise}
               enabled={!!data?.enabled}
               busy={busy || game.retry}
@@ -990,8 +991,8 @@ function LudoGame({
                 <h3>Entry & prize</h3>
                 <p>
                   Entry is deducted from your shared wallet when you join. The
-                  winner receives 90% of the total seat pool; the platform keeps
-                  10%. No extra charge at settlement.
+                  winner receives {(100 - (m?.commissionBps ?? data?.commissionBps ?? 1000) / 100).toFixed(2)}% of the total seat pool; the platform keeps
+                  {((m?.commissionBps ?? data?.commissionBps ?? 1000) / 100).toFixed(2)}%. Individual return depends on play and is not guaranteed. Accepted tables keep their commission.
                 </p>
                 <p>
                   Empty seats fill with labelled Computer players after 20
@@ -1008,7 +1009,7 @@ function LudoGame({
                   Cancel before the match starts for a full refund. Leaving
                   after start forfeits your entry. Matches end within 10
                   minutes. The player with the most tokens home wins; tied
-                  players split the prize after the 10% commission. Distance
+                  players split the prize after the disclosed platform commission. Distance
                   travelled does not break a tie. A server restart preserves
                   your match; a long interruption resets the turn timer.
                 </p>

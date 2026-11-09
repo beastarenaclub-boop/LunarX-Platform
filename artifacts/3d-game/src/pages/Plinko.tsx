@@ -1,3 +1,4 @@
+import { RtpDisclosure } from "@/components/RtpDisclosure";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowDown, CircleDot, LoaderCircle } from "lucide-react";
@@ -15,9 +16,9 @@ interface PlinkoState {
   bucket: number; multiplier: number; payoutAmount: string; serverSeed: string | null; serverSeedHash: string;
   clientSeed: string; nonce: number; houseEdge: number; maxMultiplier: number; createdAt: string;
 }
-interface PlinkoConfig { enabled: boolean; houseEdge: number; maxMultiplier: number; maxStakePaise: string; multipliers: Record<Risk, Record<string, number[]>> }
+interface PlinkoConfig { pricingVersion: string; enabled: boolean; houseEdge: number; maxMultiplier: number; maxStakePaise: string; multipliers: Record<Risk, Record<string, number[]>> }
 interface Seed { serverSeedHash: string; clientSeed: string; nextNonce: number }
-interface Ball { round: PlinkoState; startedAt: number; stepMs: number }
+interface Ball { multipliers: number[]; round: PlinkoState; startedAt: number; stepMs: number }
 
 export default function Plinko() {
   const { user, sound, balance, refresh, qc } = useInstantGame("plinko");
@@ -39,13 +40,13 @@ export default function Plinko() {
   const lock = useRef(false);
   const mounted = useRef(true);
   const landResolve = useRef<((ok: boolean) => void) | null>(null);
-  const config = useQuery({ queryKey: ["plinko.config"], queryFn: () => request<PlinkoConfig>("/api/plinko/config"), staleTime: 60_000, retry: false });
+  const config = useQuery({ queryKey: ["plinko.config", user?.id], queryFn: () => request<PlinkoConfig>("/api/plinko/config"), staleTime: 10_000, refetchInterval: 15_000, enabled: !!user, retry: false });
   const seed = useQuery({ queryKey: ["plinko.seed", user?.id], queryFn: () => request<Seed>("/api/plinko/seed"), enabled: !!user, retry: false });
   const recent = useQuery({ queryKey: ["plinko.recent", user?.id], queryFn: () => request<PlinkoState[]>("/api/plinko/recent?limit=8"), enabled: !!user, retry: false });
   const available = bonus ? undefined : balance.data?.balance;
   const latestBalance = useRef(available); latestBalance.current = available;
   const validation = stakeError(stake, available, config.data?.maxStakePaise);
-  const table = config.data?.multipliers?.[risk]?.[String(rows)] ?? [];
+  const table = ball?.multipliers ?? config.data?.multipliers?.[risk]?.[String(rows)] ?? [];
   const ready = !!user && config.data?.enabled === true && table.length === rows + 1 && balance.isSuccess && seed.isSuccess && !rotating && !uncertain;
   const locked = busy || rotating;
   const win = useRoundWin({ game: "plinko", userId: user?.id, roundId: completed?.id ?? null, eligible: !!completed,
@@ -69,17 +70,17 @@ export default function Plinko() {
     if (error) { toast.error(error); return false; }
     lock.current = true; setBusy(true); unlockAudio();
     try {
-      const result = await request<PlinkoState>("/api/plinko/drop", { stakeAmount: rupeesToPaise(stake), rows, risk, useBonus: bonus });
+      const result = await request<PlinkoState>("/api/plinko/drop", { stakeAmount: rupeesToPaise(stake), rows, risk, useBonus: bonus, pricingVersion: config.data?.pricingVersion });
       if (!mounted.current) return false;
       notifyPlayStarted(); if (sound) sfx.plinkoDrop();
       // Keep the result out of the UI until this exact server path lands.
       return await new Promise<boolean>(resolve => {
         landResolve.current = resolve;
-        setBall({ round: result, startedAt: performance.now(), stepMs: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 65 : 145 });
+        setBall({ multipliers: table, round: result, startedAt: performance.now(), stepMs: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 65 : 145 });
       });
     } catch (error) {
       if (mounted.current) {
-        toast.error(errorMessage(error));
+        toast.error(errorMessage(error)); void config.refetch();
         // Never retry a wager automatically after an uncertain response.
         setUncertain(true); refresh();
       }
@@ -93,7 +94,7 @@ export default function Plinko() {
     try {
       const result = await request<{ revealedServerSeed: string; newSeed: Seed }>("/api/plinko/seed/rotate", clientSeed.trim() ? { clientSeed: clientSeed.trim() } : {});
       setRevealed(result.revealedServerSeed); qc.setQueryData(["plinko.seed", user?.id], result.newSeed); setVerification("");
-    } catch (error) { toast.error(errorMessage(error)); }
+    } catch (error) { toast.error(errorMessage(error)); void config.refetch(); }
     finally { setRotating(false); }
   };
   const verify = async () => {
@@ -120,6 +121,7 @@ export default function Plinko() {
     {seed.isError && <Notice onRetry={() => void seed.refetch()}>Your seed commitment couldn't load.</Notice>}
     {balance.isError && <Notice onRetry={() => void balance.refetch()}>Your wallet couldn't load.</Notice>}
     {uncertain && <Notice onRetry={() => void reconcile()}>The drop couldn't be confirmed. Refresh your wallet and history before trying again.</Notice>}
+    <RtpDisclosure houseEdge={ball ? ball.round.houseEdge : config.data?.houseEdge} label={ball ? "This drop" : "New bets"} />
     <main className="instant-layout" data-game-screen="plinko">
       <aside className="instant-controls"><div className="instant-control-title">Set your drop<span>YOUR GAME</span></div>
         <StakeControl game="plinko" userId={user.id} value={stake} onChange={selectStake} disabled={locked || !ready} max={config.data?.maxStakePaise} />
@@ -142,7 +144,7 @@ export default function Plinko() {
     <FairnessDialog open={fairness} onOpenChange={setFairness} title={detail ? "Verify drop" : "Your seed commitment"}>
       <p>The active server seed hash is committed before your drop. Rotate the seed to reveal it and verify past results. Rotation uses a new seed for future drops.</p>
       {detail ? <><SeedField label="Round" value={detail.id} /><SeedField label="Path (L = left, R = right)" value={detail.path.join(" ")} /><SeedField label="Bucket (from left, numbered from 1)" value={detail.bucket + 1} /><SeedField label="Server seed hash" value={detail.serverSeedHash} /><SeedField label="Server seed" value={detail.serverSeed} /><SeedField label="Client seed" value={detail.clientSeed} /><SeedField label="Nonce" value={detail.nonce} /><button onClick={() => void verify()}>Verify this drop</button>{verification && <p className="instant-verification" role="status">{verification}</p>}</> : <><SeedField label="Active server seed hash" value={seed.data?.serverSeedHash ?? null} /><SeedField label="Client seed" value={seed.data?.clientSeed ?? null} /><SeedField label="Next nonce" value={seed.data?.nextNonce ?? null} />{revealed && <SeedField label="Previous server seed (revealed)" value={revealed} />}<label htmlFor="plinko-client-seed">New client seed (optional)</label><input id="plinko-client-seed" className="instant-auto-count" placeholder="Generate automatically" maxLength={64} value={clientSeed} onChange={e => setClientSeed(e.target.value)} disabled={locked} /><button onClick={() => void rotate()} disabled={locked || !seed.data} data-testid="btn-rotate-seed">{rotating ? "Rotating…" : "Rotate seed & reveal previous"}</button></>}
-      {config.data && <p>House edge: {(config.data.houseEdge * 100).toFixed(2)}%. Pockets show total returns including your stake. Returns below 1× are net losses.</p>}
+      {config.data && <p>House edge: {((detail?.houseEdge ?? config.data.houseEdge) * 100).toFixed(2)}%. Pockets show total returns including your stake. Returns below 1× are net losses.</p>}
     </FairnessDialog>
   </InstantShell>;
 }

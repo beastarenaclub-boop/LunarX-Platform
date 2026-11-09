@@ -1,3 +1,4 @@
+import { RtpDisclosure } from "@/components/RtpDisclosure";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, ArrowRight, CircleHelp, History, ShieldCheck, Volume2, VolumeX, Wallet, Plus, RefreshCw, Timer } from "lucide-react";
@@ -18,7 +19,7 @@ import "@/components/chicken-road/chicken-road.css";
 
 const endpoint = "/api/chicken-road";
 const money = (value: string | bigint) => `₹${formatRupees(value)}`;
-type PendingBet = { requestId: string; difficulty: ChickenDifficulty; stakeAmount: string; clientSeed: string };
+type PendingBet = { pricingVersion?: string; requestId: string; difficulty: ChickenDifficulty; stakeAmount: string; clientSeed: string };
 function parseStake(value: string): bigint {
   if (!/^\d{1,9}(\.\d{0,2})?$/.test(value)) return 0n;
   const [whole, fraction = ""] = value.split(".");
@@ -63,6 +64,7 @@ export default function ChickenRoad() {
   const remainingMs = active && round.expiresAt ? Math.max(0, Date.parse(round.expiresAt) - serverNow) : null;
   const secondsLeft = remainingMs === null ? null : Math.ceil(remainingMs / 1000);
   const expired = remainingMs === 0;
+  const effectiveRtp = active ? round.rtp : config.data?.rtp;
   const rulesVersion = active ? round.version : config.data?.version ?? CHICKEN_VERSION;
   const guaranteed = rulesVersion === 2;
   const selectedMode = active ? round.difficulty : pending?.difficulty ?? difficulty;
@@ -129,7 +131,7 @@ export default function ChickenRoad() {
     let submitted = pending;
     try {
       if (action === "place") {
-        submitted ??= { requestId: crypto.randomUUID(), clientSeed: crypto.randomUUID().replaceAll("-", ""), difficulty, stakeAmount: stake.toString() };
+        submitted ??= { pricingVersion: config.data?.pricingVersion, requestId: crypto.randomUUID(), clientSeed: crypto.randomUUID().replaceAll("-", ""), difficulty, stakeAmount: stake.toString() };
         remember(submitted);
       }
       const result = await customFetch<ChickenRound>(action === "place" ? `${endpoint}/place` : `${endpoint}/${round!.id}/${action}`, {
@@ -161,6 +163,7 @@ export default function ChickenRoad() {
   const fairnessGuaranteed = (fairness?.version ?? rulesVersion) === 2;
 
   return <div className="cr-page" data-testid="chicken-road-page">
+    <RtpDisclosure houseEdge={rulesVersion === 4 && effectiveRtp != null ? 1 - effectiveRtp : undefined} label={active ? "This round" : "New bets"} />
     <header className="cr-header">
       <Link href="/" className="cr-icon-button" aria-label="Back to lobby"><ArrowLeft size={19} /></Link>
       <Link href="/chicken-road" className="cr-brand" aria-label="Chicken Road"><span>CHICKEN</span><strong>ROAD<span>↗</span></strong></Link>
@@ -185,7 +188,7 @@ export default function ChickenRoad() {
         <div className="cr-actions">{active ? <><button className="cr-cashout" data-testid="chicken-cashout" disabled={!canStep || round.step < 1} onClick={() => void act("cashout")}><span>CASH OUT</span><strong>{money(round.cashoutAmount)}</strong><small>Stake + profit</small></button><button className="cr-play" data-testid="chicken-step" disabled={!canStep} onClick={() => void act("step")}><span>{expired ? "Time up" : busy ? "Crossing…" : "Go"} <ArrowRight size={22} /></span><small>Profit {formatProfitFactor(nextMultiplier!)}x</small></button></> : <button className="cr-play cr-play-start" data-testid="chicken-play" disabled={busy || hopping || !ready || (!pending && (!config.data?.enabled || !valid))} onClick={() => void act("place")}><span>{busy ? "Starting…" : pending ? "Recover bet" : "Play"}<ArrowRight size={24} /></span><small>{pending ? "Retry the same bet" : "Take the first step"}</small></button>}</div>
         <div className="cr-feedback" role="status">{error ? <span className="cr-error">{error}</span> : !ready ? <span>{state.isError || wallet.isError || config.isError ? "Could not connect. Refresh to resume." : "Connecting to your wallet…"}</span> : expired ? <span>Time up. Settling your round…</span> : active ? <span>{round.step === 0 ? "Cross a lane, or receive your stake back when time runs out." : `Next lane: ${(round.nextSurvival! * 100).toFixed(1)}% safe. Auto cashout when time runs out.`}</span> : !config.data?.enabled ? <span>Game temporarily unavailable.</span> : stake > balance ? <span>Insufficient balance. <Link href="/wallet">Open wallet</Link></span> : !valid ? <span>Choose a stake from {money(min)} to {money(max)}.</span> : <span>{durationSeconds}s per round. Time up: auto cashout, or stake returned if no lane crossed.</span>}{(error || state.isError || wallet.isError || config.isError) && <button disabled={busy} aria-label="Refresh game" onClick={() => { setError(""); void state.refetch(); void config.refetch(); void wallet.refetch(); }}><RefreshCw size={15} /></button>}</div>
       </section>
-      <footer className="cr-footer"><span><ShieldCheck size={13} /> {wallet.data && !wallet.isError ? "Shared wallet connected" : "Connecting to wallet"}</span><span>{guaranteed ? "100% win chance" : `${(rulesVersion === 3 ? CHICKEN_RTP : CHICKEN_CLASSIC_RTP) * 100}% theoretical RTP`} <i /> v{rulesVersion}</span></footer>
+      <footer className="cr-footer"><span><ShieldCheck size={13} /> {wallet.data && !wallet.isError ? "Shared wallet connected" : "Connecting to wallet"}</span><span>{guaranteed ? "100% win chance" : `${((effectiveRtp ?? (rulesVersion === 3 ? CHICKEN_RTP : CHICKEN_CLASSIC_RTP)) * 100).toFixed(2)}% theoretical RTP`} <i /> v{rulesVersion}</span></footer>
     </main>
     <CoinSettingsDialog open={coinSettings} onOpenChange={setCoinSettings} preferences={coins} onSave={coins.save} maxValue={Number(max / 100n)} />
     <Dialog open={panel !== null} onOpenChange={open => { if (!open) setPanel(null); }}><DialogContent className="cr-dialog">
@@ -195,14 +198,14 @@ export default function ChickenRoad() {
         <ol><li>Choose a coin or enter your bet, then select a difficulty.</li><li>Press Play to reserve your stake from the lobby wallet and start the {durationSeconds}-second round timer.</li><li>Press Go to cross one lane. Each safe step raises the profit shown on the road.</li><li>{guaranteed ? "Every lane is safe. Cash Out after any step to collect your stake plus profit." : "Cash Out after a safe step to collect. A collision loses the entire stake."}</li><li>Reaching the final lane collects automatically. When time runs out, an active round cashes out at its current lane. If no lane was crossed, your original stake is returned.</li><li>The timer keeps running when you refresh, leave the game or close the tab. Moves do not reset it. A new bet starts only when you press Play.</li></ol>
         <p>{guaranteed ? "Guaranteed-win mode: 100% crossing chance on every lane, in every difficulty. Traffic is decorative and cannot hit the chicken. Modes change the number of lanes and profit multipliers." : "Classic mode: traffic is visual. Tap timing does not change the server's random result. Higher difficulty has larger profit multipliers and greater risk."}</p>
         <p>Lane values show profit above your original stake: +0.01x means 1% profit. For example, a 100 rupee bet at +0.01x pays 101 rupees in total (100 stake + 1 profit). Cashout amounts include the stake and are rounded down to the nearest paise.</p>
-        <p>{guaranteed ? "100% win chance is not 100% RTP. The total return depends on the lane where you cash out and can exceed your stake. There is no fixed RTP percentage in this mode." : "New rounds target 85% theoretical RTP before rounding, equivalent to a 15% house edge. Historical version 1 retains 98% RTP. This is an average over many rounds, not a guaranteed return in any round or session."}</p>
+        <p>{guaranteed ? "100% win chance is not 100% RTP. The total return depends on the lane where you cash out and can exceed your stake. There is no fixed RTP percentage in this mode." : `Theoretical RTP: ${((effectiveRtp ?? .98) * 100).toFixed(2)}%, before rounding. The accepted round keeps its own RTP. No guaranteed return or profit.`}</p>
         <p>This is the lobby's own version with original artwork and published paytables.</p><div className="cr-paytable">{CHICKEN_DIFFICULTIES.map(d => <div key={d}><strong>{CHICKEN_MODES[d].label}</strong><span>{CHICKEN_MODES[d].returns.length} lanes</span><span>profit up to {formatProfitFactor(CHICKEN_MODES[d].returns.at(-1)! / 100)}x</span></div>)}</div>
       </div>}
       {panel === "history" && <div className="cr-history">{history.length ? history.map(r => <button key={r.id} onClick={() => { setInspected(r); setPanel("fairness"); }}><span><strong>{CHICKEN_MODES[r.difficulty].label}</strong><small>Lane {r.attemptedStep} · {money(r.stakeAmount)} bet</small></span><span className={r.status === "busted" ? "cr-error" : "cr-win-text"}>{r.status === "busted" ? "Lost" : money(r.payoutAmount)}<small>{r.status === "busted" ? "Lost" : `${formatProfitFactor(r.multiplier)}x profit`}</small></span></button>) : <p>Your completed runs will be saved here.</p>}</div>}
       {panel === "fairness" && <div className="cr-fairness">
         <p>{fairnessGuaranteed ? "Guaranteed-win rules: every valid lane is safe. Seeds are kept as round records; they do not introduce a collision chance." : "Classic round: each round commits a SHA-256 seed hash before the first move. At settlement the server seed is revealed for replay."}</p>
-        {fairness ? <><label>Round ID<code>{fairness.id}</code></label><label>Seed commitment<code>{fairness.serverSeedHash}</code></label><label>Client seed<code>{fairness.clientSeed}</code></label><label>Server seed<code>{fairness.serverSeed ?? (fairnessGuaranteed ? "Hidden until cash out" : "Hidden until cash out or collision")}</code></label><p>{CHICKEN_MODES[fairness.difficulty].label} · {fairness.step} safe lanes · Version {fairness.version}</p></> : <p>Start a round to see its record.</p>}
-        <details><summary>{fairnessGuaranteed ? "Guaranteed-win rule" : "Verification formula"}</summary>{fairnessGuaranteed ? <p>Version 2 uses a 100% survival probability for every lane. Payout is your stake multiplied by 1 + the displayed profit factor, rounded down to paise. The final lane pays automatically. Seeds, timing and traffic do not change the outcome.</p> : <><p>For step n, calculate HMAC-SHA256 with server seed as the key and <code>chicken-road:v{fairness?.version ?? rulesVersion}:CLIENT_SEED:DIFFICULTY:n</code> as the message. Divide the first 13 hex digits by 2^52. The step is safe if this number is below its survival probability.</p><p>For this formula, the total-return multiplier is 1 + the displayed profit factor. Step 1: 0.85 ÷ next multiplier in version 3 (0.98 in version 1). Later steps: current multiplier ÷ next multiplier. Bet timing and traffic positions are not inputs.</p></>}</details>
+        {fairness ? <><label>Round ID<code>{fairness.id}</code></label><label>Seed commitment<code>{fairness.serverSeedHash}</code></label><label>Client seed<code>{fairness.clientSeed}</code></label><label>Server seed<code>{fairness.serverSeed ?? (fairnessGuaranteed ? "Hidden until cash out" : "Hidden until cash out or collision")}</code></label><p>{CHICKEN_MODES[fairness.difficulty].label} · {fairness.step} safe lanes · Version {fairness.version} · RTP {fairness.rtp == null ? "lane dependent" : `${(fairness.rtp * 100).toFixed(2)}%`}</p></> : <p>Start a round to see its record.</p>}
+        <details><summary>{fairnessGuaranteed ? "Guaranteed-win rule" : "Verification formula"}</summary>{fairnessGuaranteed ? <p>Version 2 uses a 100% survival probability for every lane. Payout is your stake multiplied by 1 + the displayed profit factor, rounded down to paise. The final lane pays automatically. Seeds, timing and traffic do not change the outcome.</p> : <><p>For step n, calculate HMAC-SHA256 with server seed as the key and <code>chicken-road:v{fairness?.version ?? rulesVersion}:CLIENT_SEED:DIFFICULTY:n</code> as the message. Divide the first 13 hex digits by 2^52. The step is safe if this number is below its survival probability.</p><p>For this formula, the total-return multiplier is 1 + the displayed profit factor. Step 1: the round’s RTP ÷ next multiplier (0.98 in version 1; 0.85 in version 3; the disclosed saved RTP in version 4). Later steps: current multiplier ÷ next multiplier. Bet timing and traffic positions are not inputs.</p></>}</details>
       </div>}
     </DialogContent></Dialog>
   </div>;

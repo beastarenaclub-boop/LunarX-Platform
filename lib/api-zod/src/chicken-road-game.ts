@@ -1,6 +1,6 @@
 /** Original, versioned paytables. Multipliers include the original stake. */
 export const CHICKEN_VERSION = 3 as const;
-export type ChickenVersion = 1 | 2 | 3;
+export type ChickenVersion = 1 | 2 | 3 | 4;
 export const CHICKEN_ROUND_DURATION_MS = 60_000;
 export const CHICKEN_CLASSIC_RTP = 0.98;
 // Guaranteed wins have a return that depends on the cashout lane, not one RTP.
@@ -20,10 +20,11 @@ export function chickenReturn(difficulty: ChickenDifficulty, step: number): numb
 }
 
 /** Preserve classic replays; every valid version 2 step is guaranteed safe. */
-export function chickenSurvival(difficulty: ChickenDifficulty, step: number, version: ChickenVersion = CHICKEN_VERSION): number {
+export function chickenSurvival(difficulty: ChickenDifficulty, step: number, version: ChickenVersion = CHICKEN_VERSION, targetRtp = CHICKEN_RTP): number {
   if (step < 1) throw new Error("INVALID_STEP");
   const next = chickenReturn(difficulty, step);
   if (version === 2) return 1;
+  if (version === 4) return (step === 1 ? targetRtp * 100 : chickenReturn(difficulty, step - 1)) / next;
   if (version !== 1 && version !== 3) throw new Error("INVALID_VERSION");
   return (step === 1 ? (version === 3 ? CHICKEN_RTP : CHICKEN_CLASSIC_RTP) * 100 : chickenReturn(difficulty, step - 1)) / next;
 }
@@ -33,6 +34,7 @@ export function chickenPayout(stake: bigint, difficulty: ChickenDifficulty, step
 }
 
 export interface ChickenRound {
+  rtp?: number | null;
   id: string;
   requestId: string;
   version: ChickenVersion;
@@ -57,6 +59,7 @@ export interface ChickenRound {
   endReason?: "timeout" | null;
 }
 export interface ChickenConfig {
+  pricingVersion?: string;
   enabled: boolean;
   minStakePaise: string;
   maxStakePaise: string;

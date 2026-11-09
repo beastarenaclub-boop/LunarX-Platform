@@ -230,6 +230,7 @@ router.post(
         .object({
           capacity: z.union([z.literal(2), z.literal(3), z.literal(4)]),
           entryPaise: z.number().int().positive(),
+          pricingVersion: z.string().regex(/^[a-f0-9]{32}$/).optional(),
           requestId: z.string().uuid(),
           mode: z.enum(["online", "computer", "private"]).optional(),
           variant: z.enum(["classic", "quick", "team"]).optional(),

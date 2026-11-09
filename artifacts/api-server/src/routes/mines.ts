@@ -1,3 +1,4 @@
+import { requirePlayerGameConfig } from "../services/masterRtp";
 import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middlewares/auth";
@@ -16,20 +17,20 @@ import {
   MAX_MINES,
 } from "../services/mines";
 import { badRequest, notFound } from "../lib/errors";
-import { requireGameConfig, minesMultiplier } from "../services/rtp";
+import { minesMultiplier } from "../services/rtp";
 
 const router: IRouter = Router();
 
-router.get("/config", async (_req, res, next) => {
+router.get("/config", async (req, res, next) => {
   try {
-    const cfg = await requireGameConfig("mines");
+    const cfg = await requirePlayerGameConfig("mines", req.user?.id);
     const multipliers: Record<string, number[]> = {};
     for (let mineCount = MIN_MINES; mineCount <= MAX_MINES; mineCount++) {
       multipliers[mineCount] = Array.from({ length: 25 - mineCount }, (_, i) =>
         minesMultiplier({ gridSize: 25, mineCount, revealedSafe: i + 1,
           houseEdge: cfg.houseEdge, maxMultiplier: cfg.maxMultiplier }));
     }
-    res.json({ enabled: cfg.enabled, houseEdge: cfg.houseEdge,
+    res.set("Cache-Control", "private, no-store").vary("Cookie").json({ pricingVersion: cfg.pricingVersion, rtpPolicy: cfg.rtpPolicy, enabled: cfg.enabled, houseEdge: cfg.houseEdge,
       maxStakePaise: cfg.maxStakePaise.toString(), maxMultiplier: cfg.maxMultiplier, multipliers });
   } catch (err) { next(err); }
 });
@@ -38,6 +39,7 @@ const PlaceBody = z.object({
   stakeAmount: z.string().regex(/^\d{1,18}$/u, "stakeAmount must be positive integer paise"),
   mineCount: z.number().int().min(MIN_MINES).max(MAX_MINES),
   useBonus: z.boolean().optional(),
+  pricingVersion: z.string().regex(/^[a-f0-9]{32}$/).optional(),
 });
 
 const RevealBody = z.object({
@@ -121,6 +123,7 @@ router.post(
           stakeAmount: stake,
           mineCount: input.mineCount,
           useBonus: input.useBonus,
+          pricingVersion: input.pricingVersion,
         });
         res.json(out);
       } catch (e) {

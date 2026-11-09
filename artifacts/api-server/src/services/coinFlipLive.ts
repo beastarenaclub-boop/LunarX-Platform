@@ -1,3 +1,4 @@
+import { playerTableConfig, assertTablePricing } from "./masterRtp";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import {
   db,
@@ -167,7 +168,8 @@ export async function placeCoinLive(userId: string, input: CoinLiveInput) {
       round.bettingEndsAt.getTime() <= Date.now()
     )
       throw badRequest("Betting is closed. Wait for the next round.");
-    const cfg = round.config as RoundConfigSnapshot;
+    const cfg = await playerTableConfig(round.config as RoundConfigSnapshot, CODE, userId, tx);
+    assertTablePricing(cfg, input.pricingVersion);
     if (!config.enabled) throw badRequest("This table is paused.");
     if (stake < BigInt(cfg.minStakePaise) || stake > BigInt(cfg.maxStakePaise))
       throw badRequest("Your bet is outside the table limits.");
@@ -212,6 +214,7 @@ export async function placeCoinLive(userId: string, input: CoinLiveInput) {
         gameCode: CODE,
         userId,
         betId: bet.id,
+        pricingConfig: cfg,
         bets: [entry],
         totalStake: stake,
       })
@@ -271,6 +274,7 @@ export async function settleCoinLive(round: TableRound) {
         .for("update");
       if (!bet || bet.status !== "placed")
         throw new Error("COIN_SLIP_STATE_MISMATCH");
+      const cfg = (slip.pricingConfig as unknown as RoundConfigSnapshot | null) ?? round.config as RoundConfigSnapshot;
       const entry = normalizeCoinLiveBet(slip.bets);
       const multiplier =
         entry.side === outcome.side
@@ -348,7 +352,7 @@ export async function coinLiveHistory(
     .orderBy(desc(tableRoundBetsTable.createdAt))
     .limit(20);
   return rows.map(({ slip, round }) => {
-    const cfg = round.config as RoundConfigSnapshot,
+    const cfg = (slip.pricingConfig as unknown as RoundConfigSnapshot | null) ?? round.config as RoundConfigSnapshot,
       entry = normalizeCoinLiveBet(slip.bets),
       refunded = slip.status === "refunded";
     return {

@@ -10,6 +10,7 @@ import {
   boolean,
   jsonb,
   primaryKey,
+  check,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
@@ -36,6 +37,8 @@ export const networkNodesTable = pgTable(
       .default("active"),
     companyFeeBps: integer("company_fee_bps").notNull().default(1000),
     shareBps: integer("share_bps").notNull().default(10000),
+    playerRtpBps: integer("player_rtp_bps"),
+    rtpRevision: integer("rtp_revision").notNull().default(0),
     manualPaymentsEnabled: boolean("manual_payments_enabled").notNull().default(false),
     weeklyStartedAt: timestamp('weekly_started_at',{withTimezone:true}).notNull().default(sql`clock_timestamp()`),
     createdBy: text("created_by")
@@ -49,6 +52,8 @@ export const networkNodesTable = pgTable(
       .defaultNow(),
   },
   (t) => [
+    check("network_master_rtp_check", sql`${t.playerRtpBps} IS NULL OR (${t.kind} = 'master' AND ${t.playerRtpBps} BETWEEN 100 AND 10000)`),
+    check("network_rtp_revision_check", sql`${t.rtpRevision} >= 0`),
     uniqueIndex("network_user_idx").on(t.userId),
     index("network_parent_idx").on(t.parentId),
   ],

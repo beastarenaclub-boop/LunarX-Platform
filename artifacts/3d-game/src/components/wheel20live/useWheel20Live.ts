@@ -20,7 +20,7 @@ import { useAuth } from "@/lib/auth";
 import type { TableRoundSnapshot } from "@/components/table/useTableRound";
 
 type Slip = Partial<Record<W20Spot, number>>;
-type Pending = { roundId: string; bets: W20Bet[] };
+type Pending = { pricingVersion?: string; roundId: string; bets: W20Bet[] };
 const endpoint = `/api/${W20_GAME}`;
 const total = (slip: Slip) =>
   Object.values(slip).reduce((a, b) => a + (b ?? 0), 0);
@@ -81,7 +81,7 @@ export function useWheel20Live() {
     try {
       const p = JSON.parse(localStorage.getItem(key) ?? "null");
       if (!p || typeof p.roundId !== "string") return null;
-      return { roundId: p.roundId, bets: normalizeW20Bets(p.bets) };
+      return { pricingVersion: p.pricingVersion, roundId: p.roundId, bets: normalizeW20Bets(p.bets) };
     } catch {
       return null;
     }
@@ -198,6 +198,7 @@ export function useWheel20Live() {
     if (lock.current || (!pending && (!ready || locked || total(draft) < min)))
       return;
     const payload = pending ?? {
+      pricingVersion: snapshot!.config.pricingVersion,
       roundId: snapshot!.roundId,
       bets: normalizeW20Bets(
         Object.entries(draft)

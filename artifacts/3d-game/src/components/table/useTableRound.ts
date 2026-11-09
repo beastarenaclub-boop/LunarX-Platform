@@ -20,6 +20,7 @@ import {
 export type RoundPhase = "betting" | "reveal" | "settling";
 
 export interface RoundConfigSnapshot {
+  masterRtpBps?: number; pricingVersion?: string;
   baccaratPayouts?: BaccaratPayouts;
   teenPattiPayouts?: {
     playerA: number; playerB: number; tie: number;
@@ -48,6 +49,7 @@ export interface LiveBet {
 }
 
 export interface MyBet {
+  pricingConfig?: RoundConfigSnapshot | null;
   slipId: string;
   totalStake: string;
   bets: unknown;
@@ -385,22 +387,8 @@ export function useTableRound<TOutcome = unknown>(
     enabled ? `game-config:${game}` : null,
     (ev) => {
       if (!ev || ev.type !== "updated") return;
-      if (game === "baccarat") {
-        // Accepted terms come from this round, not a later admin change.
-        refetch();
-        return;
-      }
-      setConfig((prev) => ({
-        houseEdge: ev.config.houseEdge,
-        maxMultiplier: ev.config.maxMultiplier,
-        maxStakePaise: ev.config.maxStakePaise ?? prev?.maxStakePaise ?? "0",
-        minStakePaise: ev.config.minStakePaise ?? prev?.minStakePaise ?? "0",
-        bettingWindowMs: ev.config.bettingWindowMs,
-        revealDurationMs:
-          ev.config.revealDurationMs ?? prev?.revealDurationMs ?? 5_000,
-        settleDurationMs:
-          ev.config.settleDurationMs ?? prev?.settleDurationMs ?? 5_000,
-      }));
+      // Refresh the authenticated round quote; global pushes cannot replace branch terms.
+      refetch();
     },
   );
 

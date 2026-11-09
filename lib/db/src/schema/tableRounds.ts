@@ -91,6 +91,7 @@ export const tableRoundBetsTable = pgTable(
     userId: text("user_id").notNull(),
     betId: text("bet_id").notNull(),
     bets: jsonb("bets").notNull(),
+    pricingConfig: jsonb("pricing_config").$type<object>(),
     totalStake: bigint("total_stake", { mode: "bigint" }).notNull(),
     payoutAmount: bigint("payout_amount", { mode: "bigint" })
       .notNull()

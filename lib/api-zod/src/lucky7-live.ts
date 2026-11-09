@@ -109,6 +109,7 @@ export function l7Payout(
   bets: L7Bet[],
   card: L7Card,
   version = L7_VERSION,
+  masterRtpBps?: number,
 ): bigint {
   if (version !== 1) throw new Error("Unsupported Lucky 7 paytable version");
   if (!validCard(card)) throw new Error("Invalid card");
@@ -116,7 +117,7 @@ export function l7Payout(
     (sum, b) =>
       sum +
       (wins(b.spot, card)
-        ? (BigInt(b.amountPaise) * RETURNS[b.spot]) / 100n
+        ? (BigInt(b.amountPaise) * BigInt(Math.round(l7Return(b.spot, masterRtpBps) * 10000))) / 10000n
         : 0n),
     0n,
   );
@@ -130,3 +131,9 @@ export type L7History = {
   status: string;
   createdAt: string;
 };
+
+export function l7Return(spot: L7Spot, rtpBps?: number): number {
+  if (rtpBps === undefined) return Number(RETURNS[spot]) / 100;
+  const probability = spot === "red" || spot === "black" ? .5 : spot === "seven" ? 1/13 : spot === "odd" ? 7/13 : 6/13;
+  return Math.floor((rtpBps / 10000 / probability + 1e-10) * 10000) / 10000;
+}

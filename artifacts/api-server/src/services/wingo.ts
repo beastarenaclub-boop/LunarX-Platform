@@ -1,3 +1,4 @@
+import { playerMasterPolicy, assertTablePricing } from "./masterRtp";
 import { randomBytes, randomInt } from "node:crypto";
 import { and, asc, desc, eq, isNull, lte, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -9,6 +10,7 @@ import { ensureWallet, getBalance, getBalanceByUser, postEntry, publishWalletBal
 
 const durationSchema = z.number().int().refine(value => DURATIONS.includes(value), "Choose a supported round duration.");
 const betSchema = z.object({
+  pricingVersion: z.string().regex(/^[a-f0-9]{32}$/).optional(),
   duration: durationSchema,
   period: z.string().regex(/^\d+-\d+$/),
   pick: z.string().regex(/^(green|red|violet|big|small|[0-9])$/),
@@ -38,7 +40,9 @@ async function advance(tx: TxClient, now: number, changed: Set<string>) {
       .where(and(eq(bets.period, round.period), isNull(bets.payout)))
       .orderBy(asc(bets.userId), asc(bets.id));
     for (const slip of slips) {
-      const payout = Math.round(slip.stake * multiplierFor(slip.pick, round.number, round.payoutVersion));
+      const wins = multiplierFor(slip.pick, round.number, round.payoutVersion) > 0;
+      const payout = slip.returnBps === null ? Math.round(slip.stake * multiplierFor(slip.pick, round.number, round.payoutVersion))
+        : wins ? Number(BigInt(slip.stake) * BigInt(slip.returnBps) / 10000n) : 0;
       if (payout > 0) {
         await postEntry({ userId: slip.userId, scope: "wingo", type: "win", amount: BigInt(payout),
           refType: "wingo_payout", refId: slip.id, memo: `Win Go ${round.duration}s return` }, tx);
@@ -61,6 +65,8 @@ async function advance(tx: TxClient, now: number, changed: Set<string>) {
 }
 
 async function snapshot(tx: TxClient, userId: string, walletId: string, duration: number, now: number) {
+  const policy = await playerMasterPolicy("wingo", userId, tx);
+  const returns = policy.masterRtpBps === null ? undefined : Object.fromEntries(["red","green","violet","big","small",...Array.from({length:10},(_,i)=>String(i))].map(pick=>[pick,colourReturnBps(pick,policy.masterRtpBps!) / 10000]));
   const [round] = await tx.select({ period: rounds.period, duration: rounds.duration, start: rounds.start,
     ends: rounds.ends, payoutVersion: rounds.payoutVersion, commitment: rounds.commitment }).from(rounds).where(eq(rounds.period, periodFor(duration, now)));
   const history = await tx.select({ period: rounds.period, number: rounds.number, ends: rounds.ends,
@@ -68,7 +74,7 @@ async function snapshot(tx: TxClient, userId: string, walletId: string, duration
     .where(and(eq(rounds.duration, duration), eq(rounds.settled, true)))
     .orderBy(desc(rounds.ends)).limit(100);
   const myBets = await tx.select({ id: bets.id, period: bets.period, pick: bets.pick, stake: bets.stake,
-    payout: bets.payout, created: bets.created, duration: rounds.duration,
+    payout: bets.payout, returnBps: bets.returnBps, pricingVersion: bets.pricingVersion, created: bets.created, duration: rounds.duration,
     number: sql<number | null>`case when ${rounds.settled} then ${rounds.number} else null end`,
   }).from(bets).innerJoin(rounds, eq(bets.period, rounds.period))
     .where(eq(bets.userId, userId)).orderBy(desc(bets.created), desc(bets.id)).limit(100);
@@ -81,7 +87,7 @@ async function snapshot(tx: TxClient, userId: string, walletId: string, duration
   return {
     mode: "wallet" as const, serverTime: now,
     player: { id: userId.slice(0, 8), balance: Number(await getBalance(walletId, tx)) },
-    round, history, bets: myBets,
+    round, history, bets: myBets, masterRtpBps: policy.masterRtpBps, pricingVersion: policy.pricingVersion, returns,
     summary: { played: summary.played, won: summary.won, profit: summary.profit },
     pending: summary.pending, lockSeconds: 5, minStake: 100, maxStake: 5_000_000,
   };
@@ -121,7 +127,9 @@ async function table(userId: string, duration: number, input?: BetInput) {
           throw conflict("Predictions are locked for this round. The next round starts shortly.");
         if (round.payoutVersion >= 3 && input.payoutVersion !== round.payoutVersion)
           throw conflict("The game rates have changed. Refresh Colour Trading before placing your bet.");
-        const [bet] = await tx.insert(bets).values({ userId, period: input.period, pick: input.pick,
+        const policy = await playerMasterPolicy("wingo", userId, tx);
+        assertTablePricing(policy, input.pricingVersion);
+        const [bet] = await tx.insert(bets).values({ returnBps: policy.masterRtpBps === null ? null : colourReturnBps(input.pick, policy.masterRtpBps), pricingVersion: policy.pricingVersion, userId, period: input.period, pick: input.pick,
           stake: input.stake, request: input.request, created: now }).returning();
         try {
           await postEntry({ userId, scope: "wingo", type: "bet", amount: -BigInt(input.stake),
@@ -174,4 +182,8 @@ export function startWingoEngine() {
   const timer = setInterval(tick, 1000);
   timer.unref();
   return () => clearInterval(timer);
+}
+
+export function colourReturnBps(pick: string, targetBps: number) {
+  return targetBps * (/^[0-9]$/.test(pick) ? 10 : pick === "violet" ? 5 : 2);
 }

@@ -143,6 +143,7 @@ export interface GameState {
   // UI shows a "temporarily disabled" overlay. Pushed via the
   // `game-config:lunar` realtime topic.
   gameDisabled: boolean;
+  roundHouseEdge?: number;
   // Inclusive bounds for the auto-cashout multiplier the player may pick.
   // Pulled from the server config so admins can tighten/loosen them live.
   autoCashoutMin: number;

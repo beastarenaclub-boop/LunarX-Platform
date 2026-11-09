@@ -1,3 +1,4 @@
+import { RtpDisclosure } from "@/components/RtpDisclosure";
 import { GameInformationSection } from "@/components/game/GameInformation";
 import { AutoBetStatus, useSelectionBet } from "@/components/table/AutoBet";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
@@ -55,7 +56,7 @@ interface DiceState {
   createdAt: string;
 }
 
-interface DiceConfig {
+interface DiceConfig { pricingVersion: string;
   enabled: boolean;
   houseEdge: number;
   maxMultiplier: number;
@@ -167,7 +168,8 @@ export default function Dice() {
   const autoStopRef = useRef(false);
 
   const config = useQuery<DiceConfig>({
-    queryKey: ["dice.config"],
+    queryKey: ["dice.config", user?.id],
+    enabled: !!user, refetchInterval: 15_000,
     queryFn: () => customFetch<DiceConfig>("/api/dice/config", { method: "GET" }),
     staleTime: 60_000,
     retry: false,
@@ -314,6 +316,7 @@ export default function Dice() {
           target: Math.round(target * 100) / 100,
           direction,
           useBonus,
+          pricingVersion: config.data?.pricingVersion,
         }),
       });
       setLastResult(out);
@@ -348,6 +351,7 @@ export default function Dice() {
       return out;
     } catch (err) {
       toast.error(apiMessage(err, "Roll failed"));
+      void config.refetch();
       return null;
     }
   };
@@ -415,6 +419,7 @@ export default function Dice() {
     <div className="game-page min-h-[100dvh] w-full overflow-x-clip bg-[#0a0612] text-white flex justify-center safe-pb">
       <RoundWinDialog win={roundWin.win} onClose={roundWin.dismiss} />
       <div className="game-shell w-full max-w-7xl flex flex-col">
+        <RtpDisclosure houseEdge={config.data?.houseEdge} />
         {/* Top bar */}
         <div className="sticky top-0 z-50 flex items-center justify-between px-3 sm:px-4 py-3 bg-[#0a0612]/90 backdrop-blur-md border-b border-white/5 safe-pt">
           <div className="flex items-center gap-2 min-w-0">
