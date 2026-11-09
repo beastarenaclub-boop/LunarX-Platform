@@ -1,7 +1,7 @@
 import { b2cMedia, b2cBanner } from "./media";
 import { POKER_ART } from "../poker/artwork";
 import { POKER_GAMES } from "@workspace/api-zod/poker";
-import colourTradingBanner from "@/assets/lobby/colour-trading-banner-v2.webp";
+import colourTradingBanner from "@/assets/lobby/colour-trading-banner.svg";
 import { HANDOFF_BANNER } from "../lobby/handoff-artwork";
 
 type StorefrontBanner = {
@@ -107,7 +107,7 @@ const positions: Record<string, [keyof typeof atlases, number]> = {
 };
 
 export function b2cArtwork(id: string) {
-  if (id === "wingo") return { src: colourTradingBanner, width: 1672, height: 941, viewBox: "0 0 1672 941" };
+  if (id === "wingo") return { src: colourTradingBanner, width: 1200, height: 675, viewBox: "0 0 1200 675" };
   const position = positions[id];
   if (!position) return null;
   const [key, cell] = position;
