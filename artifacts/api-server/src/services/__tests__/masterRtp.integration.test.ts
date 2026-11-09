@@ -251,3 +251,36 @@ test("Crazy Time pays the accepted master rates after the policy changes",async(
   const expected=settleCrazyTimeBets([{type:"1",amountPaise:10000n}],outcome,view.config.payoutVersion,.7).totalPayout;
   assert.equal((await getBalanceByUser(playerA.id)).balance,balance-10000n+expected);
 });
+
+test("admin and master edits from 30 to 5 percent reach every game's new prices",async()=>{
+  for (const [actor,bps] of [[admin,3000],[masterA,500],[admin,8250]] as const) {
+    const [previous] = await db.select().from(networkNodesTable).where(eq(networkNodesTable.id,a));
+    const saved = await updateMasterRtp(actor,a,{playerRtpBps:bps,revision:previous.rtpRevision});
+    assert.equal(saved.playerRtpBps,bps);
+    const edge = (10000-bps)/10000;
+    for (const game of MASTER_RTP_GAMES) {
+      const cfg = (await getPlayerGameConfig(game,playerA.id))!;
+      assert.equal(cfg.rtpPolicy.playerRtpBps,bps,game);
+      assert.equal(cfg.houseEdge,edge,game);
+      assert.equal((await getPlayerGameConfig(game,playerB.id))!.houseEdge,.03,game+" other master");
+    }
+    for (const code of ['coin-flip','7up7down','lucky-7-live','wheel-2-live','crazy-time'] as const) {
+      await createTableRound(code);
+      const view = (await getTableRoundSnapshot(code,playerA.id))!;
+      assert.equal(view.config.masterRtpBps,bps,code); assert.equal(view.config.houseEdge,edge,code);
+    }
+    assert.ok(Math.abs((await chickenConfig(playerA.id)).rtp-bps/10000)<1e-12);
+    assert.equal((await wingoState(playerA.id)).returns!.red,bps/5000);
+    assert.equal((await pokerTable(playerA.id,'poker-20-20')).quotes[0].odds,bps/50);
+    assert.equal((await ludoTable(playerA.id)).commissionBps,10000-bps);
+    if (bps === 500) {
+      const cfg = (await getPlayerGameConfig('plinko',playerA.id))!;
+      const drop = await dropBall({userId:playerA.id,stakeAmount:10000n,rows:12,risk:'medium',pricingVersion:cfg.pricingVersion});
+      assert.equal(drop.houseEdge,.95);
+      assert.equal(drop.multiplier,plinkoMultiplierTable(12,'medium',.95,100000)[drop.bucket]);
+      const dice = (await getPlayerGameConfig('dice',playerA.id))!;
+      const roll = await rollDice({userId:playerA.id,stakeAmount:10000n,target:50,direction:'under',pricingVersion:dice.pricingVersion});
+      assert.equal(roll.houseEdge,.95); assert.equal(roll.multiplier,roll.didWin ? .1 : 0);
+    }
+  }
+});

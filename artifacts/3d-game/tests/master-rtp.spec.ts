@@ -60,3 +60,60 @@ test('Ludo shows the master commission before joining',async({page},info)=>{
  await expect(page.locator('.ld-prize')).toContainText('140');
  await page.screenshot({path:info.outputPath('ludo.png')});
 });
+
+async function policyServer(page: Page) {
+ let policy = { id: 'a', name: 'Master A', playerRtpBps: 3000 as number | null, revision: 1 };
+ const bodies: any[] = [];
+ await page.route('**/api/network/rtp**', async route => {
+  if (route.request().method() === 'PUT') {
+   const input = route.request().postDataJSON(); bodies.push(input);
+   if (input.revision !== policy.revision) return route.fulfill({status:409,json:{detail:'RTP changed. Reload the policy before saving.'}});
+   policy = {...policy, playerRtpBps:input.playerRtpBps, revision:policy.revision+1};
+   return route.fulfill({json:policy});
+  }
+  return route.fulfill({json:{games:['coin-flip','ludo','plinko'],masters:[policy,{id:'b',name:'Master B',playerRtpBps:9000,revision:2}]}});
+ });
+ return { bodies, change: (bps: number) => { policy = {...policy,playerRtpBps:bps,revision:policy.revision+1}; } };
+}
+
+test('saving 30 to 5 percent stays saved after reload and consecutive edits',async({page})=>{
+ const server = await policyServer(page);
+ await page.goto('/tests/rtp-panel.html');
+ const form = page.locator('form').filter({has:page.getByLabel('Player RTP for Master A')});
+ const input = page.getByLabel('Player RTP for Master A');
+ await expect(input).toHaveValue('30');
+ for (const [value,revision] of [['5',1],['82.5',2]] as const) {
+  await input.fill(value); await form.getByRole('button',{name:'Save RTP',exact:true}).click();
+  await expect(form.getByRole('status')).toContainText(`Saved player RTP: ${Number(value).toFixed(2)}%`);
+  await expect(input).toHaveValue(value);
+  expect(server.bodies.at(-1)).toEqual({playerRtpBps:Number(value)*100,revision});
+  await form.getByRole('button',{name:'Reload policy',exact:true}).click();
+  await expect(input).toHaveValue(value);
+  await expect(page.getByLabel('Player RTP for Master B')).toHaveValue('90');
+ }
+ await page.reload(); await expect(input).toHaveValue('82.5');
+ await expect(form).not.toContainText('30%');
+});
+
+test('reload discards unsaved input even when server revision is unchanged',async({page})=>{
+ await policyServer(page); await page.goto('/tests/rtp-panel.html');
+ const input = page.getByLabel('Player RTP for Master A');
+ const form = page.locator('form').filter({has:input});
+ await input.fill('5'); await form.getByRole('button',{name:'Reload policy',exact:true}).click();
+ await expect(input).toHaveValue('30');
+});
+
+test('other panel changes refresh clean forms but preserve an unsaved draft',async({page})=>{
+ const server = await policyServer(page); await page.goto('/tests/rtp-panel.html');
+ const input = page.getByLabel('Player RTP for Master A');
+ const form = page.locator('form').filter({has:input});
+ await expect(input).toHaveValue('30'); server.change(500);
+ await expect(input).toHaveValue('5',{timeout:12000});
+ await input.fill('60'); server.change(8500);
+ await expect(form.getByRole('alert')).toContainText('changed in another panel',{timeout:12000});
+ await expect(input).toHaveValue('60');
+ await expect(form.getByRole('button',{name:'Save RTP',exact:true})).toBeDisabled();
+ await form.getByRole('button',{name:'Reload policy',exact:true}).click();
+ await expect(input).toHaveValue('85');
+ expect(server.bodies).toHaveLength(0);
+});
