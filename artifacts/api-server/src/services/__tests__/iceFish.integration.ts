@@ -1,6 +1,6 @@
 import { before, after, test } from "node:test";
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import express from "express";
 import { eq } from "drizzle-orm";
@@ -299,6 +299,12 @@ test("result controls cover Ice Fish; next-result selection and restart recovery
     "green",
   );
   assert.equal(revealed.resultSource, "admin");
+  assert.equal(revealed.revealEndsAt.getTime() - revealed.bettingEndsAt.getTime(), 42000);
+  assert.equal(revealed.settleEndsAt.getTime() - revealed.revealEndsAt.getTime(), 4000);
+  assert.equal((await getTableRoundSnapshot("ice-fish", player.id))!.config.revealDurationMs, 42000);
+  assert.equal((await recoverTableRound(revealed, revealed.bettingEndsAt.getTime() + 30000))!.id, revealed.id);
+  assert.equal((await getBalanceByUser(player.id)).balance, before - 1000n, "Rejoining before the catch cannot settle early");
+  assert.equal((await db.select().from(gameConfigTable).where(eq(gameConfigTable.gameCode, "ice-fish")))[0].revealDurationMs, 14000, "Bonus timing does not overwrite operator settings");
   const expired = {
     ...revealed,
     bettingEndsAt: new Date(Date.now() - 30000),
@@ -324,6 +330,39 @@ test("result controls cover Ice Fish; next-result selection and restart recovery
   await recoverTableRound(expired);
   assert.equal((await getBalanceByUser(player.id)).balance, recovered);
 });
+test("every fish bonus gets a persisted full clock; anchors and legacy rounds retain their timing", async () => {
+  const settingsBefore = await db.select().from(gameConfigTable);
+  const seededRound = async (choiceId: string) => {
+    const round = await createTableRound("ice-fish");
+    let i = 0;
+    while (ICE_FISH_WHEEL[deriveIceFish(`bonus-timing-${i}`, round.clientSeed, round.nonce).segment] !== choiceId) i++;
+    const serverSeed = `bonus-timing-${i}`, serverSeedHash = createHash("sha256").update(serverSeed).digest("hex");
+    await db.update(tableRoundsTable).set({serverSeed, serverSeedHash}).where(eq(tableRoundsTable.id, round.id));
+    return {...round, serverSeed, serverSeedHash};
+  };
+  for (const choiceId of ["blue", "green", "red", "white"] as const) {
+    const round = await seededRound(choiceId);
+    assert.equal(round.revealEndsAt.getTime() - round.bettingEndsAt.getTime(), 14000, "Pre-bet clocks must not disclose the result");
+    const revealed = await revealTableRound(round);
+    assert.equal(ICE_FISH_WHEEL[(revealed.outcome as IceFishOutcome).segment], choiceId);
+    const duration = choiceId === "white" ? 14000 : 42000;
+    assert.equal(revealed.revealEndsAt.getTime() - revealed.bettingEndsAt.getTime(), duration);
+    const [saved] = await db.select().from(tableRoundsTable).where(eq(tableRoundsTable.id, round.id));
+    assert.equal(saved.revealEndsAt.getTime(), revealed.revealEndsAt.getTime());
+    const resumed = await recoverTableRound(saved, round.bettingEndsAt.getTime() + 10000);
+    assert.equal(resumed!.revealEndsAt.getTime(), saved.revealEndsAt.getTime());
+    await finishTableRound(await settleTableRound(revealed));
+  }
+  const legacy = await seededRound("blue");
+  const oldConfig = {...legacy.config as Record<string, unknown>};
+  delete oldConfig.iceFishMotionVersion;
+  await db.update(tableRoundsTable).set({config:oldConfig}).where(eq(tableRoundsTable.id,legacy.id));
+  const oldReveal = await revealTableRound({...legacy, config:oldConfig});
+  assert.equal(oldReveal.revealEndsAt.getTime() - oldReveal.bettingEndsAt.getTime(), 14000);
+  await finishTableRound(await settleTableRound(oldReveal));
+  assert.deepEqual(await db.select().from(gameConfigTable), settingsBefore);
+});
+
 test("authenticated routes expose public config, own history and valid seed proofs; demo and realtime are wired", async () => {
   assert.ok(demoRouteAllowed("GET", "/api/ice-fish/round"));
   assert.ok(demoRouteAllowed("POST", "/api/ice-fish/bet"));

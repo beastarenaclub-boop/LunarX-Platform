@@ -128,7 +128,7 @@ test(
         ).status,
         400,
       );
-      const untilSettled = Date.now() + 30000;
+      const untilSettled = Date.now() + 60000;
       let settled;
       while (Date.now() < untilSettled) {
         round = await getRound();

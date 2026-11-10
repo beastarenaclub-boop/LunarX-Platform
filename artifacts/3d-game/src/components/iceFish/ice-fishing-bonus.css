@@ -1,0 +1,101 @@
+.if-fishing-bonus { position:absolute; inset:0; z-index:7; overflow:hidden; background:#c2e8ef; }
+.if-fishing-bonus .if-fish { background-image:url('/media/ice-fish/fish-school-v3.webp'); }
+.if-bonus-intro { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#0e6693 url('/media/ice-fish/frozen-lake-v2.webp') center/cover; text-shadow:0 3px 8px #063352; }
+.if-bonus-intro>.if-fish { width:min(36cqw,40cqh); filter:drop-shadow(0 0 25px #b7f9ff); transform:rotate(-15deg); }
+.if-bonus-intro h2 { font-size:clamp(22px,4cqw,60px); margin:0; }
+.if-bonus-intro p { color:#c9f5ff; font-weight:800; letter-spacing:.2em; }
+.if-ice-sweep { position:absolute; inset:-20%; border:40px solid #dbfaff; border-radius:50%; box-shadow:0 0 80px 80px #c6f3ffa6,inset 0 0 60px #fff; animation:if-ice-open 1.6s ease-out both; pointer-events:none; }
+.if-underwater { position:absolute; inset:0; background:linear-gradient(#63888e,#255264 65%,#112d48); overflow:hidden; }
+.if-water-rays { position:absolute; inset:0; background:repeating-conic-gradient(from -22deg at 50% -15%,#c4fbff1f 0deg,transparent 10deg,#a3e9e51a 18deg,transparent 27deg); filter:blur(15px); }
+.if-school-fish { position:absolute; aspect-ratio:2; animation:if-swim var(--swim-time) ease-in-out var(--swim-delay) infinite alternate; }
+.if-school-fish>.if-fish { position:absolute; width:100%; top:-50%; }
+.if-school-fish.swim-left>.if-fish { transform:scaleX(-1); }
+.if-school-fish>strong { position:absolute; inset:5% 7% 0; display:grid; place-items:center; font-size:clamp(14px,3.2cqw,52px); font-weight:900; color:#edfaff; text-shadow:0 2px 5px #194367; }
+.if-bubbles,.if-snow { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.if-bubbles i { position:absolute; bottom:-10%; aspect-ratio:1; border:1px solid #e0feff66; border-radius:50%; animation:if-bubble 5s linear infinite; }
+.if-bonus-badge { position:absolute; bottom:3cqh; left:50%; transform:translateX(-50%); width:150px; max-width:25cqw; text-align:center; }
+.if-bonus-badge>.if-fish { width:100%; margin-bottom:-23%; border:3px solid #dcfaff; border-radius:8px; background-color:#89ddef; }
+.if-bonus-badge>strong { display:block; position:relative; border:3px solid #d5faff; border-radius:10px; background:linear-gradient(#008bcd,#00336e); padding:14px 2px; box-shadow:inset 0 0 10px #83eaff,0 0 8px #a1efff; font-size:clamp(11px,1.6cqw,23px); }
+.if-fishing-landscape { position:absolute; inset:0; background:#c4e8ee url('/media/ice-fish/fishing-station-v3.webp') center/cover; }
+.if-fishing-bonus:after { content:''; position:absolute; inset:0; box-shadow:inset 0 -15cqh 10cqh -5cqh #183559c9; pointer-events:none; z-index:2; }
+.if-fishing-world { position:absolute; top:50%; left:50%; width:100%; height:100%; transform:translate(-50%,-50%); }
+.if-fishing-dock { position:absolute; bottom:7%; left:0; width:45%; height:4.2%; background:repeating-linear-gradient(90deg,#67747a 0,#b0b5ad 2px,#7f898a 3px,#7f898a 44px,#3c5660 46px); transform:skewX(-15deg); border-bottom:5px solid #3c5565; box-shadow:0 -3px 4px #e3f8ff; }
+.if-fishing-rig { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.if-fisher { position:absolute; left:26%; bottom:8%; height:47%; width:16%; object-fit:contain; object-position:bottom; filter:drop-shadow(0 3px 2px #25435455); transform-origin:50% 90%; }
+.if-fisher.is-reeling { animation:if-fisher-reel 1.1s ease-in-out infinite alternate; }
+.if-bonus-hole { position:absolute; left:65%; top:84%; width:13%; height:3.5%; border-radius:50%; background:#28536b; border:4px solid #83b5c5; box-shadow:0 0 0 6px #c5e4e9; }
+.if-bonus-hole i { position:absolute; inset:15%; border:2px solid #88ccdf; border-radius:50%; animation:if-ripple 1.7s ease-out infinite; }
+.if-bonus-hole i+i { animation-delay:-.8s; }
+.if-fish-catch-mask { position:absolute; inset:0; clip-path:inset(0 0 13% 0); }
+.if-lifted-fish { position:absolute; width:22%; aspect-ratio:1; transform-origin:50% 50%; filter:drop-shadow(4px 5px 5px #245b7866); }
+.if-lifted-fish>.if-fish { width:100%; }
+.if-water-splash { position:absolute; left:71%; top:84%; width:1px; height:1px; }
+.if-water-splash i { position:absolute; width:9px; height:17px; border-radius:50%; background:#d9fbff; box-shadow:0 0 5px #5ac3e6; animation:if-drop .9s ease-out calc(var(--drop) * -.1s) infinite; --drop-x:calc((var(--drop) - 4) * 13px); }
+.if-snow i { position:absolute; top:-4%; width:4px; height:4px; border-radius:50%; background:#faffffb0; animation:if-snowfall 6s linear infinite; }
+.if-catch-meter { position:absolute; z-index:4; bottom:3cqh; left:50%; transform:translateX(-50%); width:160px; max-width:22cqw; padding:9px 8px 7px; text-align:center; border:4px solid #d1f9ff; border-radius:12px; background:linear-gradient(#057bb4,#00417b); box-shadow:inset 0 0 10px #58ceff,0 0 5px #a9eaff; }
+.if-catch-meter:before,.if-final-ice:before { content:''; position:absolute; top:-5px; left:0; right:0; height:22px; background:linear-gradient(#efffff,#7dcce3); clip-path:polygon(0 0,100% 0,100% 26%,94% 42%,90% 8%,87% 90%,83% 28%,76% 22%,71% 65%,67% 25%,60% 20%,57% 75%,52% 12%,44% 34%,37% 100%,34% 28%,24% 25%,20% 82%,16% 28%,8% 65%,4% 25%,0 32%); }
+.if-catch-meter strong { display:block; font-style:italic; font-size:clamp(22px,3.2cqw,45px); text-shadow:0 2px 3px #002c55; }
+.if-catch-meter small { font-size:clamp(7px,.65cqw,10px); letter-spacing:.1em; color:#b7eaff; }
+.if-bonus-finish { position:absolute; inset:0; z-index:5; display:grid; place-items:center; background:#0c244d9c; animation:if-result-in .5s ease-out; }
+.if-final-ice { position:relative; min-width:290px; width:30cqw; max-width:460px; padding:40px 18px 25px; border:8px solid #a8f1ff; border-radius:22px; background:linear-gradient(#7bdcf38c,#1683a6a8),url('/media/ice-fish/frozen-lake-v2.webp') center/cover; box-shadow:inset 0 0 20px #f7ffff,0 0 55px #139dff,0 0 120px #006cff; text-align:center; }
+.if-final-ice>.if-fish { position:absolute; top:-95px; left:20%; width:60%; height:140px; transform:rotate(-12deg); }
+.if-final-ice>b { position:absolute; right:-25px; top:-40px; padding:12px 18px; border:3px solid #8ee7ff; border-radius:12px; background:#0064a5; color:#ffe470; font-size:30px; transform:rotate(-20deg); text-shadow:0 2px #7c6127; }
+.if-final-ice>strong,.if-final-ice>span { display:block; background:#0b5367d9; }
+.if-final-ice>strong { font-size:clamp(25px,3cqw,46px); padding:14px 5px 5px; border-radius:9px 9px 0 0; }
+.if-final-ice>span { font-weight:800; font-size:clamp(12px,1.8cqw,26px); padding:0 5px 15px; border-radius:0 0 9px 9px; }
+.if-coin-rain { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.if-coin-rain i { position:absolute; top:-25%; width:var(--coin-size); aspect-ratio:1; border:6px solid #fdd344; border-radius:50%; background:linear-gradient(135deg,#ffdb49 15%,#cb860d 48%,#ffdb40 50%,#d59715); box-shadow:inset 0 0 0 4px #b7760d,3px 2px #a76b05; animation:if-coinfall 2.7s linear infinite; }
+.has-fishing-scene>.if-wheel-stage,.has-fishing-scene>.if-bet-console,.has-fishing-scene>.if-social,.has-fishing-scene>.if-next-round { visibility:hidden; pointer-events:none; }
+.has-fishing-scene>.if-history { z-index:9; }
+.has-fishing-scene>.if-wallet { z-index:9; }
+.has-fishing-scene .if-history-dots { grid-template-rows:repeat(1,24px); gap:12px; }
+.has-fishing-scene .if-history-dots .if-dot:nth-child(n+9) { display:none; }
+.if-results-tabs { display:flex; gap:8px; margin-bottom:20px; }
+.if-results-tabs button { flex:1; color:#c1e6f2; background:#ffffff09; border:1px solid #64919e; border-radius:8px; padding:10px; }
+.if-results-tabs button[aria-selected=true] { background:#1788b0; color:#fff; }
+.if-result-row { display:grid; grid-template-columns:42px 1fr auto; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #aee8fb22; }
+.if-result-row>.if-fish,.if-result-row>svg { width:38px; height:38px; }
+.if-result-row small { display:block; opacity:.6; font-size:11px; margin-top:5px; overflow-wrap:anywhere; }
+.if-result-row button { background:#166783; color:#fff; border:0; border-radius:6px; padding:8px; }
+.if-result-distribution { display:flex; height:8px; border-radius:5px; overflow:hidden; margin-bottom:14px; }
+.if-result-distribution i { min-width:0; }
+.if-distribution-legend { display:flex; flex-wrap:wrap; gap:7px 14px; font-size:11px; color:#c1dce7; margin-bottom:12px; }
+.if-volume-control { display:grid; grid-template-columns:1fr 2fr; gap:12px; align-items:center; font-size:14px; }
+.if-volume-control input { width:100%; accent-color:#6bdfff; }
+.if-boost-medallion { pointer-events:none; }
+@keyframes if-ice-open { from { transform:scale(.05); opacity:1; } to { transform:scale(1.6); opacity:0; } }
+@keyframes if-swim { from { translate:-4cqw 0; } to { translate:9cqw -1cqh; } }
+@keyframes if-bubble { to { translate:20px -110cqh; opacity:0; } }
+@keyframes if-fisher-reel { from { rotate:-1deg; } to { rotate:2deg; } }
+@keyframes if-ripple { to { scale:1.8; opacity:0; } }
+@keyframes if-drop { from { transform:translate(0,0) scale(1); opacity:.9; } to { transform:translate(var(--drop-x),-80px) scale(.3); opacity:0; } }
+@keyframes if-snowfall { to { translate:-70px 110cqh; } }
+@keyframes if-coinfall { to { translate:70px 130cqh; rotate:600deg; } }
+@media (max-width:800px) and (orientation:portrait) {
+ .if-fishing-world { width:180cqw; height:108cqw; top:48%; }
+ .if-fishing-landscape { background-position:48% center; }
+ .if-catch-meter { bottom:16%; max-width:none; width:135px; }
+ .if-catch-meter strong { font-size:32px; }
+ .if-catch-meter small { font-size:9px; }
+ .if-bonus-badge { bottom:16%; max-width:none; width:110px; }
+ .if-bonus-badge>strong { font-size:17px; }
+ .if-school-fish { min-width:38%; }
+ .if-school-fish>strong { font-size:22px; }
+ .if-final-ice { min-width:250px; width:76%; padding:30px 10px 16px; }
+ .if-final-ice>b { right:-9px; font-size:24px; }
+ .if-final-ice>strong { font-size:29px; }
+ .if-final-ice>span { font-size:17px; }
+ .has-fishing-scene .if-history-dots { grid-template-rows:repeat(2,18px); gap:10px; }
+}
+@media (max-height:600px) and (orientation:landscape) {
+ .if-catch-meter { width:115px; padding:5px; border-width:3px; }
+ .if-catch-meter strong { font-size:25px; }
+ .if-bonus-badge { width:92px; }
+ .if-bonus-badge>strong { font-size:13px; padding:9px 1px; }
+ .if-final-ice { min-width:220px; padding:25px 8px 12px; border-width:5px; }
+ .if-final-ice>b { font-size:22px; padding:8px; top:-22px; }
+ .if-final-ice>.if-fish { top:-78px; height:110px; }
+ .if-final-ice>strong { font-size:25px; }
+ .if-final-ice>span { font-size:16px; }
+ .has-fishing-scene .if-history-dots .if-dot:nth-child(n+6) { display:none; }
+}

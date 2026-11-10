@@ -24,6 +24,7 @@ import {
   ICE_FISH_WHEEL,
   ICE_FISH_LABELS,
   ICE_FISH_SPOTS,
+  ICE_FISH_SPIN_MS,
   iceFishMultiplier,
   isFish,
   type IceFishBet,
@@ -39,6 +40,8 @@ import {
 } from "@/components/table/AutoBet";
 import { playGameSound, unlockAudio } from "@/game/audio";
 import IceWheel, { Anchor, Fish } from "@/components/iceFish/IceWheel";
+import IceFishingBonus from "@/components/iceFish/IceFishingBonus";
+import { fishingPresentation, multiplierLabel } from "@/components/iceFish/iceFishPresentation";
 import "@/components/iceFish/ice-fish.css";
 
 type Config = {
@@ -80,11 +83,16 @@ export default function IceFish() {
   const [modal, setModal] = useState<
     "menu" | "settings" | "history" | "rules" | "fairness" | null
   >(null);
+  const [historyTab, setHistoryTab] = useState<"results" | "bets">("results");
+  const [volume, setVolume] = useState(() => {
+    const saved = Number(localStorage.getItem("ice-fish:volume") ?? "0.7");
+    return Number.isFinite(saved) ? Math.max(0, Math.min(1, saved)) : .7;
+  });
   const [now, setNow] = useState(Date.now),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => localStorage.getItem("ice-fish:motion") === "reduced" || window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
   const [last, setLast] = useState<IceFishBet[]>([]),
     [undo, setUndo] = useState<IceFishBet[][]>([]),
@@ -193,15 +201,13 @@ export default function IceFish() {
       ? round.toLocalTime(round.snapshot.bettingEndsAt)
       : null;
   const revealElapsed = revealStart === null ? 0 : now - revealStart,
-    landed = !!round.outcome && revealElapsed >= 9500;
+    landed = !!round.outcome && revealElapsed >= ICE_FISH_SPIN_MS;
   const spot = round.outcome ? ICE_FISH_WHEEL[round.outcome.segment] : null;
-  const fishing =
-    landed &&
-    spot &&
-    isFish(spot) &&
-    revealElapsed < 14000 &&
-    round.phase === "reveal";
-  const edge = round.config?.houseEdge ?? config.data?.houseEdge ?? 0.045;
+  const fishing = !!(landed && spot && isFish(spot) && round.phase !== "betting");
+  const revealMs = round.snapshot ? round.snapshot.revealEndsAt - round.snapshot.bettingEndsAt : round.config?.revealDurationMs ?? 14000;
+  const bonusStage = fishingPresentation(revealElapsed, revealMs, round.phase === "settling").stage;
+  const pricing = round.myBets[0]?.pricingConfig ?? round.config;
+  const edge = pricing?.houseEdge ?? config.data?.houseEdge ?? 0.045;
   const anchorReturn = ((1 - edge) / 0.955) * 2;
   const anchorLabel =
     anchorReturn < 1
@@ -209,7 +215,7 @@ export default function IceFish() {
       : `${(anchorReturn - 1).toFixed(2).replace(".00", "")}:1`;
   const multiplier = round.outcome
     ? Math.min(
-        round.config?.maxMultiplier ?? 5000,
+        pricing?.maxMultiplier ?? 5000,
         iceFishMultiplier(round.outcome, edge),
       )
     : 0;
@@ -229,16 +235,31 @@ export default function IceFish() {
     if (!sound || beep.current === key) return;
     beep.current = key;
     if (round.bettingOpen && seconds > 0 && seconds <= 3)
-      playGameSound("tick", "ice-fish", 0.5);
-    if (landed && revealElapsed < 9700) playGameSound("reveal", "ice-fish");
-  }, [seconds, round.phase, round.roundId, sound, landed]);
+      playGameSound("tick", "ice-fish", volume * 0.5);
+    if (landed && revealElapsed < 9700) playGameSound("reveal", "ice-fish", volume);
+  }, [seconds, round.phase, round.roundId, sound, landed, volume]);
+  const lastSoundStage = useRef("");
+  useEffect(() => {
+    const stage = fishing ? bonusStage : round.phase === "reveal" && !landed ? "spin" : "";
+    const key = `${round.roundId}:${stage}`;
+    if (!sound || !stage || lastSoundStage.current === key) return;
+    lastSoundStage.current = key;
+    const cue = stage === "spin" ? "roll" : stage === "underwater" ? "deal" : stage === "casting" ? "launch" : stage === "reeling" ? "roll" : stage === "catch" ? "impact" : "reveal";
+    playGameSound(cue, "ice-fish", volume * .7);
+  }, [fishing, bonusStage, round.phase, round.roundId, landed, sound, volume]);
+  const lastWinSound = useRef("");
+  useEffect(() => {
+    if (!sound || myWin <= 0n || !round.roundId || lastWinSound.current === round.roundId) return;
+    lastWinSound.current = round.roundId;
+    playGameSound("win", "ice-fish", volume);
+  }, [myWin, round.roundId, sound, volume]);
   function stage(bets: IceFishBet[], replace = false) {
     if (!canEdit) return;
     void unlockAudio();
     if (draft.stage(bets, replace)) {
       setUndo((stack) => [...stack, [...draft.bets]]);
       setError("");
-      if (sound) playGameSound("select", "ice-fish", 0.5);
+      if (sound) playGameSound("select", "ice-fish", volume * 0.5);
     } else setError("Insufficient balance or table limit reached.");
   }
   async function submit(retry?: Placement) {
@@ -325,7 +346,7 @@ export default function IceFish() {
   }
   return (
     <div
-      className={`ice-fish-game ${round.phase === "betting" ? "is-betting" : "is-closed"} ${fishing ? "is-fishing" : ""} ${round.phase === "reveal" && !landed ? "is-spinning" : ""} ${landed ? "has-result" : ""} ${reducedMotion ? "reduce-motion" : ""}`}
+      className={`ice-fish-game ${round.phase === "betting" ? "is-betting" : "is-closed"} ${fishing ? "has-fishing-scene" : ""} ${round.phase === "reveal" && !landed ? "is-spinning" : ""} ${landed ? "has-result" : ""} ${reducedMotion ? "reduce-motion" : ""}`}
       ref={root}
       data-testid="ice-fish-game"
     >
@@ -359,20 +380,10 @@ export default function IceFish() {
           reducedMotion={reducedMotion}
         />
       </div>
-      {fishing && spot && isFish(spot) && (
-        <div
-          className="if-bonus"
-          role="status"
-          aria-label={`${ICE_FISH_LABELS[spot]} fishing bonus`}
-        >
-          <div className="if-ice-hole" />
-          <div className="if-fishing-line" />
-          <Fish color={spot} />
-          <h2>{ICE_FISH_LABELS[spot]}</h2>
-          <strong>{multiplier.toFixed(2)}x</strong>
-          <span>YOUR CATCH</span>
-        </div>
-      )}
+      {fishing && spot && isFish(spot) && round.outcome && <IceFishingBonus
+        color={spot} outcome={round.outcome} elapsed={revealElapsed} revealMs={revealMs}
+        settled={round.phase === "settling"} multiplier={multiplier} houseEdge={edge}
+        cap={pricing?.maxMultiplier ?? 5000} win={myWin} money={money} reducedMotion={reducedMotion} />}
       {landed && !fishing && round.outcome && (
         <div
           className={`if-result ${myWin > 0n ? "has-win" : ""}`}
@@ -386,7 +397,7 @@ export default function IceFish() {
             ) : (
               <Anchor grey={spot === "grey"} />
             )}
-            <strong>{multiplier.toFixed(2)}x</strong>
+            <strong>{multiplierLabel(multiplier)}</strong>
           </div>
           <span>
             {myWin > 0n
@@ -639,14 +650,15 @@ export default function IceFish() {
                   {sound ? <Volume2 /> : <VolumeX />} Sound{" "}
                   {sound ? "on" : "off"}
                 </button>
-                <button onClick={() => setReducedMotion((v) => !v)}>
+                <label className="if-volume-control">Sound volume<input aria-label="Sound volume" type="range" min="0" max="1" step="0.05" value={volume} onChange={e => { const value = Number(e.target.value); setVolume(value); localStorage.setItem("ice-fish:volume", String(value)); }} /></label>
+                <button onClick={() => setReducedMotion((v) => { localStorage.setItem("ice-fish:motion", v ? "on" : "reduced"); return !v; })}>
                   Animations {reducedMotion ? "reduced" : "on"}
                 </button>
                 <button
                   onClick={() => {
                     if (document.fullscreenElement)
-                      void document.exitFullscreen();
-                    else void root.current?.requestFullscreen();
+                      void document.exitFullscreen().catch(() => setError("Full screen is unavailable on this browser."));
+                    else void root.current?.requestFullscreen?.().catch(() => setError("Full screen is unavailable on this browser."));
                   }}
                 >
                   <Maximize /> Full screen
@@ -670,6 +682,7 @@ export default function IceFish() {
                   4 Lil’ Blues, 2 Big Green and 1 Huge Reds. Boosted positions
                   increase the return. A fish result reveals a bonus catch.
                 </p>
+                <p>The fishing bonus shows possible catches underwater, then casts, reels and lifts the server-selected fish. Its multiplier includes any wheel boost. Watching or rejoining does not place a bet or change the catch. Only your own settled winnings are shown.</p>
                 <p>
                   Current player return target:{" "}
                   <strong>{((1 - edge) * 100).toFixed(2)}%</strong>. Returns
@@ -690,7 +703,20 @@ export default function IceFish() {
             )}
             {modal === "history" && (
               <div className="if-bet-history">
-                {history.isPending ? (
+                <div className="if-results-tabs" role="tablist" aria-label="Results and bets">
+                  <button role="tab" aria-selected={historyTab === "results"} onClick={() => setHistoryTab("results")}>Wheel results</button>
+                  <button role="tab" aria-selected={historyTab === "bets"} onClick={() => setHistoryTab("bets")}>My bets</button>
+                </div>
+                {historyTab === "results" ? <>
+                  <div className="if-result-distribution" aria-hidden="true">{ICE_FISH_SPOTS.map(type => <i key={type} style={{ flex: recent.filter(r => ICE_FISH_WHEEL[(r.outcome as IceFishOutcome).segment] === type).length, background: {white:"#edfaff",grey:"#8195a8",blue:"#00b5ed",green:"#57cc48",red:"#ee425c"}[type] }} />)}</div>
+                  <div className="if-distribution-legend">{ICE_FISH_SPOTS.map(type => <span key={type}>{ICE_FISH_LABELS[type]}: {recent.filter(r => ICE_FISH_WHEEL[(r.outcome as IceFishOutcome).segment] === type).length}</span>)}</div>
+                  {!recent.length && <p>No completed wheel results yet.</p>}
+                  {recent.map(r => { const o = r.outcome as IceFishOutcome, type = ICE_FISH_WHEEL[o.segment]; return <div className="if-result-row" key={r.roundId}>
+                    {isFish(type) ? <Fish color={type} /> : <Anchor grey={type === "grey"} />}
+                    <div><b>{ICE_FISH_LABELS[type]}</b><small>{o.boosts[o.segment] > 1 ? `${o.boosts[o.segment]}x wheel boost · ` : ""}{isFish(type) ? `Catch ${o.fishValue} · ` : ""}{r.settledAt ? new Date(r.settledAt).toLocaleString() : "Revealed"}</small></div>
+                    <button onClick={() => { setModal("fairness"); void verify(r.roundId); }}>Verify</button>
+                  </div>; })}
+                </> : history.isPending ? (
                   <p>Loading bets…</p>
                 ) : !history.data?.length ? (
                   <p>No settled bets yet.</p>

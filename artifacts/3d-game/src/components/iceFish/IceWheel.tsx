@@ -89,6 +89,9 @@ export default function IceWheel({
   const elapsed = revealStart === null ? 0 : now - revealStart,
     landed = !!outcome && elapsed >= 9500;
   const showBoosts = !!outcome && elapsed >= 6000;
+  const boostedValues = outcome?.boosts.filter(value => value > 1) ?? [];
+  const hubBoost = boostedValues.length && elapsed >= 5000 && elapsed < 7200
+    ? boostedValues[Math.min(boostedValues.length - 1, Math.floor((elapsed - 5000) / 350))] : 0;
   useEffect(() => {
     const node = rotor.current;
     if (!node || !outcome || !roundId || revealStart === null) return;
@@ -410,6 +413,12 @@ export default function IceWheel({
         stroke="#788c94"
         strokeWidth="3"
       />
+      {hubBoost > 0 && <g className="if-boost-medallion" aria-label={`${hubBoost}x wheel boost reveal`}>
+        <circle cx="500" cy="500" r="125" fill="#c19535" stroke="#dcf8ff" strokeWidth="7" />
+        <circle cx="500" cy="500" r="110" fill="#ffdb68" stroke="#9f7621" strokeWidth="8" />
+        <circle cx="500" cy="500" r="99" fill="none" stroke="#fff3a8" strokeWidth="3" />
+        <text x="500" y="535" textAnchor="middle" fontSize="100" fontWeight="900" fill="#ffed8a" stroke="#91642e" strokeWidth="4" paintOrder="stroke">{hubBoost}X</text>
+      </g>}
       <path
         className="if-pointer-face"
         d="M463 0L536 0L500 44Z"

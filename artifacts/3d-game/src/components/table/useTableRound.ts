@@ -29,6 +29,7 @@ export interface RoundConfigSnapshot {
     pairPlus: Record<string, number>;
   };
   andarBaharMotionVersion?: number;
+  iceFishMotionVersion?: number;
   roulettePayoutBase?: number;
   vegetableOutcomeVersion?: 1 | 2;
   sevenPayoutVersion?: 1 | 2;

@@ -19,6 +19,11 @@ try {
       writes = [],
       seen = new Map();
     page.on("pageerror", (error) => errors.push(error.message));
+    await page.addInitScript(() => {
+      window.__iceAudioStarts = 0;
+      const start = AudioBufferSourceNode.prototype.start;
+      AudioBufferSourceNode.prototype.start = function (...args) { window.__iceAudioStarts++; return start.apply(this, args); };
+    });
     await page.routeWebSocket("**/ws*", (socket) => socket.close());
     const config = {
       enabled: true,
@@ -39,6 +44,8 @@ try {
     });
     let roundId = "ice-browser-1",
       phase = "betting",
+      revealDurationMs = 14000,
+      revealElapsedMs = 0,
       bettingEndsAt = Date.now() + 60000,
       current = null,
       myBets = [],
@@ -61,15 +68,16 @@ try {
         return json({ balance: wallet, currency: "INR", scope: "lunar" });
       if (path === "/api/ice-fish/config") return json(config);
       if (path === "/api/ice-fish/recent") return json([]);
-      if (path === "/api/ice-fish/round")
+      if (path === "/api/ice-fish/round") {
+        const snapshotEnd = phase === "betting" ? bettingEndsAt : Date.now() - revealElapsedMs;
         return json({
           roundId,
           gameCode: "ice-fish",
           phase,
           now: Date.now(),
-          bettingEndsAt,
-          revealEndsAt: bettingEndsAt + 14000,
-          settleEndsAt: bettingEndsAt + 18000,
+          bettingEndsAt: snapshotEnd,
+          revealEndsAt: snapshotEnd + revealDurationMs,
+          settleEndsAt: snapshotEnd + revealDurationMs + 4000,
           serverSeedHash: "committed-seed",
           clientSeed: "public-client",
           nonce: 0,
@@ -77,7 +85,7 @@ try {
           serverSeed: current ? "revealed-seed" : null,
           totalStake: "0",
           playerCount: 20,
-          config,
+          config: { ...config, revealDurationMs },
           myBets,
           liveBets: [],
           recent: Array.from({ length: 21 }, (_, i) => ({
@@ -86,6 +94,7 @@ try {
             settledAt: new Date().toISOString(),
           })),
         });
+      }
       if (path === "/api/ice-fish/bet") {
         const body = req.postDataJSON();
         writes.push(body);
@@ -219,28 +228,53 @@ try {
       .getByRole("button", { name: "Cancel selected bets", exact: true })
       .click();
     phase = "reveal";
+    revealDurationMs = 42000;
     bettingEndsAt = Date.now() - 1000;
+    revealElapsedMs = 1000;
     current = outcome(10);
     await expect(page.locator(".if-wheel-stage")).toHaveClass(/is-zoomed/, {
       timeout: 6000,
     });
     await expect(page.locator(".if-chip-row")).toBeHidden();
     await expect(page.locator(".if-countdown")).toBeHidden();
-    bettingEndsAt = Date.now() - 10000;
+    revealElapsedMs = 12300;
     current = outcome(10);
     await expect(
       page.getByRole("status", { name: "BIG GREEN fishing bonus" }),
     ).toBeVisible({ timeout: 6000 });
+    await expect(page.getByTestId("ice-fishing-bonus")).toHaveAttribute("data-stage", "underwater");
     await page.screenshot({
       path: `tmp/reference-2026-11-10/browser/bonus-${viewport.width}.png`,
       fullPage: true,
     });
-    await expect(
-      page.getByRole("button", { name: "Bet BIG GREEN", exact: true }),
-    ).toBeDisabled();
+    await expect(page.locator(".if-bet-console")).toBeHidden();
+    for (const [elapsed, stage] of [[18500, "casting"], [25000, "reeling"], [35000, "catch"]]) {
+      revealElapsedMs = elapsed;
+      await expect(page.getByTestId("ice-fishing-bonus")).toHaveAttribute("data-stage", stage, {timeout:6000});
+      await expect(page.locator(".if-fisher")).toBeVisible();
+      await page.evaluate(async () => { await Promise.all(["fishing-station-v3.webp", "fisher-v3.webp", "fish-school-v3.webp"].map(async name => {const image = new Image(); image.src = "/media/ice-fish/" + name; await image.decode();})); });
+      await page.screenshot({path:`tmp/reference-2026-11-10/browser/${stage}-${viewport.width}.png`,fullPage:true});
+    }
+    phase = "settling";
+    bettingEndsAt = Date.now() - 42000;
+    revealElapsedMs = 42000;
+    myBets = [{slipId:"bonus-win",totalStake:"5000",bets:[{type:"green",amountPaise:"5000"}],status:"settled",payoutAmount:"92419",auditRoundId:null,pricingConfig:{...config,houseEdge:.045}}];
+    await expect(page.getByTestId("ice-bonus-result")).toContainText("YOU WON",{timeout:6000});
+    await expect(page.getByTestId("ice-bonus-result")).toContainText("924.19");
+    await page.screenshot({path:`tmp/reference-2026-11-10/browser/bonus-win-${viewport.width}.png`,fullPage:true});
+    for (const [segment, color] of [[3,"blue"],[22,"red"]]) {
+      roundId = `bonus-${color}`; current = outcome(segment); myBets = [];
+      await expect(page.getByTestId("ice-fishing-bonus")).toHaveClass(new RegExp(`bonus-${color}`),{timeout:6000});
+      await expect(page.getByTestId("ice-bonus-result")).not.toContainText("YOU WON");
+    }
+    await page.reload();
+    await expect(page.getByTestId("ice-fishing-bonus")).toHaveAttribute("data-stage","result",{timeout:6000});
+    await expect(page.locator(".if-coin-rain")).toHaveCount(0);
     roundId = "ice-browser-3";
     phase = "settling";
+    revealDurationMs = 14000;
     bettingEndsAt = Date.now() - 14000;
+    revealElapsedMs = 14000;
     current = outcome(0);
     await expect(page.getByTestId("ice-fish-result")).toContainText(
       "White anchor",
@@ -260,6 +294,12 @@ try {
     await page
       .getByRole("button", { name: "Close dialog", exact: true })
       .click();
+    await page.getByRole("button", { name: "Open results and bet history", exact: true }).click();
+    await expect(page.getByRole("tab", {name:"Wheel results"})).toHaveAttribute("aria-selected","true");
+    await expect(page.locator(".if-result-row")).toHaveCount(21);
+    await page.getByRole("tab", {name:"My bets"}).click();
+    await expect(page.getByRole("dialog")).toContainText("No settled bets yet.");
+    await page.getByRole("button", {name:"Close dialog",exact:true}).click();
     await page
       .getByRole("button", { name: "Game settings", exact: true })
       .click();
@@ -267,11 +307,22 @@ try {
     await expect(
       page.getByRole("button", { name: "Sound on", exact: true }),
     ).toBeVisible();
+    await page.getByRole("slider", {name:"Sound volume"}).fill("0.35");
+    assert.equal(await page.evaluate(() => localStorage.getItem("ice-fish:volume")),"0.35");
+    await page.getByRole("button",{name:"Animations on",exact:true}).click();
+    await expect(page.getByTestId("ice-fish-game")).toHaveClass(/reduce-motion/);
+    await page.getByRole("button",{name:"Close dialog",exact:true}).click();
+    roundId = "ice-sound-check"; phase = "betting"; current = null; myBets = []; bettingEndsAt = Date.now() + 60000;
+    await expect(page.getByRole("button", { name: "Bet BIG GREEN", exact:true })).toBeEnabled({timeout:6000});
+    const audioBefore = await page.evaluate(() => window.__iceAudioStarts);
+    await page.getByRole("button", { name: "Bet BIG GREEN", exact:true }).click();
+    await expect.poll(() => page.evaluate(() => window.__iceAudioStarts)).toBeGreaterThan(audioBefore);
+    await page.getByRole("button", {name:"Cancel selected bets",exact:true}).click();
     assert.deepEqual(errors, []);
     assert.equal(writes.length, 2);
     await context.close();
     console.log(
-      `PASS Ice Fish ${viewport.width}x${viewport.height}: reference layout, chips, undo/cancel/repeat, timed bet, lost-response retry, bonus and result`,
+      `PASS Ice Fish ${viewport.width}x${viewport.height}: chips, retry, underwater/cast/reel/catch, all fish colours, own win, spectator, reconnect, result history and sound settings`,
     );
   }
 } finally {

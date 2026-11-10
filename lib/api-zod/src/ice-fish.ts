@@ -6,6 +6,15 @@ export const ICE_FISH_TIMING = {
   revealDurationMs: 14000,
   settleDurationMs: 4000,
 } as const;
+/** The bonus runs on the shared round clock, including reconnects. */
+export const ICE_FISH_MOTION_VERSION = 2;
+export const ICE_FISH_BONUS_REVEAL_MS = 42000;
+export const ICE_FISH_SPIN_MS = 9500;
+export function iceFishRevealDuration(outcome: IceFishOutcome, configuredMs: number) {
+  return isFish(ICE_FISH_WHEEL[outcome.segment])
+    ? Math.max(configuredMs, ICE_FISH_BONUS_REVEAL_MS)
+    : configuredMs;
+}
 export const ICE_FISH_SPOTS = [
   "white",
   "grey",

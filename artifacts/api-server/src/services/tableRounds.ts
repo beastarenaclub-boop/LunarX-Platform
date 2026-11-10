@@ -2,6 +2,7 @@ import { usesResultEngine } from "./resultEngine/scope";
 import { isDeepStrictEqual } from "node:util";
 import { handoffAdapters, HANDOFF_TABLE_CODES } from "./handoffGames";
 import { iceFishAdapter } from "./iceFish";
+import { ICE_FISH_MOTION_VERSION, iceFishRevealDuration, type IceFishOutcome } from "@workspace/api-zod/ice-fish";
 import { creditPendingWin } from "./pendingWins";
 import { decideOutcomeFor, settleBank, type DecidedOutcome } from "./resultEngine/engine";
 import { tableOutcomeSpace } from "./resultEngine/tableSpace";
@@ -165,6 +166,7 @@ export interface RoundConfigSnapshot {
   wheel20Version?: number;
   jokerVersion?: number;
   andarBaharMotionVersion?: number;
+  iceFishMotionVersion?: number;
   lucky7CardVersion?: number;
   crazyTimeVersion?: typeof CRAZY_TIME_VERSION;
   /** Missing on legacy rounds, which must replay the original vegetable draw. */
@@ -877,6 +879,7 @@ export async function createTableRound(gameCode: TableGameCode): Promise<TableRo
   if (gameCode === "teen-patti-joker") { snap.jokerVersion = JOKER_VERSION; snap.maxMultiplier = 3.75; }
   if (gameCode === "wheel-2-live") { snap.wheel20Version = W20_VERSION; snap.maxMultiplier = 321; }
   if (gameCode === "andar-bahar") snap.andarBaharMotionVersion = AB_MOTION_VERSION;
+  if (gameCode === "ice-fish") snap.iceFishMotionVersion = ICE_FISH_MOTION_VERSION;
   if (gameCode === "lucky-7-live") {
     snap.lucky7CardVersion = L7_VERSION;
     snap.maxMultiplier = 12;
@@ -960,7 +963,17 @@ export async function revealTableRound(round: TableRound): Promise<TableRound> {
   // Count-dependent timing is published only when betting closes. Publishing
   // it at round creation would disclose the winning card-count range.
   const cfg = roundCfg(round);
-  const dealerTiming = round.gameCode === "andar-bahar" && cfg.andarBaharMotionVersion === AB_MOTION_VERSION
+  const dealerTiming = round.gameCode === "ice-fish" && cfg.iceFishMotionVersion === ICE_FISH_MOTION_VERSION
+    ? (() => {
+        const revealDurationMs = iceFishRevealDuration(outcome as IceFishOutcome, cfg.revealDurationMs);
+        const revealEndsAt = new Date(round.bettingEndsAt.getTime() + revealDurationMs);
+        return {
+          revealEndsAt,
+          settleEndsAt: new Date(revealEndsAt.getTime() + cfg.settleDurationMs),
+          config: { ...cfg, revealDurationMs },
+        };
+      })()
+    : round.gameCode === "andar-bahar" && cfg.andarBaharMotionVersion === AB_MOTION_VERSION
     ? (() => {
         const revealDurationMs = andarBaharRevealMs((outcome as AndarBaharDeal).cardsDealt);
         const revealEndsAt = new Date(round.bettingEndsAt.getTime() + revealDurationMs);
