@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import {
   ICE_FISH_WHEEL,
   ICE_FISH_LABELS,
@@ -414,9 +414,10 @@ export default function IceWheel({
         strokeWidth="3"
       />
       {hubBoost > 0 && <g className="if-boost-medallion" aria-label={`${hubBoost}x wheel boost reveal`}>
-        <circle cx="500" cy="500" r="125" fill="#c19535" stroke="#dcf8ff" strokeWidth="7" />
-        <circle cx="500" cy="500" r="110" fill="#ffdb68" stroke="#9f7621" strokeWidth="8" />
-        <circle cx="500" cy="500" r="99" fill="none" stroke="#fff3a8" strokeWidth="3" />
+        <circle cx="500" cy="500" r="139" fill="#bbf4ff88" stroke="#dcf8ff" strokeWidth="7" filter="url(#if-glow)" />
+        <svg x="341" y="341" width="318" height="318" viewBox="0 0 512 512"><image href={media + "coins-v4.webp"} width="1536" height="1024" /></svg>
+        <circle cx="500" cy="500" r="136" fill="none" stroke="#e4fbff" strokeWidth="4" strokeDasharray="10 3 4 2" />
+        {Array.from({length:20},(_,i) => <g key={i} transform={`translate(${500+Math.sin(i*Math.PI/10)*145} ${500+Math.cos(i*Math.PI/10)*145}) rotate(${-i*18})`}><path className="if-boost-shard" d="M0 -17L8 -3L2 8L-7 2Z" fill={i%2 ? "#b6efffa6" : "#f3ffffdc"} stroke="#e4fcff" strokeWidth="1" style={{"--shard-delay":`${-i*.09}s`, "--shard-distance":`${25+i%4*11}px`} as CSSProperties} /></g>)}
         <text x="500" y="535" textAnchor="middle" fontSize="100" fontWeight="900" fill="#ffed8a" stroke="#91642e" strokeWidth="4" paintOrder="stroke">{hubBoost}X</text>
       </g>}
       <path

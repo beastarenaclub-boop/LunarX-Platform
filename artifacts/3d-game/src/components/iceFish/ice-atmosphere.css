@@ -1,0 +1,18 @@
+.if-atmosphere { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:2; }
+.if-cloud { position:absolute; background:url('/media/ice-fish/mist-v4.webp') center/100% 100% no-repeat; will-change:transform; animation:if-cloud-drift 24s ease-in-out infinite alternate; }
+.if-cloud-far { width:125%; height:30%; top:3%; left:-27%; opacity:.35; animation-duration:37s; }
+.if-cloud-middle { width:105%; height:32%; top:37%; left:5%; opacity:.25; animation-delay:-13s; animation-direction:alternate-reverse; }
+.if-cloud-near { width:145%; height:32%; bottom:-8%; left:-30%; opacity:.7; animation-duration:19s; animation-delay:-8s; }
+.if-cloud-edge { width:85%; height:52%; left:-51%; top:25%; opacity:.5; transform:rotate(-12deg); animation-duration:31s; }
+.is-wheel.if-atmosphere { z-index:2; }
+.is-wheel .if-cloud-middle { top:63%; opacity:.3; }
+.is-wheel .if-cloud-far { opacity:.25; }
+.is-surface .if-cloud-middle { opacity:.2; }
+.is-surface .if-cloud-near { opacity:.62; }
+.if-ice-dust { position:absolute; inset:0; }
+.if-ice-dust i { position:absolute; width:var(--dust-size); aspect-ratio:1; border-radius:50%; background:#f5ffff; box-shadow:0 0 5px #dcfaff88; opacity:.45; animation:if-ice-dust var(--dust-time) linear var(--dust-delay) infinite; }
+@keyframes if-cloud-drift { from { translate:-4% 0; scale:1; } to { translate:12% -2%; scale:1.08; } }
+@keyframes if-ice-dust { 0% { translate:0 -12px; opacity:0; } 20%,65% { opacity:.6; } 100% { translate:-75px 110px; opacity:0; } }
+.if-boost-shard { animation:if-boost-shard .95s ease-out var(--shard-delay) infinite; }
+@keyframes if-boost-shard { from { translate:0 0; opacity:1; } to { translate:0 var(--shard-distance); rotate:45deg; opacity:0; } }
+@media (prefers-reduced-motion:reduce) { .if-atmosphere * { animation:none!important; } }

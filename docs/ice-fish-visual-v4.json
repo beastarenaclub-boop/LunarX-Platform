@@ -1,0 +1,37 @@
+{
+  "version": 4,
+  "mode": "built-in imagegen",
+  "reference": "C:/games4/Recording 2026-11-10 134239.mp4",
+  "assets": [
+    {
+      "file": "artifacts/3d-game/public/media/ice-fish/coins-v4.webp",
+      "source": "C:/Users/hacker/.codex/generated_images/01a1c07c-cc3c-7dc2-8605-cf595cf67b69/exec-ac9887cb-d6ae-4b41-97ac-e8c9a60a538d.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent animation sprite atlas for the gold coin shower in the supplied game reference. Reference image 1 shows the exact coin visual style. Make a 3-column by 2-row atlas, six equally spaced square cells, 1536x1024 landscape, transparent background. Exactly ONE same thick plain gold coin per cell, centered with 12% padding, consistent scale. The coin has a polished raised beveled circular rim, inset plain gold face, clean diagonal specular bands and ribbed thick edge; no writing, numbers, currency symbol, embossed design or logo. Upper row views: face-on, 35 degree turned, 70 degree turned. Lower row: nearly edge-on, reverse 70 degree turned, reverse 35 degree turned. Each coin remains upright with a vertical rotational axis. Match the saturated yellow gold and warm ochre shadows of the reference, high-end 3D game rendering, crisp edges. No glow halo or shadow outside coin. No scene, UI, text, frame, captions or grid lines. Genuine alpha transparency around each separate coin.",
+      "transparent": true
+    },
+    {
+      "file": "artifacts/3d-game/public/media/ice-fish/result-ice-v4.webp",
+      "source": "C:/Users/hacker/.codex/generated_images/01a1c07c-cc3c-7dc2-8605-cf595cf67b69/exec-459b1f24-3759-411a-811d-c32f44da57b0.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent frozen game result frame. Reference image 1 supplies the material and shape of the central icy winnings panel. Generate ONE empty rectangular ice slab frame, landscape 2:1 ratio, about 1536x768. Thick uneven translucent cyan/white crystalline ice perimeter, slightly rounded chipped corners, broad chunky frozen lower edge, real frosted refraction, fine ice cracks, snow across top, short irregular hanging icicles at top edge. In the center an empty dark teal translucent glass inset, occupying 85 percent width and 48 percent height, softly rounded corners and thin pale silver border, leave it entirely blank for runtime text. Outer slab extends beyond the inset about 12 percent all around. Straight-on view with subtle 3D thickness matching the reference, polished game render. Isolated with generous transparent padding, no surrounding background or drop-shadow plane. Do NOT include fish, coins, numeric multipliers, numbers, text, logos, badges or any UI outside the one blank frame. Keep all outer ice edges clean and alpha transparent.",
+      "transparent": true
+    },
+    {
+      "file": "artifacts/3d-game/public/media/ice-fish/mist-v4.webp",
+      "source": "C:/Users/hacker/.codex/generated_images/01a1c07c-cc3c-7dc2-8605-cf595cf67b69/exec-9f008d09-1922-4dfc-96ac-424bd47e5fb0.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent atmospheric effect sprite for an icy game. Make one wide 3:1 wispy bank of cold white and very pale cyan ice mist, 1536x512, genuine alpha transparency. Low-lying soft rolling fog with layered delicate vapor billows, mostly horizontally elongated, thin veils and a few thicker knots; subtle photoreal volumetric texture. Fade organically to fully transparent on ALL four sides with no rectangular edge. Maximum cloud density near the lower middle, upper half more open/transparent. Cool white frost colors, no grey soot, no hard blue outline. No landscape, sky, ground, snowflakes, horizon, objects, letters, numbers, glow rings or framing. This will be composited over a blue frozen lake and snow scene at 20-60 percent opacity and animated in several layers.",
+      "transparent": true
+    },
+    {
+      "file": "artifacts/3d-game/public/media/ice-fish/intro-ice-v4.webp",
+      "source": "C:/Users/hacker/.codex/generated_images/01a1c07c-cc3c-7dc2-8605-cf595cf67b69/exec-1e97dcbb-128e-454c-835d-084f26839222.png",
+      "prompt": "Use case: game-asset. Create a polished full-screen 16:9 ice transition plate for Ice Fish. Match the supplied reference composition closely: an entire luminous pale cyan-blue frozen ice surface viewed straight on, natural cloudy frost, fine white branching cracks, a few broad dark translucent fractures and trapped circular air bubbles. Center exactly two lines of heavy condensed block lettering, ICE above FISH, deeply carved into the ice with dark navy recessed interiors, translucent bevel walls and white frosty upper rims. The words occupy about 24% of canvas width and 35% of height, centered horizontally and vertically. Light upper half, slightly darker blue at bottom. It must look like sculpted physical ice, no vector outline, no neon logo, no background landscape, no fish, no UI, no watermark, no browser borders. Exact text: ICE FISH. Wide landscape 1792x1024 or similar 16:9.",
+      "transparent": false
+    },
+    {
+      "file": "artifacts/3d-game/public/media/ice-fish/fishing-rig-v4.webp",
+      "source": "C:/Users/hacker/.codex/generated_images/01a1c07c-cc3c-7dc2-8605-cf595cf67b69/exec-fdb5b983-36a2-4bfb-89a9-8a1c93873378.png",
+      "prompt": "Create a transparent game sprite based closely on the fishing operator and small wheeled machine in the supplied Ice Fish reference. ONLY the full-body adult woman and her compact fishing winch trolley, no background, no floor, no fish, no long pole or fishing line. Polished 3D game render, same camera front three-quarter view as reference. Woman on left: smiling young adult, long dark hair, white furry earflap cap, navy fitted long-sleeve top, orange padded vest, short navy shorts, bare legs, white fur-lined orange/navy snow boots. Slight forward lean with knees nearly straight, both white-gloved hands holding a short golden crank attached to a grey round vertical reel at waist height on the right. She stands beside the trolley, boots aligned with its wheel bottoms. Trolley on right: squat realistic dark grey rectangular metal chassis, red underbody, two visible black rubber tread wheels with gold circular hubs, metal triangular reel support at left, dark pivot socket angled 55 degrees upward at right, ending cleanly ready for a separately animated silver fishing pole. Woman occupies left half and full height, trolley occupies right half and lower 55% of image. IMPORTANT one coherent assembly, hands physically touching crank, no detached objects. Match the reference proportions, clothing, materials, 3D shading and realistic tapered limbs, not cartoon chibi. Entire object fully visible with 5% transparent padding. Landscape 4:3 transparent PNG. No letters, no logo, no UI, no solid or gradient background.",
+      "transparent": true
+    }
+  ]
+}

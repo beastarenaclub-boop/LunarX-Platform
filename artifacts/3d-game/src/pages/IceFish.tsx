@@ -40,6 +40,7 @@ import {
 } from "@/components/table/AutoBet";
 import { playGameSound, unlockAudio } from "@/game/audio";
 import IceWheel, { Anchor, Fish } from "@/components/iceFish/IceWheel";
+import IceAtmosphere from "@/components/iceFish/IceAtmosphere";
 import IceFishingBonus from "@/components/iceFish/IceFishingBonus";
 import { fishingPresentation, multiplierLabel } from "@/components/iceFish/iceFishPresentation";
 import "@/components/iceFish/ice-fish.css";
@@ -76,6 +77,14 @@ export default function IceFish() {
   const { user } = useAuth(),
     qc = useQueryClient(),
     root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // Warm the short bonus transition before its server-clock deadline arrives.
+    for (const name of ["intro-ice-v4.webp", "coins-v4.webp", "result-ice-v4.webp", "fishing-rig-v4.webp", "fishing-station-v3.webp", "fish-school-v3.webp"]) {
+      const image = new Image();
+      image.src = `/media/ice-fish/${name}`;
+      void image.decode().catch(() => undefined);
+    }
+  }, []);
   const [chip, setChip] = useState(10),
     [sound, setSound] = useState(
       () => localStorage.getItem("ice-fish:sound") === "true",
@@ -352,6 +361,7 @@ export default function IceFish() {
     >
       <div className="if-background" />
       <div className="if-mist" />
+      {!fishing && <IceAtmosphere />}
       <Link href="/" className="if-logo" aria-label="Ice Fish — back to lobby">
         <span>ICE</span>
         <strong>FISH</strong>
@@ -383,7 +393,7 @@ export default function IceFish() {
       {fishing && spot && isFish(spot) && round.outcome && <IceFishingBonus
         color={spot} outcome={round.outcome} elapsed={revealElapsed} revealMs={revealMs}
         settled={round.phase === "settling"} multiplier={multiplier} houseEdge={edge}
-        cap={pricing?.maxMultiplier ?? 5000} win={myWin} money={money} reducedMotion={reducedMotion} />}
+        cap={pricing?.maxMultiplier ?? 5000} win={myWin} money={money} />}
       {landed && !fishing && round.outcome && (
         <div
           className={`if-result ${myWin > 0n ? "has-win" : ""}`}

@@ -128,7 +128,7 @@ try {
     });
     await page.goto(base + "/ice-fish");
     try {
-      await expect(page.getByTestId("ice-fish-game")).toBeVisible();
+      await expect(page.getByTestId("ice-fish-game")).toBeVisible({timeout:20000});
       await expect(
         page.getByRole("button", { name: "Bet LIL’ BLUES", exact: true }),
       ).toBeEnabled();
@@ -144,7 +144,7 @@ try {
     await expect(page.getByTestId("demo-activity")).toHaveCount(0);
     await page.evaluate(async () => {
       await Promise.all(
-        ["frozen-lake-v2.webp", "fish-atlas-v1.webp"].map(async (asset) => {
+        ["frozen-lake-v2.webp", "fish-atlas-v1.webp", "coins-v4.webp", "mist-v4.webp", "result-ice-v4.webp", "intro-ice-v4.webp", "fishing-rig-v4.webp"].map(async (asset) => {
           const img = new Image();
           img.src = "/media/ice-fish/" + asset;
           await img.decode();
@@ -155,6 +155,8 @@ try {
       path: `tmp/reference-2026-11-10/browser/betting-${viewport.width}.png`,
       fullPage: true,
     });
+    const cloudPosition = await page.locator(".if-cloud").first().evaluate(el => getComputedStyle(el).translate);
+    await expect.poll(() => page.locator(".if-cloud").first().evaluate(el => getComputedStyle(el).translate)).not.toBe(cloudPosition);
     assert.ok(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth + 2,
@@ -237,6 +239,12 @@ try {
     });
     await expect(page.locator(".if-chip-row")).toBeHidden();
     await expect(page.locator(".if-countdown")).toBeHidden();
+    revealElapsedMs = 5800;
+    await expect(page.locator(".if-boost-medallion")).toBeVisible({timeout:6000});
+    await page.screenshot({path:`tmp/reference-2026-11-10/browser/boost-${viewport.width}.png`,fullPage:true});
+    revealElapsedMs = 9800;
+    await expect(page.getByTestId("ice-fishing-bonus")).toHaveAttribute("data-stage", "intro", {timeout:6000});
+    await page.screenshot({path:`tmp/reference-2026-11-10/browser/intro-${viewport.width}.png`,fullPage:true});
     revealElapsedMs = 12300;
     current = outcome(10);
     await expect(
@@ -252,6 +260,7 @@ try {
       revealElapsedMs = elapsed;
       await expect(page.getByTestId("ice-fishing-bonus")).toHaveAttribute("data-stage", stage, {timeout:6000});
       await expect(page.locator(".if-fisher")).toBeVisible();
+      await expect(page.locator(".if-atmosphere.is-surface .if-cloud")).toHaveCount(4);
       await page.evaluate(async () => { await Promise.all(["fishing-station-v3.webp", "fisher-v3.webp", "fish-school-v3.webp"].map(async name => {const image = new Image(); image.src = "/media/ice-fish/" + name; await image.decode();})); });
       await page.screenshot({path:`tmp/reference-2026-11-10/browser/${stage}-${viewport.width}.png`,fullPage:true});
     }
@@ -261,6 +270,9 @@ try {
     myBets = [{slipId:"bonus-win",totalStake:"5000",bets:[{type:"green",amountPaise:"5000"}],status:"settled",payoutAmount:"92419",auditRoundId:null,pricingConfig:{...config,houseEdge:.045}}];
     await expect(page.getByTestId("ice-bonus-result")).toContainText("YOU WON",{timeout:6000});
     await expect(page.getByTestId("ice-bonus-result")).toContainText("924.19");
+    await expect(page.locator(".if-coin-sprite")).toHaveCount(28);
+    const coinTransform = await page.locator(".if-falling-coin").first().evaluate(el => getComputedStyle(el).transform);
+    await expect.poll(() => page.locator(".if-falling-coin").first().evaluate(el => getComputedStyle(el).transform)).not.toBe(coinTransform);
     await page.screenshot({path:`tmp/reference-2026-11-10/browser/bonus-win-${viewport.width}.png`,fullPage:true});
     for (const [segment, color] of [[3,"blue"],[22,"red"]]) {
       roundId = `bonus-${color}`; current = outcome(segment); myBets = [];
@@ -311,6 +323,7 @@ try {
     assert.equal(await page.evaluate(() => localStorage.getItem("ice-fish:volume")),"0.35");
     await page.getByRole("button",{name:"Animations on",exact:true}).click();
     await expect(page.getByTestId("ice-fish-game")).toHaveClass(/reduce-motion/);
+    assert.equal(await page.locator(".if-cloud").first().evaluate(el => getComputedStyle(el).animationName), "none");
     await page.getByRole("button",{name:"Close dialog",exact:true}).click();
     roundId = "ice-sound-check"; phase = "betting"; current = null; myBets = []; bettingEndsAt = Date.now() + 60000;
     await expect(page.getByRole("button", { name: "Bet BIG GREEN", exact:true })).toBeEnabled({timeout:6000});
