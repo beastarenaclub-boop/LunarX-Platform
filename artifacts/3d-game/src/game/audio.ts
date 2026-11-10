@@ -598,6 +598,7 @@ export function preloadCroupierVoice() {
 }
 
 export type CroupierGame =
+  | "ice-fish"
   | "roulette-american"
   | "roulette-mini"
   | "fun-target"

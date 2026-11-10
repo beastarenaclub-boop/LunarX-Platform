@@ -3,7 +3,7 @@ import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { fitGameViewport } from "../../../../lib/game-ui/fitViewport";
 import { GameInformationProvider } from "./game/GameInformation";
 
-const KIT_GAMES = new Set(["lunar", "roulette-american", "roulette-mini", "fun-target", "rummy-royale"]);
+const KIT_GAMES = new Set(["lunar", "roulette-american", "roulette-mini", "fun-target", "rummy-royale", "ice-fish"]);
 const nativeInstant = (game?: string) => KIT_GAMES.has(game ?? "") || game === "mega-ball" || game === "speed-auto-roulette" || game === "ludo" || game?.startsWith("poker-") || INSTANT_COLLECTION.some(g => g.code === game);
 const layouts: Record<string, string> = {
   ludo: "ludo",

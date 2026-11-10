@@ -80,6 +80,7 @@ export interface PlaceBetInput {
 }
 
 export async function placeBet(input: PlaceBetInput): Promise<Bet> {
+  if (input.gameCode === "ice-fish" && !input.tableRoundPlacement) throw badRequest("Ice Fish bets must use the current table round.");
   if (isRetiredGame(input.gameCode)) throw badRequest("This game is no longer available.");
   if (input.gameCode === "teen-patti-joker") throw badRequest("Use the Joker 20-20 table to confirm your bet.");
   if (input.gameCode === "wheel-2-live") throw badRequest("Use the Wheel 2.0 Live table to confirm your bet.");
@@ -331,6 +332,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   const existing = rows[0];
   if (!existing) throw new Error("BET_NOT_FOUND");
   if (existing.userId !== input.userId) throw new Error("BET_NOT_FOUND");
+  if (existing.gameCode === "ice-fish" && (input.tablePayoutPaise === undefined || input.tablePayoutPaise < 0n || input.tablePayoutPaise > existing.stakeAmount * 5000n)) throw badRequest("Ice Fish bets settle automatically after the wheel stops.");
   const isTeenPatti = existing.gameCode === "teen-patti" || existing.gameCode === "teen-patti-live";
   if (isTeenPatti && (input.teenPattiPayoutPaise === undefined || input.teenPattiPayoutPaise < 0n || input.teenPattiPayoutPaise > existing.stakeAmount * 876n)) {
     throw badRequest("Teen Patti payouts are settled by the game server.");
@@ -374,7 +376,7 @@ export async function cashOutBet(input: CashOutInput): Promise<Bet> {
   // The round-end settlement service later sums every bet, takes 5% as
   // company profit, and splits 95% across winners weighted by stake×multiplier.
   // The legacy 'house_edge' mode keeps the per-bet immediate credit path.
-  const isPariMutuel = !isTeenPatti && !isRouletteGame(existing.gameCode) && existing.gameCode !== "vegetable-bowl" && existing.gameCode !== "crazy-time" && existing.gameCode !== "mega-ball" && ((existing.metadata as { settlementMode?: string } | null)?.settlementMode ?? cfg.settlementMode) === "pari_mutuel";
+  const isPariMutuel = existing.gameCode !== "ice-fish" && !isTeenPatti && !isRouletteGame(existing.gameCode) && existing.gameCode !== "vegetable-bowl" && existing.gameCode !== "crazy-time" && existing.gameCode !== "mega-ball" && ((existing.metadata as { settlementMode?: string } | null)?.settlementMode ?? cfg.settlementMode) === "pari_mutuel";
   // Free bets settle immediately at stake × multiplier straight to the CASH
   // wallet even in pari-mutuel mode: their stake never entered the shared
   // pool (no debit happened), so they cannot participate in the 95/5 split.
@@ -632,6 +634,7 @@ export async function settleLoss(
   crazyTimeTableSettlement = false,
   rouletteTableSettlement = false,
   megaBallTableSettlement = false,
+  iceFishTableSettlement = false,
 ): Promise<Bet> {
   const rows = await db
     .select()
@@ -653,6 +656,7 @@ export async function settleLoss(
     throw badRequest("Crazy Time bets settle automatically after the wheel stops.");
   }
   if (existing.gameCode === "mega-ball" && !megaBallTableSettlement) throw badRequest("Mega Ball cards settle automatically after the draw.");
+  if (existing.gameCode === "ice-fish" && !iceFishTableSettlement) throw badRequest("Ice Fish bets settle automatically after the wheel stops.");
   if (existing.gameCode === "vegetable-bowl" && !vegetableTableSettlement) {
     throw badRequest("Vegetable Bowl bets settle automatically after the harvest.");
   }

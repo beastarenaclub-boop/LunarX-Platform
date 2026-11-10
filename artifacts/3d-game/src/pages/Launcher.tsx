@@ -2,6 +2,7 @@ import AviatorPro from "@/games/lunar/AviatorPro";
 import AmericanRoulette from "@/games/roulette/Roulette";
 import RouletteMini from "@/games/roulette/RouletteMini";
 import FunTarget from "@/games/fun-target/FunTarget";
+import IceFish from "@/pages/IceFish";
 import FinishRummyRoyale from "@/pages/FinishRummyRoyale";
 import { useEffect, useRef, useState } from "react";
 import Mines from "@/pages/Mines";
@@ -61,6 +62,7 @@ function walletScopeFor(code: string): (typeof WALLET_SCOPES)[number] {
 
 function GameByCode({ code }: { code: string }) {
   switch (code) {
+    case "ice-fish": return <IceFish />;
     case "lunar": return <AviatorPro embedded />;
     case "roulette-american": return <AmericanRoulette embedded />;
     case "roulette-mini": return <RouletteMini embedded />;

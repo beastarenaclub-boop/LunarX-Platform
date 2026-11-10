@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./ice-fish": "./src/ice-fish.ts",
     "./mega-ball": "./src/mega-ball.ts",
     "./ludo": "./src/ludo.ts",
     "./poker": "./src/poker.ts",

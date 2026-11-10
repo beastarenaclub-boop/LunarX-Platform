@@ -15,7 +15,7 @@ import { postEntry } from "../../services/wallet";
 
 after(async () => { await memory.close(); });
 
-test("capture and refresh all 17 engines and 15 B2C policies without copying production state", async () => {
+test("capture and refresh every engine and B2C policy without copying production state", async () => {
   await ready;
   await db.insert(usersTable).values({ id: "operator", email: "operator@test.invalid", emailNormalized: "operator@test.invalid", passwordHash: "unused", role: "admin" });
   const modes = ["normal", "collect", "distribute", "auto", "rtp"];
@@ -27,11 +27,11 @@ test("capture and refresh all 17 engines and 15 B2C policies without copying pro
       bankPaise: 100000n, minBankFloorPaise: 95000n, zeroBetStreak: 7, recentPockets: ["production-history"],
       params: { rtpHoldBps: 800, targetHoldPct: .08, targetBankPaise: "110000" }, updatedBy: "operator" });
   }
-  await db.insert(engineBankBudgetTable).values({ scope: "local", mode: "combined", floorPaise: 1690000n, updatedBy: "operator" });
+  await db.insert(engineBankBudgetTable).values({ scope: "local", mode: "combined", floorPaise: BigInt(RESULT_ENGINE_GAMES.length) * 100000n - 10000n, updatedBy: "operator" });
   await db.insert(b2cRtpPoliciesTable).values(RTP_POLICY_GAMES.map(gameCode => ({ gameCode, playerRtpBps: 9200, revision: 1, updatedBy: "operator" })));
   const snapshot = await captureDemoConfiguration();
-  assert.equal(snapshot.engines!.length, 17);
-  assert.equal(snapshot.policies!.length, 15);
+  assert.equal(snapshot.engines!.length, RESULT_ENGINE_GAMES.length);
+  assert.equal(snapshot.policies!.length, RTP_POLICY_GAMES.length);
   assert.equal(snapshot.budget!.amountPaise, 10000n);
   const serialized = JSON.stringify(snapshot, (_, value) => typeof value === "bigint" ? value.toString() : value);
   for (const forbidden of ["updatedBy", "operator", "bankPaise", "production-history", "partnerId", "passwordHash"]) assert.ok(!serialized.includes(forbidden), forbidden);

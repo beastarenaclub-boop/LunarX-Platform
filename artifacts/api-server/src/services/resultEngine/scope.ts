@@ -7,6 +7,7 @@ export const RECONNECTED_ENGINE_GAMES = [
   "7up7down", "vegetable-bowl", "crazy-time", "mega-ball",
 ] as const;
 export const RESULT_ENGINE_GAMES = [
+  "ice-fish",
   "roulette-american", "roulette-mini", "fun-target", ...RECONNECTED_ENGINE_GAMES,
 ] as const;
 export function usesResultEngine(code: string): boolean {

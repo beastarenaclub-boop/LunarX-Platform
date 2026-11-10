@@ -13,10 +13,12 @@ type StorefrontBanner = {
   position: string;
   poker?: boolean;
   megaBall?: boolean;
+  iceFish?: boolean;
   handoff?: boolean;
 };
 
 export const B2C_BANNERS: StorefrontBanner[] = [
+  { src: `${import.meta.env.BASE_URL}media/ice-fish/banner-v1.webp`, width: 1672, height: 941, alt: "Ice Fish — frozen wheel and three fish bonuses", position: "center", iceFish: true },
   { src:HANDOFF_BANNER, width:1983, height:793, alt:"Roulette wheels and gold chips on emerald velvet", position:"center", handoff:true },
   { src: `${import.meta.env.BASE_URL}media/mega-ball/banner.jpg`, width: 1672, height: 941, alt: "NEW GAME — Mega Ball. Every ball. A big moment.", position: "center", megaBall: true },
   ...POKER_GAMES.map((game) => ({
@@ -124,6 +126,7 @@ export const B2C_AVATAR = b2cMedia("player-avatar.png");
 export const B2C_LOTTERY = b2cMedia("lottery.png");
 
 export const B2C_GAME_ORDER = [
+  "ice-fish",
   "lunar",
   "roulette-american", "roulette-mini", "fun-target",
   "mega-ball",

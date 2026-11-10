@@ -24,6 +24,7 @@ interface Banner {
 }
 
 const BANNERS: Banner[] = [
+  { image: `${import.meta.env.BASE_URL}media/ice-fish/banner-v1.webp`, title: "Ice Fish", subtitle: "New game · Spin the frozen wheel", color: "#8eeaff", alt: "Ice Fish wheel and blue, green and red fish", gameId: "ice-fish", artworkHasTitle: true },
   {image:HANDOFF_BANNER,title:"New tables. New classics.",subtitle:"American & Mini Roulette · Fun Target · Aviator",color:"#eacb82",alt:"New table game collection with roulette wheels, cards and gold chips",gameId:"roulette-american"},
   { image: `${import.meta.env.BASE_URL}media/mega-ball/banner.jpg`, title: "Mega Ball", subtitle: "New game · Every ball. A big moment.", color: "#e4ca74", alt: "New Mega Ball game with gold and emerald studio, bingo cards and a 100x bonus ball", gameId: "mega-ball", artworkHasTitle: true },
   ...POKER_GAMES.map(code => ({ image: POKER_ART[code].src, title: POKER_ART[code].title, subtitle: "20-second betting · " + POKER_ART[code].subtitle, color: POKER_ART[code].accent, alt: POKER_ART[code].title + " casino poster", gameId: code, artworkHasTitle: true })),

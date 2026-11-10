@@ -22,6 +22,7 @@ const design = (label: string, root: number, instrument: Instrument, texture: Te
   ({ label, root, instrument, texture, melody, beat, seed });
 
 export const GAME_SOUND_DESIGNS = {
+  "ice-fish": design("Ice Fish · frozen wheel and crystal catches", 659.25, "glass", "wheel", [0, 4, 7, 12, 19], .14, 773),
   "mega-ball": design("Mega Ball · glass balls and golden chimes", 523.25, "glass", "crystal", [0, 4, 7, 12], .13, 367),
   "chicken-road-pirate": design("Chicken Road Pirate Edition · clucks, wooden rafts, splashes, treasure and sea shanty", 587.33, "wood", "wood", [0, 3, 7, 12], .22, 719),
   "dragon-tiger-one-day": design("One Day Dragon Tiger · bamboo, jade chimes and studio bells", 246.94, "glass", "bamboo", [0, 2, 7, 9, 14, 19], .165, 359),

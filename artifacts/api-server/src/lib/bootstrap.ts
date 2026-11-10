@@ -13,6 +13,7 @@ import { normalizeEmail } from "../services/auth";
 import { logger } from "./logger";
 import { VEGETABLE_RTP } from "@workspace/api-zod/vegetable-game";
 import { MEGA_BALL_TIMING, MEGA_BALL_MAX_RETURN } from "@workspace/api-zod/mega-ball";
+import { ICE_FISH_TIMING } from "@workspace/api-zod/ice-fish";
 import { CRAZY_TIME_RTP, CRAZY_TIME_ROUND_TIMING } from "@workspace/api-zod/crazy-time-game";
 
 /**
@@ -442,6 +443,8 @@ export async function ensureGameConfigDefaults(): Promise<void> {
     "Multi-game config seeded (disabled until each game ships)",
   );
   await db.insert(gameConfigTable).values({ gameCode: "mega-ball", enabled: true, settlementMode: "house_edge", minStakePaise: 100n, maxStakePaise: 1_000_000n, maxMultiplier: MEGA_BALL_MAX_RETURN, ...MEGA_BALL_TIMING }).onConflictDoNothing();
+  await db.insert(gameConfigTable).values({ gameCode: "ice-fish", enabled: true, settlementMode: "house_edge", houseEdge: .045, rtpMin: 95.5, rtpMax: 95.5,
+    minStakePaise: 100n, maxStakePaise: 500000n, maxMultiplier: 5000, ...ICE_FISH_TIMING }).onConflictDoNothing();
   // Crazy Time has its own filmed-show pacing; coin limits stay shared.
   const [luckyTiming] = await db.select().from(gameConfigTable).where(eq(gameConfigTable.gameCode, "lucky-7")).limit(1);
   await db.insert(gameConfigTable).values({

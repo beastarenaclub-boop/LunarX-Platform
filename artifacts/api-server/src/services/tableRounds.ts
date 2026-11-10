@@ -1,6 +1,7 @@
 import { usesResultEngine } from "./resultEngine/scope";
 import { isDeepStrictEqual } from "node:util";
 import { handoffAdapters, HANDOFF_TABLE_CODES } from "./handoffGames";
+import { iceFishAdapter } from "./iceFish";
 import { creditPendingWin } from "./pendingWins";
 import { decideOutcomeFor, settleBank, type DecidedOutcome } from "./resultEngine/engine";
 import { tableOutcomeSpace } from "./resultEngine/tableSpace";
@@ -127,6 +128,7 @@ import { CRAZY_TIME_VERSION, CRAZY_TIME_MAX_RETURN, type CrazyTimeOutcome } from
 import { deriveCrazyTimeOutcome, validateCrazyTimeBets, settleCrazyTimeBets, type CrazyTimeBetInput } from "./crazyTimeMath";
 
 export const TABLE_GAME_CODES = [
+  "ice-fish",
   ...HANDOFF_TABLE_CODES,
   "teen-patti-joker",
   "coin-flip",
@@ -620,6 +622,7 @@ export const ADAPTERS: Record<Exclude<TableGameCode, "blackjack">, TableGameAdap
     settle: (bets, outcome) => settleMegaBallCards(bets, outcome as MegaBallOutcome),
     async insertAudit({ round }) { return round.id; },
   },
+  "ice-fish": iceFishAdapter,
   "crazy-time": {
     validate: bets => validateCrazyTimeBets(toBetInputs<CrazyTimeBetInput>(bets)),
     derive: (serverSeed, clientSeed, nonce, cfg) => deriveCrazyTimeOutcome(serverSeed, clientSeed, nonce, cfg.crazyTimeVersion ?? 1),
@@ -1130,7 +1133,7 @@ export async function settlePendingSlips(round: TableRound): Promise<void> {
             });
             payoutAmount = out.payoutAmount;
           } else {
-            await settleLoss(slip.betId, slip.userId, 0, round.gameCode === "vegetable-bowl", round.gameCode === "crazy-time", isRouletteGame(round.gameCode), round.gameCode === "mega-ball");
+            await settleLoss(slip.betId, slip.userId, 0, round.gameCode === "vegetable-bowl", round.gameCode === "crazy-time", isRouletteGame(round.gameCode), round.gameCode === "mega-ball", round.gameCode === "ice-fish");
           }
         } catch (err) {
           if ((err as Error).message !== "BET_ALREADY_SETTLED") throw err;
@@ -1223,7 +1226,7 @@ export interface PlacedTableBet {
  * table. Rejects with BETTING_CLOSED outside the betting window.
  */
 export async function placeTableBets(input: Parameters<typeof placeTableBetsUnlocked>[0]): Promise<PlacedTableBet> {
-  if (!isRouletteGame(input.gameCode) && !(HANDOFF_TABLE_CODES as readonly string[]).includes(input.gameCode)) return placeTableBetsUnlocked(input);
+  if (input.gameCode !== "ice-fish" && !isRouletteGame(input.gameCode) && !(HANDOFF_TABLE_CODES as readonly string[]).includes(input.gameCode)) return placeTableBetsUnlocked(input);
   return withRouletteAdmission(input.userId, () => placeTableBetsUnlocked(input));
 }
 
@@ -1293,6 +1296,11 @@ async function placeTableBetsUnlocked(input: {
     ).totalStake;
   }
   if (totalStake <= 0n) throw new Error("INVALID_STAKE");
+  if (input.gameCode === "ice-fish") {
+    const prior = await db.select({ stake: tableRoundBetsTable.totalStake }).from(tableRoundBetsTable).where(and(
+      eq(tableRoundBetsTable.roundId, round.id), eq(tableRoundBetsTable.userId, input.userId), inArray(tableRoundBetsTable.status, ["pending", "settled"])));
+    if (prior.reduce((sum, row) => sum + row.stake, totalStake) > BigInt(cfg.maxStakePaise)) throw new Error("STAKE_TOO_LARGE");
+  }
   if ((HANDOFF_TABLE_CODES as readonly string[]).includes(input.gameCode) && cfg.maxPerSpotPaise && BigInt(cfg.maxPerSpotPaise)>0n) {
     const previous = await db.select({bets:tableRoundBetsTable.bets}).from(tableRoundBetsTable)
       .where(and(eq(tableRoundBetsTable.roundId,round.id),eq(tableRoundBetsTable.userId,input.userId),inArray(tableRoundBetsTable.status,["pending","settled"])));

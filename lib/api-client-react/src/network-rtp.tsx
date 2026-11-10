@@ -6,7 +6,7 @@ type Master = { id: string; name: string; playerRtpBps: number | null; revision:
 type Policies = { masters: Master[]; games: string[] };
 const policyKey = ["network", "rtp"] as const;
 const policyQuery = { queryKey: policyKey, queryFn: ({ signal }: { signal: AbortSignal }) => customFetch<Policies>("/api/network/rtp", { signal, cache: "no-store" }), staleTime: 0 };
-const names: Record<string,string> = {jetx: "JetX", fury: "Fury Flight", mines: "Mines", plinko: "Plinko", dice: "Dice", ludo: "Ludo", "lucky-7-live": "Lucky 7 Live", "wheel-2-live": "Wheel 2.0", "poker-20-20": "Poker 20/20", "crazy-time": "Crazy Time", "chicken-road": "Chicken Road", "7up7down": "7 Up Down", "coin-flip": "Coin Flip", wingo: "Colour"};
+const names: Record<string,string> = {"ice-fish": "Ice Fish", jetx: "JetX", fury: "Fury Flight", mines: "Mines", plinko: "Plinko", dice: "Dice", ludo: "Ludo", "lucky-7-live": "Lucky 7 Live", "wheel-2-live": "Wheel 2.0", "poker-20-20": "Poker 20/20", "crazy-time": "Crazy Time", "chicken-road": "Chicken Road", "7up7down": "7 Up Down", "coin-flip": "Coin Flip", wingo: "Colour"};
 const rtpValue = (master: Master) => master.playerRtpBps === null ? "" : String(master.playerRtpBps / 100);
 
 export function NetworkRtp() {

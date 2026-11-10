@@ -1,0 +1,1396 @@
+[data-game-viewport="ice-fish"] {
+  max-width: none;
+}
+.ice-fish-game {
+  --ice: #b9f1ff;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: var(--fit-height, 100dvh);
+  min-height: 540px;
+  overflow: hidden;
+  background: #12568b;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  container-type: size;
+}
+.ice-fish-game * {
+  box-sizing: border-box;
+}
+.ice-fish-game button,
+.ice-fish-game a {
+  -webkit-tap-highlight-color: transparent;
+}
+.ice-fish-game button {
+  font: inherit;
+  cursor: pointer;
+}
+.ice-fish-game button:disabled {
+  cursor: default;
+}
+.ice-fish-game button:focus-visible,
+.ice-fish-game a:focus-visible {
+  outline: 3px solid #fff486;
+  outline-offset: 4px;
+}
+.if-background,
+.if-mist {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+}
+.if-background {
+  background: #1675ae url("/media/ice-fish/frozen-lake-v1.webp") center
+    center/cover no-repeat;
+}
+.if-mist {
+  z-index: 3;
+  background: linear-gradient(
+    180deg,
+    transparent 43%,
+    #163a6508 58%,
+    #1a355b9c 88%,
+    #193252e8
+  );
+  box-shadow: inset 0 -50px 90px #233f5d70;
+}
+.if-logo {
+  position: absolute;
+  z-index: 9;
+  top: 6cqh;
+  left: 2.8cqw;
+  display: grid;
+  text-decoration: none;
+  font-family: "Arial Black", Arial, sans-serif;
+  font-weight: 1000;
+  font-size: clamp(22px, 3cqw, 45px);
+  letter-spacing: -2px;
+  line-height: 0.82;
+  transform: scaleX(0.93);
+  filter: drop-shadow(1px 3px 1px #173963);
+}
+.if-logo span {
+  color: #c8f8ff;
+  text-shadow:
+    0 2px #53b9d8,
+    -1px -1px #fff;
+}
+.if-logo strong {
+  color: #ffdf24;
+  text-shadow:
+    0 3px #cd8e00,
+    -1px -1px #fff887;
+}
+.if-menu-button {
+  position: absolute;
+  z-index: 12;
+  right: 1.5cqw;
+  top: 3.5cqh;
+  width: 62px;
+  height: 62px;
+  border: 0;
+  border-radius: 50%;
+  color: #effaff;
+  background: #07365d9c;
+  display: grid;
+  place-items: center;
+}
+.if-menu-button svg {
+  width: 35px;
+  height: 35px;
+  stroke-width: 1.5;
+}
+.if-social {
+  position: absolute;
+  z-index: 6;
+  top: 27cqh;
+  left: 3cqw;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: clamp(11px, 1.3cqw, 20px);
+  font-weight: 700;
+}
+.if-social span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.if-social strong {
+  white-space: nowrap;
+}
+.if-wheel-stage {
+  position: absolute;
+  z-index: 1;
+  width: min(108cqh, 76cqw);
+  height: min(108cqh, 76cqw);
+  top: 1.5cqh;
+  left: 50%;
+  transform: translateX(-50%);
+  transform-origin: 50% 8%;
+  transition:
+    width 1.4s,
+    height 1.4s,
+    top 1.4s;
+}
+.if-wheel-stage.is-zoomed {
+  width: min(135cqh, 91cqw);
+  height: min(135cqh, 91cqw);
+  top: 1.5cqh;
+}
+.if-wheel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 15px #b9efff65);
+}
+.if-wheel-rotor {
+  transform-origin: 500px 500px;
+  will-change: transform;
+}
+.if-fish {
+  display: block;
+  aspect-ratio: 1;
+  background-image: url("/media/ice-fish/fish-atlas-v1.webp");
+  background-repeat: no-repeat;
+  background-size: 300% 100%;
+  pointer-events: none;
+}
+.if-fish-blue {
+  background-position: left center;
+}
+.if-fish-green {
+  background-position: center center;
+}
+.if-fish-red {
+  background-position: right center;
+}
+.if-bet-console {
+  position: absolute;
+  z-index: 6;
+  bottom: 2.5cqh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 620px;
+  max-width: 47cqw;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.if-countdown {
+  min-height: 86px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: center;
+  text-shadow: 0 2px 5px #102e4c;
+  margin-bottom: 15px;
+}
+.if-countdown strong {
+  font-size: clamp(17px, 2.3cqw, 36px);
+  font-weight: 900;
+  line-height: 1.1;
+}
+.if-countdown b {
+  font-size: 28px;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+.if-clock-track {
+  height: 8px;
+  background: #172231d1;
+  border-radius: 20px;
+  width: 245px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px #c4edf95e;
+  margin-top: 14px;
+}
+.if-clock-track i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #56af34, #b4e668);
+  border-radius: 20px;
+  transition: width 0.12s linear;
+}
+.if-spots {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 145px;
+}
+.if-anchors {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 76px;
+}
+.if-anchor-bet {
+  position: relative;
+  flex: 1;
+  border: 2px solid #a6d7de;
+  border-radius: 10px;
+  box-shadow:
+    inset 0 1px 3px #fff,
+    0 3px 4px #0b243666;
+  background: linear-gradient(#f7fcff, #b7d1d9);
+  color: #34566b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 3px;
+}
+.if-anchor-bet.grey {
+  background: linear-gradient(#92b0c4, #56778e);
+  color: #193d5b;
+  border-color: #7f9faf;
+}
+.if-anchor-bet > svg {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 1px 1px #527e92);
+}
+.if-anchor-bet > small {
+  font-size: 12px;
+  font-weight: 800;
+}
+.if-fish-bet {
+  position: relative;
+  isolation: isolate;
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #fff;
+  filter: drop-shadow(0 3px 3px #0c2f45);
+}
+.if-frozen-card {
+  position: absolute;
+  inset: 0 5px 31%;
+  border: 4px solid #d8f6ff;
+  border-bottom: 0;
+  border-radius: 15px 15px 5px 5px;
+  background:
+    linear-gradient(150deg, #c8f6ffb0, #41b4e97a),
+    url("/media/ice-fish/frozen-lake-v1.webp") center/350%;
+  box-shadow: inset 0 0 13px #fff;
+  overflow: visible;
+}
+.if-frozen-card .if-fish {
+  position: absolute;
+  inset: -16% -8% -15%;
+  filter: drop-shadow(0 2px 3px #123d6080);
+  transform: rotate(-12deg);
+}
+.if-frozen-card i {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(30deg, transparent 47%, #fff9 48%, transparent 49%),
+    linear-gradient(130deg, transparent 40%, #fff6 41%, transparent 42%);
+  border-radius: 10px;
+  opacity: 0.5;
+}
+.if-fish-bet > strong {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  padding: 13% 1px 5px;
+  border: 4px solid #ecf4f5;
+  border-radius: 13px;
+  background: linear-gradient(#285c79, #0a2039 65%, #437a9c);
+  box-shadow:
+    inset 0 0 0 2px #7a9eb1,
+    inset 0 -5px 9px #021528;
+  font-family: Impact, "Arial Narrow", Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.7px;
+  font-size: clamp(13px, 1.6cqw, 26px);
+  line-height: 1.15;
+  white-space: nowrap;
+  text-shadow: 0 2px 2px #000;
+}
+.if-fish-bet > strong:before {
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: -10px;
+  height: 19px;
+  content: "";
+  background: linear-gradient(#f4ffff, #92e2ff);
+  clip-path: polygon(
+    0 38%,
+    9% 0,
+    18% 13%,
+    23% 90%,
+    26% 20%,
+    39% 7%,
+    43% 100%,
+    47% 16%,
+    63% 12%,
+    69% 70%,
+    72% 0,
+    82% 16%,
+    89% 87%,
+    91% 8%,
+    100% 30%,
+    100% 45%,
+    0 60%
+  );
+}
+.if-fish-bet.green > strong {
+  background: linear-gradient(#477b2b, #143e18 65%, #65864e);
+}
+.if-fish-bet.red > strong {
+  background: linear-gradient(#aa3842, #651324 65%, #a3474d);
+}
+.if-fish-bet:hover:not(:disabled) {
+  filter: drop-shadow(0 0 8px #b8f4ff);
+}
+.is-closed .if-fish-bet,
+.is-closed .if-anchor-bet,
+.is-closed .if-all-bonuses {
+  filter: grayscale(1) brightness(0.8);
+}
+.if-spots em {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  z-index: 5;
+  border-radius: 20px;
+  background: #f9d954;
+  color: #2d2c19;
+  border: 2px solid #fff4b2;
+  padding: 4px 7px;
+  font-style: normal;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px #072d48;
+}
+.if-fish-bet em {
+  bottom: 43%;
+}
+.if-all-bonuses {
+  position: relative;
+  flex: 0 0 76px;
+  border: 2px solid #6eb2c2;
+  border-radius: 12px;
+  background: linear-gradient(#39879d, #1c4d62);
+  color: #e2f7ed;
+  font-weight: 800 !important;
+  font-size: 12px !important;
+  line-height: 1.4;
+  overflow: hidden;
+  padding-top: 67px;
+  box-shadow: inset 0 0 5px #bce1e7;
+}
+.if-all-bonuses > span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 62px;
+  display: flex;
+  transform: rotate(-15deg);
+}
+.if-all-bonuses .if-fish {
+  width: 58px;
+  position: absolute;
+  top: -5px;
+  left: -15px;
+}
+.if-all-bonuses .if-fish-green {
+  top: 17px;
+  left: 8px;
+}
+.if-all-bonuses .if-fish-red {
+  top: -5px;
+  left: 30px;
+}
+.if-all-bonuses > b {
+  display: block;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+}
+.if-chip-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 110%;
+  gap: 10px;
+  margin-top: 17px;
+}
+.if-chip-tray {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  padding: 5px 9px;
+  background: linear-gradient(#182b3ed9, #152b42c9);
+  border: 3px solid #091b30a1;
+  box-shadow: inset 0 0 0 2px #50657c;
+  border-radius: 18px;
+}
+.if-chip-tray > button:not(.if-chip) {
+  background: none;
+  border: 0;
+  color: #a9b8c6;
+  padding: 3px;
+  display: grid;
+  place-items: center;
+}
+.if-chip-tray > button:disabled {
+  opacity: 0.4;
+}
+.if-text-button {
+  background: none;
+  border: 0;
+  color: #fff;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  padding: 5px 0;
+  text-shadow: 0 2px #1e324a;
+}
+.if-text-button:disabled {
+  opacity: 0.5;
+}
+.if-chip {
+  --chip-color: #c9c94e;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px dashed #dfebe4;
+  padding: 3px;
+  background: var(--chip-color);
+  box-shadow:
+    0 0 0 1px #152e44,
+    0 2px 3px #071c32;
+  color: #e5f1ec;
+  text-shadow: 0 1px 2px #253c46;
+  font-weight: 900 !important;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+  flex-shrink: 0;
+}
+.if-chip > span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border: 2px solid #cbe7d8;
+  border-radius: 50%;
+  font-size: 14px;
+  letter-spacing: -1px;
+}
+.if-chip.is-selected {
+  box-shadow:
+    0 0 0 3px #d9f789,
+    0 0 12px #92dd6a;
+  transform: translateY(-2px) scale(1.08);
+}
+.chip-25 {
+  --chip-color: #88a431;
+}
+.chip-50 {
+  --chip-color: #2aa34c;
+}
+.chip-100 {
+  --chip-color: #199fbb;
+}
+.chip-250 {
+  --chip-color: #b73966;
+}
+.chip-500 {
+  --chip-color: #c59d27;
+}
+.if-draft-status {
+  position: absolute;
+  top: 100%;
+  font-size: 11px;
+  white-space: nowrap;
+  margin-top: 3px;
+  color: #dbf4ff;
+}
+.if-wallet {
+  position: absolute;
+  z-index: 8;
+  left: 3cqw;
+  bottom: 2.6cqh;
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  height: 61px;
+}
+.if-wallet > button,
+.if-wallet > div {
+  border: 3px solid #4d5b67;
+  border-radius: 13px;
+  box-shadow: inset 0 0 0 2px #142333;
+  background: linear-gradient(#18232a, #121a22);
+  color: white;
+}
+.if-wallet > button {
+  width: 61px;
+  display: grid;
+  place-items: center;
+}
+.if-wallet > button svg {
+  width: 29px;
+  height: 29px;
+}
+.if-wallet > div {
+  min-width: 129px;
+  padding: 7px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 15px;
+}
+.if-wallet b {
+  color: #ffdc39;
+  line-height: 1.2;
+}
+.if-wallet strong {
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.if-history {
+  position: absolute;
+  z-index: 7;
+  right: 3.5cqw;
+  bottom: 4cqh;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  max-width: 22cqw;
+}
+.if-history-dots {
+  display: grid;
+  grid-template-rows: repeat(3, 30px);
+  grid-auto-flow: column;
+  gap: 15px 17px;
+  align-items: center;
+  justify-items: center;
+}
+.if-dot {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 1px solid #c6d0d3;
+  border-radius: 50%;
+  background: #eefaff;
+  padding: 0;
+}
+.if-dot.grey {
+  background: #8d9da9;
+}
+.if-dot.blue,
+.if-dot.green,
+.if-dot.red {
+  width: 36px;
+  height: 36px;
+  background: #0098c5;
+  border: 2px solid #b6f5ff;
+}
+.if-dot.green {
+  background: #22aa4a;
+}
+.if-dot.red {
+  background: #d51e36;
+}
+.if-dot > .if-fish {
+  width: 32px;
+  filter: brightness(0) invert(1);
+  transform: rotate(15deg);
+}
+.if-dot > b {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 22px;
+  line-height: 1;
+  color: #ffdf73;
+  text-shadow: 1px 2px #9f843d;
+  font-weight: 900;
+}
+.if-stats {
+  background: #112739;
+  border: 2px solid #405468;
+  border-radius: 9px;
+  color: #d9ebef;
+  width: 34px;
+  height: 34px;
+  padding: 5px;
+}
+.if-stats svg {
+  width: 21px;
+  height: 21px;
+}
+.if-result {
+  position: absolute;
+  z-index: 5;
+  top: 38%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  filter: drop-shadow(0 3px 6px #1a436a);
+  animation: if-result-in 0.6s ease-out;
+}
+.if-result > svg {
+  width: 68px;
+  height: 68px;
+  filter: sepia(1) saturate(4) drop-shadow(0 0 8px #b7f4ff);
+}
+.if-result > .if-fish {
+  width: 90px;
+}
+.if-result > strong {
+  font-size: 43px;
+  color: #ffe283;
+  line-height: 1;
+  font-weight: 900;
+  text-shadow: 1px 2px #84672c;
+}
+.if-result > span {
+  background: linear-gradient(#a5f4ffb0, #2c9ecdd9);
+  border: 3px solid #b7eafb;
+  border-radius: 12px;
+  padding: 10px 22px;
+  margin-top: 10px;
+  box-shadow: inset 0 0 13px #dcfcff;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+}
+.if-bonus {
+  position: absolute;
+  z-index: 5;
+  top: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  height: 460px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-direction: column;
+  text-shadow: 0 3px 4px #173f68;
+  animation: if-result-in 0.5s ease-out;
+}
+.if-ice-hole {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  top: 35%;
+  height: 120px;
+  border: 14px solid #c5f5fff0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #041729, #075377 65%, #7cd8e6);
+  box-shadow:
+    0 0 25px #cbfcff,
+    inset 0 0 25px #071b2e;
+}
+.if-bonus > .if-fish {
+  position: absolute;
+  top: 0;
+  width: 300px;
+  height: 300px;
+  animation: if-catch 4s cubic-bezier(0.17, 0.7, 0.25, 1) both;
+  filter: drop-shadow(0 8px 10px #053554);
+}
+.if-fishing-line {
+  position: absolute;
+  left: 68%;
+  top: -25%;
+  height: 65%;
+  width: 2px;
+  background: #eefbffc0;
+  transform: rotate(12deg);
+  transform-origin: top;
+}
+.if-bonus h2 {
+  font-size: 31px;
+  font-weight: 900;
+  margin: 0;
+  z-index: 1;
+}
+.if-bonus > strong {
+  font-size: 65px;
+  font-weight: 900;
+  color: #ffdd6a;
+  line-height: 1.2;
+  z-index: 1;
+}
+.if-bonus > span {
+  font-size: 16px;
+  font-weight: 800;
+  z-index: 1;
+}
+.if-error {
+  position: absolute;
+  z-index: 20;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 80%;
+  background: #512c27f2;
+  border: 1px solid #ffd7a1;
+  border-radius: 10px;
+  padding: 12px 18px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+}
+.if-error button {
+  border: 0;
+  background: #d6edf1;
+  color: #213946;
+  padding: 5px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.if-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: #04192fc9;
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.if-modal {
+  background: linear-gradient(#124866, #0d2b47);
+  border: 2px solid #97d8ed;
+  border-radius: 18px;
+  width: 520px;
+  max-width: 100%;
+  max-height: 90%;
+  overflow: auto;
+  color: #e8f7ff;
+  box-shadow: 0 10px 80px #031120;
+  padding: 24px;
+}
+.if-modal header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.if-modal h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+}
+.if-modal header button {
+  border: 0;
+  background: none;
+  color: #c9ecff;
+}
+.if-modal nav,
+.if-settings {
+  display: grid;
+  gap: 12px;
+}
+.if-modal nav button,
+.if-modal nav a,
+.if-settings button,
+.if-rules button,
+.if-bet-history button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #a5dff012;
+  color: #e7faff;
+  border: 1px solid #aad8e354;
+  border-radius: 9px;
+  padding: 12px;
+  text-decoration: none;
+}
+.if-rules p {
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0 0 16px;
+}
+.if-rules code {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  margin-bottom: 15px;
+}
+.if-bet-history article {
+  display: grid;
+  gap: 6px;
+  padding: 14px 0;
+  border-bottom: 1px solid #aed7e333;
+  font-size: 14px;
+}
+.if-bet-history small {
+  opacity: 0.65;
+}
+.reduce-motion * {
+  animation: none !important;
+  transition: none !important;
+}
+.is-fishing .if-wheel-stage {
+  filter: blur(5px);
+  opacity: 0.5;
+}
+@keyframes if-result-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes if-catch {
+  0% {
+    transform: translateY(180px) scale(0.15);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  65% {
+    transform: translateY(-12px) scale(1.05);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@media (max-width: 1200px) {
+  .if-bet-console {
+    width: 540px;
+    max-width: 52cqw;
+  }
+  .if-spots {
+    height: 125px;
+    gap: 8px;
+  }
+  .if-anchors,
+  .if-all-bonuses {
+    flex-basis: 58px;
+  }
+  .if-all-bonuses {
+    padding-top: 53px;
+    font-size: 10px !important;
+  }
+  .if-fish-bet > strong {
+    font-size: 20px;
+    padding-top: 15%;
+  }
+  .if-chip-tray {
+    gap: 5px;
+    padding: 5px;
+  }
+  .if-chip {
+    width: 35px;
+    height: 35px;
+  }
+  .if-wallet {
+    left: 2cqw;
+    gap: 5px;
+    height: 52px;
+  }
+  .if-wallet > button {
+    width: 49px;
+  }
+  .if-wallet > div {
+    min-width: 100px;
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  .if-wallet strong {
+    font-size: 14px;
+  }
+  .if-history {
+    right: 2cqw;
+    max-width: 21cqw;
+  }
+  .if-history-dots {
+    grid-template-rows: repeat(3, 24px);
+    gap: 10px;
+  }
+  .if-dot {
+    width: 15px;
+    height: 15px;
+  }
+  .if-dot.blue,
+  .if-dot.green,
+  .if-dot.red {
+    width: 27px;
+    height: 27px;
+  }
+  .if-dot > .if-fish {
+    width: 23px;
+  }
+  .if-dot > b {
+    font-size: 17px;
+  }
+  .if-text-button {
+    font-size: 11px !important;
+  }
+  .if-social {
+    max-width: 180px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}
+@media (max-width: 800px) and (orientation: portrait) {
+  .ice-fish-game {
+    min-height: 700px;
+  }
+  .if-logo {
+    left: 5%;
+    top: 3%;
+    font-size: 30px;
+  }
+  .if-menu-button {
+    width: 43px;
+    height: 43px;
+    top: 2%;
+    right: 4%;
+  }
+  .if-menu-button svg {
+    width: 28px;
+  }
+  .if-social {
+    left: 5%;
+    top: 14%;
+    font-size: 11px;
+    max-width: 100%;
+    gap: 10px;
+  }
+  .if-wheel-stage {
+    width: 112cqw;
+    height: 112cqw;
+    top: 19%;
+    left: 50%;
+  }
+  .if-wheel-stage.is-zoomed {
+    width: 133cqw;
+    height: 133cqw;
+    top: 16%;
+  }
+  .if-mist {
+    background: linear-gradient(transparent 45%, #16395380 65%, #17314ee8 100%);
+  }
+  .if-bet-console {
+    bottom: 13%;
+    max-width: 96%;
+    width: 540px;
+  }
+  .if-countdown {
+    min-height: 55px;
+    margin-bottom: 15px;
+  }
+  .if-countdown strong {
+    font-size: 23px;
+  }
+  .if-countdown b {
+    font-size: 22px;
+  }
+  .if-clock-track {
+    width: 190px;
+    height: 6px;
+    margin-top: 9px;
+  }
+  .if-spots {
+    height: 116px;
+    gap: 6px;
+  }
+  .if-anchors,
+  .if-all-bonuses {
+    flex-basis: 45px;
+  }
+  .if-anchor-bet {
+    border-radius: 8px;
+  }
+  .if-anchor-bet > svg {
+    width: 25px;
+    height: 25px;
+  }
+  .if-anchor-bet > small {
+    font-size: 10px;
+  }
+  .if-fish-bet > strong {
+    font-size: 17px;
+    border-width: 3px;
+    border-radius: 10px;
+    padding-top: 15px;
+  }
+  .if-frozen-card {
+    inset: 0 2px 31%;
+    border-width: 3px;
+    border-radius: 12px 12px 3px 3px;
+  }
+  .if-all-bonuses {
+    font-size: 8px !important;
+    padding-top: 53px;
+    border-radius: 8px;
+  }
+  .if-all-bonuses > b {
+    font-size: 18px;
+  }
+  .if-all-bonuses .if-fish {
+    width: 43px;
+  }
+  .if-chip-row {
+    width: 98%;
+    gap: 7px;
+    margin-top: 13px;
+  }
+  .if-chip-tray {
+    gap: 5px;
+    padding: 5px;
+    border-width: 2px;
+    border-radius: 12px;
+  }
+  .if-chip {
+    width: 31px;
+    height: 31px;
+    border-width: 2px;
+    padding: 2px;
+  }
+  .if-chip > span {
+    font-size: 11px;
+    border-width: 1px;
+  }
+  .if-chip-tray svg {
+    width: 17px;
+    height: 17px;
+  }
+  .if-chip-tray > button:not(.if-chip) {
+    padding: 1px;
+  }
+  .if-text-button {
+    font-size: 9px !important;
+  }
+  .if-wallet {
+    left: 4%;
+    right: 4%;
+    bottom: 3%;
+    height: 50px;
+    gap: 8px;
+  }
+  .if-wallet > button {
+    width: 50px;
+    flex-shrink: 0;
+  }
+  .if-wallet > div {
+    min-width: 0;
+    flex: 1;
+    font-size: 12px;
+  }
+  .if-wallet strong {
+    font-size: 14px;
+  }
+  .if-history {
+    bottom: auto;
+    top: 10%;
+    right: 5%;
+    max-width: 62%;
+  }
+  .if-history-dots {
+    grid-template-rows: repeat(2, 18px);
+    gap: 10px 11px;
+  }
+  .if-history-dots .if-dot:nth-child(n + 13) {
+    display: none;
+  }
+  .if-dot {
+    width: 11px;
+    height: 11px;
+  }
+  .if-dot.blue,
+  .if-dot.green,
+  .if-dot.red {
+    width: 20px;
+    height: 20px;
+    border-width: 1px;
+  }
+  .if-dot > .if-fish {
+    width: 18px;
+  }
+  .if-dot > b {
+    font-size: 12px;
+  }
+  .if-stats {
+    width: 26px;
+    height: 26px;
+    padding: 3px;
+  }
+  .if-stats svg {
+    width: 17px;
+    height: 17px;
+  }
+  .if-result {
+    top: 35%;
+    max-width: 80%;
+  }
+  .if-result > strong {
+    font-size: 34px;
+  }
+  .if-result > span {
+    padding: 8px 18px;
+    font-size: 16px;
+  }
+  .if-result > svg {
+    width: 50px;
+    height: 50px;
+  }
+  .if-bonus {
+    top: 19%;
+    width: 320px;
+    height: 330px;
+  }
+  .if-bonus > .if-fish {
+    width: 230px;
+    height: 230px;
+  }
+  .if-bonus h2 {
+    font-size: 24px;
+  }
+  .if-bonus > strong {
+    font-size: 46px;
+  }
+  .if-ice-hole {
+    height: 100px;
+  }
+  .if-error {
+    top: 2%;
+    width: 90%;
+    max-width: 90%;
+    flex-wrap: wrap;
+  }
+  .if-spots em {
+    font-size: 10px;
+    padding: 3px;
+  }
+  .if-modal {
+    padding: 18px;
+  }
+}
+@media (max-height: 600px) and (orientation: landscape) {
+  .ice-fish-game {
+    min-height: 360px;
+  }
+  .if-menu-button {
+    width: 38px;
+    height: 38px;
+    top: 4%;
+    right: 2%;
+  }
+  .if-menu-button svg {
+    width: 24px;
+  }
+  .if-logo {
+    font-size: 27px;
+    top: 6%;
+  }
+  .if-wheel-stage {
+    width: 115cqh;
+    height: 115cqh;
+    top: 1%;
+  }
+  .if-wheel-stage.is-zoomed {
+    width: 138cqh;
+    height: 138cqh;
+    top: 1%;
+  }
+  .if-bet-console {
+    bottom: 3%;
+    width: 360px;
+    max-width: 51%;
+  }
+  .if-spots {
+    height: 82px;
+    gap: 7px;
+  }
+  .if-anchors,
+  .if-all-bonuses {
+    flex-basis: 40px;
+  }
+  .if-anchor-bet > svg {
+    width: 22px;
+    height: 22px;
+  }
+  .if-anchor-bet > small {
+    font-size: 8px;
+  }
+  .if-anchors {
+    gap: 4px;
+  }
+  .if-frozen-card {
+    border-width: 2px;
+  }
+  .if-fish-bet > strong {
+    border-width: 2px;
+    font-size: 14px;
+    padding-top: 10px;
+  }
+  .if-fish-bet > strong:before {
+    height: 13px;
+    top: -7px;
+  }
+  .if-all-bonuses {
+    padding-top: 35px;
+    font-size: 8px !important;
+    border-radius: 8px;
+  }
+  .if-all-bonuses > b {
+    font-size: 15px;
+  }
+  .if-all-bonuses .if-fish {
+    width: 40px;
+  }
+  .if-countdown {
+    min-height: 44px;
+    margin-bottom: 10px;
+  }
+  .if-countdown strong {
+    font-size: 21px;
+  }
+  .if-countdown b {
+    font-size: 18px;
+  }
+  .if-clock-track {
+    width: 160px;
+    height: 5px;
+    margin-top: 5px;
+  }
+  .if-chip-row {
+    margin-top: 9px;
+    gap: 7px;
+  }
+  .if-chip-tray {
+    padding: 3px;
+    gap: 4px;
+    border-width: 2px;
+    border-radius: 10px;
+  }
+  .if-chip {
+    width: 26px;
+    height: 26px;
+    border-width: 2px;
+    padding: 1px;
+  }
+  .if-chip > span {
+    font-size: 10px;
+    border-width: 1px;
+  }
+  .if-chip-tray svg {
+    width: 17px;
+    height: 17px;
+  }
+  .if-text-button {
+    font-size: 9px !important;
+  }
+  .if-wallet {
+    height: 43px;
+    bottom: 3%;
+    left: 2%;
+    gap: 5px;
+  }
+  .if-wallet > button {
+    width: 41px;
+  }
+  .if-wallet > button svg {
+    width: 23px;
+  }
+  .if-wallet > div {
+    min-width: 76px;
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+  .if-wallet strong {
+    font-size: 11px;
+  }
+  .if-social {
+    top: 25%;
+    font-size: 11px;
+  }
+  .if-history {
+    bottom: 4%;
+    right: 2%;
+    max-width: 21%;
+  }
+  .if-history-dots {
+    grid-template-rows: repeat(3, 17px);
+    gap: 10px;
+  }
+  .if-dot {
+    width: 11px;
+    height: 11px;
+  }
+  .if-dot.blue,
+  .if-dot.green,
+  .if-dot.red {
+    width: 20px;
+    height: 20px;
+    border-width: 1px;
+  }
+  .if-dot > .if-fish {
+    width: 18px;
+  }
+  .if-dot > b {
+    font-size: 13px;
+  }
+  .if-result > svg {
+    width: 42px;
+    height: 42px;
+  }
+  .if-result > strong {
+    font-size: 28px;
+  }
+  .if-result > span {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+  .if-bonus {
+    top: 2%;
+    height: 270px;
+    width: 280px;
+  }
+  .if-bonus > .if-fish {
+    width: 180px;
+    height: 180px;
+  }
+  .if-bonus h2 {
+    font-size: 22px;
+  }
+  .if-bonus > strong {
+    font-size: 35px;
+  }
+  .if-ice-hole {
+    height: 85px;
+  }
+  .if-draft-status {
+    font-size: 9px;
+  }
+  .if-spots em {
+    font-size: 9px;
+  }
+}

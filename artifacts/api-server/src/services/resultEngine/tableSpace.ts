@@ -1,4 +1,5 @@
 import type { OutcomeSpace, OutcomeSeed } from "../tableAdapter";
+import { ICE_FISH_WHEEL, ICE_FISH_SPOTS, ICE_FISH_LABELS } from "@workspace/api-zod/ice-fish";
 
 /** Candidates are genuine draws; an unsteered round never uses this sample. */
 export function tableOutcomeSpace(
@@ -8,6 +9,8 @@ export function tableOutcomeSpace(
   const classify = (raw: unknown): string | null => {
     if (!raw || typeof raw !== "object") return null;
     const o = raw as Record<string, unknown>;
+    if (gameCode === "ice-fish" && typeof o.segment === "number")
+      return ICE_FISH_WHEEL[o.segment] ?? null;
     if (gameCode === "mega-ball" && typeof o.multiplier === "number")
       return `multiplier:${o.multiplier}`;
     for (const key of [
@@ -44,7 +47,7 @@ export function tableOutcomeSpace(
   let choices: ReturnType<OutcomeSpace["choices"]> | undefined;
   return {
     classify,
-    choices: () =>
+    choices: () => gameCode === "ice-fish" ? ICE_FISH_SPOTS.map(id => ({ id, label: ICE_FISH_LABELS[id] })) :
       (choices ??= [
         ...new Set(
           sample(
@@ -68,7 +71,17 @@ export function tableOutcomeSpace(
         choiceId: classify(outcome) ?? "draw",
         outcome,
       })),
-    forChoice: (seed, id) =>
-      sample(seed, 400).find((outcome) => classify(outcome) === id) ?? null,
+    forChoice: (seed, id) => {
+      if (gameCode === "ice-fish") {
+        if (!(ICE_FISH_SPOTS as readonly string[]).includes(id)) return null;
+        // Search genuine draws without allocating thousands of unused outcomes.
+        for (let i = 0; i < 4096; i++) {
+          const outcome = derive({ ...seed, clientSeed: `${seed.clientSeed}:candidate:${i}` });
+          if (classify(outcome) === id) return outcome;
+        }
+        return null;
+      }
+      return sample(seed, 400).find((outcome) => classify(outcome) === id) ?? null;
+    },
   };
 }

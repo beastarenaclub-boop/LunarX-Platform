@@ -62,6 +62,7 @@ export interface RegistryEntry {
 
 // Share the storefront's curated trending order across both lobbies.
 export const TOP_GAME_IDS = [
+  "ice-fish",
   "lunar",
   "roulette-american", "roulette-mini", "fun-target",
   "mega-ball",
@@ -127,6 +128,7 @@ export const LOBBY_GAMES: LobbyGame[] = [
   game("roulette-mini", "Roulette Mini", "table", "#64cabc", { artworkHasTitle: true, artworkFit: "contain", label: "NEW", tags: ["roulette", "mini", "19 pockets"] }),
   game("fun-target", "Top 10 Target", "table", "#ff8b43", { artworkHasTitle: true, artworkFit: "contain", label: "NEW", tags: ["target", "wheel", "digits"] }),
   game("mega-ball", "Mega Ball", "live", "#e4ca74", { artwork: `${import.meta.env.BASE_URL}media/mega-ball/banner.jpg`, artworkHasTitle: true, label: "NEW", tags: ["mega ball", "bingo", "lottery", "game show", "51 balls"] }),
+  game("ice-fish", "Ice Fish", "live", "#71dbff", { artwork: `${import.meta.env.BASE_URL}media/ice-fish/banner-v1.webp`, artworkHasTitle: true, label: "NEW", tags: ["ice", "fish", "wheel", "fishing", "bonus"] }),
   ...SPORTS.map(s => game(`virtual-${s.id}`, s.name, "racing", s.color, { route: `/virtual-sports/${s.id}`, artwork: `${import.meta.env.BASE_URL}media/virtual-sports/${s.id}.jpg`, provider: "Arena Virtual Sports", label: "NEW" })),
   ...INSTANT_COLLECTION.map(g => game(g.code, g.name, "instant", g.accent, { artwork: import.meta.env.BASE_URL + 'media/instant/' + g.code + '.svg', label: "INSTANT" })),
   crash("jetx"),

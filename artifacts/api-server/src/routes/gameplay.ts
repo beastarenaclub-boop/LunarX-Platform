@@ -1,4 +1,5 @@
 import handoffGamesRouter from "./handoffGames";
+import iceFishRouter from "./iceFish";
 import managedResultVerification from "./managedResultVerification";
 import rummyRoyaleRouter from "../games/rummy/routes";
 import speedAutoRouletteRouter from "./speedAutoRoulette";
@@ -43,6 +44,7 @@ import reportsRouter from "./reports";
 // The same routers run against either the real store or the isolated demo worker.
 const router = Router();
 router.use(managedResultVerification);
+router.use("/ice-fish", iceFishRouter);
 router.use(handoffGamesRouter);
 router.use("/rummy-royale", rummyRoyaleRouter);
 router.use("/ludo", ludoRouter);

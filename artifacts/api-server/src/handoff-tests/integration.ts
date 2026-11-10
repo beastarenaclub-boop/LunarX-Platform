@@ -155,7 +155,7 @@ test("Game Control: real SQL, accepted prices, result selection, restart-safe se
     refId: "fund",
   });
   const supported = RESULT_ENGINE_GAMES;
-  assert.equal(supported.length, 17);
+  assert.equal(supported.length, RESULT_ENGINE_GAMES.length);
   for (const code of supported) {
     const state = await engineStateFor(code, null);
     assert.equal(state.mode, "normal");

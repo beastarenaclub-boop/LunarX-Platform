@@ -1,0 +1,26 @@
+{
+  "mode": "built-in image_gen.imagegen",
+  "source": "User-provided Recording 2026-11-10 092553.mp4",
+  "outputDirectory": "artifacts/3d-game/public/media/ice-fish",
+  "formatConversion": "FFmpeg WebP; alpha preserved for fish atlas",
+  "prompts": [
+    {
+      "asset": "frozen-lake-v1.webp",
+      "transparent_background": false,
+      "reference": "Recording frame at 5 seconds",
+      "prompt": "Create a production game background asset from this reference screenshot. Output ONLY the blue frozen-lake cracked ice background, full-bleed wide landscape 16:9, no interface whatsoever. Match the screenshot's exact icy blue palette, luminous fine white branching ice fractures, frozen underwater blue depth, photographic ice surface texture. Remove the complete wheel, metal rim, pointer, every fish, text, logo, buttons, symbols and overlays, filling their areas with matching continuous cracked blue ice. Preserve the reference background art direction closely. Keep a large softly glowing circular white ice fracture halo centered approximately (50% width, 56% height), radius 43% image height, where an interactive wheel will later sit; the halo is part of the ice surface, not a drawn circle or metal rim. Rich azure upper half, subtly darker navy lower corners. No text, no people, no objects, no snow mountain horizon. Crisp detailed ice texture, not flat vector illustration."
+    },
+    {
+      "asset": "fish-atlas-v1.webp",
+      "transparent_background": true,
+      "reference": "Recording frame at 47 seconds",
+      "prompt": "Create one transparent PNG sprite atlas of the THREE FISH used in this ICE FISH reference game. Keep the reference's polished realistic illustrated casino fish art, detailed scales and glossy highlights. No text, no buttons, no ice, no shadows outside fish, no background. Layout exactly three equal horizontal cells across a wide landscape canvas: LEFT cell a small vivid cyan-blue fish (Lil Blues), CENTER cell a larger bright emerald-green fish (Big Green), RIGHT cell a powerful deep crimson-red tuna (Huge Reds). Each complete fish is independent, visible nose to tail, pointing diagonally upper-right, with nose near the upper-right and tail at lower-left within its own cell. Fish shapes match the reference: blue short-bodied friendly fish, green longer bass-like fish, red strong spiny tuna. Each fish fills approximately 82% of its cell with equal transparent margins, never touches adjacent cell. Clean alpha background, separate silhouettes, no labels or decorative elements. These are production game sprites, not a scene or screenshot."
+    },
+    {
+      "asset": "banner-v1.webp",
+      "transparent_background": false,
+      "reference": "Recording frame at 5 seconds and generated fish atlas",
+      "prompt": "Create a polished 16:9 casino game lobby banner for ICE FISH, tightly matching the supplied user gameplay screenshot's icy blue art direction. Large dimensional frozen-white ICE over golden-yellow FISH title on the LEFT, readable at thumbnail size. Behind and to the RIGHT is the actual style of the game's huge silver-rimmed wheel with orange rim plates, alternating pale icy white and slate blue radial anchor segments, slim cyan/green/crimson fish segments, and a black/silver triangular pointer at top. Bottom-right foreground: vivid blue, green and red fish jumping through crystalline broken ice, use the fish art style from the reference. Rich cracked blue frozen-lake background, cold white highlights and a thin arctic mist at bottom. No people, no extra copy, no payout claims, no currencies, no buttons, no border. Title must read exactly ICE FISH. This is a game banner, not the playable UI screenshot."
+    }
+  ]
+}

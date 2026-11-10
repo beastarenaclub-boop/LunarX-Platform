@@ -14,6 +14,7 @@ const range = (values: number[], source: string, note: string): RtpDisplay => ({
 /** Use current payout rules for fixed-price games; their legacy houseEdge field
  * is not necessarily the return their accepted prices actually deliver. */
 export function defaultRtpDisplay(code: string, config?: GameConfig): RtpDisplay {
+  if (code === "ice-fish") return range([1 - (config?.houseEdge ?? .045)], "Ice Fish payout rules v1", "Natural-draw target before paise rounding and caps; shared result modes have their own target.");
   if (code === "coin-flip") return range([coinLiveMultiplier(.97, 1000) / 2], "Fixed paytable", "Natural draw at the current coin payout.");
   if (code === "7up7down") return range(SEVEN_SPOTS.map(spot => {
     let sum = 0;

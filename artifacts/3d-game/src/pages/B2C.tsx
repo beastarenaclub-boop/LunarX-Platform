@@ -562,6 +562,7 @@ export default function B2C({
                   style={{ objectPosition: activeBanner.position }}
                   fetchPriority="high"
                 />
+                {activeBanner.iceFish && (<div className="b2c-poker-hero-copy"><button onClick={() => navigate("/ice-fish")}>Play Ice Fish <ChevronRight size={15} /></button><small>NEW GAME · Frozen wheel & fish bonuses</small></div>)}
                 {activeBanner.megaBall && (<div className="b2c-poker-hero-copy"><button onClick={() => navigate("/mega-ball")}>Play Mega Ball <ChevronRight size={15} /></button><small>NEW GAME · 20 balls + Mega Ball</small></div>)}
                 {activeBanner.handoff&&<div className="b2c-handoff-copy"><span>JUST ADDED · FOUR NEW GAMES</span><h1>New tables.<br/>New classics.</h1><p>American & Mini Roulette<br/>Fun Target · Aviator</p><button onClick={()=>chooseCategory("new")}>Explore new games <ChevronRight size={16}/></button></div>}
                 {activeBanner.poker && (

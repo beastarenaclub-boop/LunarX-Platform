@@ -589,6 +589,7 @@ router.put(
 // routes, and live `enabled` status. Player apps consume this so the lobby
 // hides/shows "SOON" badges based on real config rather than hard-coding.
 const GAME_META: Record<string, { title: string; route: string }> = {
+  "ice-fish": { title: "Ice Fish", route: "/ice-fish" },
   ...Object.fromEntries(POKER_GAMES.map(code => [code, { title: POKER_TITLES[code], route: `/${code}` }])),
   ...Object.fromEntries(INSTANT_COLLECTION.map(g => [g.code, { title: g.name, route: `/${g.code}` }])),
   "mega-ball": { title: "Mega Ball", route: "/mega-ball" },

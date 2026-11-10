@@ -59,7 +59,7 @@ async function settings() {
 
 test("overview and previews are read-only; defaults come from actual payout versions", async () => {
   const before = await settings(), overview = await listBulkControls(admin);
-  assert.equal(overview.playerRtpGames.length, 15); assert.equal(overview.tableGames.length, 17);
+  assert.equal(overview.playerRtpGames.length, RTP_POLICY_GAMES.length); assert.equal(overview.tableGames.length, RESULT_ENGINE_GAMES.length);
   const get = (code: string) => overview.games.find(game => game.code === code)!;
   assert.equal(get("coin-flip").defaultRtp.minPercent, 99);
   assert.ok(Math.abs(get("7up7down").defaultRtp.minPercent! - 5.5) < 1e-8);
@@ -69,7 +69,7 @@ test("overview and previews are read-only; defaults come from actual payout vers
   assert.equal(get("blackjack").defaultRtp.minPercent, null);
   assert.equal(get("rummy-royale").retired, true);
   const preview = await previewBulkControls(admin, { kind: "rtp", channel: "both", playerRtpBps: 8800, includeTables: true });
-  assert.equal(preview.b2cGames.length, 15); assert.equal(preview.masters.length, 2); assert.equal(preview.tableGames.length, 17);
+  assert.equal(preview.b2cGames.length, RTP_POLICY_GAMES.length); assert.equal(preview.masters.length, 2); assert.equal(preview.tableGames.length, RESULT_ENGINE_GAMES.length);
   assert.ok(preview.excludedGames.some(game => game.code === "blackjack"));
   assert.deepEqual(await settings(), before);
   assert.equal((await listB2cRtp(admin)).find(p => p.gameCode === "coin-flip")!.defaultRtp.minPercent, 99);
@@ -195,6 +195,6 @@ test("HTTP preview is read-only and apply requires admin password confirmation",
     }
     assert.deepEqual(await settings(), before);
     const applied = await fetch(url, { method: "PUT", headers: { "Content-Type": "application/json", "X-Confirm-Password": password }, body: JSON.stringify(request) });
-    assert.equal(applied.status, 200); assert.equal((await applied.json() as any).tableGames.length, 17);
+    assert.equal(applied.status, 200); assert.equal((await applied.json() as any).tableGames.length, RESULT_ENGINE_GAMES.length);
   } finally { await new Promise<void>(resolve => server.close(() => resolve())); }
 });

@@ -66,6 +66,7 @@ const ForexTrading = lazy(() => import("@/pages/ForexTrading"));
 const Lottery = lazy(() => import("@/pages/Lottery"));
 const PrizeLotto = lazy(() => import("@/pages/PrizeLotto"));
 const MegaBall = lazy(() => import("@/pages/MegaBall"));
+const IceFish = lazy(() => import("@/pages/IceFish"));
 const CrazyTime = lazy(() => import("@/pages/CrazyTime"));
 const DragonTigerOneDay = lazy(() => import("@/pages/DragonTigerOneDay"));
 const CoinFlipLive = lazy(() => import("@/pages/CoinFlipLive"));
@@ -81,6 +82,7 @@ const VirtualSports = lazy(() => import("@/pages/VirtualSports"));
 // Routes where background music is allowed to play. Everything else (lobby,
 // wallet, profile, history, etc.) stays silent on open.
 const GAME_ROUTES = new Set([
+  "/ice-fish",
   "/roulette-american", "/roulette-mini", "/fun-target", "/rummy-royale",
   "/ludo",
   ...INSTANT_COLLECTION.map(g => `/${g.code}`),
@@ -268,6 +270,7 @@ function App() {
             </Route>
           ))}
           <Route path="/mega-ball"><Protected><MegaBall /></Protected></Route>
+          <Route path="/ice-fish"><Protected><IceFish /></Protected></Route>
           <Route path="/mines">
             <Protected>
               <Mines />

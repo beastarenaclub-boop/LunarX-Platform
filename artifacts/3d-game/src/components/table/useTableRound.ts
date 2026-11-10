@@ -149,6 +149,7 @@ export function useTableRound<TOutcome = unknown>(
     | "lucky-7"
     | "crazy-time"
     | "mega-ball"
+    | "ice-fish"
     | "vegetable-bowl"
     | "teen-patti-live",
   opts: Options = {},

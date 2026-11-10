@@ -484,6 +484,13 @@
       "when": 1794268800006,
       "tag": "0068_restore_table_engines",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1794268800007,
+      "tag": "0069_ice_fish",
+      "breakpoints": true
     }
   ]
 }
