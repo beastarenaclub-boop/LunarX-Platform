@@ -144,7 +144,7 @@ try {
     await expect(page.getByTestId("demo-activity")).toHaveCount(0);
     await page.evaluate(async () => {
       await Promise.all(
-        ["frozen-lake-v2.webp", "fish-atlas-v1.webp", "coins-v4.webp", "mist-v4.webp", "result-ice-v4.webp", "intro-ice-v4.webp", "fishing-rig-v4.webp", "bet-cards-v5.webp", "wheel-hub-v5.webp", "wheel-fish-v5.webp", "logo-v5.webp"].map(async (asset) => {
+        ["frozen-lake-v2.webp", "fish-atlas-v1.webp", "coins-v4.webp", "mist-v4.webp", "result-ice-v4.webp", "intro-ice-v4.webp", "fisher-parts-v6.webp", "fish-species-v6.webp", "bet-cards-v5.webp", "wheel-hub-v5.webp", "wheel-fish-v5.webp", "logo-v5.webp"].map(async (asset) => {
           const img = new Image();
           img.src = "/media/ice-fish/" + asset;
           await img.decode();
@@ -272,8 +272,24 @@ try {
       revealElapsedMs = elapsed;
       await expect(page.getByTestId("ice-fishing-bonus")).toHaveAttribute("data-stage", stage, {timeout:6000});
       await expect(page.locator(".if-fisher")).toBeVisible();
+      if (stage === 'reeling') {
+        const machine = await page.locator('.if-fishing-machine').boundingBox();
+        for (const selector of ['.if-fisher-body','.if-fisher-forearm','.if-fisher-crank','.if-reel-spool']) {
+          const transform = await page.locator(selector).getAttribute('transform');
+          await expect.poll(() => page.locator(selector).getAttribute('transform')).not.toBe(transform);
+        }
+        assert.deepEqual(await page.locator('.if-fishing-machine').boundingBox(), machine, 'Winch base stays planted while the woman reels');
+        await page.emulateMedia({reducedMotion:'reduce'});
+        await expect(page.locator('.if-fishing-rig')).toHaveAttribute('data-motion','paused');
+        const still = await page.locator('.if-fisher-forearm').getAttribute('transform');
+        await page.waitForTimeout(300);
+        assert.equal(await page.locator('.if-fisher-forearm').getAttribute('transform'),still,'Reduced motion stops the reeling arm');
+        await page.emulateMedia({reducedMotion:'no-preference'});
+        await expect(page.locator('.if-fishing-rig')).toHaveAttribute('data-motion','active');
+      }
+      if (stage === 'catch') await expect(page.locator('.if-caught-fish')).toHaveAttribute('data-color','green');
       await expect(page.locator(".if-atmosphere.is-surface .if-cloud")).toHaveCount(4);
-      await page.evaluate(async () => { await Promise.all(["fishing-station-v3.webp", "fisher-v3.webp", "fish-school-v3.webp"].map(async name => {const image = new Image(); image.src = "/media/ice-fish/" + name; await image.decode();})); });
+      await page.evaluate(async () => { await Promise.all(["fishing-station-v3.webp", "fisher-parts-v6.webp", "fish-species-v6.webp"].map(async name => {const image = new Image(); image.src = "/media/ice-fish/" + name; await image.decode();})); });
       await page.screenshot({path:`tmp/reference-2026-11-10/browser/${stage}-${viewport.width}.png`,fullPage:true});
     }
     phase = "settling";
@@ -289,6 +305,9 @@ try {
     for (const [segment, color] of [[3,"blue"],[22,"red"]]) {
       roundId = `bonus-${color}`; current = outcome(segment); myBets = [];
       await expect(page.getByTestId("ice-fishing-bonus")).toHaveClass(new RegExp(`bonus-${color}`),{timeout:6000});
+      await expect(page.locator('.if-caught-fish')).toHaveAttribute('data-color',color);
+      const fish = page.locator('.if-final-ice > .if-fish');
+      assert.ok((await fish.evaluate(el => getComputedStyle(el).backgroundImage)).includes('fish-species-v6.webp'));
       await expect(page.getByTestId("ice-bonus-result")).not.toContainText("YOU WON");
     }
     roundId = 'large-multiplier-display'; current = {...outcome(22), fishValue:5000};

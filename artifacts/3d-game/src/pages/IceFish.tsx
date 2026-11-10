@@ -80,7 +80,7 @@ export default function IceFish() {
     root = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // Warm the short bonus transition before its server-clock deadline arrives.
-    for (const name of ["bet-cards-v5.webp", "wheel-hub-v5.webp", "wheel-fish-v5.webp", "logo-v5.webp", "intro-ice-v4.webp", "coins-v4.webp", "result-ice-v4.webp", "fishing-rig-v4.webp", "fishing-station-v3.webp", "fish-school-v3.webp"]) {
+    for (const name of ["bet-cards-v5.webp", "wheel-hub-v5.webp", "wheel-fish-v5.webp", "logo-v5.webp", "intro-ice-v4.webp", "coins-v4.webp", "result-ice-v4.webp", "fisher-parts-v6.webp", "fishing-station-v3.webp", "fish-species-v6.webp"]) {
       const image = new Image();
       image.src = `/media/ice-fish/${name}`;
       void image.decode().catch(() => undefined);
@@ -393,7 +393,7 @@ export default function IceFish() {
       {fishing && spot && isFish(spot) && round.outcome && <IceFishingBonus
         color={spot} outcome={round.outcome} elapsed={revealElapsed} revealMs={revealMs}
         settled={round.phase === "settling"} multiplier={multiplier} houseEdge={edge}
-        cap={pricing?.maxMultiplier ?? 5000} win={myWin} money={money} />}
+        cap={pricing?.maxMultiplier ?? 5000} win={myWin} money={money} reducedMotion={reducedMotion} />}
       {landed && !fishing && round.outcome && (
         <div
           className={`if-result ${myWin > 0n ? "has-win" : ""}`}
