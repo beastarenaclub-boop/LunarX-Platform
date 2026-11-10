@@ -70,6 +70,23 @@ const colors: Record<IceFishSpot, string> = {
   green: "url(#if-green)",
   red: "url(#if-red)",
 };
+function WheelFishLabel({ spot }: { spot: "blue" | "green" | "red" }) {
+  const letters = Array.from(ICE_FISH_LABELS[spot]);
+  const widths: Record<string, number> = { " ": .24, "’": .22, I: .25, L: .45 };
+  const glyphs = letters.map((letter, index) => {
+    const size = 19 + index / (letters.length - 1) * 19;
+    return { letter, size, advance: size * (widths[letter] ?? .54) };
+  });
+  const scale = 183 / glyphs.reduce((sum, glyph) => sum + glyph.advance, 0);
+  let position = 0;
+  return <g transform="translate(500 338) rotate(-90)" fill="#fff" stroke="#174252" strokeWidth=".6" paintOrder="stroke" fontFamily="Ice Condensed,Arial Narrow,Arial,sans-serif" fontWeight="700">
+    {glyphs.map(({ letter, size, advance }, index) => {
+      const x = position;
+      position += advance * scale;
+      return <text key={index} x={x} y={size * .35} fontSize={size} textLength={advance * scale} lengthAdjust="spacingAndGlyphs">{letter}</text>;
+    })}
+  </g>;
+}
 export default function IceWheel({
   outcome,
   roundId,
@@ -135,6 +152,7 @@ export default function IceWheel({
       }
     >
       <defs>
+        <radialGradient id="if-rivet" cx="30%" cy="25%"><stop stopColor="#e5edf0"/><stop offset=".5" stopColor="#adbec5"/><stop offset="1" stopColor="#6e8999"/></radialGradient>
         <clipPath id="if-hub-ice-clip">
           <circle cx="500" cy="500" r="117" />
         </clipPath>
@@ -266,35 +284,13 @@ export default function IceWheel({
             <path d={wedge(-4, 4, 438)} fill={colors[spot]} />
             {isFish(spot) ? (
               <>
-                <svg
-                  x="470"
-                  y="60"
-                  width="60"
-                  height="75"
-                  viewBox={`${["blue", "green", "red"].indexOf(spot) * 724 + 32} 30 660 650`}
-                  preserveAspectRatio="xMidYMid meet"
-                >
-                  <image
-                    href={media + "fish-atlas-v1.webp"}
-                    width="2172"
-                    height="724"
-                  />
+                <svg className="if-wheel-fish-head" x="465" y="70" width="70" height="70" viewBox={`${["blue","green","red"].indexOf(spot)*512} 0 512 512`} preserveAspectRatio="none">
+                  <image href={media + "wheel-fish-v5.webp"} width="1536" height="1024" />
                 </svg>
-                <text
-                  transform="translate(510 255) rotate(-90)"
-                  textAnchor="middle"
-                  fill="#fff"
-                  stroke="#064566"
-                  strokeWidth="1"
-                  paintOrder="stroke"
-                  fontSize="34"
-                  textLength="204"
-                  lengthAdjust="spacingAndGlyphs"
-                  fontWeight="700"
-                  fontFamily="Arial Narrow,Arial,sans-serif"
-                >
-                  {ICE_FISH_LABELS[spot]}
-                </text>
+                <svg className="if-wheel-fish-tail" x="480" y="326" width="40" height="42" viewBox={`${["blue","green","red"].indexOf(spot)*512} 512 512 512`} preserveAspectRatio="none">
+                  <image href={media + "wheel-fish-v5.webp"} width="1536" height="1024" />
+                </svg>
+                <WheelFishLabel spot={spot} />
               </>
             ) : (
               <svg x="474" y="70" width="52" height="52" viewBox="0 0 80 80">
@@ -347,7 +343,7 @@ export default function IceWheel({
           cx={500 + Math.sin((i * Math.PI) / 15) * 461}
           cy={500 - Math.cos((i * Math.PI) / 15) * 461}
           r="8.5"
-          fill="url(#if-metal)"
+          fill="url(#if-rivet)"
           stroke="#a0b2bd"
           strokeWidth="1.5"
         />
@@ -369,50 +365,15 @@ export default function IceWheel({
         strokeWidth="8"
       />
       <circle cx="500" cy="500" r="118" fill="url(#if-hub)" />
-      <image
-        href={media + "frozen-lake-v2.webp"}
-        x="382"
-        y="382"
-        width="236"
-        height="236"
-        preserveAspectRatio="xMidYMid slice"
-        clipPath="url(#if-hub-ice-clip)"
-        opacity=".35"
-      />
-      <text
-        x="500"
-        y="482"
-        textAnchor="middle"
-        fontFamily="Arial Black,Arial,sans-serif"
-        fontWeight="900"
-        fontSize="66"
-        fill="url(#if-ice-letter)"
-        stroke="#c1edf2"
-        strokeWidth="2"
-        paintOrder="stroke"
-      >
-        ICE
-      </text>
-      <text
-        x="500"
-        y="553"
-        textAnchor="middle"
-        fontFamily="Arial Black,Arial,sans-serif"
-        fontWeight="900"
-        fontSize="68"
-        fill="url(#if-ice-letter)"
-        stroke="#c1edf2"
-        strokeWidth="2"
-        paintOrder="stroke"
-      >
-        FISH
-      </text>
+      <image href={media + "wheel-hub-v5.webp"} x="378" y="378" width="244" height="244" clipPath="url(#if-hub-ice-clip)" />
       <path
         d="M452 -6L548 -6L500 59Z"
         fill="#26333a"
         stroke="#788c94"
         strokeWidth="3"
       />
+      <path d="M452 -6L500 59L471 5Z" fill="#525e64" />
+      <path d="M548 -6L500 59L527 5Z" fill="#172128" />
       {hubBoost > 0 && <g className="if-boost-medallion" aria-label={`${hubBoost}x wheel boost reveal`}>
         <circle cx="500" cy="500" r="139" fill="#bbf4ff88" stroke="#dcf8ff" strokeWidth="7" filter="url(#if-glow)" />
         <svg x="341" y="341" width="318" height="318" viewBox="0 0 512 512"><image href={media + "coins-v4.webp"} width="1536" height="1024" /></svg>

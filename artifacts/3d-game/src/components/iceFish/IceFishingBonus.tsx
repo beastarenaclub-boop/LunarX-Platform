@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { ICE_FISH_LABELS, ICE_FISH_VALUES, iceFishMultiplier, type IceFishOutcome } from "@workspace/api-zod/ice-fish";
 import { Fish } from "./IceWheel";
 import IceAtmosphere from "./IceAtmosphere";
+import IceFishCard from "./IceFishCard";
 import { fishingPresentation, multiplierLabel } from "./iceFishPresentation";
 import "./ice-fishing-bonus.css";
 
@@ -32,7 +33,7 @@ export default function IceFishingBonus({ color, outcome, elapsed, revealMs, set
         "--swim-delay": `${-i * .7}s`, "--swim-time": `${9 + i % 7}s`,
       } as CSSProperties}><Fish color={color} /><strong>{multiplierLabel(values[i % values.length])}</strong></div>)}
       <div className="if-bubbles">{Array.from({ length: 20 }, (_, i) => <i key={i} style={{ left: `${(i * 37) % 100}%`, animationDelay: `${-i * .6}s`, width: `${3 + i % 5}px` }} />)}</div>
-      <div className="if-bonus-badge"><Fish color={color} /><strong>{ICE_FISH_LABELS[color]}</strong></div>
+      <div className="if-bonus-badge"><IceFishCard color={color} /></div>
     </div>}
     {aboveWater && <>
       <div className="if-fishing-landscape" />
@@ -59,7 +60,7 @@ export default function IceFishingBonus({ color, outcome, elapsed, revealMs, set
         {(stage === "reeling" || stage === "catch") && <div className="if-water-splash">{Array.from({ length: 9 }, (_, i) => <i key={i} style={{ "--drop": i } as CSSProperties} />)}</div>}
       </div>
       <IceAtmosphere surface />
-      <div className="if-catch-meter" data-testid="ice-catch-multiplier"><strong>{multiplierLabel(shownMultiplier)}</strong><small>{stage === "casting" ? "CASTING" : stage === "reeling" ? "REELING IN" : "YOUR CATCH"}</small></div>
+      <div className="if-catch-meter" data-testid="ice-catch-multiplier" style={{"--catch-length":multiplierLabel(shownMultiplier).length} as CSSProperties}><strong>{multiplierLabel(shownMultiplier)}</strong><small>{stage === "casting" ? "CASTING" : stage === "reeling" ? "REELING IN" : "YOUR CATCH"}</small></div>
     </>}
     {stage === "result" && <div className={`if-bonus-finish ${win > 0n ? "is-win" : ""}`} data-testid="ice-bonus-result">
       {win > 0n && <div className="if-coin-rain" aria-hidden="true">{Array.from({ length: 28 }, (_, i) => <i key={i} className={`if-falling-coin ${i % 5 === 0 ? "is-near" : ""}`} style={{
@@ -69,7 +70,7 @@ export default function IceFishingBonus({ color, outcome, elapsed, revealMs, set
         "--coin-drift": `${(i % 7 - 3) * 4}cqw`, "--coin-turn": `${i % 2 ? -210 : 250}deg`,
         "--coin-spin": `${.75 + i % 4 * .18}s`, "--coin-start": `${i * 37}deg`,
       } as CSSProperties}><span className="if-coin-sprite" /><em /></i>)}</div>}
-      <div className="if-final-ice"><Fish color={color} /><b>{multiplierLabel(multiplier)}</b><strong className="if-final-amount">{win > 0n ? money(win) : ICE_FISH_LABELS[color]}</strong><span className="if-final-caption">{win > 0n ? "YOU WON" : settled ? "ROUND COMPLETE" : "CATCH REVEALED"}</span></div>
+      <div className="if-final-ice"><Fish color={color} /><div className="if-final-badge" style={{"--multiplier-length":multiplierLabel(multiplier).length} as CSSProperties}><svg viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="if-badge-fill" x2="0" y2="1"><stop stopColor="#008ee2"/><stop offset=".6" stopColor="#0058a1"/><stop offset="1" stopColor="#00365e"/></linearGradient></defs><path d="M18 3H145L157 23V67L142 87H17L3 68V23Z" fill="url(#if-badge-fill)" stroke="#c0faff" strokeWidth="4"/><path d="M21 8H141L151 25V64L139 81H20L9 66V25Z" fill="none" stroke="#5ddcff" strokeWidth="2"/></svg><b>{multiplierLabel(multiplier)}</b></div><strong className="if-final-amount">{win > 0n ? money(win) : ICE_FISH_LABELS[color]}</strong><span className="if-final-caption">{win > 0n ? "YOU WON" : settled ? "ROUND COMPLETE" : "CATCH REVEALED"}</span></div>
     </div>}
   </section>;
 }

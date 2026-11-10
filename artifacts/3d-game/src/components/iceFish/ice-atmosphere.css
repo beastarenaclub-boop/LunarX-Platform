@@ -5,7 +5,7 @@
 .if-cloud-near { width:145%; height:32%; bottom:-8%; left:-30%; opacity:.7; animation-duration:19s; animation-delay:-8s; }
 .if-cloud-edge { width:85%; height:52%; left:-51%; top:25%; opacity:.5; transform:rotate(-12deg); animation-duration:31s; }
 .is-wheel.if-atmosphere { z-index:2; }
-.is-wheel .if-cloud-middle { top:63%; opacity:.3; }
+.is-wheel .if-cloud-middle { top:63%; opacity:.15; }
 .is-wheel .if-cloud-far { opacity:.25; }
 .is-surface .if-cloud-middle { opacity:.2; }
 .is-surface .if-cloud-near { opacity:.62; }

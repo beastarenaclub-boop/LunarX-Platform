@@ -1,0 +1,37 @@
+{
+  "version": 5,
+  "mode": "built-in imagegen",
+  "reference": "C:/games4/Recording 2026-11-10 134239.mp4",
+  "assets": [
+    {
+      "file": "artifacts/3d-game/public/media/ice-fish/bet-cards-v5.webp",
+      "source": "C:/Users/hacker/.codex/generated_images/01a1c07c-cc3c-7dc2-8605-cf595cf67b69/exec-feefdef9-1e23-4b48-9248-106fc86c021c.png",
+      "prompt": "Asset type: production Ice Fish betting-card sprite atlas. Use the supplied game screenshot as a visual reference, specifically its three fish bet buttons along the bottom. Make exactly three separate game buttons in a single horizontal row of THREE EQUAL SQUARE CELLS on transparent alpha, canvas 2172x724 or any exact 3:1 ratio. Each card fills 94% of its square cell, same position and dimensions. Card 1 luminous blue fish, card 2 vivid green fish, card 3 large crimson red fish. Each fish faces upper-left with tail lower-right, realistically rounded 3D body, glossy scales, fins and big eyes, enclosed in a thick translucent turquoise ice block. The upper block is about the top 65% of each card, frosty white top and beveled side edges, organic branching cracks over the fish, cloudy frozen glass with visible 3D depth. The red fish is larger and its upper snout/dorsal fin slightly protrudes above the block like the reference. Bottom 35% is a matching blank rectangular label plaque with rounded beveled silver-white frame and chunky icicles hanging over its top edge: BLUE deep sapphire for card 1, GREEN emerald for card 2, RED crimson for card 3. Plaques bright saturated near upper edges and dark in center, glossy beveled glow, no text. The blank plaque center must stay empty for runtime text. High fidelity 3D game UI, not flat CSS-style rectangles, no captions, no numbers, no letters, no casino chips, no extra UI, no background. Keep each complete card inside its equal cell with alpha separation, same scale and ground line. Reference image is for style and shape; output only the three isolated cards.",
+      "transparent": true
+    },
+    {
+      "file": "artifacts/3d-game/public/media/ice-fish/wheel-hub-v5.webp",
+      "source": "C:/Users/hacker/.codex/generated_images/01a1c07c-cc3c-7dc2-8605-cf595cf67b69/exec-9dc756ab-cda9-4830-a954-36495f82f823.png",
+      "prompt": "Asset type: circular wheel hub texture. Use the center of the wheel in the supplied Ice Fish game screenshot as the reference. Produce a square 1024x1024 transparent PNG containing ONE centered perfectly round icy medallion, full disc visible with 3% transparent padding, straight-on orthographic front view. The disc surface is pale frosted cyan ice with cloudy translucency, subtle crystalline cracks and icy refraction. Its edge is a thin soft silver rim, not a gold coin. Center two lines of large bold condensed block text: ICE above FISH, exactly these words. Text occupies 69% of disc width and 55% of height, engraved deeply into the ice with dark blue recessed interiors, darker left and bottom faces, frosty white beveled top edges. Match the reference's physical sculpted icy lettering, no flat outlined typography. The ice disc is evenly pale cyan, not a dark navy background, no landscape or lake. No other text, no pointer, no wheel spokes, no background, no glow outside the circle. Genuine alpha outside the circle. Polished 3D slot game art matching reference.",
+      "transparent": true
+    },
+    {
+      "file": "artifacts/3d-game/public/media/ice-fish/wheel-fish-v5.webp",
+      "source": "C:/Users/hacker/.codex/generated_images/01a1c07c-cc3c-7dc2-8605-cf595cf67b69/exec-9cd6df4b-3b72-42fb-9afe-2ff2dcadf53a.png",
+      "prompt": "Edit the first supplied sprite atlas. Change ONLY the three fish heads in the TOP ROW. They currently look like symmetrical front-facing bird heads, which is wrong. Replace each with a SIDE-PROFILE fish head and shoulder, with ONLY ONE large visible eye, one gill plate, one visible side fin. Nose/snouted mouth at TOP, neck/body taper at BOTTOM: a side view fish turned 90 degrees nose-up, as shown on the wheel wedges in the second reference screenshot. It should look like the side silhouette of a fish, not a face looking at the viewer. Match the illustrated glossy blue/green/red fish style in the wheel reference, thin defined dark edge and smooth colored scales. Keep the blue, green, red column order, 3-column by 2-row equal-cell atlas layout and same 1536x1024 size. Keep the entire BOTTOM ROW of three tail fins unchanged. Remove all color haze around sprites, pure transparent alpha outside fish and tails, no background. No text, no UI, no extra objects.",
+      "transparent": true
+    },
+    {
+      "file": "artifacts/3d-game/public/media/ice-fish/logo-v5.webp",
+      "source": "C:/Users/hacker/.codex/generated_images/01a1c07c-cc3c-7dc2-8605-cf595cf67b69/exec-5fccfcd7-d16e-41df-b014-420f28a38179.png",
+      "prompt": "Create an isolated transparent game logo matching the small ICE FISH logo at top left of the supplied reference. Exact text on two centered lines, ICE above FISH. ICE is thick uppercase block type carved from frosty cyan-white ice with blue side extrusions, FISH is thick uppercase block type in bright lemon yellow/gold with amber lower extrusions. Strong compact nearly square silhouette, FISH about 30 percent wider than ICE, chunky beveled edges, softly lit from upper-left, slight dark navy drop shadow directly behind the letters. Match the reference's crisp small 3D game logo, no ornate decorations, no fish character, no frame, no icicles hanging far below, no other words. Transparent alpha around the letters and soft shadow, centered with about 15 percent padding, 1024x1024 square. Output just the logo, no background or screenshot elements.",
+      "transparent": true
+    }
+  ],
+  "font": {
+    "family": "Roboto Condensed",
+    "file": "artifacts/3d-game/public/media/ice-fish/RobotoCondensed-Variable.ttf",
+    "source": "https://github.com/google/fonts/tree/main/ofl/robotocondensed",
+    "license": "RobotoCondensed-OFL.txt"
+  }
+}

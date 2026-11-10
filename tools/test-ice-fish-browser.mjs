@@ -144,12 +144,13 @@ try {
     await expect(page.getByTestId("demo-activity")).toHaveCount(0);
     await page.evaluate(async () => {
       await Promise.all(
-        ["frozen-lake-v2.webp", "fish-atlas-v1.webp", "coins-v4.webp", "mist-v4.webp", "result-ice-v4.webp", "intro-ice-v4.webp", "fishing-rig-v4.webp"].map(async (asset) => {
+        ["frozen-lake-v2.webp", "fish-atlas-v1.webp", "coins-v4.webp", "mist-v4.webp", "result-ice-v4.webp", "intro-ice-v4.webp", "fishing-rig-v4.webp", "bet-cards-v5.webp", "wheel-hub-v5.webp", "wheel-fish-v5.webp", "logo-v5.webp"].map(async (asset) => {
           const img = new Image();
           img.src = "/media/ice-fish/" + asset;
           await img.decode();
         }),
       );
+      await document.fonts.ready;
     });
     await page.screenshot({
       path: `tmp/reference-2026-11-10/browser/betting-${viewport.width}.png`,
@@ -157,6 +158,15 @@ try {
     });
     const cloudPosition = await page.locator(".if-cloud").first().evaluate(el => getComputedStyle(el).translate);
     await expect.poll(() => page.locator(".if-cloud").first().evaluate(el => getComputedStyle(el).translate)).not.toBe(cloudPosition);
+    const trackBox = await page.locator(".if-clock-track").boundingBox(), numberBox = await page.locator(".if-countdown b").boundingBox();
+    assert.ok(Math.abs(trackBox.y + trackBox.height / 2 - numberBox.y - numberBox.height / 2) < 2, "Timer number stays centered on the progress bar");
+    const cards = await page.locator(".if-fish-bet").all();
+    for (const card of cards) {
+      const bounds = await card.boundingBox(), label = await card.locator(".if-card-label").boundingBox();
+      assert.ok(label.y >= bounds.y && label.y + label.height <= bounds.y + bounds.height, "Fish labels stay inside their cards");
+    }
+    const allButton = await page.locator('.if-all-bonuses').boundingBox(), allCaption = await page.locator('.if-all-caption').boundingBox();
+    assert.ok(allCaption.y >= allButton.y && allCaption.y + allCaption.height <= allButton.y + allButton.height, 'All Bonuses caption fits in every orientation');
     assert.ok(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth + 2,
@@ -244,6 +254,8 @@ try {
     await page.screenshot({path:`tmp/reference-2026-11-10/browser/boost-${viewport.width}.png`,fullPage:true});
     revealElapsedMs = 9800;
     await expect(page.getByTestId("ice-fishing-bonus")).toHaveAttribute("data-stage", "intro", {timeout:6000});
+    await expect(page.locator(".if-logo")).toBeHidden();
+    await expect(page.locator(".if-wallet")).toBeHidden();
     await page.screenshot({path:`tmp/reference-2026-11-10/browser/intro-${viewport.width}.png`,fullPage:true});
     revealElapsedMs = 12300;
     current = outcome(10);
@@ -278,6 +290,11 @@ try {
       roundId = `bonus-${color}`; current = outcome(segment); myBets = [];
       await expect(page.getByTestId("ice-fishing-bonus")).toHaveClass(new RegExp(`bonus-${color}`),{timeout:6000});
       await expect(page.getByTestId("ice-bonus-result")).not.toContainText("YOU WON");
+    }
+    roundId = 'large-multiplier-display'; current = {...outcome(22), fishValue:5000};
+    await expect(page.locator('.if-final-badge b')).toHaveText(/\d{4}/,{timeout:6000});
+    for (const selector of ['.if-final-badge b','.if-catch-meter strong']) {
+      assert.ok(await page.locator(selector).evaluate(el => el.scrollWidth <= el.clientWidth + 1), 'Large multiplier fits its ice plaque');
     }
     await page.reload();
     await expect(page.getByTestId("ice-fishing-bonus")).toHaveAttribute("data-stage","result",{timeout:6000});

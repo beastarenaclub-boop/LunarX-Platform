@@ -41,6 +41,7 @@ import {
 import { playGameSound, unlockAudio } from "@/game/audio";
 import IceWheel, { Anchor, Fish } from "@/components/iceFish/IceWheel";
 import IceAtmosphere from "@/components/iceFish/IceAtmosphere";
+import IceFishCard from "@/components/iceFish/IceFishCard";
 import IceFishingBonus from "@/components/iceFish/IceFishingBonus";
 import { fishingPresentation, multiplierLabel } from "@/components/iceFish/iceFishPresentation";
 import "@/components/iceFish/ice-fish.css";
@@ -79,7 +80,7 @@ export default function IceFish() {
     root = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // Warm the short bonus transition before its server-clock deadline arrives.
-    for (const name of ["intro-ice-v4.webp", "coins-v4.webp", "result-ice-v4.webp", "fishing-rig-v4.webp", "fishing-station-v3.webp", "fish-school-v3.webp"]) {
+    for (const name of ["bet-cards-v5.webp", "wheel-hub-v5.webp", "wheel-fish-v5.webp", "logo-v5.webp", "intro-ice-v4.webp", "coins-v4.webp", "result-ice-v4.webp", "fishing-rig-v4.webp", "fishing-station-v3.webp", "fish-school-v3.webp"]) {
       const image = new Image();
       image.src = `/media/ice-fish/${name}`;
       void image.decode().catch(() => undefined);
@@ -355,7 +356,7 @@ export default function IceFish() {
   }
   return (
     <div
-      className={`ice-fish-game ${round.phase === "betting" ? "is-betting" : "is-closed"} ${fishing ? "has-fishing-scene" : ""} ${round.phase === "reveal" && !landed ? "is-spinning" : ""} ${landed ? "has-result" : ""} ${reducedMotion ? "reduce-motion" : ""}`}
+      className={`ice-fish-game ${round.phase === "betting" ? "is-betting" : "is-closed"} ${fishing ? "has-fishing-scene" : ""} ${fishing && bonusStage === "intro" ? "is-ice-transition" : ""} ${round.phase === "reveal" && !landed ? "is-spinning" : ""} ${landed ? "has-result" : ""} ${reducedMotion ? "reduce-motion" : ""}`}
       ref={root}
       data-testid="ice-fish-game"
     >
@@ -363,8 +364,7 @@ export default function IceFish() {
       <div className="if-mist" />
       {!fishing && <IceAtmosphere />}
       <Link href="/" className="if-logo" aria-label="Ice Fish — back to lobby">
-        <span>ICE</span>
-        <strong>FISH</strong>
+        <img src="/media/ice-fish/logo-v5.webp" alt="Ice Fish" />
       </Link>
       <button
         className="if-menu-button"
@@ -442,8 +442,8 @@ export default function IceFish() {
                     width: `${Math.max(0, (round.remainingMs / Math.max(1, (round.phaseDurationMs ?? 12000) - BET_SEND_BUFFER_MS)) * 100)}%`,
                   }}
                 />
+                <b>{seconds}</b>
               </div>
-              <b>{seconds}</b>
             </>
           )}
         </div>
@@ -477,13 +477,7 @@ export default function IceFish() {
               aria-label={`Bet ${ICE_FISH_LABELS[type]}`}
               onClick={() => stage([{ type, amountPaise: String(chip * 100) }])}
             >
-              <div className="if-frozen-card">
-                <Fish color={type} />
-                <i />
-              </div>
-              <strong>
-                <span>{ICE_FISH_LABELS[type]}</span>
-              </strong>
+              <IceFishCard color={type} />
               {shownBets.some((b) => b.type === type) && (
                 <em>{money(sum(shownBets.filter((b) => b.type === type)))}</em>
               )}
@@ -507,12 +501,10 @@ export default function IceFish() {
               <Fish color="green" />
               <Fish color="red" />
             </span>
-            <b>
+            <div className="if-all-caption">
               <Globe2 aria-hidden="true" />
-            </b>
-            ALL
-            <br />
-            BONUSES
+              <div>ALL<br />BONUSES</div>
+            </div>
           </button>
         </div>
         <div className="if-chip-row">
