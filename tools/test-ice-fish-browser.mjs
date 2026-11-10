@@ -132,14 +132,7 @@ try {
       );
       throw error;
     }
-    const activity = page.getByTestId("demo-activity");
-    await expect(activity).toContainText("SIMULATED");
-    await expect(activity).toHaveAttribute("data-demo-total", "100");
-    await activity.getByRole("button").click();
-    await expect(
-      page.getByRole("region", { name: "Demo practice players" }),
-    ).toContainText("not real users, bets or winnings");
-    await activity.getByRole("button").click();
+    await expect(page.getByTestId("demo-activity")).toHaveCount(0);
     await page.evaluate(async () => {
       await Promise.all(
         ["frozen-lake-v2.webp", "fish-atlas-v1.webp"].map(async (asset) => {

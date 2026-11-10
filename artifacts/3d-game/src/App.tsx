@@ -24,7 +24,6 @@ import { setQueryClient } from "@/game/serverBridge";
 import RealtimeBridge from "@/components/lunar/RealtimeBridge";
 import SharedWalletBridge from "@/components/SharedWalletBridge";
 import GameViewport from "@/components/GameViewport";
-import DemoActivity from "@/components/game/DemoActivity";
 import "@/components/site/site.css";
 import LoadingScreen from "@/components/game/LoadingScreen";
 import { CRASH_THEMES } from "@/game/crashThemes";
@@ -213,7 +212,6 @@ function App() {
     <AuthProvider>
       <TooltipProvider>
         <DemoSessionBanner />
-        <DemoActivity fallbackGame={game} />
         <EngineHost />
         <RealtimeBridge enabled={CRASH_ROUTES.some(entry => entry.route === location)} />
         <SharedWalletBridge />
