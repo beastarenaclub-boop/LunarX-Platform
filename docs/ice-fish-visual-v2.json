@@ -1,0 +1,8 @@
+{
+  "mode": "built-in image_gen.imagegen",
+  "reference": "User-provided Recording 2026-11-10 092553.mp4, frame at 76 seconds",
+  "asset": "artifacts/3d-game/public/media/ice-fish/frozen-lake-v2.webp",
+  "transparent_background": false,
+  "prompt": "Edit the supplied ICE FISH gameplay screenshot into the production BACKGROUND ONLY. Preserve the exact visible blue ice from this screenshot: dark subdued arctic azure, thin branching cracks, large translucent ice slabs, broad quiet areas between cracks, atmospheric fog building gently in the bottom quarter. Remove the entire wheel, all fish, all text, all logos, all buttons, coins, history dots, pointer, and user interface, reconstructing matching continuous ice behind them. The glowing cracked ice circular halo behind the wheel should remain, centered horizontally near 55 percent of the image height. Keep the outer portions as close as possible to the supplied image; do not replace them with a busier web of cracks, neon light, or higher contrast. 16:9 landscape, full bleed, no white border. No objects or lettering whatsoever. This is a subtle frozen lake background for a wheel to be rendered separately; the middle should be unobtrusive blue ice with no wheel shape except the natural halo.",
+  "conversion": "FFmpeg libwebp, quality 91"
+}

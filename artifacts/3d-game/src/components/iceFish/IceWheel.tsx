@@ -28,12 +28,22 @@ export function Anchor({
   grey?: boolean;
   className?: string;
 }) {
+  const stem =
+    "M40 21V64M25 31h30M15 44c-2 18 11 24 25 26 14-2 27-8 25-26M10 49l6-10 10 8M54 47l10-8 6 10";
   return (
     <svg aria-hidden="true" className={className} viewBox="0 0 80 80">
       <path
-        d="M40 20V65M25 31h30M15 44c-2 18 11 24 25 26 14-2 27-8 25-26M10 49l6-10 10 8M54 47l10-8 6 10"
+        d={stem}
         fill="none"
-        stroke={grey ? "#335877" : "#f3faff"}
+        stroke={grey ? "#44637d" : "#70839b"}
+        strokeWidth="9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d={stem}
+        fill="none"
+        stroke={grey ? "#315778" : "#f4f9ff"}
         strokeWidth="6"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -42,8 +52,8 @@ export function Anchor({
         cx="40"
         cy="12"
         r="7"
-        fill="none"
-        stroke={grey ? "#335877" : "#f3faff"}
+        fill={grey ? "#91a9bf" : "#c4d5e3"}
+        stroke={grey ? "#315778" : "#f4f9ff"}
         strokeWidth="5"
       />
     </svg>
@@ -78,6 +88,7 @@ export default function IceWheel({
     active = useRef<string | null>(null);
   const elapsed = revealStart === null ? 0 : now - revealStart,
     landed = !!outcome && elapsed >= 9500;
+  const showBoosts = !!outcome && elapsed >= 6000;
   useEffect(() => {
     const node = rotor.current;
     if (!node || !outcome || !roundId || revealStart === null) return;
@@ -121,6 +132,29 @@ export default function IceWheel({
       }
     >
       <defs>
+        <clipPath id="if-hub-ice-clip">
+          <circle cx="500" cy="500" r="117" />
+        </clipPath>
+        <radialGradient id="if-face-shade">
+          <stop offset=".22" stopColor="#e8faff" stopOpacity=".12" />
+          <stop offset=".8" stopColor="#344e73" stopOpacity="0" />
+          <stop offset=".96" stopColor="#142e4d" stopOpacity=".10" />
+          <stop offset="1" stopColor="#051a30" stopOpacity=".55" />
+        </radialGradient>
+        <pattern
+          id="if-ice-letter"
+          patternUnits="userSpaceOnUse"
+          width="170"
+          height="170"
+        >
+          <rect width="170" height="170" fill="#355775" />
+          <image
+            href={media + "frozen-lake-v2.webp"}
+            width="300"
+            height="170"
+            opacity=".3"
+          />
+        </pattern>
         <linearGradient id="if-metal" x2="1" y2="1">
           <stop stopColor="#697b8e" />
           <stop offset=".17" stopColor="#f6ffff" />
@@ -186,6 +220,9 @@ export default function IceWheel({
         <filter id="if-glow">
           <feGaussianBlur stdDeviation="6" />
         </filter>
+        <filter id="if-motion">
+          <feGaussianBlur stdDeviation=".85" />
+        </filter>
       </defs>
       <circle
         cx="500"
@@ -214,15 +251,23 @@ export default function IceWheel({
       ))}
       <g ref={rotor} className="if-wheel-rotor">
         {ICE_FISH_WHEEL.map((spot, index) => (
-          <g key={index} transform={`rotate(${index * 8} 500 500)`}>
+          <g
+            key={index}
+            transform={`rotate(${index * 8} 500 500)`}
+            className={
+              landed && outcome?.segment === index
+                ? "if-winning-segment"
+                : undefined
+            }
+          >
             <path d={wedge(-4, 4, 438)} fill={colors[spot]} />
             {isFish(spot) ? (
               <>
                 <svg
-                  x="477"
-                  y="64"
-                  width="46"
-                  height="60"
+                  x="470"
+                  y="60"
+                  width="60"
+                  height="75"
                   viewBox={`${["blue", "green", "red"].indexOf(spot) * 724 + 32} 30 660 650`}
                   preserveAspectRatio="xMidYMid meet"
                 >
@@ -233,37 +278,46 @@ export default function IceWheel({
                   />
                 </svg>
                 <text
-                  transform="translate(508 245) rotate(-90)"
+                  transform="translate(510 255) rotate(-90)"
                   textAnchor="middle"
                   fill="#fff"
                   stroke="#064566"
                   strokeWidth="1"
                   paintOrder="stroke"
-                  fontSize="27"
-                  fontWeight="900"
+                  fontSize="34"
+                  textLength="204"
+                  lengthAdjust="spacingAndGlyphs"
+                  fontWeight="700"
                   fontFamily="Arial Narrow,Arial,sans-serif"
                 >
                   {ICE_FISH_LABELS[spot]}
                 </text>
               </>
             ) : (
-              <svg x="476" y="71" width="48" height="48" viewBox="0 0 80 80">
-                <Anchor grey={spot === "grey"} />
+              <svg x="474" y="70" width="52" height="52" viewBox="0 0 80 80">
+                <Anchor
+                  grey={spot === "grey"}
+                  className={
+                    showBoosts && outcome.boosts[index] > 1
+                      ? "if-anchor-boost"
+                      : undefined
+                  }
+                />
               </svg>
             )}
-            {outcome && outcome.boosts[index] > 1 && (
+            {showBoosts && outcome.boosts[index] > 1 && (
               <text
-                x="500"
-                y={isFish(spot) ? 150 : 165}
+                className="if-wheel-boost"
+                transform={`translate(513 ${isFish(spot) ? 172 : 162}) rotate(-90)`}
                 textAnchor="middle"
                 fill="#ffe581"
                 stroke="#80622b"
                 strokeWidth="1.5"
                 paintOrder="stroke"
                 fontWeight="900"
-                fontSize="31"
+                fontSize="40"
               >
-                {outcome.boosts[index]}x
+                {outcome.boosts[index]}X
               </text>
             )}
             <circle
@@ -277,6 +331,13 @@ export default function IceWheel({
           </g>
         ))}
       </g>
+      <circle
+        cx="500"
+        cy="500"
+        r="438"
+        fill="url(#if-face-shade)"
+        pointerEvents="none"
+      />
       {Array.from({ length: 30 }, (_, i) => (
         <circle
           key={i}
@@ -300,18 +361,20 @@ export default function IceWheel({
         cx="500"
         cy="500"
         r="132"
-        fill="#778c9b"
-        stroke="#c6dce3"
+        fill="#303d49"
+        stroke="url(#if-metal)"
         strokeWidth="8"
       />
       <circle cx="500" cy="500" r="118" fill="url(#if-hub)" />
       <image
-        href={media + "frozen-lake-v1.webp"}
-        x="417"
-        y="420"
-        width="166"
-        height="160"
-        opacity=".15"
+        href={media + "frozen-lake-v2.webp"}
+        x="382"
+        y="382"
+        width="236"
+        height="236"
+        preserveAspectRatio="xMidYMid slice"
+        clipPath="url(#if-hub-ice-clip)"
+        opacity=".35"
       />
       <text
         x="500"
@@ -320,7 +383,7 @@ export default function IceWheel({
         fontFamily="Arial Black,Arial,sans-serif"
         fontWeight="900"
         fontSize="66"
-        fill="#3d6881"
+        fill="url(#if-ice-letter)"
         stroke="#c1edf2"
         strokeWidth="2"
         paintOrder="stroke"
@@ -334,7 +397,7 @@ export default function IceWheel({
         fontFamily="Arial Black,Arial,sans-serif"
         fontWeight="900"
         fontSize="68"
-        fill="#3d6881"
+        fill="url(#if-ice-letter)"
         stroke="#c1edf2"
         strokeWidth="2"
         paintOrder="stroke"
@@ -342,14 +405,18 @@ export default function IceWheel({
         FISH
       </text>
       <path
-        d="M452 16L548 16L500 81Z"
+        d="M452 -6L548 -6L500 59Z"
         fill="#26333a"
         stroke="#788c94"
         strokeWidth="3"
       />
-      <path d="M463 22L536 22L500 66Z" fill="url(#if-pointer)" />
       <path
-        d="M496 77L504 77L500 96Z"
+        className="if-pointer-face"
+        d="M463 0L536 0L500 44Z"
+        fill="url(#if-pointer)"
+      />
+      <path
+        d="M496 55L504 55L500 74Z"
         fill="#d73046"
         stroke="#91323b"
         strokeWidth="2"

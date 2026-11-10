@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "wouter";
 import {
   Menu,
+  Globe2,
   Settings,
   Undo2,
   Repeat2,
@@ -66,13 +67,13 @@ const money = (n: string | number | bigint) =>
   `₹ ${Number(n) / 100 < 1000 ? (Number(n) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 }) : (Number(n) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const sum = (bets: IceFishBet[]) =>
   bets.reduce((n, b) => n + BigInt(b.amountPaise), 0n);
-const chips = [10, 25, 50, 100, 250, 500];
+const chips = [10, 50, 100, 250, 500];
 
 export default function IceFish() {
   const { user } = useAuth(),
     qc = useQueryClient(),
     root = useRef<HTMLDivElement>(null);
-  const [chip, setChip] = useState(25),
+  const [chip, setChip] = useState(10),
     [sound, setSound] = useState(
       () => localStorage.getItem("ice-fish:sound") === "true",
     );
@@ -324,7 +325,7 @@ export default function IceFish() {
   }
   return (
     <div
-      className={`ice-fish-game ${round.phase === "betting" ? "is-betting" : "is-closed"} ${fishing ? "is-fishing" : ""} ${reducedMotion ? "reduce-motion" : ""}`}
+      className={`ice-fish-game ${round.phase === "betting" ? "is-betting" : "is-closed"} ${fishing ? "is-fishing" : ""} ${round.phase === "reveal" && !landed ? "is-spinning" : ""} ${landed ? "has-result" : ""} ${reducedMotion ? "reduce-motion" : ""}`}
       ref={root}
       data-testid="ice-fish-game"
     >
@@ -347,7 +348,9 @@ export default function IceFish() {
         </span>
         {myWin > 0n && <strong>WINS {money(myWin)}</strong>}
       </div>
-      <div className={`if-wheel-stage ${landed ? "is-zoomed" : ""}`}>
+      <div
+        className={`if-wheel-stage ${round.outcome && round.phase !== "betting" ? "is-zoomed" : ""}`}
+      >
         <IceWheel
           outcome={round.outcome}
           roundId={round.roundId}
@@ -371,13 +374,20 @@ export default function IceFish() {
         </div>
       )}
       {landed && !fishing && round.outcome && (
-        <div className="if-result" role="status" data-testid="ice-fish-result">
-          {spot && isFish(spot) ? (
-            <Fish color={spot} />
-          ) : (
-            <Anchor grey={spot === "grey"} />
-          )}
-          <strong>{multiplier.toFixed(2)}x</strong>
+        <div
+          className={`if-result ${myWin > 0n ? "has-win" : ""}`}
+          role="status"
+          data-testid="ice-fish-result"
+          aria-label={spot ? `${ICE_FISH_LABELS[spot]} result` : "Wheel result"}
+        >
+          <div className="if-result-catch">
+            {spot && isFish(spot) ? (
+              <Fish color={spot} />
+            ) : (
+              <Anchor grey={spot === "grey"} />
+            )}
+            <strong>{multiplier.toFixed(2)}x</strong>
+          </div>
           <span>
             {myWin > 0n
               ? `YOU WON ${money(myWin)}`
@@ -387,6 +397,7 @@ export default function IceFish() {
           </span>
         </div>
       )}
+      {landed && <div className="if-next-round">NEXT GAME SOON...</div>}
       <section className="if-bet-console" aria-label="Ice Fish betting">
         <div className="if-countdown" aria-live="polite">
           <strong>
@@ -449,7 +460,9 @@ export default function IceFish() {
                 <Fish color={type} />
                 <i />
               </div>
-              <strong>{ICE_FISH_LABELS[type]}</strong>
+              <strong>
+                <span>{ICE_FISH_LABELS[type]}</span>
+              </strong>
               {shownBets.some((b) => b.type === type) && (
                 <em>{money(sum(shownBets.filter((b) => b.type === type)))}</em>
               )}
@@ -473,7 +486,10 @@ export default function IceFish() {
               <Fish color="green" />
               <Fish color="red" />
             </span>
-            <b>◉</b>ALL
+            <b>
+              <Globe2 aria-hidden="true" />
+            </b>
+            ALL
             <br />
             BONUSES
           </button>

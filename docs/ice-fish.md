@@ -2,6 +2,10 @@
 
 The new `/ice-fish` game follows the visible layout in `Recording 2026-11-10 092553.mp4`: cracked blue ice, a 45-position metal wheel, anchor and fish betting areas, chip tray, countdown, wallet and result history. It is available from the B2C and player lobbies. Existing games retain their designs.
 
+The second visual pass replaces the ice background, adjusts wheel size and placement, outlines the anchors, textures the hub, enlarges radial fish labels and reverses the betting-card fish to face the reference direction. The wheel zoom begins with the spin, boosts appear during deceleration, the pointer lights on landing, and an icy result card replaces the floating result. Chips hide and betting cards move down when betting closes. Five denominations match the reference's tray structure while retaining platform stake values. Responsive sizes keep menus, results and wallet controls reachable.
+
+The separate [labelled demo activity bar](demo-activity.md) uses the shared pool of 100 practice profiles. It never modifies this game's real player count or results. [Background v2 provenance](ice-fish-visual-v2.json) records the built-in image-generation prompt.
+
 The recording contains no audio and does not show the interior fishing bonus sequence. Sound cues, fish artwork and the catch animation are new implementations. Hidden provider weights cannot be recovered from a recording; this game uses the independently implemented, versioned platform rules in `lib/api-zod/src/ice-fish.ts`.
 
 ## Rules and controls

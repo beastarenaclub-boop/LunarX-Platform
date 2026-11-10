@@ -132,6 +132,23 @@ try {
       );
       throw error;
     }
+    const activity = page.getByTestId("demo-activity");
+    await expect(activity).toContainText("SIMULATED");
+    await expect(activity).toHaveAttribute("data-demo-total", "100");
+    await activity.getByRole("button").click();
+    await expect(
+      page.getByRole("region", { name: "Demo practice players" }),
+    ).toContainText("not real users, bets or winnings");
+    await activity.getByRole("button").click();
+    await page.evaluate(async () => {
+      await Promise.all(
+        ["frozen-lake-v2.webp", "fish-atlas-v1.webp"].map(async (asset) => {
+          const img = new Image();
+          img.src = "/media/ice-fish/" + asset;
+          await img.decode();
+        }),
+      );
+    });
     await page.screenshot({
       path: `tmp/reference-2026-11-10/browser/betting-${viewport.width}.png`,
       fullPage: true,
@@ -209,6 +226,13 @@ try {
       .getByRole("button", { name: "Cancel selected bets", exact: true })
       .click();
     phase = "reveal";
+    bettingEndsAt = Date.now() - 1000;
+    current = outcome(10);
+    await expect(page.locator(".if-wheel-stage")).toHaveClass(/is-zoomed/, {
+      timeout: 6000,
+    });
+    await expect(page.locator(".if-chip-row")).toBeHidden();
+    await expect(page.locator(".if-countdown")).toBeHidden();
     bettingEndsAt = Date.now() - 10000;
     current = outcome(10);
     await expect(
@@ -229,6 +253,10 @@ try {
       "White anchor",
       { timeout: 6000 },
     );
+    await page.screenshot({
+      path: `tmp/reference-2026-11-10/browser/result-${viewport.width}.png`,
+      fullPage: true,
+    });
     await page
       .getByRole("button", { name: "Open game menu", exact: true })
       .click();
