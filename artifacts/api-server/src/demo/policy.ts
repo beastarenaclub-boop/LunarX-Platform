@@ -18,7 +18,7 @@ export function demoRouteAllowed(method: string, path: string) {
   if (!match || !["GET", "POST"].includes(method)) return false;
   if (DEMO_GAME_ROOTS.has(match[1])) return true;
   if (method !== "GET") return false;
-  if (/^\/api\/reports\/(accountstatement|currentbets|activity|casinoresult|livecasinoresult|sportbookresult)$/.test(path)) return true;
+  if (/^\/api\/reports\/(accountstatement|currentbets|activity|casinoresult|livecasinoresult|sportbookresult|gameresults)$/.test(path)) return true;
   if (/^\/api\/wallet\/(balance|balances|transactions)$/.test(path)) return true;
   return /^\/api\/game\/(registry|config\/[^/]+\/public|rounds(?:\/[^/]+\/verify)?)$/.test(path);
 }

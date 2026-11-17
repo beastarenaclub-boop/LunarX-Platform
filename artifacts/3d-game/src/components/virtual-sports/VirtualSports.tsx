@@ -6,6 +6,7 @@ import {
   useState,
   type CSSProperties,
 } from "react";
+import { useLocation } from "wouter";
 import {
   Activity,
   ArrowDownLeft,
@@ -245,6 +246,7 @@ export default function VirtualSports({
   standalone?: boolean;
   initialSport?: string;
 }) {
+  const [, navigate] = useLocation();
   const [selected, setSelected] = useState<SportId>(() => {
     const requested = standalone
       ? new URLSearchParams(location.search).get("sport")
@@ -338,6 +340,7 @@ export default function VirtualSports({
   const changeSport = (id: SportId) => {
     setSelected(id);
     if (standalone) history.replaceState(null, "", `?sport=${id}`);
+    else navigate(`/virtual-sports/${id}`);
   };
   const phase = round?.phase ?? "loading",
     deadline = round

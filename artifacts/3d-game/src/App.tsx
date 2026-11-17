@@ -23,6 +23,7 @@ import { getLoginDestination } from "@/lib/loginDestination";
 import { setQueryClient } from "@/game/serverBridge";
 import RealtimeBridge from "@/components/lunar/RealtimeBridge";
 import SharedWalletBridge from "@/components/SharedWalletBridge";
+import GameWinnings from "@/components/game/GameWinnings";
 import GameViewport from "@/components/GameViewport";
 import "@/components/site/site.css";
 import LoadingScreen from "@/components/game/LoadingScreen";
@@ -215,6 +216,7 @@ function App() {
         <EngineHost />
         <RealtimeBridge enabled={CRASH_ROUTES.some(entry => entry.route === location)} />
         <SharedWalletBridge />
+        <GameWinnings activeGame={game} />
         <GameViewport game={game}>
         <Suspense fallback={<AuthSplash />}>
         <Switch>

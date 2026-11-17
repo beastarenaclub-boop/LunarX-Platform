@@ -60,6 +60,42 @@ async function ok(session: DemoSession, path: string, body?: unknown, headers?: 
   return result.data;
 }
 
+test("game winnings history filters by game and authenticated player with pagination", async () => {
+  const a = await visitor(), b = await visitor();
+  for (let i = 0; i < 2; i++) await ok(a, "dice/roll", { stakeAmount: "10000", target: 50, direction: "under" });
+  await ok(a, "plinko/drop", { stakeAmount: "10000", rows: 8, risk: "low" });
+  await ok(b, "dice/roll", { stakeAmount: "10000", target: 50, direction: "under" });
+  const first = await ok(a, "reports/gameresults?gameCode=dice&limit=1");
+  assert.equal(first.items.length, 1);
+  assert.equal(first.items[0].game, "dice");
+  assert.equal(first.items[0].stake, "10000");
+  assert.ok(first.nextCursor);
+  const second = await ok(a, `reports/gameresults?gameCode=dice&limit=1&cursor=${encodeURIComponent(first.nextCursor)}`);
+  assert.equal(second.items.length, 1);
+  assert.notEqual(second.items[0].id, first.items[0].id);
+  assert.equal(second.nextCursor, null);
+  assert.equal((await ok(b, "reports/gameresults?gameCode=plinko")).items.length, 0);
+  const other = await ok(b, "reports/gameresults?gameCode=dice");
+  assert.equal(other.items.length, 1);
+  assert.ok(![first.items[0].id, second.items[0].id].includes(other.items[0].id));
+  assert.equal((await ok(a, "bets")).entries.length, 3);
+  assert.equal((await request(a, "reports/gameresults?gameCode=")).status, 400);
+  assert.equal((await request(a, "reports/gameresults")).status, 400);
+  let state = await ok(a, "wingo/state");
+  const deadline = Date.now() + 35000;
+  while (state.round.ends - state.serverTime < 7000) {
+    assert.ok(Date.now() < deadline);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    state = await ok(a, "wingo/state");
+  }
+  await ok(a, "wingo/bets", { duration: 30, period: state.round.period, pick: "green", stake: 10000, request: randomUUID(), payoutVersion: state.round.payoutVersion });
+  const colour = await ok(a, "reports/gameresults?gameCode=wingo");
+  assert.equal(colour.items.length, 1);
+  assert.equal(colour.items[0].game, "wingo");
+  assert.equal(colour.items[0].stake, "10000");
+  assert.equal((await ok(b, "reports/gameresults?gameCode=wingo")).items.length, 0);
+});
+
 test("poker variants accept isolated demo bets and keep private receipts separate", { timeout: 60_000 }, async () => {
   const a = await visitor(), b = await visitor();
   for (const game of POKER_GAMES) {

@@ -14,8 +14,10 @@ export const reportKinds = [
   "casinoresult",
   "livecasinoresult",
   "sportbookresult",
+  "gameresults",
 ] as const;
 const querySchema = z.object({
+  gameCode: z.string().trim().min(1).max(64).optional(),
   from: z.string().optional(),
   to: z.string().optional(),
   cursor: z.string().max(512).optional(),
@@ -37,6 +39,7 @@ router.get("/:kind", requireAuth, async (req, res, next) => {
   try {
     const kind = z.enum(reportKinds).parse(req.params.kind);
     const input = querySchema.parse(req.query);
+    if (kind === "gameresults" && !input.gameCode) throw badRequest("Choose a game for your results.");
     const from = day(input.from),
       to = day(input.to);
     if (from && to && from > to)
@@ -69,6 +72,7 @@ router.get("/:kind", requireAuth, async (req, res, next) => {
       source = sql`SELECT id, created_at AS at, action, ip, user_agent AS device FROM audit_log WHERE actor_id = ${uid}`;
     } else {
       source = playerBetRecords(uid);
+      if (input.gameCode) filters.push(sql`game = ${input.gameCode}`);
       const sport = sql`(game LIKE 'virtual-%' OR game IN ('horse-racing', 'bike-racing'))`;
       if (kind === "currentbets") filters.push(sql`status = 'placed'`);
       if (kind === "casinoresult")

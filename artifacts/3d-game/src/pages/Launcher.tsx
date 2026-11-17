@@ -1,26 +1,31 @@
-import AviatorPro from "@/games/lunar/AviatorPro";
-import AmericanRoulette from "@/games/roulette/Roulette";
-import RouletteMini from "@/games/roulette/RouletteMini";
-import FunTarget from "@/games/fun-target/FunTarget";
-import IceFish from "@/pages/IceFish";
-import FinishRummyRoyale from "@/pages/FinishRummyRoyale";
-import { useEffect, useRef, useState } from "react";
-import Mines from "@/pages/Mines";
-import Plinko from "@/pages/Plinko";
-import Dice from "@/pages/Dice";
-import Roulette from "@/pages/Roulette";
-import Baccarat from "@/pages/Baccarat";
-import Blackjack from "@/pages/Blackjack";
-import TeenPatti from "@/pages/TeenPatti";
-import TeenPattiLive from "@/pages/TeenPattiLive";
-import AndarBahar from "@/pages/AndarBahar";
-import Lucky7 from "@/pages/Lucky7";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
   useGetWalletBalance,
   getGetWalletBalanceQueryKey,
   addResponseObserver,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
+import GameWinnings from "@/components/game/GameWinnings";
+import LoadingScreen from "@/components/game/LoadingScreen";
+
+// Load only the requested game so the session and winnings panel do not wait
+// for every game's assets and code before becoming usable.
+const AviatorPro = lazy(() => import("@/games/lunar/AviatorPro"));
+const AmericanRoulette = lazy(() => import("@/games/roulette/Roulette"));
+const RouletteMini = lazy(() => import("@/games/roulette/RouletteMini"));
+const FunTarget = lazy(() => import("@/games/fun-target/FunTarget"));
+const IceFish = lazy(() => import("@/pages/IceFish"));
+const FinishRummyRoyale = lazy(() => import("@/pages/FinishRummyRoyale"));
+const Mines = lazy(() => import("@/pages/Mines"));
+const Plinko = lazy(() => import("@/pages/Plinko"));
+const Dice = lazy(() => import("@/pages/Dice"));
+const Roulette = lazy(() => import("@/pages/Roulette"));
+const Baccarat = lazy(() => import("@/pages/Baccarat"));
+const Blackjack = lazy(() => import("@/pages/Blackjack"));
+const TeenPatti = lazy(() => import("@/pages/TeenPatti"));
+const TeenPattiLive = lazy(() => import("@/pages/TeenPattiLive"));
+const AndarBahar = lazy(() => import("@/pages/AndarBahar"));
+const Lucky7 = lazy(() => import("@/pages/Lucky7"));
 
 const POST_TARGET = "*"; // wrapper at /launch is same-origin to us; partner runs in window.top
 
@@ -299,7 +304,8 @@ export default function Launcher() {
 
   return (
     <div className="launcher-container min-h-screen overflow-x-clip bg-background">
-      <GameByCode code={game} />
+      <GameWinnings activeGame={game} />
+      <Suspense fallback={<LoadingScreen />}><GameByCode code={game} /></Suspense>
     </div>
   );
 }

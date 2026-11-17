@@ -1,0 +1,57 @@
+.game-winnings-bar{display:flex;align-items:center;gap:12px;box-sizing:border-box;min-height:76px;padding:9px max(14px,env(safe-area-inset-right)) 9px max(14px,env(safe-area-inset-left));background:linear-gradient(110deg,#192824,#10201e);color:#fff8e6;border-bottom:1px solid #c9a54b55;font-family:Arial,sans-serif}
+.game-winnings-medal{display:grid;place-items:center;width:42px;height:42px;flex-shrink:0;border:1px solid #e5bb5966;border-radius:13px;background:linear-gradient(145deg,#68502c66,#caa44c12);color:#f5cf72;box-shadow:inset 0 1px #ffe5a233}
+.game-winnings-summary{flex:1;min-width:0}
+.game-winnings-summary>span{display:block;color:#d8c698;font-size:9px;letter-spacing:.09em;line-height:14px;font-weight:700}
+.game-winnings-summary>strong{display:block;color:#f5f8f6;font-size:22px;line-height:28px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.game-winnings-bar[data-has-win="true"] .game-winnings-summary>strong{color:#ffe5a2}
+.game-winnings-subline{display:flex;align-items:center;gap:4px;color:#a7cfb8;font-size:10px;line-height:14px}
+.game-winnings-open,.game-winnings-retry{min-height:44px;border:1px solid #d1b77755;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 12px;background:#ffffff08;color:#f9e5b7;font-size:12px;font-weight:700;flex-shrink:0;cursor:pointer}
+.game-winnings-open:hover,.game-winnings-retry:hover{background:#e8c77418}
+.game-winnings-retry{width:44px;padding:0}
+.game-winnings-fullscreen{position:fixed;right:max(12px,env(safe-area-inset-right));top:calc(60px + env(safe-area-inset-top));z-index:90;display:flex;align-items:center;gap:8px;max-width:calc(100% - 24px);min-height:44px;padding:8px 10px;border:1px solid #d1b77788;border-radius:12px;background:#13271ef2;color:#f9e5b7;box-shadow:0 4px 18px #0005;font:700 10px Arial,sans-serif;cursor:pointer}
+.game-winnings-fullscreen strong{display:block;font-size:14px;margin-top:2px;overflow-wrap:anywhere}
+.game-winnings-fullscreen:focus-visible{outline:2px solid #f3d483;outline-offset:2px}
+.game-winnings-bar[data-new-win="true"] .game-winnings-medal{animation:winnings-glow 1.1s ease-out 2}
+.game-winnings-dialog{background:#11221e;color:#f3fff8;border-color:#a68c5455;border-radius:18px}
+.game-winnings-panel-heading{padding-right:34px}
+.game-winnings-panel-heading>span{display:block;font-size:9px;letter-spacing:.16em;color:#cdb477;font-weight:800;margin-bottom:7px}
+.game-winnings-panel-heading h2{font-size:20px;line-height:1.25}
+.game-winnings-dialog>p{color:#afc2b9;font-size:12px}
+.game-winnings-last{display:flex;align-items:center;gap:16px;border:1px solid #cfad6466;background:radial-gradient(ellipse at top right,#b590302b,transparent 65%),linear-gradient(120deg,#263c2b,#142b24);border-radius:14px;padding:18px 14px;color:#ffe8af}
+.game-winnings-last .game-winnings-medal{width:52px;height:60px;border-radius:18px}
+.game-winnings-last>div{min-width:0}
+.game-winnings-last span{display:block;font-size:9px;font-weight:800;letter-spacing:.1em;color:#d1be8b}
+.game-winnings-last small{display:inline-block;font-size:11px;margin-top:6px;padding:4px 8px;color:#b4f4cf;background:#7cf3a111;border:1px solid #7cf3a126;border-radius:6px}
+.game-winnings-last strong{display:block;font-size:clamp(24px,7vw,34px);line-height:1.2;margin-top:5px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.game-winnings-list{display:grid;gap:10px;list-style:none;padding:0;margin:0}
+.game-winnings-list>li{background:#ffffff04;border:1px solid #ffffff14;border-radius:12px;padding:13px;min-width:0}
+.game-winnings-list>li[data-status="won"],.game-winnings-list>li[data-status="cashed_out"]{border-left:3px solid #62b98b}
+.game-result-heading{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.game-result-heading b{font-size:12px}
+.game-result-heading [data-win="true"],.game-winnings-list [data-positive="true"]{color:#8ef0b8}
+.game-result-heading time{color:#8fa99b;font-size:10px;text-align:right}
+.game-winnings-list dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 10px}
+.game-winnings-list dt{font-size:9px;color:#9caf9f}
+.game-winnings-list dd{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin:4px 0 0}
+.game-result-id{display:block;overflow-wrap:anywhere;color:#708e7c;font-size:9px}
+.game-winnings-empty,.game-winnings-message{padding:12px 0;font-size:13px}
+.game-winnings-more,.game-winnings-message button{border:1px solid #aacdb866;border-radius:8px;padding:10px;min-height:44px;color:#ecfff2;background:#ffffff0c}
+.game-winnings-bar button:focus-visible,.game-winnings-dialog button:focus-visible,.winning-notice button:focus-visible{outline:2px solid #f3d483;outline-offset:-3px}
+.winning-notice-frame{position:fixed;z-index:90;pointer-events:none;display:flex;align-items:flex-start;justify-content:center;padding:min(12vh,90px) 12px 12px;box-sizing:border-box}
+.winning-notice{pointer-events:auto;position:relative;box-sizing:border-box;display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;column-gap:16px;width:min(420px,100%);max-height:100%;overflow-y:auto;padding:24px 20px 0;border-radius:20px;border:1px solid #e2bd65;background:radial-gradient(ellipse at top,#7d602b45,transparent 75%),#13271e;color:#fff3d1;box-shadow:0 18px 60px #0008,inset 0 1px #ffefb44d;font-family:Arial,sans-serif;animation:winnings-enter .28s ease-out}
+.winning-notice-medal{width:64px;height:72px;display:grid;place-items:center;border-radius:23px;color:#ffe494;background:linear-gradient(145deg,#bc8b31,#523819);border:1px solid #f9d98788;box-shadow:inset 0 2px 10px #ffe7ac44,0 6px 22px #e4b9501c}
+.winning-notice-copy{min-width:0;padding-right:12px}
+.winning-notice-copy>span{display:block;font-size:10px;color:#c6b68a}
+.winning-notice-copy h2{font-size:24px;font-weight:900;margin:3px 0 5px;line-height:1.1}
+.winning-notice-copy strong{display:block;color:#ffe39a;font-size:clamp(23px,7vw,32px);font-weight:900;line-height:1.15;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.winning-notice-copy small{display:block;margin-top:6px;font-size:9px;color:#afc0ae}
+.winning-notice-close{position:absolute;right:2px;top:2px;display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:#ddcda2}
+.winning-notice-footer{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid #ddc17926;margin-top:18px;padding:10px 0;font-size:11px;color:#b1cbb7}
+.winning-notice-footer b{color:#aaf6c4}
+.winning-notice-footer button{display:flex;align-items:center;justify-content:center;gap:5px;flex-shrink:0;min-height:44px;padding:0 10px;background:#e6c471;border:0;border-radius:9px;font-size:11px;font-weight:800;color:#1b281e}
+@keyframes winnings-enter{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes winnings-glow{50%{box-shadow:0 0 18px #e1b85266}}
+@media(max-width:440px){.game-winnings-open>svg:last-child{display:none}.game-winnings-open{padding:0 9px;font-size:11px}.game-winnings-bar{gap:9px}.game-winnings-summary>strong{font-size:20px}}
+@media(max-width:360px){.game-winnings-bar{gap:7px;padding-left:8px;padding-right:8px}.game-winnings-bar .game-winnings-medal{width:32px;height:38px;border-radius:10px}.game-winnings-summary>strong{font-size:18px}.game-winnings-summary>span{font-size:8px}.game-winnings-subline{font-size:9px}.game-winnings-open>svg{display:none}.winning-notice{grid-template-columns:48px minmax(0,1fr);gap:12px;padding:20px 14px 0}.winning-notice-medal{width:48px;height:58px}}
+@media(max-height:420px){.winning-notice-frame{padding-top:10px}.winning-notice{padding-top:14px}.winning-notice-footer{margin-top:10px}}
+@media(prefers-reduced-motion:reduce){.winning-notice,.game-winnings-bar[data-new-win="true"] .game-winnings-medal{animation:none}}
