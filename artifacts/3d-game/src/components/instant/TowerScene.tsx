@@ -32,7 +32,7 @@ export default function TowerScene(props: TowerVisualState) {
     data-phase={props.drop ? props.drop.failed ? "fall" : "drop" : "idle"}
     role="img" aria-label={`3D tower with ${props.step} completed floors${props.lost ? ". Round ended" : ""}`}>
     <div className="tr-sky-ceiling" aria-hidden="true" style={{ backgroundImage: `url(${towerAssetUrl("site")})` }} />
-    <div className="tr-3d-sky tr-photographic-sky" aria-hidden="true" style={{ backgroundImage: `url(${towerAssetUrl("site")})`, transform: `translateY(${Math.min(Math.max(0, props.step - 2) * 12, 40)}%) scale(1.02)` }} />
+    <div className="tr-3d-sky tr-photographic-sky" aria-hidden="true" style={{ backgroundImage: `url(${towerAssetUrl("site")})`, transform: `translateY(var(--tr-sky-offset, ${props.lost ? 0 : Math.min(Math.max(0, props.step - 2) * 12, 40)}%)) scale(1.02)` }} />
     {!active3d && <div className="tr-3d-fallback" aria-hidden="true"><TowerSceneFallback {...props} /></div>}
     <canvas ref={canvas} className="tr-3d-canvas" aria-hidden="true" />
     <span className="tr-scene-description">{props.step} completed floors. {Array.from({ length: Math.min(props.step, 12) }, (_, i) => <span key={i} data-testid="tower-floor">Floor {Math.max(0, props.step - 12) + i + 1} completed. </span>)}</span>

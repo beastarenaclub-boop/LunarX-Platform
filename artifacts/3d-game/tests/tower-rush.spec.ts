@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { collectionMultiplier, collectionPayout, towerPayout, type CollectionRound } from "@workspace/api-zod/instant-collection";
 import { mockGames } from "./fixtures/compact-game-data";
 
-async function tower(page: Page, options: { version?: 1 | 2; loseAt?: number; dropPlace?: boolean; dropMove?: boolean; delay?: number; rtp?: number; cap?: number } = {}) {
+async function tower(page: Page, options: { version?: 1 | 2; resumeStep?: number; loseAt?: number; dropPlace?: boolean; dropMove?: boolean; delay?: number; rtp?: number; cap?: number } = {}) {
   await mockGames(page);
   let balance = 1000000n, round: CollectionRound | null = null, dropped = false;
   let configRtp = options.rtp ?? .97;
@@ -19,6 +19,7 @@ async function tower(page: Page, options: { version?: 1 | 2; loseAt?: number; dr
       if (round?.requestId !== input.requestId) {
         balance -= BigInt(input.stakeAmount);
         round = { towerPayoutVersion: options.version ?? 1, id: `tower-${posts.length}`, gameCode: "tower-rush", requestId: input.requestId, status: "active", stakeAmount: input.stakeAmount, payoutAmount: "0", cashoutAmount: input.stakeAmount, multiplier: 1, step: 0, options: input.options, revealed: [], hazards: null, outcome: [], serverSeedHash: "commitment", serverSeed: null, clientSeed: input.clientSeed, createdAt: new Date().toISOString(), rtp: configRtp, maxMultiplier: options.cap ?? 1000 };
+        if (options.resumeStep) round.step = options.resumeStep;
       }
       if (options.dropPlace && !dropped) { dropped = true; return route.abort("connectionreset"); }
     } else if (round?.status === "active") {
@@ -47,6 +48,48 @@ async function tower(page: Page, options: { version?: 1 | 2; loseAt?: number; dr
   await expect(page.getByTestId("collection-play")).toBeEnabled();
   return { posts, errors, get balance() { return balance; }, setRtp(value: number) { configRtp = value; } };
 }
+
+test("high tower fractures, falls to the street and keeps rubble until a new round", async ({ page }, testInfo) => {
+  const f = await tower(page, {version:2,resumeStep:30,loseAt:31});
+  await page.getByTestId('collection-play').click();
+  await expect(page.getByTestId('tower-scene')).toHaveAttribute('data-step','30');
+  await expect(page.getByTestId('tower-scene')).toHaveAttribute('data-renderer','webgl',{timeout:45000});
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  const canvas=page.locator('.tr-3d-canvas');
+  await expect.poll(()=>canvas.getAttribute('data-camera-lift')).not.toBe('0.000');
+  await page.evaluate(()=>{
+    (window as any).fallSamples=[];
+    (window as any).fallTimer=setInterval(()=>{const el=document.querySelector('.tr-3d-canvas') as HTMLElement;(window as any).fallSamples.push({...el.dataset});},30);
+  });
+  await page.getByTestId('collection-play').click();
+  await expect(canvas).toHaveAttribute('data-collapse-phase','falling');
+  await page.getByTestId('tower-scene').screenshot({path:testInfo.outputPath('falling.png')});
+  await expect(page.getByTestId('collection-play')).toBeDisabled();
+  await expect(canvas).toHaveAttribute('data-collapse-phase','settled');
+  await expect(canvas).toHaveAttribute('data-debris-count','22');
+  await expect(canvas).toHaveAttribute('data-camera-lift','0.000');
+  await page.getByTestId('tower-scene').screenshot({path:testInfo.outputPath('rubble.png')});
+  const samples=await page.evaluate(()=>{clearInterval((window as any).fallTimer);return (window as any).fallSamples;});
+  expect(samples.some((s:any)=>s.collapsePhase==='falling'&&Number(s.debrisMinY)>20&&Number(s.fallStartY)>50)).toBe(true);
+  expect(samples.some((s:any)=>s.collapsePhase==='impact'&&Number(s.debrisMaxY)<2)).toBe(true);
+  await page.waitForTimeout(1500);
+  await expect(canvas).toHaveAttribute('data-debris-count','22');
+  await page.reload();
+  await expect(canvas).toHaveAttribute('data-collapse-phase','settled',{timeout:45000});
+  await expect(canvas).toHaveAttribute('data-debris-count','22');
+  await page.setViewportSize({width:390,height:844});
+  await expect(canvas).toHaveAttribute('data-camera-lift','0.000');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await page.getByTestId('tower-scene').screenshot({path:testInfo.outputPath('mobile-rubble.png')});
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await canvas.evaluate(el=>(el as HTMLCanvasElement).getContext('webgl2')?.getExtension('WEBGL_lose_context')?.loseContext());
+  await expect(page.getByTestId('tower-fallback-debris')).toHaveCount(10);
+  await expect(page.getByTestId('tower-fallback-scene')).toHaveAttribute('data-collapse-phase','settled');
+  await page.getByTestId('tower-scene').screenshot({path:testInfo.outputPath('fallback-rubble.png')});
+  await page.getByTestId('collection-play').click();
+  await expect(page.getByTestId('tower-fallback-debris')).toHaveCount(0);
+  expect(f.errors).toEqual([]);
+});
 
 test("BUILD drops one block, restores the tower and cashes out exactly once", async ({ page }) => {
   const f = await tower(page, { delay: 120 });

@@ -17,3 +17,6 @@
 .tr-sky-ceiling{position:absolute;inset:0;background-size:auto 200%;background-position:center top}
 .tr-height{padding:6px 7px;width:70px;border-radius:9px;background:#edf3edd9;border:1px solid #ffffff45;backdrop-filter:blur(4px)}.tr-floor-track{padding:5px;margin-left:-5px;border-radius:7px;background:#edf3ed80;backdrop-filter:blur(3px)}
 @media(max-width:760px){.tr-score{top:10px;right:12px;padding:6px 8px;max-width:145px}.tr-score strong{font-size:26px;letter-spacing:-1px}.tr-score em{font-size:18px}.tr-score small{font-size:6px}.tr-score>span{font-size:8px}}
+.tr-scene-3d[data-phase=fall] .tr-photographic-sky{transition:none}
+
+.tr-result-loss{top:23%;padding:12px 18px}

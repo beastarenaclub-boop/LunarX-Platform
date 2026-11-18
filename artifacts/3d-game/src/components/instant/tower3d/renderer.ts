@@ -2,6 +2,8 @@ import * as T from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { towerAssets, towerAssetUrl } from "../towerAssets";
+import { createCollapse } from "./collapse";
+import { TOWER_BREAK_SECONDS } from "../towerMotion";
 
 export type TowerVisualState = { step: number; drop: { key: number; failed: boolean } | null; motion: boolean; lost: boolean };
 type Options = { state: TowerVisualState; onReady: () => void; onFailure: () => void };
@@ -77,10 +79,12 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
       }); return group;
     }
   }
+  const wallMaterials: T.Material[] = [], faceMaterials: T.Material[] = [];
   const templates = COLORS.map((color, kind) => {
     const batch = new Batch();
     const surface = kind === 0 || kind === 5 ? "wood" : kind === 1 ? "brick" : kind === 2 || kind === 7 ? "metal" : "stone";
     const wall = mat(color, { ...maps[surface], normalScale: new T.Vector2(.3, .3), roughness: kind === 2 ? .45 : .86 });
+    wallMaterials.push(wall);
     batch.add(new RoundedBoxGeometry(2.35, 1.63, 1.8, 2, .045), wall);
     batch.box(2.5, .11, 1.95, 0, .845, 0, kind === 7 ? dark : trim);
     batch.box(2.47, .08, 1.92, 0, -.86, 0, trim);
@@ -97,6 +101,7 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
       // Keep fine photographic surface detail readable under the daylight rig.
       emissiveMap: facadeTextures[facadeIndex], emissive: "#ffffff", emissiveIntensity: .09,
     });
+    faceMaterials.push(face);
     batch.add(new T.PlaneGeometry(2.345, 1.625), face, 0, 0, .902);
     // A real projecting sill catches light and anchors the photographic skin.
     batch.box(2.4, .055, .14, 0, -.81, .94, trim);
@@ -117,15 +122,23 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
   const rigTemplate = rigBatch.finish();
   const stack = new T.Group(), incoming = new T.Group(); scene.add(stack, incoming);
   let rig = rigTemplate.clone(), incomingModel = templates[0].clone(); incoming.add(incomingModel, rig);
-  const rebuild = () => {
+  let stackStart = -1;
+  const stackWindow = (wanted: number) => {
+    const first = Math.max(0, Math.min(Math.max(0, state.step - 12), wanted));
+    if (first === stackStart) return;
+    stackStart = first;
     stack.clear();
-    for (let n = Math.max(0, state.step - 12); n < state.step; n++) {
+    for (let n = first; n < Math.min(state.step, first + 12); n++) {
       const block = templates[n % 10].clone(); block.position.y = .9 + n * HEIGHT;
       block.rotation.y = Math.sin(n * 2.1) * .012; stack.add(block);
     }
+  };
+  const rebuild = () => {
+    stackStart = -1; stackWindow(state.step - 12);
     incoming.clear(); incomingModel = templates[state.step % 10].clone(); rig = rigTemplate.clone(); incoming.add(incomingModel, rig);
     incoming.visible = !state.lost;
   }; rebuild();
+  const collapse = createCollapse({ walls: wallMaterials, faces: faceMaterials, trim, dark, ownGeometry }); scene.add(collapse.group);
 
   scene.add(new T.HemisphereLight("#d9ecff", "#95806a", .95));
   const sun = new T.DirectionalLight("#fff7ed", 2.2); sun.castShadow = true;
@@ -237,15 +250,26 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
     frameId = 0; if (disposed || !visible || document.hidden) return;
     const dt = Math.min((now - lastTime) / 1000, .05); lastTime = now;
     const targetLift = Math.max(0, state.step - 2) * HEIGHT;
+    const falling = !!state.drop?.failed || state.lost;
+    const elapsed = Math.max(0, (now - dropStart) / 1000);
+    const wreck = falling ? collapse.update(state.step, elapsed, state.lost || !state.motion) : null;
+    if (!falling) collapse.clear();
     traffic.forEach((car, index) => {
-      const position = state.motion ? ((now / 1000 * 1.7 + index * 13) % 29) : 9 + index * 9;
+      const position = state.motion ? (((falling ? dropStart : now) / 1000 * 1.7 + index * 13) % 29) : 9 + index * 9;
       car.position.set(index ? 1.98 : -1.98, 0, index ? 10 - position : position - 19);
     });
     lift = state.motion ? T.MathUtils.damp(lift, targetLift, 7, dt) : targetLift;
     const idleY = targetLift + 6.8, landingY = .9 + state.step * HEIGHT;
     let shake = 0;
-    if (state.drop) {
-      const elapsed = Math.max(0, (now - dropStart) / 1000), fallingTime = state.drop.failed ? .62 : .66;
+    if (falling) {
+      const approach = Math.min(1, elapsed / .52), tip = T.MathUtils.clamp((elapsed - .52) / (TOWER_BREAK_SECONDS - .52), 0, 1);
+      incoming.position.set(.65 * approach * approach + .4 * tip, T.MathUtils.lerp(idleY, landingY, approach * approach), .55 * tip);
+      incoming.rotation.set(.24 * tip, .06 * tip, -.38 * tip);
+      rig.visible = false;
+      incoming.visible = !wreck!.fractured;
+      if (wreck!.impactElapsed >= 0) shake = Math.sin(wreck!.impactElapsed * 55) * .07 * Math.max(0, 1 - wreck!.impactElapsed / .35);
+    } else if (state.drop) {
+      const fallingTime = .66;
       const p = Math.min(1, elapsed / fallingTime);
       incoming.position.set((state.drop.failed ? .75 : 0) * p * p, T.MathUtils.lerp(idleY, landingY, p * p), 0);
       incoming.rotation.set(0, .035 * (1 - p), (state.drop.failed ? -.24 : .035) * p);
@@ -253,8 +277,7 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
       if (p >= 1) {
         if (!impact) { impact = true; dustStart = now; dustHeight = landingY - .85; }
         const after = elapsed - fallingTime;
-        if (state.drop.failed) { incoming.position.x += after * 5; incoming.position.y -= after * after * 18; incoming.rotation.z -= after * 3.5; incoming.rotation.x = after * .9; }
-        else { incoming.position.y += Math.sin(Math.min(1, after / .16) * Math.PI) * .065; incoming.rotation.z *= Math.max(0, 1 - after / .16); }
+        incoming.position.y += Math.sin(Math.min(1, after / .16) * Math.PI) * .065; incoming.rotation.z *= Math.max(0, 1 - after / .16);
         shake = Math.sin(after * 65) * .018 * Math.max(0, 1 - after / .18);
       }
     } else {
@@ -262,21 +285,38 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
       incoming.position.set(swing * .38, idleY + (state.motion ? Math.sin(now / 1700) * .04 : 0), 0);
       incoming.rotation.set(0, .025 + swing * .018, swing * .07); rig.visible = true;
     }
-    incoming.visible = !state.lost || !!state.drop;
-    const t = (now - dustStart) / 1000;
-    dust.visible = t < .65;
+    if (!falling) incoming.visible = true;
+    const t = wreck ? wreck.impactElapsed : (now - dustStart) / 1000, dustLife = falling ? 1.4 : .65;
+    dust.visible = !state.lost && t >= 0 && t < dustLife;
+    dust.position.z = falling ? 3.5 : 0; dustMaterial.size = falling ? 48 : 27;
     if (dust.visible) {
-      dustMaterial.opacity = Math.max(0, 1 - t / .65) * .75;
+      dustMaterial.opacity = Math.max(0, 1 - t / dustLife) * .75;
       for (let n = 0; n < 24; n++) {
         const angle = n * 2.399;
-        dustPositions[n * 3] = Math.cos(angle) * (.7 + t * 1.5);
-        dustPositions[n * 3 + 1] = dustHeight + .15 + t * (.4 + n % 4 * .12);
+        dustPositions[n * 3] = Math.cos(angle) * (.7 + t * (falling ? 2.3 : 1.5));
+        dustPositions[n * 3 + 1] = (falling ? 0 : dustHeight) + .15 + t * (.4 + n % 4 * .12);
         dustPositions[n * 3 + 2] = Math.sin(angle) * (.6 + t);
       }
       dustGeometry.attributes.position.needsUpdate = true;
     }
-    foundation.visible = state.step < 6;
-    camera.position.set(3.2 + shake, lift + 6 + shake, 17); camera.lookAt(0, lift + 4.5, 0);
+    if (wreck) {
+      const follow = state.lost || !state.motion ? 1 : T.MathUtils.smoothstep(elapsed, TOWER_BREAK_SECONDS, TOWER_BREAK_SECONDS + .25);
+      const focus = Math.max(1.4, wreck.focusY);
+      camera.position.set(3.2 + .6 * follow + shake, T.MathUtils.lerp(targetLift + 6, focus + 4.6, follow) + shake, 17);
+      camera.lookAt(.2 * follow, T.MathUtils.lerp(targetLift + 4.5, focus, follow), 2.2 * follow);
+      lift = Math.max(0, camera.position.y - 6);
+      stackWindow(Math.floor(Math.max(0, focus - 8) / HEIGHT));
+      canvas.dataset.collapsePhase = wreck.settled ? "settled" : wreck.impact ? "impact" : wreck.fractured ? "falling" : "tipping";
+      canvas.dataset.debrisCount = String(wreck.fractured ? collapse.count : 0);
+      canvas.dataset.debrisMinY = wreck.minY.toFixed(3); canvas.dataset.debrisMaxY = wreck.maxY.toFixed(3);
+      canvas.dataset.fallStartY = wreck.startY.toFixed(3);
+    } else {
+      camera.position.set(3.2 + shake, lift + 6 + shake, 17); camera.lookAt(0, lift + 4.5, 0);
+      stackWindow(state.step - 12); canvas.dataset.collapsePhase = "none"; canvas.dataset.debrisCount = "0";
+    }
+    canvas.dataset.cameraLift = lift.toFixed(3);
+    canvas.parentElement?.style.setProperty("--tr-sky-offset", `${Math.min(lift / HEIGHT * 12, 40)}%`);
+    foundation.visible = lift < 8;
     sun.position.set(-6, lift + 14, 7); sun.target.position.set(0, lift + 2, 0);
     renderer.render(scene, camera);
     if (!ready) { ready = true; sampleStart = performance.now(); frames = 0; options.onReady(); }
@@ -287,7 +327,7 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
       canvas.dataset.fps = smoothedFps.toFixed(0); canvas.dataset.drawCalls = String(renderer.info.render.calls); canvas.dataset.triangles = String(renderer.info.render.triangles);
       canvas.dataset.pixelRatio = String(dpr); frames = 0; sampleStart = now;
     }
-    if (state.motion || !!state.drop) frameId = requestAnimationFrame(draw);
+    if ((state.motion && (!state.lost || (wreck && !wreck.settled))) || !!state.drop) frameId = requestAnimationFrame(draw);
   }
   function invalidate() { if (!frameId && !disposed && visible && !document.hidden) frameId = requestAnimationFrame(draw); }
   const visibility = () => { if (document.hidden) { cancelAnimationFrame(frameId); frameId = 0; } else { lastTime = performance.now(); sampleStart = lastTime; frames = 0; invalidate(); } };

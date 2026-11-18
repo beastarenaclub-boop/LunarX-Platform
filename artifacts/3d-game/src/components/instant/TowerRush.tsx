@@ -5,6 +5,7 @@ import { collectionMultiplier, towerSurvival, type CollectionConfig, type Collec
 import { formatRupees } from "@/lib/format";
 import TowerScene, { type TowerDrop } from "./TowerScene";
 import "./tower-rush.css";
+import { towerCollapseTiming } from "./towerMotion";
 
 type Props = {
   round: CollectionRound | null; history: CollectionRound[];
@@ -30,6 +31,7 @@ export default function TowerRush(p: Props) {
   const intent = useRef(false), actionLock = useRef(false), alive = useRef(true);
   const seen = useRef(""), animationId = useRef(0);
   const animationTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const impactTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const landSound = useRef(p.onLanding); landSound.current = p.onLanding;
   const disabled = busy || working || !!drop;
   const step = round?.step ?? 0;
@@ -52,7 +54,7 @@ export default function TowerRush(p: Props) {
     const visibility = () => { if (document.hidden) pause(); };
     window.addEventListener("blur", pause);
     document.addEventListener("visibilitychange", visibility);
-    return () => { alive.current = false; clearTimeout(animationTimer.current); window.removeEventListener("blur", pause); document.removeEventListener("visibilitychange", visibility); };
+    return () => { alive.current = false; clearTimeout(animationTimer.current); clearTimeout(impactTimer.current); window.removeEventListener("blur", pause); document.removeEventListener("visibilitychange", visibility); };
   }, []);
 
   useEffect(() => {
@@ -68,10 +70,13 @@ export default function TowerRush(p: Props) {
         setVisualStep(failed ? round.step : round.step - 1);
         setDrop({ key: ++animationId.current, failed });
         clearTimeout(animationTimer.current);
+        clearTimeout(impactTimer.current);
+        const collapse = towerCollapseTiming(round.step);
+        if (failed) impactTimer.current = setTimeout(() => { if (alive.current) landSound.current(true); }, collapse.impact * 1000);
         animationTimer.current = setTimeout(() => {
           if (!alive.current) return;
-          setVisualStep(round.step); setDrop(null); landSound.current(failed);
-        }, failed ? 1150 : 820);
+          setVisualStep(round.step); setDrop(null); if (!failed) landSound.current(false);
+        }, failed ? Math.ceil(collapse.duration * 1000) : 820);
         return;
       }
       landSound.current(failed);
@@ -127,7 +132,7 @@ export default function TowerRush(p: Props) {
         <div className="tr-scene-brand"><strong>TOWER<br /><span>RUSH</span></strong><small>ONE MORE FLOOR?</small></div>
         <div className="tr-height"><Layers3 size={16} /><strong>{visualStep}</strong><span>FLOORS</span></div>
         <div className="tr-floor-track" aria-label={`${visualStep} floors built; ${version === 2 ? "crash between floors 20 and 35" : "no final floor"}`}>{Array.from({ length: 8 }, (_, i) => <i key={i} className={i < Math.min(visualStep, 8) ? "tr-done" : ""} />)}<b>{version === 2 ? "35" : "∞"}</b></div>
-        <div className="tr-score"><small>{lost ? "ROUND OVER" : returned ? "COLLECTED" : active ? "CURRENT RETURN" : "FIRST FLOOR"}</small><strong>{lost ? "0.00" : returned ? formatMultiplier(round.multiplier, round.towerPayoutVersion ?? 1) : active ? formatMultiplier(drop ? collectionMultiplier("tower", visualStep, options, rtp, cap, version) : round.multiplier) : formatMultiplier(next)}<em>×</em></strong>{active && <span>Next {formatMultiplier(next)}×</span>}</div>
+        <div className="tr-score"><small>{drop?.failed ? "BLOCK FALLING" : lost ? "ROUND OVER" : returned ? "COLLECTED" : active ? "CURRENT RETURN" : "FIRST FLOOR"}</small><strong>{lost || drop?.failed ? "0.00" : returned ? formatMultiplier(round.multiplier, round.towerPayoutVersion ?? 1) : active ? formatMultiplier(drop ? collectionMultiplier("tower", visualStep, options, rtp, cap, version) : round.multiplier) : formatMultiplier(next)}<em>×</em></strong>{active && <span>Next {formatMultiplier(next)}×</span>}</div>
         {settled && <div className={`tr-result-card ${lost ? "tr-result-loss" : ""}`}><span>{lost ? "TOWER FELL" : "SUCCESSFULLY COLLECTED"}</span><strong>{lost ? "Round over" : money(round.payoutAmount)}</strong><small>{lost ? "The block missed. No return this round." : "Returned to your wallet"}</small></div>}
         <div className="tr-site-caption"><span /><span>{drop ? drop.failed ? "Block slipping…" : "Placing your block…" : busy || working ? "Confirming your move…" : active ? "Build higher or collect your return" : settled ? "Your next tower starts with one block" : "A little ambition. A little luck."}</span></div>
       </section>
