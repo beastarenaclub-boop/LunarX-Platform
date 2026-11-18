@@ -20,3 +20,6 @@
 .tr-scene-3d[data-phase=fall] .tr-photographic-sky{transition:none}
 
 .tr-result-loss{top:23%;padding:12px 18px}
+
+/* World-space Runway art leaves a quiet sky as the tower climbs. */
+.tr-scene-3d{background:#62b3bf}.tr-reference-sky{position:absolute;inset:0;background:linear-gradient(#59b4c3,#8ac9ca)}

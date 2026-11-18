@@ -3,11 +3,11 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { towerAssets, towerAssetUrl } from "../towerAssets";
 import { createCollapse } from "./collapse";
-import { TOWER_BREAK_SECONDS } from "../towerMotion";
+import { TOWER_BREAK_SECONDS, TOWER_FLOOR_HEIGHT } from "../towerMotion";
 
 export type TowerVisualState = { step: number; drop: { key: number; failed: boolean } | null; motion: boolean; lost: boolean };
 type Options = { state: TowerVisualState; onReady: () => void; onFailure: () => void };
-const HEIGHT = 1.8;
+const HEIGHT = TOWER_FLOOR_HEIGHT;
 const COLORS = ["#efdfc6", "#eddbce", "#91bdce", "#e2d6bf", "#f5ddb2", "#d9c2a1", "#e8e4d9", "#bd774f", "#a3c1ad", "#b0a3b8"];
 
 /** GPU scene only. All odds, stakes and settlement remain in the existing API. */
@@ -22,7 +22,7 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
   const geometries = new Set<T.BufferGeometry>(), materials = new Set<T.Material>(), textures = new Set<T.Texture>();
   let disposed = false, frameId = 0, visible = true, state = options.state, ready = false;
   const scene = new T.Scene(); scene.fog = new T.Fog("#b6c6cb", 24, 65);
-  const camera = new T.PerspectiveCamera(34, 1, .1, 100);
+  const camera = new T.OrthographicCamera(-10, 10, 5.75, -5.75, .1, 100);
   const loader = new T.TextureLoader();
   const load = async (key: keyof typeof towerAssets, color = false) => {
     const texture = await loader.loadAsync(towerAssetUrl(key));
@@ -34,18 +34,19 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
   const maps: Record<string, { map: T.Texture; normalMap: T.Texture; roughnessMap: T.Texture }> = {};
   let dustTexture: T.Texture;
   let facadeTextures: T.Texture[] = [];
+  let streetTexture: T.Texture, phoneStreetTexture: T.Texture;
   let environment: T.WebGLRenderTarget | undefined;
   const ownGeometry = <G extends T.BufferGeometry>(geometry: G) => { geometries.add(geometry); return geometry; };
   const mat = (color: string, properties: T.MeshStandardMaterialParameters = {}) => {
     const material = new T.MeshStandardMaterial({ color, roughness: .8, ...properties }); materials.add(material); return material;
   };
   try {
-    const materialLoads = (["wood", "brick", "stone", "metal", "ground"] as const).map(async kind => {
+    const materialLoads = (["wood", "brick", "stone", "metal"] as const).map(async kind => {
       const [map, normalMap, roughnessMap] = await Promise.all([load(`${kind}Color`, true), load(`${kind}Normal`), load(`${kind}Roughness`)]);
       maps[kind] = { map, normalMap, roughnessMap };
     });
-    const [sky, dust, facades] = await Promise.all([load("environment", true), load("dust"), Promise.all(([0, 1, 2, 3, 4, 5] as const).map(i => load(`facade${i}`, true))), Promise.all(materialLoads)]);
-    dustTexture = dust; facadeTextures = facades;
+    const [sky, dust, facades, , street, phoneStreet] = await Promise.all([load("environment", true), load("dust"), Promise.all(([0, 1, 2, 4] as const).map(i => load(`facade${i}`, true))).then(([ochre, clock, blue, shop]) => [ochre, clock, blue, ochre, shop, blue]), Promise.all(materialLoads), load("site", true), load("siteMobile", true)]);
+    dustTexture = dust; facadeTextures = facades; streetTexture = street; phoneStreetTexture = phoneStreet;
     sky.mapping = T.EquirectangularReflectionMapping;
     const pmrem = new T.PMREMGenerator(renderer);
     environment = pmrem.fromEquirectangular(sky); scene.environment = environment.texture; scene.environmentIntensity = .55; pmrem.dispose();
@@ -105,7 +106,7 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
     batch.add(new T.PlaneGeometry(2.345, 1.625), face, 0, 0, .902);
     // A real projecting sill catches light and anchors the photographic skin.
     batch.box(2.4, .055, .14, 0, -.81, .94, trim);
-    return batch.finish();
+    const model = batch.finish(); model.scale.set(.912, 1.6, 1.04); return model;
   });
 
   const rigBatch = new Batch();
@@ -119,7 +120,7 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
   rope(new T.Vector3(0, 2.5, 0), new T.Vector3(0, 14, 0), .019);
   rigBatch.box(.23, .38, .22, 0, 2.47, 0, yellow);
   rigBatch.add(new T.TorusGeometry(.115, .026, 7, 16, Math.PI * 1.5), brass, 0, 2.2, 0, new T.Euler(0, 0, .5));
-  const rigTemplate = rigBatch.finish();
+  const rigTemplate = rigBatch.finish(); rigTemplate.scale.set(.912, .6, 1.04); rigTemplate.position.y = .92;
   const stack = new T.Group(), incoming = new T.Group(); scene.add(stack, incoming);
   let rig = rigTemplate.clone(), incomingModel = templates[0].clone(); incoming.add(incomingModel, rig);
   let stackStart = -1;
@@ -129,7 +130,7 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
     stackStart = first;
     stack.clear();
     for (let n = first; n < Math.min(state.step, first + 12); n++) {
-      const block = templates[n % 10].clone(); block.position.y = .9 + n * HEIGHT;
+      const block = templates[n % 10].clone(); block.position.y = 1.44 + n * HEIGHT;
       block.rotation.y = Math.sin(n * 2.1) * .012; stack.add(block);
     }
   };
@@ -146,87 +147,24 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
   sun.shadow.camera.top = 12; sun.shadow.camera.bottom = -12; sun.shadow.camera.near = 1; sun.shadow.camera.far = 45;
   sun.shadow.bias = -.00025; sun.shadow.normalBias = .035; scene.add(sun, sun.target);
   const fill = new T.DirectionalLight("#b6d6ee", .7); fill.position.set(7, 6, -5); scene.add(fill);
-  // Nearby architecture shares the photographic skins. Merge its static parts
-  // by material so adding a street does not add a draw call for every window.
-  const neighborhood = new Batch();
-  const neighborhoodFaces = facadeTextures.map(map => mat("#e4e1d9", {
-    map, roughness: .9, emissiveMap: map, emissive: "#ffffff", emissiveIntensity: .07,
-  }));
-  const masonry = mat("#b8b2a4", { ...maps.stone, normalScale: new T.Vector2(.12, .12), roughness: .94 });
-  const roofMaterial = mat("#555c5c", { roughness: .92 });
-  const neighborhoodSites = [
-    [-4.2, -3, 3, 1, 2.8], [4, -4, 4, 3, 3],
-    [-7.3, -6, 5, 2, 3], [7, -6, 6, 1, 3],
-    [-4, -10, 7, 3, 3], [3.8, -12, 8, 2, 2.8],
-    [-10, -9, 4, 3, 4], [10, -11, 5, 2, 4],
-  ];
-  for (const [x, z, floors, facade, width] of neighborhoodSites) {
-    const height = floors * 1.55, depth = 2.6;
-    neighborhood.box(width, height, depth, x, height / 2 - .2, z, masonry);
-    for (let floor = 0; floor < floors; floor++) {
-      const y = floor * 1.55 + .575;
-      const face = neighborhoodFaces[floor === 0 && facade !== 2 ? 4 : facade];
-      neighborhood.add(new T.PlaneGeometry(width, 1.55), face, x, y, z + depth / 2 + .008);
-      neighborhood.add(new T.PlaneGeometry(depth, 1.55), neighborhoodFaces[facade], x + width / 2 + .008, y, z, new T.Euler(0, Math.PI / 2, 0));
-      neighborhood.box(width + .12, .065, depth + .12, x, y + .775, z, trim);
-    }
-    neighborhood.box(width + .2, .13, depth + .2, x, height - .12, z, trim);
-    neighborhood.box(width - .18, .025, depth - .18, x, height - .035, z, roofMaterial);
-    // Raised parapets, chimney and ventilation housings give rooftops depth.
-    for (const edge of [-1, 1]) neighborhood.box(width + .16, .22, .11, x, height + .05, z + edge * depth / 2, trim);
-    for (const edge of [-1, 1]) neighborhood.box(.11, .22, depth, x + edge * width / 2, height + .05, z, trim);
-    neighborhood.box(.36, .64, .42, x - width * .27, height + .23, z - .4, masonry);
-    neighborhood.box(.47, .08, .53, x - width * .27, height + .59, z - .4, trim);
-    neighborhood.box(.65, .33, .56, x + width * .2, height + .14, z + .2, dark);
-  }
-  const paving = mat("#aaa69c", { roughness: .96 });
-  for (const x of [-5.3, 5.3]) {
-    neighborhood.box(5.5, .1, 36, x, -.18, -9, paving);
-    for (let z = -25; z < 8; z += 2.5) neighborhood.box(5.5, .006, .02, x, -.126, z, trim);
-  }
-  const neighbors = neighborhood.finish(); scene.add(neighbors);
-
-  // Ground the neighboring buildings in a real street plane. Fade its far edge
-  // into the photographic horizon instead of showing a hard rectangular edge.
-  for (const texture of Object.values(maps.ground)) { texture.wrapS = texture.wrapT = T.RepeatWrapping; texture.repeat.set(32, 32); }
-  const fade = new Uint8Array(64 * 64 * 4);
-  for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) {
-    const worldX = (x / 63 - .5) * 65, worldZ = (.5 - y / 63) * 65;
-    const value = Math.round(255 * T.MathUtils.clamp((worldZ + 30) / 16, 0, 1) * T.MathUtils.clamp((32 - Math.abs(worldX)) / 7, 0, 1));
-    const index = (y * 64 + x) * 4; fade[index] = fade[index + 1] = fade[index + 2] = value; fade[index + 3] = 255;
-  }
-  const groundFade = new T.DataTexture(fade, 64, 64); groundFade.needsUpdate = true;
-  groundFade.magFilter = groundFade.minFilter = T.LinearFilter; textures.add(groundFade);
-  const roadMaterial = mat("#a4a9ab", { ...maps.ground, alphaMap: groundFade, transparent: true, depthWrite: false, normalScale: new T.Vector2(.15, .15), roughness: .94 });
-  const road = new T.Mesh(ownGeometry(new T.PlaneGeometry(65, 65)), roadMaterial);
+  // Reference-matched Runway scenery is one world-space plate. It descends
+  // naturally as the camera climbs; it cannot cover the interactive tower.
+  const skyFadeBytes = new Uint8Array(32 * 4);
+  for (let i = 0; i < 32; i++) { const a = Math.round(255 * T.MathUtils.clamp((31 - i) / 5, 0, 1)); skyFadeBytes.set([a, a, a, 255], i * 4); }
+  const skyFade = new T.DataTexture(skyFadeBytes, 1, 32); skyFade.needsUpdate = true; skyFade.magFilter = T.LinearFilter; textures.add(skyFade);
+  const streetMaterial = new T.MeshBasicMaterial({ map: streetTexture, alphaMap: skyFade, transparent: true, depthWrite: false, toneMapped: false, fog: false }); materials.add(streetMaterial);
+  const street = new T.Mesh(ownGeometry(new T.PlaneGeometry(1, 1)), streetMaterial);
+  street.position.set(0, 4.6, -4); street.scale.set(22, 12.375, 1); scene.add(street);
+  const roadShadow = new T.ShadowMaterial({ opacity: .22 }); materials.add(roadShadow);
+  const road = new T.Mesh(ownGeometry(new T.PlaneGeometry(28, 12)), roadShadow);
   road.rotation.x = -Math.PI / 2; road.position.y = -.235; road.receiveShadow = true; scene.add(road);
-
-  const streetDetails = new Batch(), paint = mat("#dedbd1", { roughness: .96 });
-  // Lane edges and a crossing make the road readable at phone sizes.
-  for (const x of [-2.48, 2.48]) streetDetails.box(.045, .012, 30, x, -.223, -7, paint);
-  for (let z = -19; z < 10; z += 3) if (Math.abs(z) > 2) streetDetails.box(.07, .012, 1.25, 0, -.222, z, paint);
-  for (let x = -2.1; x < 2.3; x += .55) streetDetails.box(.3, .012, 1.4, x, -.221, 4.3, paint);
-  scene.add(streetDetails.finish());
-  const tire = mat("#181b1c", { roughness: .97 });
-  const vehicleGlass = mat("#283c47", { roughness: .18, metalness: .55 });
-  const lamp = mat("#deded0", { emissive: "#fff1c0", emissiveIntensity: .5, roughness: .4 });
-  const traffic = ["#394f65", "#8c4137"].map((color, index) => {
-    const body = mat(color, { roughness: .3, metalness: .65 }), car = new Batch();
-    car.add(new RoundedBoxGeometry(.66, .23, 1.35, 2, .075), body, 0, .08, 0);
-    car.add(new RoundedBoxGeometry(.56, .27, .65, 2, .06), vehicleGlass, 0, .29, -.06);
-    car.box(.52, .035, .42, 0, .43, -.07, body);
-    for (const x of [-.29, .29]) for (const z of [-.43, .43]) car.add(new T.CylinderGeometry(.135, .135, .1, 12), tire, x, -.1, z, new T.Euler(0, 0, Math.PI / 2));
-    for (const x of [-.22, .22]) car.box(.12, .055, .025, x, .12, .68, lamp);
-    const model = car.finish(); model.rotation.y = index ? Math.PI : 0;
-    scene.add(model); return model;
-  });
 
   const foundation = new T.Group();
   const concrete = mat("#92928a", { roughness: .94 });
-  const footing = new T.Mesh(ownGeometry(new RoundedBoxGeometry(3.1, .2, 2.7, 2, .035)), concrete);
+  const footing = new T.Mesh(ownGeometry(new RoundedBoxGeometry(2.7, .2, 2, 2, .035)), concrete);
   footing.position.y = -.12; footing.receiveShadow = true; footing.castShadow = true; foundation.add(footing);
   const bolts = new Batch();
-  for (const x of [-1.35, 1.35]) for (const z of [-1.1, 1.1]) {
+  for (const x of [-1.15, 1.15]) for (const z of [-.8, .8]) {
     bolts.add(new T.CylinderGeometry(.045, .045, .08, 6), dark, x, .02, z);
     bolts.box(.16, .018, .16, x, -.005, z, dark);
   }
@@ -237,29 +175,28 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
   const dustMaterial = new T.PointsMaterial({ map: dustTexture, color: "#e7d7bd", size: 27, sizeAttenuation: false, transparent: true, opacity: 0, depthWrite: false }); materials.add(dustMaterial);
   const dust = new T.Points(dustGeometry, dustMaterial); dust.frustumCulled = false; scene.add(dust);
 
-  let lift = Math.max(0, state.step - 2) * HEIGHT, lastTime = performance.now(), dropStart = performance.now(), impact = false;
+  let lift = Math.max(0, state.step - 1) * HEIGHT, lastTime = performance.now(), dropStart = performance.now(), impact = false;
   let dustStart = -10000, dustHeight = 0, frames = 0, sampleStart = lastTime, smoothedFps = 60, dpr = 1;
   const resize = () => {
     const rect = canvas.getBoundingClientRect(); if (!rect.width || !rect.height || disposed) return;
     const aspect = rect.width / rect.height;
-    camera.aspect = aspect; camera.updateProjectionMatrix();
+    camera.left = -5.75 * aspect; camera.right = 5.75 * aspect; camera.updateProjectionMatrix();
+    const portrait = aspect < 1.1;
+    streetMaterial.map = portrait ? phoneStreetTexture : streetTexture;
+    street.scale.x = portrait ? Math.max(9.3, 11.5 * aspect + 1) : Math.max(22, 11.5 * aspect + 1);
     dpr = Math.min(window.devicePixelRatio || 1, rect.width < 650 ? 1.25 : 1.5);
     renderer.setPixelRatio(dpr); renderer.setSize(rect.width, rect.height, false); invalidate();
   };
   function draw(now: number) {
     frameId = 0; if (disposed || !visible || document.hidden) return;
     const dt = Math.min((now - lastTime) / 1000, .05); lastTime = now;
-    const targetLift = Math.max(0, state.step - 2) * HEIGHT;
+    const targetLift = Math.max(0, state.step - 1) * HEIGHT;
     const falling = !!state.drop?.failed || state.lost;
     const elapsed = Math.max(0, (now - dropStart) / 1000);
     const wreck = falling ? collapse.update(state.step, elapsed, state.lost || !state.motion) : null;
     if (!falling) collapse.clear();
-    traffic.forEach((car, index) => {
-      const position = state.motion ? (((falling ? dropStart : now) / 1000 * 1.7 + index * 13) % 29) : 9 + index * 9;
-      car.position.set(index ? 1.98 : -1.98, 0, index ? 10 - position : position - 19);
-    });
     lift = state.motion ? T.MathUtils.damp(lift, targetLift, 7, dt) : targetLift;
-    const idleY = targetLift + 6.8, landingY = .9 + state.step * HEIGHT;
+    const idleY = targetLift + 7.7, landingY = 1.44 + state.step * HEIGHT;
     let shake = 0;
     if (falling) {
       const approach = Math.min(1, elapsed / .52), tip = T.MathUtils.clamp((elapsed - .52) / (TOWER_BREAK_SECONDS - .52), 0, 1);
@@ -288,7 +225,7 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
     if (!falling) incoming.visible = true;
     const t = wreck ? wreck.impactElapsed : (now - dustStart) / 1000, dustLife = falling ? 1.4 : .65;
     dust.visible = !state.lost && t >= 0 && t < dustLife;
-    dust.position.z = falling ? 3.5 : 0; dustMaterial.size = falling ? 48 : 27;
+    dust.position.z = falling ? 1.3 : 0; dustMaterial.size = falling ? 48 : 27;
     if (dust.visible) {
       dustMaterial.opacity = Math.max(0, 1 - t / dustLife) * .75;
       for (let n = 0; n < 24; n++) {
@@ -302,19 +239,20 @@ export async function createTowerRenderer(canvas: HTMLCanvasElement, options: Op
     if (wreck) {
       const follow = state.lost || !state.motion ? 1 : T.MathUtils.smoothstep(elapsed, TOWER_BREAK_SECONDS, TOWER_BREAK_SECONDS + .25);
       const focus = Math.max(1.4, wreck.focusY);
-      camera.position.set(3.2 + .6 * follow + shake, T.MathUtils.lerp(targetLift + 6, focus + 4.6, follow) + shake, 17);
-      camera.lookAt(.2 * follow, T.MathUtils.lerp(targetLift + 4.5, focus, follow), 2.2 * follow);
-      lift = Math.max(0, camera.position.y - 6);
+      camera.position.set(.6 + shake, T.MathUtils.lerp(targetLift + 4.8, focus + 3.4, follow) + shake, 17);
+      camera.lookAt(0, T.MathUtils.lerp(targetLift + 4.5, focus + 3.1, follow), 0);
+      lift = Math.max(0, camera.position.y - 4.8);
       stackWindow(Math.floor(Math.max(0, focus - 8) / HEIGHT));
       canvas.dataset.collapsePhase = wreck.settled ? "settled" : wreck.impact ? "impact" : wreck.fractured ? "falling" : "tipping";
       canvas.dataset.debrisCount = String(wreck.fractured ? collapse.count : 0);
       canvas.dataset.debrisMinY = wreck.minY.toFixed(3); canvas.dataset.debrisMaxY = wreck.maxY.toFixed(3);
       canvas.dataset.fallStartY = wreck.startY.toFixed(3);
     } else {
-      camera.position.set(3.2 + shake, lift + 6 + shake, 17); camera.lookAt(0, lift + 4.5, 0);
+      camera.position.set(.6 + shake, lift + 4.8 + shake, 17); camera.lookAt(0, lift + 4.5, 0);
       stackWindow(state.step - 12); canvas.dataset.collapsePhase = "none"; canvas.dataset.debrisCount = "0";
     }
     canvas.dataset.cameraLift = lift.toFixed(3);
+    canvas.dataset.artStyle = "runway-reference-v4";
     canvas.parentElement?.style.setProperty("--tr-sky-offset", `${Math.min(lift / HEIGHT * 12, 40)}%`);
     foundation.visible = lift < 8;
     sun.position.set(-6, lift + 14, 7); sun.target.position.set(0, lift + 2, 0);

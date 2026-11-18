@@ -10,6 +10,7 @@ export function createCollapse(options: {
   const cube = options.ownGeometry(new T.BoxGeometry(1, 1, 1));
   const pieces: { model: T.Group; body: T.Mesh; face?: T.Mesh; local: T.Vector3; size: T.Vector3; start: T.Vector3; end: T.Vector3; rest: T.Euler; restY: number; hitAt: number; vy: number; wall: boolean }[] = [];
   const add = (size: T.Vector3, local: T.Vector3, wall: boolean, col?: number, row?: number) => {
+    size.multiply(new T.Vector3(.912, 1.6, 1.04)); local.multiply(new T.Vector3(.912, 1.6, 1.04));
     const model = new T.Group(), body = new T.Mesh(cube, wall ? options.walls[0] : options.trim);
     body.scale.copy(size); body.castShadow = true; body.receiveShadow = true; model.add(body);
     let face: T.Mesh | undefined;
@@ -44,7 +45,7 @@ export function createCollapse(options: {
         pieces.forEach((piece, n) => {
           piece.start.copy(piece.local).applyEuler(tipped).add(new T.Vector3(1.05, timing.height, .55));
           piece.start.y = Math.max(piece.start.y, piece.restY + .05);
-          piece.end.set(-.95 + (n % 5) * .43, piece.restY, 2.8 + Math.floor(n / 5) * .46 + (n % 2) * .15);
+          piece.end.set(-.95 + (n % 5) * .43, piece.restY, 1 + Math.floor(n / 5) * .2 + (n % 2) * .15);
           piece.vy = .5 + (n % 4) * .4;
           piece.hitAt = (piece.vy + Math.sqrt(piece.vy ** 2 + 2 * timing.gravity * Math.max(0, piece.start.y - piece.restY))) / timing.gravity;
           piece.body.material = piece.wall ? options.walls[step % options.walls.length] : n >= 16 ? options.dark : options.trim;

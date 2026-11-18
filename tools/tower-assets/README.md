@@ -1,6 +1,23 @@
 # Tower Rush visual assets
 
-## Realism revision v3
+## Runway reference graphics v4
+
+The current scene matches the supplied November 18 Tower Rush recording:
+front-facing low-rise shops, striped awnings, ivy rooftops, turquoise sky,
+and narrow painted house blocks. Runway generated four facade skins plus
+separate landscape and portrait neighborhood plates. The selected source
+images and exact prompts/task IDs are in `runway-v4/`; rebuild the immutable
+WebP assets with `python tools/tower-assets/prepare_runway.py`.
+The six new runtime images total 330,360 bytes. No Runway requests occur while
+customers play. Portrait scenery keeps both side buildings in frame.
+
+The camera uses an orthographic projection; a world-space neighborhood plate
+moves out of view as the tower rises. Block geometry, roof edges, crane,
+shadows and fracture pieces remain 3D. Debris still falls from the failed
+floor to the street and stays there through reload. The SVG fallback shares
+the new artwork. Existing payout, RNG, RTP and wallet rules are unchanged.
+
+## Previous realism revision v3
 
 The repeated low-detail city meshes are replaced by
 `public/media/tower-rush/site-photographic-v3.webp` (relative to the game).

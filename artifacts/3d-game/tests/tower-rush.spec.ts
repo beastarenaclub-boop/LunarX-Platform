@@ -63,8 +63,8 @@ test("high tower fractures, falls to the street and keeps rubble until a new rou
   });
   await page.getByTestId('collection-play').click();
   await expect(canvas).toHaveAttribute('data-collapse-phase','falling');
-  await page.getByTestId('tower-scene').screenshot({path:testInfo.outputPath('falling.png')});
   await expect(page.getByTestId('collection-play')).toBeDisabled();
+  await page.getByTestId('tower-scene').screenshot({path:testInfo.outputPath('falling.png')});
   await expect(canvas).toHaveAttribute('data-collapse-phase','settled');
   await expect(canvas).toHaveAttribute('data-debris-count','22');
   await expect(canvas).toHaveAttribute('data-camera-lift','0.000');
@@ -282,6 +282,7 @@ test("GPU scene renders textured floors, follows the tower and keeps draw calls 
   }
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await expect(page.locator(".tr-3d-canvas")).toHaveAttribute("data-draw-calls", /\d+/, { timeout: 10000 });
+  await expect(page.locator(".tr-3d-canvas")).toHaveAttribute("data-art-style", "runway-reference-v4");
   const stats = await page.locator(".tr-3d-canvas").evaluate(el => ({ calls: Number((el as HTMLElement).dataset.drawCalls), triangles: Number((el as HTMLElement).dataset.triangles), fps: Number((el as HTMLElement).dataset.fps) }));
   expect(stats.calls).toBeLessThan(180);
   expect(stats.triangles).toBeLessThan(60000);
