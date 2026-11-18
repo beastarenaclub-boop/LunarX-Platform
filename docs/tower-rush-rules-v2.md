@@ -57,3 +57,9 @@ wallet debits/credits in a disposable in-memory PostgreSQL database, including
 stale-page rejection, request recovery, admin edits, crash 20/35, floor 30 cash-out
 and legacy rounds beyond 35. It never connects to the live database.
 Browser coverage is in `artifacts/3d-game/tests/tower-rush.spec.ts`.
+
+Tower moves use a separate budget of 120/minute per player and 600/minute per IP
+(demo workers retain their IP exemption). New placements keep the existing
+30/minute per-player and 60/minute IP limits. A floor advances an existing stake;
+it must not consume the placement budget and block a 35-floor round. The local
+HTTP regression in `towerRateLimit.test.ts` verifies both limits remain enforced.

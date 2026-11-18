@@ -4,7 +4,7 @@ import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { collectionGame, SEVEN_SPOTS, type CollectionCode } from "@workspace/api-zod/instant-collection";
 import { requireAuth } from "../middlewares/auth";
-import { bettingIpRateLimiter, bettingRateLimiter } from "../middlewares/rateLimit";
+import { bettingIpRateLimiter, bettingRateLimiter, towerMoveIpRateLimiter, towerMoveRateLimiter } from "../middlewares/rateLimit";
 import { badRequest, notFound } from "../lib/errors";
 import { instantConfig, instantState, placeInstant, moveInstant } from "../services/instantCollection";
 import { isRetiredGame } from "../lib/retiredGames";
@@ -32,5 +32,8 @@ router.post("/:code/place", bettingIpRateLimiter, bettingRateLimiter, async (req
     res.json(await placeInstant(req.user!.id, code, input));
   } catch (e) { next(e); }
 });
-router.post("/:code/:id/move", bettingIpRateLimiter, bettingRateLimiter, async (req, res, next) => { try { res.json(await moveInstant(req.user!.id, req.params.code as CollectionCode, String(req.params.id), Move.parse(req.body))); } catch (e) { next(e); } });
+router.post("/:code/:id/move",
+  (req, res, next) => (req.params.code === "tower-rush" ? towerMoveIpRateLimiter : bettingIpRateLimiter)(req, res, next),
+  (req, res, next) => (req.params.code === "tower-rush" ? towerMoveRateLimiter : bettingRateLimiter)(req, res, next),
+  async (req, res, next) => { try { res.json(await moveInstant(req.user!.id, req.params.code as CollectionCode, String(req.params.id), Move.parse(req.body))); } catch (e) { next(e); } });
 export default router;

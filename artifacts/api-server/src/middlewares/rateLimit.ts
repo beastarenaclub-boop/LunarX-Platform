@@ -118,3 +118,17 @@ export const bettingIpRateLimiter = rateLimit({
     },
   },
 });
+
+// A Tower floor advances one existing stake; it is not another placement.
+// Separate bounded move budgets let a 35-floor round and its cash-out finish.
+export const towerMoveRateLimiter = rateLimit({
+  windowMs: 60 * 1000, limit: 120, standardHeaders: "draft-7", legacyHeaders: false,
+  keyGenerator: req => req.user?.id ?? "anon",
+  validate: { xForwardedForHeader: false, ip: false },
+  message: { error: { code: "TOO_MANY_REQUESTS", message: "Too many Tower moves. Wait a moment and retry your saved round." } },
+});
+export const towerMoveIpRateLimiter = rateLimit({
+  skip: () => DEMO_RUNTIME,
+  windowMs: 60 * 1000, limit: 600, standardHeaders: "draft-7", legacyHeaders: false,
+  message: { error: { code: "TOO_MANY_REQUESTS", message: "Too many Tower requests from this network. Please retry shortly." } },
+});
