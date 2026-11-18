@@ -7,7 +7,7 @@ import { postEntry, publishWalletBalance } from "./wallet";
 import { badRequest, conflict, notFound } from "../lib/errors";
 import { instantDraw, instantHazards, instantSafe, instantSeedHash } from "./instantCollectionMath";
 import { isRetiredGame } from "../lib/retiredGames";
-import { TOWER_PAYOUT_VERSION, TOWER_MIN_RTP, towerPayout, type TowerPayoutVersion } from "@workspace/api-zod/instant-collection";
+import { TOWER_PAYOUT_VERSION, towerPayout, type TowerPayoutVersion } from "@workspace/api-zod/instant-collection";
 
 // Historical receipts still need their original rules after a game is removed.
 const settlementGame = (code: string) => collectionGame(code) ?? (code === "chicken-road-2"
@@ -41,7 +41,7 @@ export async function instantState(userId: string, code: CollectionCode) {
   const history = await db.select().from(betsTable).where(owned(userId, code)).orderBy(desc(betsTable.placedAt)).limit(20);
   return { round: active[0] ? instantReceipt(active[0]) : null, history: history.map(instantReceipt) };
 }
-export async function placeInstant(userId: string, code: CollectionCode, input: { requestId: string; stakeAmount: string; clientSeed: string; options: CollectionOptions; towerPayoutVersion?: 2 }) {
+export async function placeInstant(userId: string, code: CollectionCode, input: { requestId: string; stakeAmount: string; clientSeed: string; options: CollectionOptions; towerPayoutVersion?: 2 | 3 }) {
   if (isRetiredGame(code)) throw badRequest("This game is no longer available.");
   const game = collectionGame(code)!, config = await instantConfig(code), stake = BigInt(input.stakeAmount);
   if (input.options.bets) {
@@ -61,7 +61,6 @@ export async function placeInstant(userId: string, code: CollectionCode, input: 
     // Reject old UI prices before any debit. Previously accepted IDs still
     // replay above, so a rolling deploy cannot strand an existing stake.
     if (game.kind === "tower" && input.towerPayoutVersion !== TOWER_PAYOUT_VERSION) throw conflict("Tower Rush rules have changed. Reload the page to review the new returns before betting.");
-    if (game.kind === "tower" && config.rtp < TOWER_MIN_RTP - 1e-10) throw badRequest("Tower Rush needs at least 62.1% RTP because the first 19 floors are safe. Update Game Defaults before accepting new bets.");
     if (!config.enabled) throw badRequest("This game is temporarily unavailable.");
     if (stake < BigInt(config.minStakePaise) || stake > BigInt(config.maxStakePaise) || stake <= 0n) throw badRequest("Bet is outside the game limits.");
     const [active] = await tx.select({ id: betsTable.id }).from(betsTable).where(and(owned(userId, code), eq(betsTable.status, "placed"))).limit(1);

@@ -3,9 +3,56 @@ import { test } from "node:test";
 import { createHmac } from "node:crypto";
 import { collectionMultiplier, collectionPayout, collectionSteps, INSTANT_COLLECTION, REQUESTED_INSTANT_CODES, roadSurvival, type CollectionOptions } from "@workspace/api-zod/instant-collection";
 import { instantDraw, instantHazards, instantRandom, instantSafe, instantSeedHash } from "../instantCollectionMath";
-import { towerPayout, towerReturnMillis, towerSurvival, TOWER_MIN_RTP } from "@workspace/api-zod/instant-collection";
+import { towerPayout, towerReturnMillis, towerSurvival, towerStepChance, TOWER_MIN_RTP, TOWER_PAYOUT_VERSION } from "@workspace/api-zod/instant-collection";
 import { towerCrashFloor } from "../instantCollectionMath";
 const options: CollectionOptions = { difficulty: "easy", mines: 3, choice: "heads" };
+
+test("tower v3 calibrates unlimited independent floors to admin RTP", () => {
+  assert.equal(TOWER_PAYOUT_VERSION, 3);
+  for (const rtp of [0, .0001, .01, .1, .5, .621, .85, .97, .99, 1]) {
+    const q = towerStepChance(rtp);
+    assert(q >= 0 && q < 1);
+    assert.equal(towerStepChance(rtp), q);
+    let best = 0;
+    for (let floor = 1; floor <= 10000; floor++) {
+      const multiplier = collectionMultiplier("tower", floor, options, rtp, Infinity, 3);
+      const expected = q ** floor * multiplier;
+      best = Math.max(best, expected);
+      assert(expected <= rtp + 1e-12);
+    }
+    assert(Math.abs(best - rtp) < 1e-12, `rtp=${rtp}, best=${best}`);
+    assert.equal(towerSurvival(35, rtp, 3), q ** 35);
+  }
+  assert.equal(collectionSteps("tower", options), Infinity);
+  for (const n of [1, 30, 35, 100, 10000]) {
+    assert.equal(collectionMultiplier("tower", n, options, .97, Infinity, 3), towerReturnMillis(n) / 1000);
+  }
+  assert.equal(towerPayout(10000n, .001, 3), 10n);
+  assert.equal(towerPayout(12345n, .001, 3), 12n);
+  assert.equal(collectionMultiplier("tower", 100, options, .97, 1, 3), 1);
+});
+
+test("tower v3 can lose on floor one or survive beyond 35; seeded outcomes replay", () => {
+  const rtp = .97, q = towerStepChance(rtp), trials = 20000;
+  for (const floor of [1, 19, 35, 36, 100, 10000]) {
+    let safe = 0;
+    for (let i = 0; i < trials; i++) {
+      const seed = `v3-${i}`;
+      const expected = instantRandom(seed, "client", "tower-rush", `tower:v3:floor:${floor}`) < q;
+      for (const cell of [0, 1, 2]) assert.equal(instantSafe("tower", seed, "client", "tower-rush", floor, cell, options, 3, rtp), expected);
+      safe += Number(expected);
+    }
+    assert(safe > 0 && safe < trials);
+    assert(Math.abs(safe / trials - q) < .004);
+  }
+  let surviving = 0;
+  for (let i = 0; i < 2000; i++) {
+    let floor = 1;
+    while (floor <= 100 && instantSafe("tower", `path-${i}`, "client", "tower-rush", floor, 0, options, 3, rtp)) floor++;
+    surviving += Number(floor > 100);
+  }
+  assert(Math.abs(surviving / 2000 - q ** 100) < .04);
+});
 
 test("tower v2 uses exact thousandth returns, including paise and large stakes", () => {
   assert.equal(towerReturnMillis(1), 1);

@@ -20,8 +20,8 @@ export type SevenBet = { spot: SevenSpot; amount: string };
 export type SevenPayoutVersion = 1 | 2;
 export const SEVEN_PAYOUT_VERSION: SevenPayoutVersion = 2;
 export const SEVEN_TOTAL_RETURN = 1.98;
-export type TowerPayoutVersion = 1 | 2;
-export const TOWER_PAYOUT_VERSION: TowerPayoutVersion = 2;
+export type TowerPayoutVersion = 1 | 2 | 3;
+export const TOWER_PAYOUT_VERSION: TowerPayoutVersion = 3;
 export const TOWER_SAFE_FLOORS = 19;
 export const TOWER_FIRST_CRASH = 20;
 export const TOWER_LAST_CRASH = 35;
@@ -32,7 +32,7 @@ export function towerReturnMillis(step: number): number {
   return step <= 0 ? 1000 : 1 + Math.floor(999 * (step - 1) / 29);
 }
 export function towerPayout(stake: bigint, multiplier: number, version: TowerPayoutVersion = 1): bigint {
-  return version === 2 ? stake * BigInt(Math.round(multiplier * 1000)) / 1000n : collectionPayout(stake, multiplier);
+  return version >= 2 ? stake * BigInt(Math.round(multiplier * 1000)) / 1000n : collectionPayout(stake, multiplier);
 }
 export const TOWER_MIN_RTP = towerReturnMillis(TOWER_SAFE_FLOORS) / 1000;
 /** Calibrate a mixture of uniform crash floors and floor 35. The optimal
@@ -47,7 +47,39 @@ export function towerLateCrashWeight(rtp: number): number {
   }
   return Math.max(0, weight);
 }
-export function towerSurvival(floor: number, rtp: number): number {
+/** Version 3 has a constant independent survival chance on every floor, with
+ * no safe opening or final floor. Calibrate the best pre-cap stopping return
+ * max(n >= 1, q^n * M(n)) to RTP. The decreasing unrounded linear envelope
+ * bounds the entire remaining tail, so calibration needs no floor cutoff. */
+const towerChanceCache = new Map<number, number>();
+export function towerStepChance(rtp: number): number {
+  const target = Number.isFinite(rtp) ? Math.max(0, Math.min(1, rtp)) : .97;
+  const cached = towerChanceCache.get(target);
+  if (cached !== undefined) return cached;
+  const slope = 999 / 29000, intercept = .001 - slope;
+  const bestReturn = (q: number) => {
+    if (q === 0) return 0;
+    const peak = -1 / Math.log(q) - intercept / slope;
+    let probability = 1, best = 0;
+    for (let n = 1; ; n++) {
+      probability *= q;
+      best = Math.max(best, probability * towerReturnMillis(n) / 1000);
+      if (n >= peak && probability * (slope * n + intercept) <= best + 1e-15) return best;
+    }
+  };
+  // At q=.99 the best return exceeds 1, covering every supported RTP.
+  let low = 0, high = .99;
+  for (let i = 0; i < 52; i++) {
+    const middle = (low + high) / 2;
+    if (bestReturn(middle) > target) high = middle;
+    else low = middle;
+  }
+  if (towerChanceCache.size >= 64) towerChanceCache.clear();
+  towerChanceCache.set(target, low);
+  return low;
+}
+export function towerSurvival(floor: number, rtp: number, version: TowerPayoutVersion = 2): number {
+  if (version === 3) return Math.pow(towerStepChance(rtp), Math.max(0, floor));
   if (floor <= TOWER_SAFE_FLOORS) return 1;
   if (floor >= TOWER_LAST_CRASH) return 0;
   const weight = towerLateCrashWeight(rtp);
@@ -110,7 +142,7 @@ export function normalizeCoinLiveBet(raw: unknown): CoinLiveBet {
 export const roadSurvival = (difficulty: CollectionOptions["difficulty"]) => ({ easy: .85, medium: .7, hard: .55 })[difficulty];
 export function collectionMultiplier(kind: InstantKind, step: number, options: CollectionOptions, rtp = .97, cap = 1000, towerVersion: TowerPayoutVersion = 1): number {
   if (!step) return 1;
-  if (kind === "tower" && towerVersion === 2) return Math.min(cap, towerReturnMillis(step) / 1000);
+  if (kind === "tower" && towerVersion >= 2) return Math.min(cap, towerReturnMillis(step) / 1000);
   let chance = 1;
   if (kind === "mines") for (let n = 0; n < step; n++) chance *= (25 - options.mines - n) / (25 - n);
   else chance = Math.pow(kind === "tower" ? 2 / 3 : roadSurvival(options.difficulty), step);

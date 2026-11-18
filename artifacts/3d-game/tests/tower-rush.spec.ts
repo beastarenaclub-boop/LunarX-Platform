@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { collectionMultiplier, collectionPayout, towerPayout, type CollectionRound } from "@workspace/api-zod/instant-collection";
 import { mockGames } from "./fixtures/compact-game-data";
 
-async function tower(page: Page, options: { version?: 1 | 2; resumeStep?: number; loseAt?: number; dropPlace?: boolean; dropMove?: boolean; delay?: number; rtp?: number; cap?: number } = {}) {
+async function tower(page: Page, options: { version?: 1 | 2 | 3; resumeStep?: number; loseAt?: number; dropPlace?: boolean; dropMove?: boolean; delay?: number; rtp?: number; cap?: number } = {}) {
   await mockGames(page);
   let balance = 1000000n, round: CollectionRound | null = null, dropped = false;
   let configRtp = options.rtp ?? .97;
@@ -48,6 +48,40 @@ async function tower(page: Page, options: { version?: 1 | 2; resumeStep?: number
   await expect(page.getByTestId("collection-play")).toBeEnabled();
   return { posts, errors, get balance() { return balance; }, setRtp(value: number) { configRtp = value; } };
 }
+
+test("v3 has no floor limit, builds past 35 and restores a cashable round", async ({ page }) => {
+  const f = await tower(page, {version:3,resumeStep:34});
+  await expect(page.locator('.tr-guide')).toContainText('Every floor can fall');
+  await expect(page.locator('.tr-floor-track')).toHaveAttribute('aria-label', /no final floor/);
+  await page.getByTestId('collection-play').click();
+  expect(f.posts[0].input.towerPayoutVersion).toBe(3);
+  for (let step=35;step<=37;step++) {
+    await page.getByTestId('collection-play').click();
+    await expect(page.getByTestId('tower-scene')).toHaveAttribute('data-step',String(step));
+  }
+  await expect(page.getByText('Floor 35 always falls', {exact:false})).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByTestId('tower-scene')).toHaveAttribute('data-step','37');
+  await expect(page.locator('.tr-score strong')).toContainText('1.241');
+  await page.getByTestId('collection-cashout').click();
+  await expect(page.getByTestId('collection-result')).toContainText('Returned to your wallet');
+  expect(f.posts.filter(p=>p.input.action==='cashout')).toHaveLength(1);
+  expect(f.errors).toEqual([]);
+});
+
+test("v3 can fall on the first build and explains the new rules", async ({page}) => {
+  const f=await tower(page,{version:3,loseAt:1});
+  await expect(page.locator('.tr-score strong')).toContainText('0.001');
+  await page.getByRole('button',{name:'Game rules',exact:true}).click();
+  await expect(page.getByRole('dialog')).toContainText('No floors are guaranteed safe');
+  await expect(page.getByRole('dialog')).toContainText('no maximum floor');
+  await page.keyboard.press('Escape');
+  await page.getByTestId('collection-play').click();
+  await expect(page.getByTestId('collection-result')).toContainText('No return this round');
+  expect(f.posts.filter(p=>p.path.endsWith('/place'))).toHaveLength(1);
+  expect(f.balance).toBe(990000n);
+  expect(f.errors).toEqual([]);
+});
 
 test("high tower fractures, falls to the street and keeps rubble until a new round", async ({ page }, testInfo) => {
   const f = await tower(page, {version:2,resumeStep:30,loseAt:31});
