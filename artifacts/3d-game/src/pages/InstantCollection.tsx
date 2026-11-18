@@ -16,6 +16,7 @@ import { Bird, Fish, Treasure } from "@/components/instant/CollectionArt";
 import "@/components/instant/collection.css";
 import PirateRoad from "@/components/instant/PirateRoad";
 import CoinFlip from "@/components/instant/CoinFlip";
+import TowerRush from "@/components/instant/TowerRush";
 
 type PendingBet = { requestId: string; stakeAmount: string; clientSeed: string; options: CollectionOptions };
 const amount = (paise: string) => `₹${formatRupees(paise)}`;
@@ -24,7 +25,7 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
   const endpoint = `/api/instant/${gameCode}`, key = ["instant-collection", gameCode, user?.id];
   const pendingKey = `instant:pending:${user?.id}:${gameCode}`;
   const config = useQuery({ queryKey: ["instant-config", gameCode], queryFn: () => customFetch<CollectionConfig>(`${endpoint}/config`), retry: false, refetchInterval: 30000 });
-  const state = useQuery({ queryKey: key, queryFn: () => customFetch<CollectionState>(`${endpoint}/state`), retry: false, refetchOnWindowFocus: true });
+  const state = useQuery({ queryKey: key, queryFn: () => customFetch<CollectionState>(`${endpoint}/state`, gameCode === "tower-rush" ? { signal: AbortSignal.timeout(15000) } : undefined), retry: false, refetchOnWindowFocus: true });
   const balance = useGetWalletBalance({ game: "lunar" }, { query: { queryKey: getGetWalletBalanceQueryKey({ game: "lunar" }), enabled: !!user, retry: false } });
   const [round, setRound] = useState<CollectionRound | null>(null), [stake, setStake] = useState("100");
   const [options, setOptions] = useState<CollectionOptions>({ difficulty: "easy", mines: 3, choice: game.kind === "dice" ? "up" : game.kind === "fishing" ? "cast" : "heads" });
@@ -33,16 +34,23 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
   const sound = useStore(s => s.settings.sound);
   const music = useStore(s => s.settings.music);
   const pirateAudio = gameCode === "chicken-road-pirate";
+  const tower = gameCode === "tower-rush";
   // Pirate Edition has an idle soundtrack; arm it on entry, before any bet.
   // The shared bus still respects saved mute/music settings and browser unlock.
   useEffect(() => { if (pirateAudio) notifyPlayStarted(); }, [pirateAudio]);
   const [pending, setPending] = useState<PendingBet | null>(() => { try { const p = JSON.parse(localStorage.getItem(pendingKey) ?? "null"); return p?.requestId && p?.options ? p : null; } catch { return null; } });
-  // A recovered coin bet must show the original side and amount, including after reload.
-  useEffect(() => { if (gameCode === "coin-flip" && pending) { setStake((Number(pending.stakeAmount) / 100).toFixed(2)); setOptions(pending.options); } }, [gameCode, pending]);
+  // Recovered coin/tower bets retain their accepted amount, including after reload.
+  useEffect(() => { if ((gameCode === "coin-flip" || tower) && pending) { setStake((Number(pending.stakeAmount) / 100).toFixed(2)); setOptions(pending.options); } }, [gameCode, tower, pending]);
+  useEffect(() => { if (tower && round?.status === "active") setStake((Number(round.stakeAmount) / 100).toFixed(2)); }, [tower, round?.id, round?.stakeAmount, round?.status]);
   const lock = useRef(false), mounted = useRef(true);
-  const [motion, setMotion] = useState(() => !window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const readMotion = () => {
+    if (tower) { try { const saved = localStorage.getItem("tower-rush:motion"); if (saved === "on" || saved === "off") return saved === "on"; } catch { /* Optional preference storage. */ } }
+    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  };
+  const [motion, setMotion] = useState(readMotion);
+  const toggleMotion = () => { setMotion(value => { const next = !value; try { localStorage.setItem("tower-rush:motion", next ? "on" : "off"); } catch {} return next; }); };
   useEffect(() => { mounted.current = true; document.title = `${game.name} · Instant Games`; return () => { mounted.current = false; }; }, [game.name]);
-  useEffect(() => { const media = window.matchMedia("(prefers-reduced-motion: reduce)"); const change = () => setMotion(!media.matches); media.addEventListener("change", change); return () => media.removeEventListener("change", change); }, []);
+  useEffect(() => { const media = window.matchMedia("(prefers-reduced-motion: reduce)"); const change = () => setMotion(readMotion()); media.addEventListener("change", change); return () => media.removeEventListener("change", change); }, [tower]);
   useEffect(() => { if (state.data && !lock.current) setRound(state.data.round ?? state.data.history[0] ?? null); }, [state.data]);
   const active = round?.status === "active", step = round?.step ?? 0;
   const opts = active ? round.options : options;
@@ -67,43 +75,60 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
     updateSettings({ sound: enabled });
     if (enabled) void unlocked.then(() => { if (mounted.current) cue("select"); });
   };
-  async function act(action: "place" | "reveal" | "cashout", cell = 0) {
-    if (lock.current) return;
+  const towerRequest = (url: string, body: unknown) => customFetch<CollectionRound>(url, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000),
+  });
+  async function act(action: "place" | "reveal" | "cashout", cell = 0): Promise<CollectionRound | undefined> {
+    if (lock.current) return undefined;
     lock.current = true; setBusy(true); setError("");
     cue(pirateAudio || hasPublicDemoSound(gameCode) ? "select" : action === "place" ? "bet" : "reveal");
     try {
+      if (tower) await qc.cancelQueries({ queryKey: key, exact: true });
       let result: CollectionRound;
       if (action === "place") {
         if (!pending && (!ready || !validStake || !enough || !within)) throw new Error("Enter a bet within your balance and game limits.");
         const input = pending ?? { requestId: crypto.randomUUID(), stakeAmount: String(paise), clientSeed: crypto.randomUUID().replaceAll("-", ""), options };
         remember(input);
-        result = gameCode === "coin-flip"
+        result = gameCode === "coin-flip" || tower
           ? await customFetch<CollectionRound>(`${endpoint}/place`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input), signal: AbortSignal.timeout(15000) })
           : await request<CollectionRound>(`${endpoint}/place`, input);
         remember(null);
+        // BUILD starts one stake and drops its first block. Recovery only reads
+        // the original placement; it must not accidentally take a second risk.
+        if (tower && !pending && mounted.current && result.status === "active" && result.step === 0) {
+          result = await towerRequest(`${endpoint}/${result.id}/move`, { action: "reveal", cell: 0, expectedStep: 0, actionId: crypto.randomUUID() });
+        }
       } else {
-        if (!round || !active) return;
-        result = await request<CollectionRound>(`${endpoint}/${round.id}/move`, { action, cell, expectedStep: step, actionId: crypto.randomUUID() });
+        if (!round || !active) return undefined;
+        const move = { action, cell, expectedStep: step, actionId: crypto.randomUUID() };
+        result = tower ? await towerRequest(`${endpoint}/${round.id}/move`, move) : await request<CollectionRound>(`${endpoint}/${round.id}/move`, move);
       }
       if (!isProgressive && motion) await new Promise(resolve => setTimeout(resolve, 850));
       if (pending?.requestId === result.requestId) remember(null);
       if (mounted.current) {
         setRound(result);
         if (pirateAudio) notifyPlayStarted();
-        if (gameCode !== "coin-flip") cue(result.status === "lost" ? "crash" : result.status === "active" ? action === "place" ? "bet" : "reveal" : BigInt(result.payoutAmount) > BigInt(result.stakeAmount) ? "win" : "clear");
+        if (gameCode !== "coin-flip" && (!tower || action === "cashout")) cue(result.status === "lost" ? "crash" : result.status === "active" ? action === "place" ? "bet" : "reveal" : BigInt(result.payoutAmount) > BigInt(result.stakeAmount) ? "win" : "clear");
       }
-      // A confirmed coin receipt can land even if a background wallet/history refresh is slow.
-      if (gameCode === "coin-flip") void refresh(); else await refresh();
+      // A successful extra tower floor does not debit/credit the wallet. Its
+      // authoritative receipt already contains the new state, so avoid four
+      // redundant GETs after every move. Placement, settlement and errors still
+      // refresh the wallet/history, and focus/reload still recover from the API.
+      if (tower && action === "reveal" && result.status === "active") {
+        qc.setQueryData<CollectionState>(key, previous => ({ round: result, history: [result, ...(previous?.history ?? []).filter(item => item.id !== result.id)].slice(0, 20) }));
+      } else if (gameCode === "coin-flip" || tower) void refresh(); else await refresh();
+      return result;
     } catch (e) {
       // Only definitive 4xx rejections allow a new request ID. A lost response must retry the original ID.
       const status = (e as { status?: number }).status;
       if (status && status >= 400 && status < 500 && status !== 408 && status !== 429) remember(null);
-      if (mounted.current) setError(gameCode === "coin-flip" && (e as Error).name === "TimeoutError" ? "Confirmation timed out. Retry your pending bet to recover the result." : errorMessage(e));
+      if (mounted.current) setError((gameCode === "coin-flip" || tower) && (e as Error).name === "TimeoutError" ? tower ? "Confirmation timed out. Refresh to check your saved round before continuing." : "Confirmation timed out. Retry your pending bet to recover the result." : errorMessage(e));
       if (gameCode === "coin-flip") { void state.refetch(); void balance.refetch(); }
       else {
         const recovered = await state.refetch();
         if (mounted.current && recovered.data) setRound(recovered.data.round ?? recovered.data.history[0] ?? null);
       }
+      return undefined;
     } finally { lock.current = false; if (mounted.current) setBusy(false); }
   }
   const selection = (value: string) => { cue("select"); setOptions(o => ({ ...o, choice: value })); };
@@ -112,7 +137,17 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
   const win = result && result.status !== "lost";
   const choices = game.kind === "dice" ? [["down", "7 DOWN"], ["seven", "EXACT 7"], ["up", "7 UP"]] : game.kind === "duel" ? [["heads", "GOLD DUCK"], ["tails", "BLUE DUCK"]] : [["heads", "HEADS"], ["tails", "TAILS"]];
   const choicePayout = (value: string) => Math.floor((rtp * (game.kind === "dice" ? value === "seven" ? 6 : 36 / 15 : 2) + 1e-10) * 100) / 100;
-  const dialog = <Dialog open={panel !== null} onOpenChange={open => !open && setPanel(null)}><DialogContent className={`ic-dialog ${gameCode === "chicken-road-pirate" ? "pr-dialog" : ""}`}><DialogHeader><DialogTitle>{panel === "rules" ? `How to play ${game.name}` : panel === "history" ? "Your round history" : "Round details"}</DialogTitle><DialogDescription>{panel === "rules" ? "Understand the choices and total returns before you play." : "Your server-recorded rounds and results."}</DialogDescription></DialogHeader>{panel === "rules" ? <div className="ic-rules"><p>Set a bet amount within the displayed limits. {isProgressive ? "Start a round, make your choices, then cash out. A failed move loses the stake. Completing the final step automatically pays your return. Returning before your first move refunds your stake." : "Pick an outcome and press play. The result settles automatically into your shared wallet."}</p><p>All multipliers are total returns including your stake. Returns round down to the nearest paise. Target RTP: {((config.data?.rtp ?? .97) * 100).toFixed(0)}% before rounding and caps; each round is independent.</p>{game.kind === "dice" && <p>Each die has six equally likely faces. Below/above 7 each has 15 of 36 outcomes; exactly 7 has 6 of 36.</p>}{game.kind === "fishing" && <p>Empty hook: 50%. Reef fish: 30%. Blue marlin: 15%. Royal catch: 4%. Golden jackpot: 1%. The jackpot is a fixed return, not a shared prize pool.</p>}{game.kind === "mines" && <p>Cannons are fixed when the round starts. Tiles are never moved after your selection. The final safe tile automatically pays. Maximum return is {cap}×.</p>}{game.kind === "tower" && <p>Each floor has one hidden losing door and two safe doors. Complete all 10 floors to collect automatically.</p>}<p>A page refresh restores your active round. A network interruption never starts another bet automatically.</p></div> : panel === "history" ? <div className="ic-history">{state.data?.history.length ? state.data.history.map(r => <div key={r.id}><span>{new Date(r.createdAt).toLocaleString()}<small>{r.status.replace("_", " ")} · {r.id}</small></span><strong>{amount(r.stakeAmount)} → {amount(r.payoutAmount)}</strong></div>) : <p>No rounds yet.</p>}</div> : <div className="ic-fairness">{round ? <><p>Outcomes use a server seed and your client seed with HMAC-SHA256. Progressive rounds commit the seed before your first move; single-play games reveal their audit data with the result.</p>{[["Round", round.id], ["Server seed SHA-256", round.serverSeedHash], ["Client seed", round.clientSeed], ["Server seed", round.serverSeed ?? "Revealed after the round ends"]].map(([label, value]) => <div key={label}><small>{label}</small><code>{value}</code></div>)}</> : <p>Play a round to view its seed and result details.</p>}</div>}</DialogContent></Dialog>;
+  const dialog = <Dialog open={panel !== null} onOpenChange={open => !open && setPanel(null)}><DialogContent className={`ic-dialog ${gameCode === "chicken-road-pirate" ? "pr-dialog" : ""}`}><DialogHeader><DialogTitle>{panel === "rules" ? `How to play ${game.name}` : panel === "history" ? "Your round history" : "Round details"}</DialogTitle><DialogDescription>{panel === "rules" ? "Understand the choices and total returns before you play." : "Your server-recorded rounds and results."}</DialogDescription></DialogHeader>{panel === "rules" ? <div className="ic-rules"><p>Set a bet amount within the displayed limits. {isProgressive ? "Start a round, make your choices, then cash out. A failed move loses the stake. Games with a final step automatically pay on completion; Tower Rush has no final floor. Returning before your first move refunds your stake." : "Pick an outcome and press play. The result settles automatically into your shared wallet."}</p><p>All multipliers are total returns including your stake. Returns round down to the nearest paise. Target RTP: {(rtp * 100).toFixed(2)}% before rounding and caps; each round is independent.</p>{game.kind === "dice" && <p>Each die has six equally likely faces. Below/above 7 each has 15 of 36 outcomes; exactly 7 has 6 of 36.</p>}{game.kind === "fishing" && <p>Empty hook: 50%. Reef fish: 30%. Blue marlin: 15%. Royal catch: 4%. Golden jackpot: 1%. The jackpot is a fixed return, not a shared prize pool.</p>}{game.kind === "mines" && <p>Cannons are fixed when the round starts. Tiles are never moved after your selection. The final safe tile automatically pays. Maximum return is {cap}×.</p>}{game.kind === "tower" && <p>Press BUILD to place your stake and drop the first block. Each floor succeeds with a 2 in 3 chance (66.67%); timing the crane is visual only and does not affect the result. There is no final floor and no automatic settlement at floor 10. Cash out after any successful floor. The payout multiplier is capped at {cap}&times;; additional floors after that cap do not increase your return and still carry the risk of loss. Auto build continues only the current round and pauses at the payout cap, on a loss, error, or leaving the tab. It never starts another bet. RTP and payout limits are fixed when your round starts.</p>}<p>A page refresh restores your active round. A network interruption never starts another bet automatically.</p></div> : panel === "history" ? <div className="ic-history">{state.data?.history.length ? state.data.history.map(r => <div key={r.id}><span>{new Date(r.createdAt).toLocaleString()}<small>{r.status.replace("_", " ")} · {r.id}</small></span><strong>{amount(r.stakeAmount)} → {amount(r.payoutAmount)}</strong></div>) : <p>No rounds yet.</p>}</div> : <div className="ic-fairness">{round ? <><p>Outcomes use a server seed and your client seed with HMAC-SHA256. Progressive rounds commit the seed before your first move; single-play games reveal their audit data with the result.</p>{[["Round", round.id], ["Server seed SHA-256", round.serverSeedHash], ["Client seed", round.clientSeed], ["Server seed", round.serverSeed ?? "Revealed after the round ends"]].map(([label, value]) => <div key={label}><small>{label}</small><code>{value}</code></div>)}</> : <p>Play a round to view its seed and result details.</p>}</div>}</DialogContent></Dialog>;
+  if (tower) return <TowerRush
+    round={round} history={state.data?.history ?? []} stake={stake} setStake={setStake}
+    config={config.data} balance={balance.data?.balance} busy={busy} locked={locked}
+    pending={!!pending} canPlay={!busy && (!!pending || !!(ready && validStake && enough && within))}
+    playHint={pending ? "Recover your original bet before continuing" : !config.data?.enabled && config.data ? "Game temporarily unavailable" : !ready ? "Connecting to your game…" : !validStake || !within ? `Limits ${amount(config.data!.minStakePaise)} – ${amount(config.data!.maxStakePaise)}` : !enough ? "Insufficient wallet balance" : ""}
+    error={error || (config.isError || state.isError || balance.isError ? "Could not connect to the game. Please retry." : "")}
+    refresh={() => { void config.refetch(); void balance.refetch(); void state.refetch(); setError(""); }}
+    act={act} sound={sound} motion={motion} toggleSound={toggleSound} toggleMotion={toggleMotion}
+    onLanding={lost => cue(lost ? "crash" : round?.status === "cashed_out" ? "win" : "reveal")} openPanel={setPanel}
+  >{dialog}</TowerRush>;
   if (gameCode === "chicken-road-pirate") return <PirateRoad
     round={round} stake={stake} setStake={setStake} options={opts}
     setDifficulty={difficulty => { cue("select"); setOptions(o => ({ ...o, difficulty })); }}

@@ -1,0 +1,30 @@
+{
+  "beforeBytes": 1504751,
+  "afterBytes": 379404,
+  "assets": {
+    "site": "media/tower-rush/optimized/site-08f9e1213524.webp",
+    "environment": "media/tower-rush/optimized/environment-1b15405f9913.webp",
+    "dust": "media/tower-rush/optimized/dust-fa09800fb67a.webp",
+    "woodColor": "media/tower-rush/optimized/woodColor-fda534198d53.webp",
+    "woodNormal": "media/tower-rush/optimized/woodNormal-6a30e286d331.webp",
+    "woodRoughness": "media/tower-rush/optimized/woodRoughness-d010d7d473e0.webp",
+    "brickColor": "media/tower-rush/optimized/brickColor-6bb5a513ba04.webp",
+    "brickNormal": "media/tower-rush/optimized/brickNormal-ebea0a730005.webp",
+    "brickRoughness": "media/tower-rush/optimized/brickRoughness-3fa414e7e84a.webp",
+    "stoneColor": "media/tower-rush/optimized/stoneColor-7ff5576e305d.webp",
+    "stoneNormal": "media/tower-rush/optimized/stoneNormal-a340975c16b8.webp",
+    "stoneRoughness": "media/tower-rush/optimized/stoneRoughness-0958dfbb77a9.webp",
+    "metalColor": "media/tower-rush/optimized/metalColor-4bb3ba351706.webp",
+    "metalNormal": "media/tower-rush/optimized/metalNormal-febb11194768.webp",
+    "metalRoughness": "media/tower-rush/optimized/metalRoughness-6f5b3d67d1bf.webp",
+    "groundColor": "media/tower-rush/optimized/groundColor-61ed003ed6b2.webp",
+    "groundNormal": "media/tower-rush/optimized/groundNormal-5b947be6e0eb.webp",
+    "groundRoughness": "media/tower-rush/optimized/groundRoughness-fe1120c57ebf.webp",
+    "facade0": "media/tower-rush/optimized/facade0-042313c61e14.webp",
+    "facade1": "media/tower-rush/optimized/facade1-643e71bb6f20.webp",
+    "facade2": "media/tower-rush/optimized/facade2-f5e484618dd1.webp",
+    "facade3": "media/tower-rush/optimized/facade3-26892e29c42f.webp",
+    "facade4": "media/tower-rush/optimized/facade4-55ef678bce39.webp",
+    "facade5": "media/tower-rush/optimized/facade5-c21cb61262f1.webp"
+  }
+}

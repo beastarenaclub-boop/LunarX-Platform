@@ -95,7 +95,7 @@ for (const game of INSTANT_COLLECTION.filter(game => game.kind !== "dice" && gam
     await expect(page.getByTestId("collection-cashout")).toBeEnabled();
     if (game.kind === "road") await page.getByRole("button", { name: "Cross lane 1", exact: true }).first().click();
     if (game.kind === "mines") await page.getByRole("button", { name: "Tile 1", exact: true }).click();
-    if (game.kind === "tower") await page.getByRole("button", { name: "Floor 1 door 1", exact: true }).click();
+    if (game.kind === "tower") await page.getByTestId("collection-play").click();
     await expect(page.getByTestId("collection-cashout")).toContainText("Cash out");
     await page.getByTestId("collection-cashout").click();
   }

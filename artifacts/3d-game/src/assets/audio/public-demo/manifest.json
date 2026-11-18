@@ -196,6 +196,38 @@
       "source": "https://casino-wbgame.jiligames.com/sudm/assets/Game/native/87/8771fb54-dd4a-40cb-bcbf-c52cc1570a5a.044b7.mp3",
       "sha256": "eaabb9225cb8429a6a150d98c5661967609ce550b23ce71d56988ecea09f1c46",
       "bytes": 18716
+    },
+    "tower-rush/bet-compact-v4.mp3": {
+      "source": "https://cdn.gx-games-54rg78cw-tralt52.click/fg-cdn/prd/root/sounds/towerrush/sounds.mp3",
+      "sha256": "ee1fca1105bd29046d8044d82dffe3390f06136cf27fb8e974a980289606daa6",
+      "bytes": 28464,
+      "derivedFrom": "tower-rush/sounds.mp3",
+      "sourceOffset": 1,
+      "sourceDuration": 1.7
+    },
+    "tower-rush/reveal-compact-v4.mp3": {
+      "source": "https://cdn.gx-games-54rg78cw-tralt52.click/fg-cdn/prd/root/sounds/towerrush/sounds.mp3",
+      "sha256": "da09da34f83a2a716ab979afa4d0e2e1897abfe92da29c2f755e90598fbf233d",
+      "bytes": 21776,
+      "derivedFrom": "tower-rush/sounds.mp3",
+      "sourceOffset": 4,
+      "sourceDuration": 1.3
+    },
+    "tower-rush/crash-compact-v4.mp3": {
+      "source": "https://cdn.gx-games-54rg78cw-tralt52.click/fg-cdn/prd/root/sounds/towerrush/sounds.mp3",
+      "sha256": "0c0a5181afdf05909814eaf6359afbdf6dce04775880c0a84c94756875c5e8af",
+      "bytes": 28464,
+      "derivedFrom": "tower-rush/sounds.mp3",
+      "sourceOffset": 30,
+      "sourceDuration": 1.7
+    },
+    "tower-rush/win-compact-v4.mp3": {
+      "source": "https://cdn.gx-games-54rg78cw-tralt52.click/fg-cdn/prd/root/sounds/towerrush/sounds.mp3",
+      "sha256": "b58f6ef3682454648fd44e3d2eb732a5cc80dc1becc3630aba47665425b61386",
+      "bytes": 42674,
+      "derivedFrom": "tower-rush/sounds.mp3",
+      "sourceOffset": 32,
+      "sourceDuration": 2.6
     }
   },
   "games": {
@@ -252,28 +284,23 @@
     },
     "tower-rush": {
       "bet": {
-        "file": "tower-rush/sounds.mp3",
-        "offset": 1,
+        "file": "tower-rush/bet-compact-v4.mp3",
         "duration": 1.7
       },
       "reveal": {
-        "file": "tower-rush/sounds.mp3",
-        "offset": 4,
+        "file": "tower-rush/reveal-compact-v4.mp3",
         "duration": 1.3
       },
       "crash": {
-        "file": "tower-rush/sounds.mp3",
-        "offset": 30,
+        "file": "tower-rush/crash-compact-v4.mp3",
         "duration": 1.7
       },
       "lose": {
-        "file": "tower-rush/sounds.mp3",
-        "offset": 30,
+        "file": "tower-rush/crash-compact-v4.mp3",
         "duration": 1.7
       },
       "win": {
-        "file": "tower-rush/sounds.mp3",
-        "offset": 32,
+        "file": "tower-rush/win-compact-v4.mp3",
         "duration": 2.6
       },
       "music": {

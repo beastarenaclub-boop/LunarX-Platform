@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { LOBBY_GAMES } from "@/components/lobby/catalog";
 import { B2C_LOTTERY, b2cArtwork } from "@/components/b2c/artwork";
 import { B2C_STANDALONE } from "@/components/b2c/config";
+import { towerAssetUrl } from "@/components/instant/towerAssets";
 
 const routeAliases: Record<string, string> = {
   "/wingo": "/lunar-colour-trading",
@@ -18,8 +19,8 @@ export default function LoadingScreen() {
   const [location] = useLocation();
   const path = location.replace(/\/$/, "") || "/";
   const game = LOBBY_GAMES.find(entry => entry.route === (routeAliases[path] ?? path));
-  const art = game ? b2cArtwork(game.id) : null;
-  const image = game?.id === "lottery" ? B2C_LOTTERY : game?.artwork;
+  const art = game && game.id !== "tower-rush" ? b2cArtwork(game.id) : null;
+  const image = game?.id === "tower-rush" ? towerAssetUrl("facade0") : game?.id === "lottery" ? B2C_LOTTERY : game?.artwork;
   const dark = !!game || B2C_STANDALONE || path === "/b2c";
 
   return (

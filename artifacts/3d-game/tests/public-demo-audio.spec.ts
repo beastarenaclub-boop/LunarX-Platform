@@ -88,7 +88,8 @@ test("late downloads cannot play after navigation or restart stopped music", asy
   await page.evaluate(async () => {
     const { audio } = (window as any).soundTest;
     await audio.unlockAudio(); audio.setAudioGame("tower-rush");
-    audio.playGameSound("select"); audio.startMusic(); audio.stopMusic();
+    // Bet is a downloaded Tower cue; select can be available synchronously.
+    audio.playGameSound("bet"); audio.startMusic(); audio.stopMusic();
     audio.setAudioGame("coin-flip");
     await audio.preloadGameAudio("tower-rush");
   });

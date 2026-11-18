@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createHmac } from "node:crypto";
-import { collectionMultiplier, collectionPayout, INSTANT_COLLECTION, REQUESTED_INSTANT_CODES, roadSurvival, type CollectionOptions } from "@workspace/api-zod/instant-collection";
+import { collectionMultiplier, collectionPayout, collectionSteps, INSTANT_COLLECTION, REQUESTED_INSTANT_CODES, roadSurvival, type CollectionOptions } from "@workspace/api-zod/instant-collection";
 import { instantDraw, instantHazards, instantRandom, instantSafe, instantSeedHash } from "../instantCollectionMath";
 const options: CollectionOptions = { difficulty: "easy", mines: 3, choice: "heads" };
 test("all requested games have unique codes and all new games have rules", () => {
@@ -24,10 +24,26 @@ test("mines are unique, stable, in bounds, and never move after safe reveals", (
   }
 });
 test("every tower floor has exactly two safe doors", () => {
-  for (let i = 0; i < 100; i++) for (let step = 1; step <= 10; step++) {
+  for (let i = 0; i < 100; i++) for (let step = 1; step <= 40; step++) {
     const safe = [0, 1, 2].filter(cell => instantSafe("tower", String(i), "client", "tower-rush", step, cell, options));
     assert.equal(safe.length, 2);
   }
+});
+
+test("tower BUILD path preserves configured RTP at every stopping floor and payout cap", () => {
+  for (const rtp of [.50, .85, .97]) for (const cap of [2, 1000]) for (let step = 1; step <= 40; step++) {
+    const chance = (2 / 3) ** step;
+    const payout = collectionMultiplier("tower", step, options, rtp, cap);
+    assert(payout <= cap);
+    assert(chance * payout <= rtp + 1e-10);
+    if (payout < cap) assert(rtp - chance * payout < .01);
+  }
+  assert.equal(((2 / 3) ** 10 * 100).toFixed(2), "1.73");
+  // BUILD consistently reveals cell zero; it still has the published 2/3
+  // chance, independently of the visual sway or click timing.
+  let safe = 0;
+  for (let i = 0; i < 15000; i++) safe += Number(instantSafe("tower", String(i), "client", "tower-rush", 1, 0, options));
+  assert(Math.abs(safe / 15000 - 2 / 3) < .015);
 });
 test("progressive stopping returns stay at or below the advertised RTP", () => {
   for (const difficulty of ["easy", "medium", "hard"] as const) for (let step = 1; step <= 12; step++) {
@@ -60,4 +76,16 @@ test("coin, dice and fishing distributions match their published rules", () => {
   [15 / 36, 6 / 36, 15 / 36].forEach((chance, i) => assert(Math.abs(dice[i] / n - chance) < .015));
   [.5, .3, .15, .04, .01].forEach((chance, i) => assert(Math.abs(catches[i] / n - chance) < .015));
   assert(Math.abs(fishingReturn / n - .97) < .03);
+});
+
+
+test("tower has no final floor and very high floor returns remain finite at the configured cap", () => {
+  assert.equal(collectionSteps("tower", options), Infinity);
+  assert.equal(collectionSteps("mines", options), 22);
+  assert.equal(collectionSteps("road", options), 12);
+  for (const step of [10, 25, 100, 1000, 10000]) {
+    const multiplier = collectionMultiplier("tower", step, options, .97, 1000);
+    assert(Number.isFinite(multiplier));
+    assert(multiplier <= 1000);
+  }
 });

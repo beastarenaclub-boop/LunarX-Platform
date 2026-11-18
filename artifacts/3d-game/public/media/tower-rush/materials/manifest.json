@@ -1,0 +1,18 @@
+{
+  "generator": "tools/tower-assets/generate_materials.py",
+  "source": "built-in imagegen atlas",
+  "seed": 777,
+  "size": 256,
+  "materials": [
+    "wood",
+    "brick",
+    "stone",
+    "metal",
+    "ground"
+  ],
+  "maps": [
+    "color",
+    "normal",
+    "roughness"
+  ]
+}

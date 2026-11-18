@@ -82,5 +82,6 @@ export function collectionMultiplier(kind: InstantKind, step: number, options: C
   else chance = Math.pow(kind === "tower" ? 2 / 3 : roadSurvival(options.difficulty), step);
   return Math.min(cap, Math.floor((rtp / chance + 1e-10) * 100) / 100);
 }
-export const collectionSteps = (kind: InstantKind, options: CollectionOptions) => kind === "mines" ? 25 - options.mines : kind === "tower" ? 10 : 12;
+// Tower rounds have no final floor. A loss or the player's cash-out ends them.
+export const collectionSteps = (kind: InstantKind, options: CollectionOptions) => kind === "mines" ? 25 - options.mines : kind === "tower" ? Number.POSITIVE_INFINITY : 12;
 export function collectionPayout(stake: bigint, multiplier: number): bigint { return stake * BigInt(Math.round(multiplier * 100)) / 100n; }

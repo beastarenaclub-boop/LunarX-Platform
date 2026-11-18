@@ -9,6 +9,7 @@ import { badRequest, notFound } from "../lib/errors";
 import { instantConfig, instantState, placeInstant, moveInstant } from "../services/instantCollection";
 import { isRetiredGame } from "../lib/retiredGames";
 const router: IRouter = Router();
+router.use((_req, res, next) => { res.setHeader("Cache-Control", "private, no-store"); next(); });
 router.use(requireAuth);
 router.use((req, _res, next) => req.session?.partnerId ? next(badRequest("Instant games use the shared lobby wallet.")) : next());
 router.param("code", (_req, _res, next, code) => collectionGame(code) || code === "chicken-road-2" ? next() : next(notFound("Unknown instant game.")));
@@ -17,7 +18,7 @@ const CoinBet = z.object({ pricingVersion: z.string().regex(/^[a-f0-9]{32}$/).op
 router.get("/coin-flip/live/round", async (req, res, next) => { try { res.setHeader("Cache-Control", "no-store"); res.json(await getTableRoundSnapshot("coin-flip", req.user!.id)); } catch (e) { next(e); } });
 router.get("/coin-flip/live/state", async (req, res, next) => { try { res.setHeader("Cache-Control", "no-store"); res.json({ round: null, history: await coinLiveHistory(req.user!.id) }); } catch (e) { next(e); } });
 router.post("/coin-flip/live/bet", bettingIpRateLimiter, bettingRateLimiter, async (req, res, next) => { try { res.json(await placeCoinLive(req.user!.id, CoinBet.parse(req.body))); } catch (e) { next(e); } });
-const Move = z.object({ action: z.enum(["reveal", "cashout"]), expectedStep: z.number().int().min(0).max(24), cell: z.number().int().min(0).max(24), actionId: z.string().uuid() }).strict();
+const Move = z.object({ action: z.enum(["reveal", "cashout"]), expectedStep: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER), cell: z.number().int().min(0).max(24), actionId: z.string().uuid() }).strict();
 router.get("/:code/config", async (req, res, next) => { try { res.json(await instantConfig(req.params.code as CollectionCode)); } catch (e) { next(e); } });
 router.get("/:code/state", async (req, res, next) => { try { res.json(await instantState(req.user!.id, req.params.code as CollectionCode)); } catch (e) { next(e); } });
 router.post("/:code/place", bettingIpRateLimiter, bettingRateLimiter, async (req, res, next) => {
