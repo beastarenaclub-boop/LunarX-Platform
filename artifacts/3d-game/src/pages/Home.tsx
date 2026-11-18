@@ -1,3 +1,5 @@
+import { applyLobbyLayout } from "@workspace/api-zod/lobby-layout";
+import { useLobbyLayout } from "@/components/lobby/useLobbyLayout";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -291,6 +293,7 @@ function FavouritePanel({
 }
 
 export default function Home() {
+  const lobbyLayout = useLobbyLayout();
   const { user } = useAuth();
   const site = useSiteChannel();
   const masterWebsite = useMasterWebsite();
@@ -322,7 +325,7 @@ export default function Home() {
     staleTime: 60_000,
     retry: false,
   });
-  const games = resolveCatalog(registry.data);
+  const games = applyLobbyLayout(resolveCatalog(registry.data), lobbyLayout.data?.layout, "home");
   const categories = getLobbyCategories(games);
   useRealtimeResync(() => {
     void qc.invalidateQueries({ queryKey: ["game.registry"] });

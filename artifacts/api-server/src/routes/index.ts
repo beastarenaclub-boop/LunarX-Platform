@@ -1,4 +1,5 @@
 import gameControlRouter from "./gameControl";
+import lobbyLayoutRouter from "./lobbyLayout";
 import gameplayRouter from "./gameplay";
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
@@ -31,6 +32,7 @@ router.use((req, _res, next) => {
 });
 
 router.use("/admin/game-control", gameControlRouter);
+router.use(lobbyLayoutRouter);
 router.use(gameplayRouter);
 router.use(healthRouter);
 router.use("/auth", authRouter);

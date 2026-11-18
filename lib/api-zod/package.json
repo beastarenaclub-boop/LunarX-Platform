@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./lobby-catalog": "./src/lobby-catalog.ts",
+    "./lobby-layout": "./src/lobby-layout.ts",
     "./ice-fish": "./src/ice-fish.ts",
     "./mega-ball": "./src/mega-ball.ts",
     "./ludo": "./src/ludo.ts",

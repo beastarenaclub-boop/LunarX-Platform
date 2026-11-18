@@ -137,6 +137,7 @@ export const demoGateway: RequestHandler = async (req, res, next) => {
   }
   // Public artwork does not depend on identity. No visitor data is written.
   if (req.method === "GET" && req.path === "/api/banners/active") return next();
+  if (req.method === "GET" && req.path === "/api/lobby/layout") return next();
   if (req.method === "GET" && req.path === "/api/notifications/unread-count") { res.json({ count: 0 }); return; }
   if (req.method === "GET" && req.path === "/api/free-bets") { res.json({ grants: [], count: 0, nextAmountPaise: "0" }); return; }
   if (req.method === "GET" && req.path === "/api/rain/active") { res.json({ rain: null }); return; }

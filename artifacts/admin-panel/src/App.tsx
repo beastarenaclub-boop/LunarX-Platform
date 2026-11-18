@@ -41,6 +41,7 @@ import DeveloperDocsPage from "@/pages/developer-docs";
 import IntegrationDemoPage from "@/pages/integration-demo";
 import NotFound from "@/pages/not-found";
 import B2CWebsite from "@/pages/b2c-website";
+import LobbyLayoutPage from "@/pages/lobby-layout";
 import { OperatorInsights } from "@workspace/api-client-react";
 
 function ProtectedRoutes() {
@@ -79,6 +80,7 @@ function ProtectedRoutes() {
         <Route path="/agents" component={AgentsPage} />
         <Route path="/network" component={NetworkPage} />
         <Route path="/b2c-website" component={B2CWebsite} />
+        <Route path="/lobby-layout" component={LobbyLayoutPage} />
         <Route path="/partners/:id" component={PartnerDetailPage} />
         <Route path="/partners" component={PartnersPage} />
         <Route path="/developer-docs" component={DeveloperDocsPage} />

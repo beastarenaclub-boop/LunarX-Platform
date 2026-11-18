@@ -1,3 +1,5 @@
+import { applyLobbyLayout } from "@workspace/api-zod/lobby-layout";
+import { useLobbyLayout } from "@/components/lobby/useLobbyLayout";
 ﻿import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -137,7 +139,7 @@ function GameTile({
         <Play fill="currentColor" size={28} />
         <span>{game.name}</span>
       </span>
-      {isNew && <span className="game-new-badge">NEW</span>}
+      {game.label && game.enabled && <span className={isNew ? "game-new-badge" : "b2c-game-badge"}>{game.label}</span>}
       {HANDOFF_ART[game.id] && !game.artworkHasTitle && <span className="b2c-game-title">{game.name}</span>}
       {!game.enabled && (
         <span className="b2c-game-unavailable">Unavailable</span>
@@ -151,6 +153,7 @@ export default function B2C({
   initialLogin?: boolean;
 }) {
   const { user, isLoading } = useAuth();
+  const lobbyLayout = useLobbyLayout();
   const site = useSiteChannel();
   const canDemo = site.data?.channel === "b2c";
   const [, navigate] = useLocation();
@@ -227,14 +230,15 @@ export default function B2C({
     const i = B2C_GAME_ORDER.indexOf(id);
     return i < 0 ? 100 : i;
   };
-  const games = resolveCatalog(registry.data).sort(
+  const baseGames = resolveCatalog(registry.data).sort(
     (a, b) => compareTopGames(a, b) || order(a.id) - order(b.id),
   );
+  const games = applyLobbyLayout(baseGames, lobbyLayout.data?.layout, "casino");
   const providers = [...new Set(games.map((game) => game.provider))];
   const categories = getLobbyCategories(games);
   const casinoCategories = getCasinoCategories(games);
-  const trending = games.filter(
-    (game) => game.enabled && (isNewGame(game) || TOP_GAME_IDS.includes(game.id)),
+  const trending = applyLobbyLayout(baseGames, lobbyLayout.data?.layout, "crypto").filter(
+    (game) => game.enabled && (lobbyLayout.data ? lobbyLayout.data.layout.featured.includes(game.id) : (isNewGame(game) || TOP_GAME_IDS.includes(game.id))),
   );
   const filtered = games.filter(
     (game) =>
@@ -594,7 +598,7 @@ export default function B2C({
                   <ChevronRight />
                 </button>
               </section>
-              <section className="b2c-trending">
+              {trending.length > 0 && <section className="b2c-trending">
                 <h2 className="b2c-section-title">NOW TRENDING</h2>
                 <B2CSlider
                   items={trending}
@@ -605,7 +609,7 @@ export default function B2C({
                     <GameTile game={game} onPlay={play} duplicate={duplicate} />
                   )}
                 />
-              </section>
+              </section>}
             </>
           )}
           <section

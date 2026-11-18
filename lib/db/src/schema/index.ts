@@ -52,3 +52,4 @@ export * from "./b2cRtp";
 
 export * from "./resultEngine";
 export * from "./rummyRoyale";
+export * from "./lobbyLayout";

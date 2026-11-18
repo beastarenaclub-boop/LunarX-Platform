@@ -65,10 +65,10 @@ export default function B2CWebsite() {
             Same catalog & game settings
           </p>
           <Link
-            href="/games"
+            href="/lobby-layout"
             className="mt-2 inline-block text-sm text-emerald-700 underline"
           >
-            Manage games
+            Change game order &amp; tags
           </Link>
         </div>
         <div className="rounded-lg border bg-white p-5">
