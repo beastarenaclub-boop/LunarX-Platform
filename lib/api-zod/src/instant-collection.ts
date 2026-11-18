@@ -20,6 +20,39 @@ export type SevenBet = { spot: SevenSpot; amount: string };
 export type SevenPayoutVersion = 1 | 2;
 export const SEVEN_PAYOUT_VERSION: SevenPayoutVersion = 2;
 export const SEVEN_TOTAL_RETURN = 1.98;
+export type TowerPayoutVersion = 1 | 2;
+export const TOWER_PAYOUT_VERSION: TowerPayoutVersion = 2;
+export const TOWER_SAFE_FLOORS = 19;
+export const TOWER_FIRST_CRASH = 20;
+export const TOWER_LAST_CRASH = 35;
+/** Thousandths of total return: first floor .001x, floor 30 exactly 1x.
+ * Continue the same linear slope afterwards; round down to a thousandth.
+ * Floor zero retains the existing full-stake recovery/refund. */
+export function towerReturnMillis(step: number): number {
+  return step <= 0 ? 1000 : 1 + Math.floor(999 * (step - 1) / 29);
+}
+export function towerPayout(stake: bigint, multiplier: number, version: TowerPayoutVersion = 1): bigint {
+  return version === 2 ? stake * BigInt(Math.round(multiplier * 1000)) / 1000n : collectionPayout(stake, multiplier);
+}
+export const TOWER_MIN_RTP = towerReturnMillis(TOWER_SAFE_FLOORS) / 1000;
+/** Calibrate a mixture of uniform crash floors and floor 35. The optimal
+ * pre-cap stopping return equals the target; lower cash-outs can return less.
+ * Guaranteed floor 19 puts a mathematical lower bound on achievable RTP. */
+export function towerLateCrashWeight(rtp: number): number {
+  const target = Math.max(TOWER_MIN_RTP, Math.min(1, rtp));
+  let weight = 1;
+  for (let floor = TOWER_FIRST_CRASH; floor < TOWER_LAST_CRASH; floor++) {
+    const uniformSurvival = (TOWER_LAST_CRASH - floor) / 16;
+    weight = Math.min(weight, (target / (towerReturnMillis(floor) / 1000) - uniformSurvival) / (1 - uniformSurvival));
+  }
+  return Math.max(0, weight);
+}
+export function towerSurvival(floor: number, rtp: number): number {
+  if (floor <= TOWER_SAFE_FLOORS) return 1;
+  if (floor >= TOWER_LAST_CRASH) return 0;
+  const weight = towerLateCrashWeight(rtp);
+  return weight + (1 - weight) * (TOWER_LAST_CRASH - floor) / 16;
+}
 export type CollectionOptions = { difficulty: "easy" | "medium" | "hard"; mines: number; choice: string; bets?: SevenBet[] };
 
 export function sevenWins(spot: SevenSpot, total: number): boolean {
@@ -52,10 +85,10 @@ export interface CollectionRound {
   stakeAmount: string; payoutAmount: string; cashoutAmount: string; multiplier: number; step: number;
   options: CollectionOptions; revealed: number[]; hazards: number[] | null; outcome: number[];
   serverSeedHash: string; serverSeed: string | null; clientSeed: string; createdAt: string;
-  rtp: number; maxMultiplier: number; sevenPayoutVersion?: SevenPayoutVersion;
+  rtp: number; maxMultiplier: number; sevenPayoutVersion?: SevenPayoutVersion; towerPayoutVersion?: TowerPayoutVersion;
 }
 export interface CollectionState { round: CollectionRound | null; history: CollectionRound[] }
-export interface CollectionConfig { enabled: boolean; minStakePaise: string; maxStakePaise: string; rtp: number; maxMultiplier: number; sevenPayoutVersion?: SevenPayoutVersion; coinPayoutVersion?: 1 | 2 }
+export interface CollectionConfig { enabled: boolean; minStakePaise: string; maxStakePaise: string; rtp: number; maxMultiplier: number; sevenPayoutVersion?: SevenPayoutVersion; coinPayoutVersion?: 1 | 2; towerPayoutVersion?: TowerPayoutVersion }
 export type CoinSide = "heads" | "tails";
 export type CoinLiveBet = { side: CoinSide; amount: string };
 export type CoinLiveInput = { pricingVersion?: string; roundId: string; side: CoinSide; stakeAmount: string };
@@ -75,8 +108,9 @@ export function normalizeCoinLiveBet(raw: unknown): CoinLiveBet {
   return { side: bet.side, amount: bet.amount };
 }
 export const roadSurvival = (difficulty: CollectionOptions["difficulty"]) => ({ easy: .85, medium: .7, hard: .55 })[difficulty];
-export function collectionMultiplier(kind: InstantKind, step: number, options: CollectionOptions, rtp = .97, cap = 1000): number {
+export function collectionMultiplier(kind: InstantKind, step: number, options: CollectionOptions, rtp = .97, cap = 1000, towerVersion: TowerPayoutVersion = 1): number {
   if (!step) return 1;
+  if (kind === "tower" && towerVersion === 2) return Math.min(cap, towerReturnMillis(step) / 1000);
   let chance = 1;
   if (kind === "mines") for (let n = 0; n < step; n++) chance *= (25 - options.mines - n) / (25 - n);
   else chance = Math.pow(kind === "tower" ? 2 / 3 : roadSurvival(options.difficulty), step);

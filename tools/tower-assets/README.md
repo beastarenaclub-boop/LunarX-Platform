@@ -10,9 +10,10 @@ the lightweight fallback use these skins. Run `prepare_facades.py` to rebuild
 them from `source-facades-v3.webp`. Exact built-in imagegen prompts and saved
 runtime paths are in `realism-v3-prompts.json`.
 
-Tower rounds now have no final floor. Only the most recent twelve floors are
-rendered, so geometry does not grow with the total floor count. The admin payout
-cap remains in effect; auto build pauses there, with an explicit explanation.
+New Tower rounds use the [version 2 payout rules](../../docs/tower-rush-rules-v2.md):
+19 safe floors, a seed-fixed crash in 20–35, and 0.001× to 1× at floor 30.
+Historical rounds retain their original unlimited-floor rules. Only the most
+recent twelve floors are rendered. The admin payout cap remains in effect.
 
 The game UI uses React and TypeScript. The lazy-loaded Three.js renderer handles
 lighting, shadows, materials, crane sway, falling blocks, impact dust and camera

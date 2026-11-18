@@ -31,7 +31,7 @@ export default function () {
   const params = {headers:{'Content-Type':'application/json',Origin:base,Cookie:`sid=${account.sid}`},timeout:'15s',tags:{game:'tower-rush'}};
   if (!pending) {
     pending = !round || round.status !== 'active'
-      ? {path:'/api/instant/tower-rush/place',body:{requestId:uuid(),stakeAmount:__ENV.STAKE_PAISE || '100',clientSeed:uuid().replace(/-/g,''),options:{difficulty:'easy',mines:3,choice:'heads'}}}
+      ? {path:'/api/instant/tower-rush/place',body:{towerPayoutVersion:2,requestId:uuid(),stakeAmount:__ENV.STAKE_PAISE || '100',clientSeed:uuid().replace(/-/g,''),options:{difficulty:'easy',mines:3,choice:'heads'}}}
       : {path:`/api/instant/tower-rush/${round.id}/move`,body:{action:round.step >= 3 ? 'cashout':'reveal',expectedStep:round.step,cell:0,actionId:uuid()}};
   }
   const response = http.post(base+pending.path,JSON.stringify(pending.body),params);

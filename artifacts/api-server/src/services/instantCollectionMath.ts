@@ -1,5 +1,6 @@
 import { createHash, createHmac } from "node:crypto";
 import { type CollectionOptions, type InstantKind, roadSurvival, sevenMultiplier, sevenWins, type SevenSpot } from "@workspace/api-zod/instant-collection";
+import { towerLateCrashWeight, type TowerPayoutVersion } from "@workspace/api-zod/instant-collection";
 
 export const instantSeedHash = (seed: string) => createHash("sha256").update(seed).digest("hex");
 export function instantRandom(seed: string, client: string, game: string, label: string) {
@@ -13,7 +14,14 @@ export function instantHazards(seed: string, client: string, game: string, count
   }
   return cells.slice(0, count);
 }
-export function instantSafe(kind: InstantKind, seed: string, client: string, game: string, step: number, cell: number, options: CollectionOptions) {
+export function towerCrashFloor(seed: string, client: string, rtp: number): number {
+  const roll = instantRandom(seed, client, "tower-rush", "tower:v2:crash-floor");
+  const weight = towerLateCrashWeight(rtp);
+  // One committed HMAC draw owns the entire round. Never reroll after a move.
+  return roll < weight ? 35 : Math.min(35, 20 + Math.floor((roll - weight) / (1 - weight) * 16));
+}
+export function instantSafe(kind: InstantKind, seed: string, client: string, game: string, step: number, cell: number, options: CollectionOptions, towerVersion: TowerPayoutVersion = 1, rtp = .97) {
+  if (kind === "tower" && towerVersion === 2) return step < towerCrashFloor(seed, client, rtp);
   if (kind === "mines") return !instantHazards(seed, client, game, options.mines).includes(cell);
   const roll = instantRandom(seed, client, game, `step:${step}`);
   return kind === "tower" ? Math.floor(roll * 3) !== cell : roll < roadSurvival(options.difficulty);

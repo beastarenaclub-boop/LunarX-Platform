@@ -211,6 +211,11 @@ export const GAME_TYPE_META: Record<string, GameTypeMeta> = {
     engineType: "skill" as const, label: g.name, editableFields: ["enabled", "minStakePaise", "maxStakePaise"], capFloors: {},
     rtpNote: "97% target before payout rounding and multiplier caps. Rules are snapshotted when a round starts.",
   }])) ,
+  "tower-rush": {
+    engineType: "skill", label: "Tower Rush",
+    editableFields: ["enabled", "minStakePaise", "maxStakePaise", "houseEdge", "maxMultiplier"], capFloors: { maxMultiplier: 1 },
+    rtpNote: "Version 2: floors 1–19 safe; one seed-fixed crash floor in 20–35. Return starts at 0.001x and reaches 1x at floor 30. House edge weights crash-floor chances; maximum theoretical stopping RTP is 1 minus edge before rounding/caps, not the return at every floor. Maximum edge 37.9% (minimum RTP 62.1%). Old rounds retain their original rules.",
+  },
   lottery: {
     engineType: "card_fixed", label: "Irland Lotto",
     editableFields: ["enabled"], capFloors: {},

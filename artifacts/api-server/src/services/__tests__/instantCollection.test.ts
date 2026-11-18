@@ -3,7 +3,54 @@ import { test } from "node:test";
 import { createHmac } from "node:crypto";
 import { collectionMultiplier, collectionPayout, collectionSteps, INSTANT_COLLECTION, REQUESTED_INSTANT_CODES, roadSurvival, type CollectionOptions } from "@workspace/api-zod/instant-collection";
 import { instantDraw, instantHazards, instantRandom, instantSafe, instantSeedHash } from "../instantCollectionMath";
+import { towerPayout, towerReturnMillis, towerSurvival, TOWER_MIN_RTP } from "@workspace/api-zod/instant-collection";
+import { towerCrashFloor } from "../instantCollectionMath";
 const options: CollectionOptions = { difficulty: "easy", mines: 3, choice: "heads" };
+
+test("tower v2 uses exact thousandth returns, including paise and large stakes", () => {
+  assert.equal(towerReturnMillis(1), 1);
+  assert.equal(towerReturnMillis(19), 621);
+  assert.equal(towerReturnMillis(30), 1000);
+  assert.equal(towerReturnMillis(34), 1137);
+  assert.equal(collectionMultiplier("tower", 1, options, .97, 1000, 2), .001);
+  assert.equal(towerPayout(10000n, .001, 2), 10n);
+  assert.equal(towerPayout(100n, .001, 2), 0n);
+  assert.equal(towerPayout(12345n, .001, 2), 12n);
+  assert.equal(towerPayout(900719925474099100n, .001, 2), 900719925474099n);
+  assert.equal(towerPayout(10000n, 1, 2), 10000n);
+  assert.equal(collectionMultiplier("tower", 34, options, .97, 1, 2), 1);
+  assert.equal(collectionMultiplier("tower", 1, options, .97, 1000, 1), 1.45);
+  assert.equal(towerPayout(10000n, 1.45, 1), 14500n);
+});
+
+test("tower v2 fixes one crash floor in 20–35, preserves 19 safe floors and matches weighted RTP", () => {
+  for (const rtp of [TOWER_MIN_RTP, .7, .85, .97, .99]) {
+    let best = 0;
+    for (let floor = 1; floor <= 35; floor++) {
+      const value = towerSurvival(floor, rtp) * towerReturnMillis(floor) / 1000;
+      best = Math.max(best, value);
+      assert(value <= rtp + 1e-12);
+    }
+    assert(Math.abs(best - rtp) < 1e-12);
+    const counts = Array(36).fill(0), trials = 20000;
+    for (let i = 0; i < trials; i++) {
+      const seed = `v2-${i}`, crash = towerCrashFloor(seed, "client", rtp);
+      assert(crash >= 20 && crash <= 35); counts[crash]++;
+      assert.equal(towerCrashFloor(seed, "client", rtp), crash);
+      assert(instantSafe("tower", seed, "client", "tower-rush", 19, 0, options, 2, rtp));
+      for (const cell of [0, 1, 2]) {
+        assert(instantSafe("tower", seed, "client", "tower-rush", crash - 1, cell, options, 2, rtp));
+        assert(!instantSafe("tower", seed, "client", "tower-rush", crash, cell, options, 2, rtp));
+        assert(!instantSafe("tower", seed, "client", "tower-rush", 35, cell, options, 2, rtp));
+      }
+    }
+    for (let crash = 20; crash <= 35; crash++) {
+      assert(counts[crash] > 0);
+      const expected = towerSurvival(crash - 1, rtp) - towerSurvival(crash, rtp);
+      assert(Math.abs(counts[crash] / trials - expected) < .015);
+    }
+  }
+});
 test("all requested games have unique codes and all new games have rules", () => {
   assert.equal(new Set(REQUESTED_INSTANT_CODES).size, 10);
   assert.equal(INSTANT_COLLECTION.length, 7);

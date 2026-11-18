@@ -7,6 +7,7 @@ import { postEntry, publishWalletBalance } from "./wallet";
 import { badRequest, conflict, notFound } from "../lib/errors";
 import { instantDraw, instantHazards, instantSafe, instantSeedHash } from "./instantCollectionMath";
 import { isRetiredGame } from "../lib/retiredGames";
+import { TOWER_PAYOUT_VERSION, TOWER_MIN_RTP, towerPayout, type TowerPayoutVersion } from "@workspace/api-zod/instant-collection";
 
 // Historical receipts still need their original rules after a game is removed.
 const settlementGame = (code: string) => collectionGame(code) ?? (code === "chicken-road-2"
@@ -17,29 +18,30 @@ interface Metadata {
   version: 1; requestId: string; options: CollectionOptions; step: number; revealed: number[]; outcome: number[];
   serverSeed: string; clientSeed: string; rtp: number; maxMultiplier: number; lastActionId?: string;
   sevenPayoutVersion?: SevenPayoutVersion;
+  towerPayoutVersion?: TowerPayoutVersion;
 }
 const owned = (userId: string, game: string) => and(eq(betsTable.userId, userId), eq(betsTable.gameCode, game), sql`${betsTable.metadata}->>'version' = '1'`);
 export function instantReceipt(bet: Bet): CollectionRound {
   const m = bet.metadata as Metadata, game = settlementGame(bet.gameCode)!;
   const active = bet.status === "placed";
-  const multiplier = progressive(game.kind) ? collectionMultiplier(game.kind, m.step, m.options, m.rtp, m.maxMultiplier) : bet.multiplier ?? 0;
+  const multiplier = progressive(game.kind) ? collectionMultiplier(game.kind, m.step, m.options, m.rtp, m.maxMultiplier, m.towerPayoutVersion ?? 1) : bet.multiplier ?? 0;
   return { id: bet.id, gameCode: game.code, requestId: m.requestId, status: active ? "active" : bet.status === "lost" ? "lost" : bet.status === "cashed_out" ? "cashed_out" : "won",
-    stakeAmount: bet.stakeAmount.toString(), payoutAmount: bet.payoutAmount.toString(), cashoutAmount: (game.kind === "dice" && m.options.bets ? bet.payoutAmount : collectionPayout(bet.stakeAmount, multiplier)).toString(), multiplier,
+    stakeAmount: bet.stakeAmount.toString(), payoutAmount: bet.payoutAmount.toString(), cashoutAmount: (game.kind === "dice" && m.options.bets ? bet.payoutAmount : game.kind === "tower" ? towerPayout(bet.stakeAmount, multiplier, m.towerPayoutVersion ?? 1) : collectionPayout(bet.stakeAmount, multiplier)).toString(), multiplier,
     step: m.step, options: m.options, revealed: m.revealed, outcome: m.outcome,
     hazards: !active && game.kind === "mines" ? instantHazards(m.serverSeed, m.clientSeed, game.code, m.options.mines) : null,
     serverSeedHash: instantSeedHash(m.serverSeed), serverSeed: active ? null : m.serverSeed, clientSeed: m.clientSeed,
-    createdAt: bet.placedAt.toISOString(), rtp: m.rtp, maxMultiplier: m.maxMultiplier, ...(game.kind === "dice" ? { sevenPayoutVersion: m.sevenPayoutVersion ?? 1 } : {}) };
+    createdAt: bet.placedAt.toISOString(), rtp: m.rtp, maxMultiplier: m.maxMultiplier, ...(game.kind === "dice" ? { sevenPayoutVersion: m.sevenPayoutVersion ?? 1 } : {}), ...(game.kind === "tower" ? { towerPayoutVersion: m.towerPayoutVersion ?? 1 } : {}) };
 }
 export async function instantConfig(code: CollectionCode) {
   const c = await requireGameConfig(code);
-  return { ...(code === "coin-flip" ? { coinPayoutVersion: COIN_PAYOUT_VERSION } : {}), enabled: c.enabled && !isRetiredGame(code), minStakePaise: c.minStakePaise.toString(), maxStakePaise: c.maxStakePaise.toString(), rtp: 1 - c.houseEdge, maxMultiplier: code === "7up7down" ? SEVEN_TOTAL_RETURN : c.maxMultiplier, ...(code === "7up7down" ? { sevenPayoutVersion: SEVEN_PAYOUT_VERSION } : {}) };
+  return { ...(code === "coin-flip" ? { coinPayoutVersion: COIN_PAYOUT_VERSION } : {}), ...(code === "tower-rush" ? { towerPayoutVersion: TOWER_PAYOUT_VERSION } : {}), enabled: c.enabled && !isRetiredGame(code), minStakePaise: c.minStakePaise.toString(), maxStakePaise: c.maxStakePaise.toString(), rtp: 1 - c.houseEdge, maxMultiplier: code === "7up7down" ? SEVEN_TOTAL_RETURN : c.maxMultiplier, ...(code === "7up7down" ? { sevenPayoutVersion: SEVEN_PAYOUT_VERSION } : {}) };
 }
 export async function instantState(userId: string, code: CollectionCode) {
   const active = await db.select().from(betsTable).where(and(owned(userId, code), eq(betsTable.status, "placed"))).limit(1);
   const history = await db.select().from(betsTable).where(owned(userId, code)).orderBy(desc(betsTable.placedAt)).limit(20);
   return { round: active[0] ? instantReceipt(active[0]) : null, history: history.map(instantReceipt) };
 }
-export async function placeInstant(userId: string, code: CollectionCode, input: { requestId: string; stakeAmount: string; clientSeed: string; options: CollectionOptions }) {
+export async function placeInstant(userId: string, code: CollectionCode, input: { requestId: string; stakeAmount: string; clientSeed: string; options: CollectionOptions; towerPayoutVersion?: 2 }) {
   if (isRetiredGame(code)) throw badRequest("This game is no longer available.");
   const game = collectionGame(code)!, config = await instantConfig(code), stake = BigInt(input.stakeAmount);
   if (input.options.bets) {
@@ -56,12 +58,17 @@ export async function placeInstant(userId: string, code: CollectionCode, input: 
       if (prior.stakeAmount !== stake || m.clientSeed !== input.clientSeed || m.options.choice !== input.options.choice || m.options.mines !== input.options.mines || m.options.difficulty !== input.options.difficulty || JSON.stringify(m.options.bets) !== JSON.stringify(input.options.bets)) throw conflict("This request already belongs to another bet.");
       return instantReceipt(prior);
     }
+    // Reject old UI prices before any debit. Previously accepted IDs still
+    // replay above, so a rolling deploy cannot strand an existing stake.
+    if (game.kind === "tower" && input.towerPayoutVersion !== TOWER_PAYOUT_VERSION) throw conflict("Tower Rush rules have changed. Reload the page to review the new returns before betting.");
+    if (game.kind === "tower" && config.rtp < TOWER_MIN_RTP - 1e-10) throw badRequest("Tower Rush needs at least 62.1% RTP because the first 19 floors are safe. Update Game Defaults before accepting new bets.");
     if (!config.enabled) throw badRequest("This game is temporarily unavailable.");
     if (stake < BigInt(config.minStakePaise) || stake > BigInt(config.maxStakePaise) || stake <= 0n) throw badRequest("Bet is outside the game limits.");
     const [active] = await tx.select({ id: betsTable.id }).from(betsTable).where(and(owned(userId, code), eq(betsTable.status, "placed"))).limit(1);
     if (active) throw conflict("Finish your current round first.");
     const m: Metadata = { version: 1, requestId: input.requestId, options: input.options, clientSeed: input.clientSeed, serverSeed: randomBytes(32).toString("hex"), step: 0, revealed: [], outcome: [], rtp: config.rtp, maxMultiplier: config.maxMultiplier };
     if (game.kind === "dice") m.sevenPayoutVersion = SEVEN_PAYOUT_VERSION;
+    if (game.kind === "tower") m.towerPayoutVersion = TOWER_PAYOUT_VERSION;
     let multiplier = 1, status: Bet["status"] = "placed";
     if (!progressive(game.kind)) {
       const draw = instantDraw(game.kind, m.serverSeed, m.clientSeed, code, m.options.choice, m.rtp);
@@ -106,13 +113,13 @@ export async function moveInstant(userId: string, code: CollectionCode, id: stri
       if (!progressive(game.kind)) throw badRequest("This round has no moves.");
       if (game.kind === "mines" && (input.cell > 24 || m.revealed.includes(input.cell))) throw badRequest("Choose an unopened tile.");
       if (game.kind === "tower" && input.cell > 2) throw badRequest("Choose one of the three doors.");
-      const safe = instantSafe(game.kind, m.serverSeed, m.clientSeed, code, m.step + 1, input.cell, m.options);
+      const safe = instantSafe(game.kind, m.serverSeed, m.clientSeed, code, m.step + 1, input.cell, m.options, m.towerPayoutVersion ?? 1, m.rtp);
       m.revealed.push(input.cell);
       if (safe) { m.step++; if (m.step === collectionSteps(game.kind, m.options)) status = "cashed_out"; }
       else status = "lost";
     }
-    const multiplier = collectionMultiplier(game.kind, m.step, m.options, m.rtp, m.maxMultiplier);
-    const payout = status === "cashed_out" ? collectionPayout(bet.stakeAmount, multiplier) : 0n;
+    const multiplier = collectionMultiplier(game.kind, m.step, m.options, m.rtp, m.maxMultiplier, m.towerPayoutVersion ?? 1);
+    const payout = status === "cashed_out" ? (game.kind === "tower" ? towerPayout(bet.stakeAmount, multiplier, m.towerPayoutVersion ?? 1) : collectionPayout(bet.stakeAmount, multiplier)) : 0n;
     if (payout > 0n) {
       const credit = await postEntry({ userId, type: "win", amount: payout, refType: "bet", refId: id, memo: `${game.name} cash out` }, tx);
       wallet = { balance: credit.entry.balanceAfter, amount: payout };

@@ -6,6 +6,7 @@ import { enqueueWebhook } from "./webhookDispatcher";
 import { isRetiredGame } from "../lib/retiredGames";
 import { badRequest } from "../lib/errors";
 import { BACCARAT_ROUND_TIMING } from "@workspace/api-zod/baccarat-game";
+import { TOWER_MIN_RTP } from "@workspace/api-zod/instant-collection";
 
 export function sha256Hex(data: string): string {
   return crypto.createHash("sha256").update(data).digest("hex");
@@ -704,9 +705,12 @@ export async function updateGameConfig(
   updatedBy: string,
 ): Promise<GameConfig> {
   if (isRetiredGame(gameCode)) throw badRequest("This game is no longer available.");
+  if (gameCode === "tower-rush" && patch.houseEdge !== undefined && patch.houseEdge > 1 - TOWER_MIN_RTP + 1e-10) {
+    throw badRequest("Tower Rush requires RTP of at least 62.1% (house edge at most 37.9%) because floors 1–19 are safe.");
+  }
   const [updated] = await db
     .update(gameConfigTable)
-    .set({ ...patch, ...(gameCode === "baccarat" ? BACCARAT_ROUND_TIMING : {}), updatedBy, updatedAt: new Date() })
+    .set({ ...patch, ...(gameCode === "tower-rush" && patch.houseEdge !== undefined ? { rtpMin: (1 - patch.houseEdge) * 100, rtpMax: (1 - patch.houseEdge) * 100 } : {}), ...(gameCode === "baccarat" ? BACCARAT_ROUND_TIMING : {}), updatedBy, updatedAt: new Date() })
     .where(eq(gameConfigTable.gameCode, gameCode))
     .returning();
   invalidateConfigCache(gameCode);

@@ -1,8 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
-import { collectionMultiplier, collectionPayout, type CollectionRound } from "@workspace/api-zod/instant-collection";
+import { collectionMultiplier, collectionPayout, towerPayout, type CollectionRound } from "@workspace/api-zod/instant-collection";
 import { mockGames } from "./fixtures/compact-game-data";
 
-async function tower(page: Page, options: { loseAt?: number; dropPlace?: boolean; dropMove?: boolean; delay?: number; rtp?: number; cap?: number } = {}) {
+async function tower(page: Page, options: { version?: 1 | 2; loseAt?: number; dropPlace?: boolean; dropMove?: boolean; delay?: number; rtp?: number; cap?: number } = {}) {
   await mockGames(page);
   let balance = 1000000n, round: CollectionRound | null = null, dropped = false;
   let configRtp = options.rtp ?? .97;
@@ -12,13 +12,13 @@ async function tower(page: Page, options: { loseAt?: number; dropPlace?: boolean
   await page.route("**/api/wallet/balance?**", route => route.fulfill({ json: { balance: balance.toString(), currency: "INR", scope: "lunar", walletId: "shared" } }));
   await page.route("**/api/instant/tower-rush/**", async route => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith("/config")) return route.fulfill({ json: { enabled: true, minStakePaise: "100", maxStakePaise: "1000000", rtp: configRtp, maxMultiplier: options.cap ?? 1000 } });
+    if (path.endsWith("/config")) return route.fulfill({ json: { towerPayoutVersion: options.version ?? 1, enabled: true, minStakePaise: "100", maxStakePaise: "1000000", rtp: configRtp, maxMultiplier: options.cap ?? 1000 } });
     if (path.endsWith("/state")) return route.fulfill({ json: { round: round?.status === "active" ? round : null, history: round ? [round] : [] } });
     const input = route.request().postDataJSON(); posts.push({ path, input });
     if (path.endsWith("/place")) {
       if (round?.requestId !== input.requestId) {
         balance -= BigInt(input.stakeAmount);
-        round = { id: `tower-${posts.length}`, gameCode: "tower-rush", requestId: input.requestId, status: "active", stakeAmount: input.stakeAmount, payoutAmount: "0", cashoutAmount: input.stakeAmount, multiplier: 1, step: 0, options: input.options, revealed: [], hazards: null, outcome: [], serverSeedHash: "commitment", serverSeed: null, clientSeed: input.clientSeed, createdAt: new Date().toISOString(), rtp: configRtp, maxMultiplier: options.cap ?? 1000 };
+        round = { towerPayoutVersion: options.version ?? 1, id: `tower-${posts.length}`, gameCode: "tower-rush", requestId: input.requestId, status: "active", stakeAmount: input.stakeAmount, payoutAmount: "0", cashoutAmount: input.stakeAmount, multiplier: 1, step: 0, options: input.options, revealed: [], hazards: null, outcome: [], serverSeedHash: "commitment", serverSeed: null, clientSeed: input.clientSeed, createdAt: new Date().toISOString(), rtp: configRtp, maxMultiplier: options.cap ?? 1000 };
       }
       if (options.dropPlace && !dropped) { dropped = true; return route.abort("connectionreset"); }
     } else if (round?.status === "active") {
@@ -26,11 +26,11 @@ async function tower(page: Page, options: { loseAt?: number; dropPlace?: boolean
       if (input.action === "reveal") {
         expect(input.cell).toBe(0);
         round.revealed.push(input.cell);
-        if (options.loseAt === round.step + 1) round.status = "lost";
+        if ((options.loseAt ?? (options.version === 2 ? 35 : -1)) === round.step + 1) round.status = "lost";
         else {
           round.step++;
-          round.multiplier = collectionMultiplier("tower", round.step, round.options, round.rtp, round.maxMultiplier);
-          round.cashoutAmount = collectionPayout(BigInt(round.stakeAmount), round.multiplier).toString();
+          round.multiplier = collectionMultiplier("tower", round.step, round.options, round.rtp, round.maxMultiplier, round.towerPayoutVersion);
+          round.cashoutAmount = towerPayout(BigInt(round.stakeAmount), round.multiplier, round.towerPayoutVersion).toString();
         }
       } else round.status = "cashed_out";
       if (round.status !== "active") {
@@ -67,6 +67,48 @@ test("BUILD drops one block, restores the tower and cashes out exactly once", as
   await expect(page.getByTestId("collection-result")).toContainText("Returned to your wallet");
   expect(f.posts.length).toBe(count + 1);
   expect(f.balance).toBe(987655n + collectionPayout(12345n, collectionMultiplier("tower", 4, { difficulty: "easy", mines: 3, choice: "heads" })));
+  expect(f.errors).toEqual([]);
+});
+
+test("v2 displays .001x and ten-paise cash-out, with clear rules and no mobile overflow", async ({ page }) => {
+  await page.setViewportSize({ width:390, height:844 });
+  const f=await tower(page,{version:2});
+  await expect(page.locator('.tr-score')).toContainText('0.001');
+  await page.getByTestId('collection-play').click();
+  await expect(page.getByTestId('tower-scene')).toHaveAttribute('data-step','1');
+  await expect(page.getByTestId('collection-cashout')).toContainText('0.10');
+  expect(f.posts.find(p=>p.path.endsWith('/place'))?.input.towerPayoutVersion).toBe(2);
+  await page.getByRole('button',{name:'Game rules',exact:true}).click();
+  await expect(page.getByRole('dialog')).toContainText('Floors 1–19 are guaranteed safe');
+  await expect(page.getByRole('dialog')).toContainText('0.001×');
+  await page.keyboard.press('Escape');
+  await page.getByTestId('collection-cashout').click();
+  await expect(page.locator('.tr-result-card')).toContainText('0.10');
+  expect(f.balance).toBe(990010n);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
+  expect(f.errors).toEqual([]);
+});
+
+test("v2 reaches 1x at floor 30, restores after reload and crashes on its fixed floor 35", async ({ page }) => {
+  const f=await tower(page,{version:2,loseAt:35});
+  for(let floor=1;floor<=34;floor++) {
+    await page.getByTestId('collection-play').click();
+    await expect(page.getByTestId('tower-scene')).toHaveAttribute('data-step',String(floor));
+    if(floor===19) await expect(page.locator('.tr-score')).toContainText('0.621');
+    if(floor===30) {
+      await expect(page.locator('.tr-score')).toContainText('1.000');
+      await expect(page.getByTestId('collection-cashout')).toContainText('100.00');
+      await page.reload();
+      await expect(page.getByTestId('tower-scene')).toHaveAttribute('data-step','30');
+      await expect(page.locator('.tr-score')).toContainText('1.000');
+    }
+  }
+  await expect(page.getByRole('checkbox',{name:/Auto build/})).toBeDisabled();
+  await expect(page.locator('.tr-page')).toContainText('Floor 35 always falls');
+  await page.getByTestId('collection-play').click();
+  await expect(page.locator('.tr-result-card')).toContainText('TOWER FELL');
+  expect(f.balance).toBe(990000n);
+  expect(f.posts.filter(p=>p.path.endsWith('/place'))).toHaveLength(1);
   expect(f.errors).toEqual([]);
 });
 
