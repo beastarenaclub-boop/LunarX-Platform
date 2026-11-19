@@ -27,8 +27,10 @@ the lightweight fallback use these skins. Run `prepare_facades.py` to rebuild
 them from `source-facades-v3.webp`. Exact built-in imagegen prompts and saved
 runtime paths are in `realism-v3-prompts.json`.
 
-New Tower rounds use the [version 3 payout rules](../../docs/tower-rush-rules-v3.md):
-random crashes from floor 1 with no maximum floor, and 0.001× to 1× at floor 30.
+New Tower rounds use the [version 4 payout rules](../../docs/tower-rush-rules-v4.md):
+random crashes from floor 1 with no maximum floor; five-floor milestones pay
+1.50×, 1.60×, 1.70×, 1.80× and 1.90× total return. The first four small returns
+are preserved. A short level-up burst and glow accompany each five-floor milestone.
 Historical rounds retain their snapshotted survival and payout rules. Only the most
 recent twelve floors are rendered. The admin payout cap remains in effect.
 

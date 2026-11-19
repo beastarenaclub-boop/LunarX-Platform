@@ -2,7 +2,25 @@ import { test, expect, type Page } from "@playwright/test";
 import { collectionMultiplier, collectionPayout, towerPayout, type CollectionRound } from "@workspace/api-zod/instant-collection";
 import { mockGames } from "./fixtures/compact-game-data";
 
-async function tower(page: Page, options: { version?: 1 | 2 | 3; resumeStep?: number; loseAt?: number; dropPlace?: boolean; dropMove?: boolean; delay?: number; rtp?: number; cap?: number } = {}) {
+// Record short animation states in the page so slow test-runner round trips
+// cannot miss a two-second notice or the 820ms control lock.
+async function recordTowerTransitions(page: Page) {
+  await page.evaluate(() => {
+    const state = { notices: [] as string[], lockedDrop: false, fall: false };
+    (window as any).__towerTransitions = state;
+    new MutationObserver(() => {
+      const notice = document.querySelector('[data-testid="tower-level-up"]')?.textContent;
+      if (notice && !state.notices.includes(notice)) state.notices.push(notice);
+      const phase = document.querySelector('[data-testid="tower-scene"]')?.getAttribute('data-phase');
+      const play = document.querySelector<HTMLButtonElement>('[data-testid="collection-play"]');
+      const cashout = document.querySelector<HTMLButtonElement>('[data-testid="collection-cashout"]');
+      if (phase === 'drop' && play?.disabled && cashout?.disabled) state.lockedDrop = true;
+      if (phase === 'fall') state.fall = true;
+    }).observe(document.body, { subtree: true, childList: true, attributes: true });
+  });
+}
+
+async function tower(page: Page, options: { version?: 1 | 2 | 3 | 4; resumeStep?: number; loseAt?: number; dropPlace?: boolean; dropMove?: boolean; delay?: number; rtp?: number; cap?: number } = {}) {
   await mockGames(page);
   let balance = 1000000n, round: CollectionRound | null = null, dropped = false;
   let configRtp = options.rtp ?? .97;
@@ -12,13 +30,13 @@ async function tower(page: Page, options: { version?: 1 | 2 | 3; resumeStep?: nu
   await page.route("**/api/wallet/balance?**", route => route.fulfill({ json: { balance: balance.toString(), currency: "INR", scope: "lunar", walletId: "shared" } }));
   await page.route("**/api/instant/tower-rush/**", async route => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith("/config")) return route.fulfill({ json: { towerPayoutVersion: options.version ?? 1, enabled: true, minStakePaise: "100", maxStakePaise: "1000000", rtp: configRtp, maxMultiplier: options.cap ?? 1000 } });
+    if (path.endsWith("/config")) return route.fulfill({ json: { towerPayoutVersion: options.version ?? 1, enabled: true, minStakePaise: "100", maxStakePaise: "1000000", rtp: configRtp, maxMultiplier: options.cap ?? (options.version === 4 ? 1.9 : 1000) } });
     if (path.endsWith("/state")) return route.fulfill({ json: { round: round?.status === "active" ? round : null, history: round ? [round] : [] } });
     const input = route.request().postDataJSON(); posts.push({ path, input });
     if (path.endsWith("/place")) {
       if (round?.requestId !== input.requestId) {
         balance -= BigInt(input.stakeAmount);
-        round = { towerPayoutVersion: options.version ?? 1, id: `tower-${posts.length}`, gameCode: "tower-rush", requestId: input.requestId, status: "active", stakeAmount: input.stakeAmount, payoutAmount: "0", cashoutAmount: input.stakeAmount, multiplier: 1, step: 0, options: input.options, revealed: [], hazards: null, outcome: [], serverSeedHash: "commitment", serverSeed: null, clientSeed: input.clientSeed, createdAt: new Date().toISOString(), rtp: configRtp, maxMultiplier: options.cap ?? 1000 };
+        round = { towerPayoutVersion: options.version ?? 1, id: `tower-${posts.length}`, gameCode: "tower-rush", requestId: input.requestId, status: "active", stakeAmount: input.stakeAmount, payoutAmount: "0", cashoutAmount: input.stakeAmount, multiplier: 1, step: 0, options: input.options, revealed: [], hazards: null, outcome: [], serverSeedHash: "commitment", serverSeed: null, clientSeed: input.clientSeed, createdAt: new Date().toISOString(), rtp: configRtp, maxMultiplier: options.cap ?? (options.version === 4 ? 1.9 : 1000) };
         if (options.resumeStep) round.step = options.resumeStep;
       }
       if (options.dropPlace && !dropped) { dropped = true; return route.abort("connectionreset"); }
@@ -48,6 +66,63 @@ async function tower(page: Page, options: { version?: 1 | 2 | 3; resumeStep?: nu
   await expect(page.getByTestId("collection-play")).toBeEnabled();
   return { posts, errors, get balance() { return balance; }, setRtp(value: number) { configRtp = value; } };
 }
+
+test("v4 five-floor level-up offers 150 rupees and credits the same amount", async ({page},testInfo) => {
+  const f=await tower(page,{version:4,resumeStep:4});
+  await recordTowerTransitions(page);
+  await page.getByRole('textbox',{name:'Bet amount'}).fill('100');
+  await expect(page.getByTestId('tower-payout-ladder')).toContainText('150.00');
+  await expect(page.getByTestId('tower-payout-ladder')).toContainText('190.00');
+  await page.getByTestId('collection-play').click();
+  expect(f.posts[0].input.towerPayoutVersion).toBe(4);
+  await page.getByTestId('collection-play').click();
+  await expect.poll(()=>page.evaluate(()=>(window as any).__towerTransitions.notices.join(' '))).toContain('150.00 TOTAL RETURN');
+  await expect(page.getByTestId('collection-cashout')).toContainText('150.00');
+  await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:testInfo.outputPath('floor-five-150.png'),fullPage:true});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await page.reload();await expect(page.getByTestId('collection-cashout')).toContainText('150.00');
+  await page.getByTestId('collection-cashout').click();
+  await expect(page.getByTestId('collection-result')).toContainText('150.00');
+  expect(f.balance).toBe(1005000n);expect(f.errors).toEqual([]);
+});
+
+test("v4 pauses auto at the 190-rupee plateau but still permits more floors", async ({page}) => {
+  const f=await tower(page,{version:4,resumeStep:24});
+  await page.getByTestId('collection-play').click();
+  await page.getByRole('checkbox',{name:/Auto build/}).check();
+  await expect(page.getByTestId('tower-scene')).toHaveAttribute('data-step','25');
+  await expect(page.getByTestId('collection-cashout')).toContainText('190.00');
+  await expect(page.getByRole('checkbox',{name:/Auto build/})).not.toBeChecked();
+  await expect(page.getByRole('checkbox',{name:/Auto build/})).toBeDisabled();
+  await page.getByTestId('collection-play').click();
+  await expect(page.getByTestId('tower-scene')).toHaveAttribute('data-step','26');
+  await expect(page.getByTestId('collection-cashout')).toContainText('190.00');
+  await page.getByTestId('collection-cashout').click();
+  expect(f.balance).toBe(1009000n);expect(f.errors).toEqual([]);
+});
+
+test("level-up visuals appear at five floors, keep cash-out available and do not replay on reload", async ({ page }, testInfo) => {
+  const f = await tower(page, {version:3,resumeStep:4});
+  await recordTowerTransitions(page);
+  await page.getByTestId('collection-play').click();
+  await expect(page.getByTestId('tower-level-effects')).toHaveCount(0);
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.getByTestId('collection-play').click();
+  await expect.poll(()=>page.evaluate(()=>(window as any).__towerTransitions.notices.join(' '))).toContain('FLOOR 5');
+  await expect(page.getByTestId('tower-level-effects')).toHaveAttribute('data-tier','1');
+  await expect(page.getByTestId('collection-cashout')).toBeEnabled();
+  await page.setViewportSize({width:390,height:844});
+  await page.getByTestId('tower-scene').locator('..').screenshot({path:testInfo.outputPath('level-up-mobile.png')});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await page.reload();
+  await expect(page.getByTestId('tower-level-effects')).toHaveAttribute('data-tier','1');
+  await expect(page.getByTestId('tower-level-up')).toHaveCount(0);
+  await page.getByTestId('collection-cashout').click();
+  await expect(page.getByTestId('collection-result')).toContainText('Returned to your wallet');
+  await expect(page.getByTestId('tower-level-effects')).toHaveCount(0);
+  expect(f.errors).toEqual([]);
+});
 
 test("v3 has no floor limit, builds past 35 and restores a cashable round", async ({ page }) => {
   const f = await tower(page, {version:3,resumeStep:34});
@@ -191,14 +266,13 @@ test("v2 reaches 1x at floor 30, restores after reload and crashes on its fixed 
 
 test("block landing and failure animate while controls are locked", async ({ page }) => {
   const f = await tower(page, { loseAt: 2 });
+  await recordTowerTransitions(page);
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.getByTestId("collection-play").click();
-  await expect(page.getByTestId("tower-scene")).toHaveAttribute("data-phase", "drop");
-  await expect(page.getByTestId("collection-play")).toBeDisabled();
-  await expect(page.getByTestId("collection-cashout")).toBeDisabled();
+  await expect.poll(()=>page.evaluate(()=>(window as any).__towerTransitions.lockedDrop)).toBe(true);
   await expect(page.getByTestId("tower-scene")).toHaveAttribute("data-step", "1");
   await page.getByTestId("collection-play").click();
-  await expect(page.getByTestId("tower-scene")).toHaveAttribute("data-phase", "fall");
+  await expect.poll(()=>page.evaluate(()=>(window as any).__towerTransitions.fall)).toBe(true);
   await expect(page.locator(".tr-result-loss")).toContainText("TOWER FELL");
   await expect(page.getByTestId("collection-cashout")).toBeDisabled();
   expect(f.balance).toBe(990000n);

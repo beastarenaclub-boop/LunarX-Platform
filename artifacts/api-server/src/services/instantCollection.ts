@@ -7,7 +7,7 @@ import { postEntry, publishWalletBalance } from "./wallet";
 import { badRequest, conflict, notFound } from "../lib/errors";
 import { instantDraw, instantHazards, instantSafe, instantSeedHash } from "./instantCollectionMath";
 import { isRetiredGame } from "../lib/retiredGames";
-import { TOWER_PAYOUT_VERSION, towerPayout, type TowerPayoutVersion } from "@workspace/api-zod/instant-collection";
+import { TOWER_PAYOUT_VERSION, TOWER_LEVEL_MAX_MULTIPLIER, towerPayout, type TowerPayoutVersion } from "@workspace/api-zod/instant-collection";
 
 // Historical receipts still need their original rules after a game is removed.
 const settlementGame = (code: string) => collectionGame(code) ?? (code === "chicken-road-2"
@@ -34,14 +34,14 @@ export function instantReceipt(bet: Bet): CollectionRound {
 }
 export async function instantConfig(code: CollectionCode) {
   const c = await requireGameConfig(code);
-  return { ...(code === "coin-flip" ? { coinPayoutVersion: COIN_PAYOUT_VERSION } : {}), ...(code === "tower-rush" ? { towerPayoutVersion: TOWER_PAYOUT_VERSION } : {}), enabled: c.enabled && !isRetiredGame(code), minStakePaise: c.minStakePaise.toString(), maxStakePaise: c.maxStakePaise.toString(), rtp: 1 - c.houseEdge, maxMultiplier: code === "7up7down" ? SEVEN_TOTAL_RETURN : c.maxMultiplier, ...(code === "7up7down" ? { sevenPayoutVersion: SEVEN_PAYOUT_VERSION } : {}) };
+  return { ...(code === "coin-flip" ? { coinPayoutVersion: COIN_PAYOUT_VERSION } : {}), ...(code === "tower-rush" ? { towerPayoutVersion: TOWER_PAYOUT_VERSION } : {}), enabled: c.enabled && !isRetiredGame(code), minStakePaise: c.minStakePaise.toString(), maxStakePaise: c.maxStakePaise.toString(), rtp: 1 - c.houseEdge, maxMultiplier: code === "7up7down" ? SEVEN_TOTAL_RETURN : code === "tower-rush" ? Math.min(c.maxMultiplier, TOWER_LEVEL_MAX_MULTIPLIER) : c.maxMultiplier, ...(code === "7up7down" ? { sevenPayoutVersion: SEVEN_PAYOUT_VERSION } : {}) };
 }
 export async function instantState(userId: string, code: CollectionCode) {
   const active = await db.select().from(betsTable).where(and(owned(userId, code), eq(betsTable.status, "placed"))).limit(1);
   const history = await db.select().from(betsTable).where(owned(userId, code)).orderBy(desc(betsTable.placedAt)).limit(20);
   return { round: active[0] ? instantReceipt(active[0]) : null, history: history.map(instantReceipt) };
 }
-export async function placeInstant(userId: string, code: CollectionCode, input: { requestId: string; stakeAmount: string; clientSeed: string; options: CollectionOptions; towerPayoutVersion?: 2 | 3 }) {
+export async function placeInstant(userId: string, code: CollectionCode, input: { requestId: string; stakeAmount: string; clientSeed: string; options: CollectionOptions; towerPayoutVersion?: 2 | 3 | 4 }) {
   if (isRetiredGame(code)) throw badRequest("This game is no longer available.");
   const game = collectionGame(code)!, config = await instantConfig(code), stake = BigInt(input.stakeAmount);
   if (input.options.bets) {

@@ -23,3 +23,23 @@
 
 /* World-space Runway art leaves a quiet sky as the tower climbs. */
 .tr-scene-3d{background:#62b3bf}.tr-reference-sky{position:absolute;inset:0;background:linear-gradient(#59b4c3,#8ac9ca)}
+
+/* Short, bounded level-up effects; no extra textures or permanent particle loop. */
+.tr-payout-ladder{padding:10px 12px;background:#17282b;border-top:1px solid #ffffff14}.tr-payout-ladder header{display:flex;justify-content:space-between;gap:8px;font-size:9px;font-weight:800;letter-spacing:1px;color:#e6ca85}.tr-payout-ladder header span{color:#c3d3cf;letter-spacing:0;font-weight:500}.tr-payout-ladder>div{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-top:8px}.tr-payout-ladder>div>span{padding:7px 3px;text-align:center;border:1px solid #52645e;border-radius:6px;background:#ffffff05;color:#c9d9cd}.tr-payout-ladder small{display:block;font-size:7px;letter-spacing:.5px}.tr-payout-ladder b{display:block;font-size:11px;margin-top:3px;overflow-wrap:anywhere}.tr-payout-ladder>div>.tr-level-unlocked{border-color:#82e2bf;background:#225247;color:#baf6df}.tr-payout-ladder p{font-size:9px;line-height:1.5;color:#b8c7c0;margin:7px 0 0}
+.tr-level-effects{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
+.tr-level-aura{position:absolute;inset:0;border:2px solid color-mix(in srgb,var(--tr-level-color) 70%,transparent);border-radius:inherit;box-shadow:inset 0 0 52px color-mix(in srgb,var(--tr-level-color) 35%,transparent);background:radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--tr-level-color) 22%,transparent),transparent 60%)}
+.tr-level-badge{position:absolute;bottom:51px;left:15px;display:flex;align-items:center;gap:5px;padding:7px 9px;border:1px solid var(--tr-level-color);border-radius:8px;background:#12303be6;color:var(--tr-level-color);box-shadow:0 0 20px #07293445;font-size:8px;font-weight:900;letter-spacing:.7px}
+.tr-level-badge small{padding-left:5px;border-left:1px solid #ffffff40;color:#fff;font-size:7px;letter-spacing:.3px}
+.tr-level-up{position:absolute;inset:0;display:grid;place-items:center}
+.tr-level-card{position:relative;display:flex;align-items:center;flex-direction:column;gap:4px;padding:17px 30px;border:1px solid var(--tr-level-color);border-radius:18px;background:linear-gradient(145deg,#123541f5,#17243bf5);color:var(--tr-level-color);box-shadow:0 0 36px color-mix(in srgb,var(--tr-level-color) 45%,transparent),0 18px 35px #122e4360;transform:rotate(-4deg);animation:tr-level-pop 2s both}
+.tr-level-card small{font-size:9px;font-weight:800;letter-spacing:3px;color:#fff}
+.tr-level-card strong{font-size:clamp(25px,5vw,38px);font-weight:950;letter-spacing:-1px;line-height:1.2;text-shadow:0 3px #15313c}
+.tr-level-card span{font-size:10px;font-weight:900;letter-spacing:2px}
+.tr-level-fireworks{position:absolute;left:50%;top:50%}
+.tr-level-ring{position:absolute;left:-60px;top:-60px;width:120px;height:120px;border:3px solid var(--tr-level-color);border-radius:50%;animation:tr-level-ring 1.3s ease-out both}
+.tr-level-fireworks i{position:absolute;left:-3px;top:-5px;width:6px;height:11px;background:var(--tr-level-color);border-radius:2px;box-shadow:0 0 8px var(--tr-level-color);animation:tr-level-spark 1.4s var(--tr-spark-delay) ease-out both}
+@keyframes tr-level-pop{0%{opacity:0;transform:scale(.65) rotate(-10deg)}15%,80%{opacity:1;transform:scale(1) rotate(-4deg)}100%{opacity:0;transform:scale(1.08) translateY(-12px) rotate(0)}}
+@keyframes tr-level-ring{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(3)}}
+@keyframes tr-level-spark{0%{opacity:0;transform:rotate(var(--tr-spark-angle)) translateY(-20px) scale(.5)}15%{opacity:1}100%{opacity:0;transform:rotate(var(--tr-spark-angle)) translateY(calc(-1 * var(--tr-spark-distance))) scale(.3)}}
+.tr-level-still *{animation:none!important}.tr-level-still .tr-level-card{box-shadow:0 5px 20px #122e4360;transform:none}
+@media(max-height:500px){.tr-level-badge{bottom:39px;padding:4px 6px}.tr-level-card{padding:8px 22px}.tr-level-card strong{font-size:25px}}

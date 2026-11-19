@@ -214,7 +214,7 @@ export const GAME_TYPE_META: Record<string, GameTypeMeta> = {
   "tower-rush": {
     engineType: "skill", label: "Tower Rush",
     editableFields: ["enabled", "minStakePaise", "maxStakePaise", "houseEdge", "maxMultiplier"], capFloors: { maxMultiplier: 1 },
-    rtpNote: "Version 3: independent random crash chance from floor 1; no safe opening and no maximum floor. Return starts at 0.001x, reaches 1x at floor 30 and continues linearly. House edge calibrates per-floor survival so maximum theoretical stopping RTP is 1 minus edge before rounding/caps, not the return at every floor. Old rounds retain their original rules and RTP snapshot.",
+    rtpNote: "Version 4: independent random crash chance from floor 1; no safe opening and no maximum floor. Floors 1-4 retain small opening returns; floors 5/10/15/20/25 unlock 1.50x/1.60x/1.70x/1.80x/1.90x total return. Returns plateau at 1.90x or the lower admin cap. House edge calibrates per-floor survival so maximum theoretical stopping RTP is 1 minus edge before rounding/caps, not the return at every floor. Old rounds retain their original rules and RTP snapshot.",
   },
   lottery: {
     engineType: "card_fixed", label: "Irland Lotto",

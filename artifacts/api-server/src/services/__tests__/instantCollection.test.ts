@@ -7,8 +7,39 @@ import { towerPayout, towerReturnMillis, towerSurvival, towerStepChance, TOWER_M
 import { towerCrashFloor } from "../instantCollectionMath";
 const options: CollectionOptions = { difficulty: "easy", mines: 3, choice: "heads" };
 
+test("tower v4 pays 150 to 190 rupees for a 100-rupee stake at five-floor milestones", () => {
+  const expected = new Map([[0,1],[1,.001],[2,.035],[3,.069],[4,.104],[5,1.5],[9,1.5],[10,1.6],[14,1.6],[15,1.7],[19,1.7],[20,1.8],[24,1.8],[25,1.9],[30,1.9],[1000,1.9]]);
+  for (const [floor, multiplier] of expected) {
+    assert.equal(collectionMultiplier("tower",floor,options,.97,1000,4),multiplier);
+    assert.equal(towerPayout(10000n,multiplier,4),BigInt(Math.round(multiplier*10000)));
+  }
+  assert.equal(towerPayout(101n,1.5,4),151n);
+  assert.equal(collectionMultiplier("tower",5,options,.97,1.2,4),1.2);
+  assert.equal(collectionMultiplier("tower",5,options,.97,1000,3),.138);
+});
+
+test("tower v4 calibrates every stopping floor to RTP and uses replayable versioned outcomes", () => {
+  for (const rtp of [0,.0001,.01,.1,.5,.85,.97,.99,1]) {
+    const q=towerStepChance(rtp,4);assert(q>=0&&q<1);
+    let best=0;
+    for(let floor=1;floor<=10000;floor++) {
+      const expected=q**floor*collectionMultiplier("tower",floor,options,rtp,1000,4);
+      assert(expected<=rtp+1e-12);best=Math.max(best,expected);
+    }
+    assert(Math.abs(best-rtp)<1e-12);
+  }
+  const q=towerStepChance(.97,4);let survivors=0;
+  for(let seed=0;seed<15000;seed++) {
+    const expected=instantRandom(String(seed),"client","tower-rush","tower:v4:floor:1")<q;
+    for(const cell of [0,1,2])assert.equal(instantSafe("tower",String(seed),"client","tower-rush",1,cell,options,4,.97),expected);
+    survivors+=Number(expected);
+  }
+  assert(Math.abs(survivors/15000-q)<.015);
+  assert.equal(towerSurvival(50,.97,4),q**50);
+});
+
 test("tower v3 calibrates unlimited independent floors to admin RTP", () => {
-  assert.equal(TOWER_PAYOUT_VERSION, 3);
+  assert.equal(TOWER_PAYOUT_VERSION, 4);
   for (const rtp of [0, .0001, .01, .1, .5, .621, .85, .97, .99, 1]) {
     const q = towerStepChance(rtp);
     assert(q >= 0 && q < 1);

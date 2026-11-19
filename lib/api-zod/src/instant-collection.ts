@@ -20,8 +20,10 @@ export type SevenBet = { spot: SevenSpot; amount: string };
 export type SevenPayoutVersion = 1 | 2;
 export const SEVEN_PAYOUT_VERSION: SevenPayoutVersion = 2;
 export const SEVEN_TOTAL_RETURN = 1.98;
-export type TowerPayoutVersion = 1 | 2 | 3;
-export const TOWER_PAYOUT_VERSION: TowerPayoutVersion = 3;
+export type TowerPayoutVersion = 1 | 2 | 3 | 4;
+export const TOWER_PAYOUT_VERSION: TowerPayoutVersion = 4;
+export const TOWER_LEVEL_FLOORS = 5;
+export const TOWER_LEVEL_MAX_MULTIPLIER = 1.9;
 export const TOWER_SAFE_FLOORS = 19;
 export const TOWER_FIRST_CRASH = 20;
 export const TOWER_LAST_CRASH = 35;
@@ -30,6 +32,12 @@ export const TOWER_LAST_CRASH = 35;
  * Floor zero retains the existing full-stake recovery/refund. */
 export function towerReturnMillis(step: number): number {
   return step <= 0 ? 1000 : 1 + Math.floor(999 * (step - 1) / 29);
+}
+/** Version 4: retain the opening four returns, then award 50–90% profit
+ * in five-floor bands. There is still no final gameplay floor. */
+export function towerLevelReturnMillis(step: number): number {
+  if (step < TOWER_LEVEL_FLOORS) return towerReturnMillis(step);
+  return 1500 + Math.min(4, Math.floor(step / TOWER_LEVEL_FLOORS) - 1) * 100;
 }
 export function towerPayout(stake: bigint, multiplier: number, version: TowerPayoutVersion = 1): bigint {
   return version >= 2 ? stake * BigInt(Math.round(multiplier * 1000)) / 1000n : collectionPayout(stake, multiplier);
@@ -52,8 +60,14 @@ export function towerLateCrashWeight(rtp: number): number {
  * max(n >= 1, q^n * M(n)) to RTP. The decreasing unrounded linear envelope
  * bounds the entire remaining tail, so calibration needs no floor cutoff. */
 const towerChanceCache = new Map<number, number>();
-export function towerStepChance(rtp: number): number {
+export function towerStepChance(rtp: number, version: TowerPayoutVersion = 3): number {
   const target = Number.isFinite(rtp) ? Math.max(0, Math.min(1, rtp)) : .97;
+  if (version === 4) {
+    // Within each flat payout band q^n*M only decreases; after floor 25
+    // the payout stays capped. These nine stopping floors bound every floor.
+    return Math.min(1, ...[1, 2, 3, 4, 5, 10, 15, 20, 25].map(n =>
+      Math.pow(target / (towerLevelReturnMillis(n) / 1000), 1 / n)));
+  }
   const cached = towerChanceCache.get(target);
   if (cached !== undefined) return cached;
   const slope = 999 / 29000, intercept = .001 - slope;
@@ -79,7 +93,7 @@ export function towerStepChance(rtp: number): number {
   return low;
 }
 export function towerSurvival(floor: number, rtp: number, version: TowerPayoutVersion = 2): number {
-  if (version === 3) return Math.pow(towerStepChance(rtp), Math.max(0, floor));
+  if (version >= 3) return Math.pow(towerStepChance(rtp, version), Math.max(0, floor));
   if (floor <= TOWER_SAFE_FLOORS) return 1;
   if (floor >= TOWER_LAST_CRASH) return 0;
   const weight = towerLateCrashWeight(rtp);
@@ -142,7 +156,7 @@ export function normalizeCoinLiveBet(raw: unknown): CoinLiveBet {
 export const roadSurvival = (difficulty: CollectionOptions["difficulty"]) => ({ easy: .85, medium: .7, hard: .55 })[difficulty];
 export function collectionMultiplier(kind: InstantKind, step: number, options: CollectionOptions, rtp = .97, cap = 1000, towerVersion: TowerPayoutVersion = 1): number {
   if (!step) return 1;
-  if (kind === "tower" && towerVersion >= 2) return Math.min(cap, towerReturnMillis(step) / 1000);
+  if (kind === "tower" && towerVersion >= 2) return Math.min(cap, (towerVersion === 4 ? towerLevelReturnMillis(step) : towerReturnMillis(step)) / 1000);
   let chance = 1;
   if (kind === "mines") for (let n = 0; n < step; n++) chance *= (25 - options.mines - n) / (25 - n);
   else chance = Math.pow(kind === "tower" ? 2 / 3 : roadSurvival(options.difficulty), step);

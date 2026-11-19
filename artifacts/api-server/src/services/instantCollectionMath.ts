@@ -21,7 +21,7 @@ export function towerCrashFloor(seed: string, client: string, rtp: number): numb
   return roll < weight ? 35 : Math.min(35, 20 + Math.floor((roll - weight) / (1 - weight) * 16));
 }
 export function instantSafe(kind: InstantKind, seed: string, client: string, game: string, step: number, cell: number, options: CollectionOptions, towerVersion: TowerPayoutVersion = 1, rtp = .97) {
-  if (kind === "tower" && towerVersion === 3) return instantRandom(seed, client, game, `tower:v3:floor:${step}`) < towerStepChance(rtp);
+  if (kind === "tower" && towerVersion >= 3) return instantRandom(seed, client, game, `tower:v${towerVersion}:floor:${step}`) < towerStepChance(rtp, towerVersion);
   if (kind === "tower" && towerVersion === 2) return step < towerCrashFloor(seed, client, rtp);
   if (kind === "mines") return !instantHazards(seed, client, game, options.mines).includes(cell);
   const roll = instantRandom(seed, client, game, `step:${step}`);
