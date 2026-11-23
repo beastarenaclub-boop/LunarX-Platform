@@ -33,6 +33,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAuth } from "@/lib/auth";
+import { useResultHold } from "@/lib/resultReveal";
+import { useHeldValue } from "@/components/table/useHeldValue";
 import { useTeenPattiJoker } from "@/components/teenpattiJoker/useTeenPattiJoker";
 import JokerDealer from "@/components/teenpattiJoker/JokerDealer";
 import { referenceCardCount } from "@/components/teenpattiJoker/jokerReferenceFilm";
@@ -84,7 +86,7 @@ const Card = memo(function Card({
           <span>♠</span>
         </span>
         <span
-          className={`j20-card-face ${card !== undefined && [1, 2].includes(jokerSuit(card)) ? "is-red" : ""}`}
+          className={`j20-card-face ${show && [1, 2].includes(jokerSuit(card)) ? "is-red" : ""}`}
         >
           {show && (
             <>
@@ -257,6 +259,14 @@ export default function TeenPattiJoker() {
       ? "MATCH TIED · MAIN BETS RETURNED"
       : `${JOKER_LABELS[outcome.winner].toUpperCase()} WINS`
     : "";
+  // The last card lands about a second before the server settles, on a client
+  // clock that trails the server by the poll latency. Keep the points and
+  // receipts as they were until the table has turned the final card.
+  const dealing = !!round && round.phase !== "betting" && !complete;
+  useResultHold(dealing);
+  const shownBalance = useHeldValue(game.balance, dealing);
+  const history = useHeldValue(game.historyData, dealing) ?? [];
+  const lastSettled = history.find((h) => h.status === "settled");
   const status = !game.fresh
     ? "CONNECTING TO TABLE"
     : !game.ready
@@ -337,7 +347,7 @@ export default function TeenPattiJoker() {
             />
           </Link>
           <div className="j20-account">
-            <b>pts: {game.ready ? money(game.wallet) : "—"}</b>
+            <b>pts: {game.ready ? money(shownBalance ?? 0) : "—"}</b>
             <span>{user?.displayName ?? "Player"}</span>
           </div>
         </header>
@@ -555,7 +565,7 @@ export default function TeenPattiJoker() {
               Limits: {money(game.min)} – {money(game.max)} pts
             </span>
             <span>
-              Last return: <b>{money(game.lastWin)}</b>
+              Last return: <b>{money(lastSettled?.payoutAmount ?? 0)}</b>
             </span>
           </div>
         </section>
@@ -642,8 +652,8 @@ export default function TeenPattiJoker() {
             <div className="j20-history">
               {game.historyError ? (
                 <p>History is unavailable. Please try again.</p>
-              ) : game.history.length ? (
-                game.history.map((h) => (
+              ) : history.length ? (
+                history.map((h) => (
                   <article key={h.roundId}>
                     <div>
                       <b>

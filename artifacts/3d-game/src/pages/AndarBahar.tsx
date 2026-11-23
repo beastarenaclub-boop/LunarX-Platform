@@ -44,6 +44,8 @@ import LiveBetsPanel from "@/components/table/LiveBetsPanel";
 import { formatChip } from "@/components/table/chips";
 import { TableCoinRack, useCoinPreferences } from "@/components/table/CoinSettings";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
+import { useHeldValue } from "@/components/table/useHeldValue";
+import { useResultHold } from "@/lib/resultReveal";
 import { GameRulesButton } from "@/components/game/GameRules";
 
 type MainBet = "andar" | "bahar";
@@ -254,8 +256,16 @@ export default function AndarBahar() {
     const budget = config.revealDurationMs + config.settleDurationMs;
     return buildDelays(outcome.cardsDealt, budget);
   }, [outcome, config]);
+  // The paced deal runs on into the settling window, past the moment the
+  // server credits winners. Until the last card lands, nothing may name the
+  // winner, the payout or the new balance.
+  const dealDone =
+    showOutcome && animRoundId === roundId && visibleCardIndex >= outcome!.cardsDealt - 1;
+  const resultPending = phase != null && phase !== "betting" && !dealDone;
+  useResultHold(resultPending);
+  const shownBalance = useHeldValue(balance.data?.balance, resultPending);
   const roundWin = useRoundWin({ game: "andar-bahar", userId: user?.id, roundId,
-    eligible: phase === "settling" && !!outcome && visibleCardIndex >= outcome.cardsDealt - 1, bets: myBets });
+    eligible: phase === "settling" && dealDone, bets: myBets });
 
   useEffect(() => {
     if (!showOutcome || !roundId) return;
@@ -282,7 +292,7 @@ export default function AndarBahar() {
   // Settlement result toast — fires once per round when my slips settle.
   const toastedRef = useRef<string | null>(null);
   useEffect(() => {
-    if (phase !== "settling" || !roundId) return;
+    if (phase !== "settling" || !roundId || !dealDone) return;
     const settled = myBets.filter((b) => b.status === "settled");
     if (settled.length === 0) return;
     if (toastedRef.current === roundId) return;
@@ -298,7 +308,7 @@ export default function AndarBahar() {
         `${outcome?.winner === "andar" ? "Andar" : "Bahar"} — you won ₹${formatRupees(myPayoutPaise.toString())}!`,
       );
     }
-  }, [phase, roundId, myBets, myPayoutPaise, outcome, sound]);
+  }, [phase, roundId, dealDone, myBets, myPayoutPaise, outcome, sound]);
 
   // Clear the anim marker when a new betting window starts.
   useEffect(() => {
@@ -417,7 +427,7 @@ export default function AndarBahar() {
     const visibleCards = cards.filter(
       (_, i) => globalIndex(side, i) <= visibleCardIndex,
     );
-    const isWinner = showOutcome && outcome!.winner === side;
+    const isWinner = dealDone && outcome!.winner === side;
     return (
       <div
         className={cn(
@@ -456,7 +466,7 @@ export default function AndarBahar() {
           <div className="text-right">
             <div className="font-mono text-sm font-black text-white/90">
               {visibleCards.length}
-              <span className="text-white/35">/{cards.length || "—"}</span>
+              <span className="text-white/35">/{dealDone ? cards.length : "—"}</span>
             </div>
             <div className="text-[9px] uppercase tracking-wider text-white/40">
               cards
@@ -509,7 +519,7 @@ export default function AndarBahar() {
 
   // Result line shown in the banner during settling.
   const resultLine =
-    phase === "settling" && outcome ? (
+    phase === "settling" && outcome && dealDone ? (
       <span
         className="flex items-center gap-2 font-mono"
         data-testid="text-result-line"
@@ -583,8 +593,10 @@ export default function AndarBahar() {
       </div>
       {myBets.length > 0 ? (
         myBets.map((b) => {
+          // A slip settles before the deal has shown its result.
+          const status = resultPending && b.status === "settled" ? "pending" : b.status;
           const win =
-            b.status === "settled" && BigInt(b.payoutAmount || "0") > 0n;
+            status === "settled" && BigInt(b.payoutAmount || "0") > 0n;
           return (
             <div
               key={b.slipId}
@@ -595,16 +607,16 @@ export default function AndarBahar() {
                 <Badge
                   className={cn(
                     "text-[10px] font-mono text-white shrink-0",
-                    b.status === "settled"
+                    status === "settled"
                       ? win
                         ? "bg-emerald-600"
                         : "bg-rose-700"
-                      : b.status === "refunded"
+                      : status === "refunded"
                         ? "bg-zinc-600"
                         : "bg-amber-600",
                   )}
                 >
-                  {b.status}
+                  {status}
                 </Badge>
                 <span className="text-xs text-white/60 font-mono truncate">
                   {describeSlipBets(b.bets)} · ₹{formatRupees(b.totalStake)}
@@ -616,7 +628,7 @@ export default function AndarBahar() {
                   win ? "text-emerald-400" : "text-white/50",
                 )}
               >
-                ₹{formatRupees(b.payoutAmount)}
+                ₹{formatRupees(status === "settled" ? b.payoutAmount : "0")}
               </span>
             </div>
           );
@@ -759,7 +771,7 @@ export default function AndarBahar() {
                 className="text-sm font-bold text-emerald-400 font-mono"
                 data-testid="text-andarbahar-balance"
               >
-                ₹{formatRupees(balance.data?.balance ?? "0")}
+                ₹{formatRupees(shownBalance ?? "0")}
               </span>
             </div>
             <GameRulesButton gameCode="andar-bahar" />
@@ -816,12 +828,11 @@ export default function AndarBahar() {
                   data-testid="deal-progress"
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-300 shadow-[0_0_8px_rgba(252,211,77,.9)]" />
-                  {showOutcome
-                    ? `Dealing ${Math.min(
-                        outcome!.cardsDealt,
-                        Math.max(0, visibleCardIndex + 1),
-                      )} of ${outcome!.cardsDealt}`
-                    : "Cards deal alternately"}
+                  {dealDone
+                    ? `Dealing ${outcome!.cardsDealt} of ${outcome!.cardsDealt}`
+                    : showOutcome
+                      ? `Dealing card ${Math.max(0, visibleCardIndex + 1)}`
+                      : "Cards deal alternately"}
                 </div>
               {/* Joker */}
               <div className="andar-joker relative flex items-center justify-center gap-3">
@@ -859,7 +870,7 @@ export default function AndarBahar() {
             <div className="andar-main-bets grid grid-cols-2 gap-2">
               {(["andar", "bahar"] as MainBet[]).map((spot) => {
                 const amount = bets.get(spot) ?? 0;
-                const won = showOutcome && outcome!.winner === spot;
+                const won = dealDone && outcome!.winner === spot;
                 return (
                   <button
                     key={spot}

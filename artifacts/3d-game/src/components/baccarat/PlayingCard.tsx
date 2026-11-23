@@ -52,7 +52,9 @@ export default function PlayingCard({
           : `translate3d(${dealOffset?.x ?? 0}px, ${dealOffset?.y ?? -18}px, 0) rotate(${dealOffset?.rotate ?? 0}deg) scale(.88)`,
         transitionDuration: reducedMotion ? "0ms" : undefined,
       }}
-      data-testid={`card-${card}`}
+      // A face-down card must not carry its value in the DOM: the face (and
+      // the test id naming it) appear only once the turn begins.
+      data-testid={flipped ? `card-${card}` : "card-hidden"}
     >
       <div
         className="relative w-full h-full transition-transform"
@@ -66,21 +68,25 @@ export default function PlayingCard({
         <div
           className={cn(
             "absolute inset-0 rounded-lg bg-white border border-zinc-300 shadow-md flex flex-col items-center justify-center",
-            red ? "text-red-600" : "text-zinc-900",
+            flipped && red ? "text-red-600" : "text-zinc-900",
           )}
           style={{ backfaceVisibility: "hidden" }}
         >
-          <span
-            className={cn(
-              "font-black leading-none",
-              small ? "text-sm" : "text-lg sm:text-xl",
-            )}
-          >
-            {cardRankLabel(card)}
-          </span>
-          <span className={cn(small ? "text-sm" : "text-xl sm:text-2xl")}>
-            {cardSuitSymbol(card)}
-          </span>
+          {flipped && (
+            <>
+              <span
+                className={cn(
+                  "font-black leading-none",
+                  small ? "text-sm" : "text-lg sm:text-xl",
+                )}
+              >
+                {cardRankLabel(card)}
+              </span>
+              <span className={cn(small ? "text-sm" : "text-xl sm:text-2xl")}>
+                {cardSuitSymbol(card)}
+              </span>
+            </>
+          )}
         </div>
         {/* Back */}
         <div

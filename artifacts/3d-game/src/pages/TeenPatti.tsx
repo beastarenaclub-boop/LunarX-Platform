@@ -60,6 +60,8 @@ import {
   useCoinPreferences,
 } from "@/components/table/CoinSettings";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
+import { useHeldValue } from "@/components/table/useHeldValue";
+import { useResultHold } from "@/lib/resultReveal";
 import { GameRulesButton } from "@/components/game/GameRules";
 import "@/components/teenpattiLive/teen-patti-market.css";
 import "@/components/teenpattiLive/teen-patti-classic.css";
@@ -154,6 +156,8 @@ interface VerifyResp extends TeenPattiState {
 }
 
 const FLIP_STEP_MS = 450;
+/** The sixth card starts turning at 5 steps; PlayingCard turns in 500ms. */
+const LAST_FLIP_DONE_MS = 5 * FLIP_STEP_MS + 500;
 
 function apiMessage(err: unknown, fallback: string): string {
   if (err instanceof ApiError) {
@@ -268,13 +272,6 @@ export default function TeenPatti() {
 
   const coinPreferences = useCoinPreferences("teen-patti", user?.id);
   const { chip, selectChip: setChip } = coinPreferences;
-  const roundWin = useRoundWin({
-    game: "teen-patti",
-    userId: user?.id,
-    roundId,
-    eligible: phase === "settling",
-    bets: myBets,
-  });
   const [history, setHistory] = useState<
     { spot: TeenPattiBetType; amount: number }[]
   >([]);
@@ -349,6 +346,30 @@ export default function TeenPatti() {
     roundId === revealRoundId &&
     (phase === "reveal" || phase === "settling");
   const shown = showCards ? outcome : null;
+  // The hands appear face down and turn one by one. The winner, the payout
+  // and the new balance wait until the last card is face up.
+  const [flippedRoundId, setFlippedRoundId] = useState<string | null>(null);
+  const dealOnTable = shown != null;
+  useEffect(() => {
+    if (!dealOnTable || !revealRoundId) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(
+      () => setFlippedRoundId(revealRoundId),
+      reduced ? 0 : LAST_FLIP_DONE_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [dealOnTable, revealRoundId]);
+  const revealedDeal = shown && flippedRoundId === revealRoundId ? shown : null;
+  const resultPending = phase != null && phase !== "betting" && !revealedDeal;
+  useResultHold(resultPending);
+  const shownBalance = useHeldValue(balance.data?.balance, resultPending);
+  const roundWin = useRoundWin({
+    game: "teen-patti",
+    userId: user?.id,
+    roundId,
+    eligible: phase === "settling" && !!revealedDeal,
+    bets: myBets,
+  });
 
   const placeBet = (spot: TeenPattiBetType) => {
     // Draft chips belong only to the current betting window.
@@ -495,7 +516,7 @@ export default function TeenPatti() {
   // Win/loss toast once payouts land.
   const settledToastRef = useRef<string | null>(null);
   useEffect(() => {
-    if (phase !== "settling" || !settled || !roundId) return;
+    if (phase !== "settling" || !settled || !roundId || !revealedDeal) return;
     if (settledToastRef.current === roundId) return;
     settledToastRef.current = roundId;
     const won = netPayoutPaise > 0n;
@@ -507,7 +528,7 @@ export default function TeenPatti() {
     if (won) {
       toast.success(`Net win ₹${formatRupees(netPayoutPaise.toString())}!`);
     }
-  }, [phase, settled, roundId, netPayoutPaise, sound]);
+  }, [phase, settled, roundId, revealedDeal, netPayoutPaise, sound]);
 
   const openVerify = async (r: TeenPattiState) => {
     setVerifyOpen(r);
@@ -558,7 +579,7 @@ export default function TeenPatti() {
             ? `up to ${payouts?.pairPlus.trail ?? "—"}×`
             : `${price}× return`)
         }
-        data-won={shown?.winner === spot}
+        data-won={revealedDeal?.winner === spot}
       >
         {locked ? (
           <LockKeyhole size={21} aria-hidden="true" />
@@ -585,9 +606,9 @@ export default function TeenPatti() {
     </button>
   );
 
-  const resultSlot = shown ? (
+  const resultSlot = revealedDeal ? (
     <span className="flex items-center gap-2">
-      <span className="font-bold uppercase">{winnerLabel(shown.winner)}</span>
+      <span className="font-bold uppercase">{winnerLabel(revealedDeal.winner)}</span>
       {settled && placedCount > 0 && (
         <span
           className={cn(
@@ -737,7 +758,7 @@ export default function TeenPatti() {
               data-testid="text-teenpatti-balance"
               aria-label="Balance"
             >
-              ₹{formatRupees(balance.data?.balance ?? "0")}
+              ₹{formatRupees(shownBalance ?? "0")}
             </span>
             <span className="tp20-account-name">
               <UserRound size={13} />
@@ -808,22 +829,22 @@ export default function TeenPatti() {
                           : "text-hand-b-category"
                       }
                     >
-                      {
+                      {revealedDeal &&
                         CATEGORY_LABELS[
-                          (hand === 0 ? shown.handA : shown.handB).category
-                        ]
-                      }
+                          (hand === 0 ? revealedDeal.handA : revealedDeal.handB)
+                            .category
+                        ]}
                     </span>
                   </div>
                 ))}
               </div>
             )}
             <div className="tp2020-stage-status" role="status">
-              {shown ? (
+              {revealedDeal ? (
                 <span data-testid="text-result-winner">
-                  {winnerLabel(shown.winner)}
+                  {winnerLabel(revealedDeal.winner)}
                 </span>
-              ) : dealing ? (
+              ) : shown || dealing ? (
                 "Revealing cards…"
               ) : bettingOpen ? (
                 "Place your bets"

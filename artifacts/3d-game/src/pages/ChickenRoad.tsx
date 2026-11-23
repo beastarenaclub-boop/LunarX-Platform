@@ -12,6 +12,8 @@ import ChickenScene from "@/components/chicken-road/ChickenScene";
 import { formatProfitFactor } from "@/components/chicken-road/format";
 import { useAuth } from "@/lib/auth";
 import { formatRupees } from "@/lib/format";
+import { useResultHold } from "@/lib/resultReveal";
+import { useHeldValue } from "@/components/table/useHeldValue";
 import { useStore } from "@/game/store";
 import { updateSettings } from "@/game/engine";
 import { playGameSound, unlockAudio } from "@/game/audio";
@@ -78,6 +80,11 @@ export default function ChickenRoad() {
   const locked = busy || active || !!pending;
   const nextMultiplier = active ? round.nextMultiplier : chickenReturn(selectedMode, 1) / 100;
   const canStep = ready && active && !busy && !hopping && !expired;
+  // A step is settled in its response (the final lane pays at once), but the
+  // chicken is still mid-hop: wallet and shared results wait for it to land.
+  const revealing = busy || hopping;
+  useResultHold(revealing);
+  const shownBalance = useHeldValue(wallet.data?.balance, revealing);
   const refreshWallet = () => {
     void qc.invalidateQueries({ queryKey: getGetWalletBalanceQueryKey() });
     void qc.invalidateQueries({ queryKey: getGetWalletBalancesQueryKey() });
@@ -141,11 +148,13 @@ export default function ChickenRoad() {
       accept(result);
       if (action === "place") { remember(null); playSound("bet"); }
       else {
+        const cue = result.status === "busted" ? "crash" : result.status === "cashed_out" ? "win" : "reveal";
         if (action === "step" && result.attemptedStep > round!.attemptedStep) {
           setHopping(true);
-          hopTimer.current = setTimeout(() => setHopping(false), 480);
-        }
-        playSound(result.status === "busted" ? "crash" : result.status === "cashed_out" ? "win" : "reveal");
+          // A collision or the golden egg sounds on landing, not at take-off.
+          if (cue === "reveal") playSound(cue);
+          hopTimer.current = setTimeout(() => { setHopping(false); if (cue !== "reveal") playSound(cue); }, 480);
+        } else playSound(cue);
       }
     } catch (e) {
       setError(friendlyError(e));
@@ -158,7 +167,8 @@ export default function ChickenRoad() {
   }
   function chooseCoin(value: number) { if (locked) return; coins.selectChip(value); setStakeInput(String(value)); playSound("select"); }
   const displayRound = active ? round : round && round.difficulty === selectedMode ? round : null;
-  const history = state.data?.history.filter(r => r.status !== "active") ?? [];
+  // The run that ended on this hop joins the strip when the chicken lands.
+  const history = state.data?.history.filter(r => r.status !== "active" && !(hopping && r.id === round?.id)) ?? [];
   const fairness = inspected ?? round;
   const fairnessGuaranteed = (fairness?.version ?? rulesVersion) === 2;
 
@@ -167,7 +177,7 @@ export default function ChickenRoad() {
       <Link href="/" className="cr-icon-button" aria-label="Back to lobby"><ArrowLeft size={19} /></Link>
       <Link href="/chicken-road" className="cr-brand" aria-label="Chicken Road"><span>CHICKEN</span><strong>ROAD<span>↗</span></strong></Link>
       <span className="cr-original">LUNAR ORIGINALS</span>
-      <Link href="/wallet" className="cr-wallet" aria-label="Open shared wallet"><Wallet size={17} /><span><small>WALLET</small><strong data-testid="chicken-wallet">{wallet.data ? money(balance) : "—"}</strong></span><Plus size={15} /></Link>
+      <Link href="/wallet" className="cr-wallet" aria-label="Open shared wallet"><Wallet size={17} /><span><small>WALLET</small><strong data-testid="chicken-wallet">{shownBalance !== undefined ? money(shownBalance) : "—"}</strong></span><Plus size={15} /></Link>
       <button className="cr-icon-button" aria-label={sound ? "Mute sound" : "Enable sound"} aria-pressed={sound} onClick={() => { updateSettings({ sound: !sound }); if (!sound) { void unlockAudio(); playGameSound("bet", "chicken-road", .75); } }}>{sound ? <Volume2 size={18} /> : <VolumeX size={18} />}</button>
       <button className="cr-icon-button" aria-label="Game rules" onClick={() => setPanel("rules")}><CircleHelp size={18} /></button>
     </header>

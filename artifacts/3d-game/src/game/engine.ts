@@ -433,6 +433,8 @@ function settingsApplyVolumes() {
 // Outcomes and accepted auto-cashouts are owned by the server. The browser
 // interpolates animation only; reconnects restore the same committed round.
 let engineGeneration = 0;
+/** How long the flight keeps moving without a fresh poll before it holds. */
+const MAX_EXTRAPOLATION_MS = 2000;
 let latestSnapshot: CrashSnapshot | null = null;
 let snapshotReceivedAt = 0;
 let engineRunning = false;
@@ -500,9 +502,20 @@ async function startBettingPhase() {
         sfx.engineStart(gameCode);
       }
       if (first) {
+        // Server time shown on screen. It is extrapolated from the last poll
+        // and lags the real server clock by the download latency, so the
+        // multiplier on screen is never ahead of what a cashout can get.
+        let shownNow = 0;
         const animate = () => {
           if (generation !== engineGeneration || !latestSnapshot) return;
-          const now = latestSnapshot.now + Math.min(500, performance.now()-snapshotReceivedAt);
+          // Polls land every 250 ms plus a round trip. The old 500 ms cap froze
+          // the multiplier on every poll once the round trip passed 250 ms
+          // (mobile data, a busy server) and then jumped it forward — the
+          // flight looked stuck. Keep extrapolating for up to
+          // MAX_EXTRAPOLATION_MS instead, and never step backwards when a poll
+          // arrives with network jitter.
+          shownNow = Math.max(shownNow, latestSnapshot.now + Math.min(MAX_EXTRAPOLATION_MS, performance.now()-snapshotReceivedAt));
+          const now = shownNow;
           if (latestSnapshot.phase === "betting") {
             store.setState({countdownMs:Math.max(0,latestSnapshot.startsAt-now)});
             // The helicopter is already running while the countdown ticks;

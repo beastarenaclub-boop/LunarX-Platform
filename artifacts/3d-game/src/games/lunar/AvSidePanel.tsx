@@ -223,7 +223,21 @@ function Pair({ label, value, color }: { label: string; value: string; color?: s
 
 export default function AvSidePanel({ onOpenFair }: { onOpenFair?: () => void }) {
   const phase = useStore((s) => s.phase);
-  const multiplier = useStore((s) => s.multiplier);
+  // Rows and totals only change when the flight passes a crowd bet's cash-out
+  // point, so select the highest point already passed instead of the live
+  // multiplier. isCashedOut gives the same answer for every bet, and the panel
+  // no longer re-renders on each animation frame.
+  const multiplier = useStore((s) =>
+    s.phase !== "flying"
+      ? 0
+      : s.liveBets.reduce(
+          (passed, b) =>
+            b.cashedOutAt != null && b.cashedOutAt <= s.multiplier && b.cashedOutAt > passed
+              ? b.cashedOutAt
+              : passed,
+          0,
+        ),
+  );
   const liveBets = useStore((s) => s.liveBets);
   const topWins = useStore((s) => s.topWins);
   const rounds = useStore((s) => s.rounds);

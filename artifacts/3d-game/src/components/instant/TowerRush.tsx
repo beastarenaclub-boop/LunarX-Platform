@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "wouter";
 import { ArrowLeft, ChevronRight, CircleHelp, History, Layers3, ShieldCheck, Volume2, VolumeX, Wallet, Play, Pause } from "lucide-react";
 import { collectionMultiplier, towerSurvival, towerStepChance, towerPayout, TOWER_LEVEL_FLOORS, type CollectionConfig, type CollectionRound } from "@workspace/api-zod/instant-collection";
 import { formatRupees } from "@/lib/format";
+import { holdResults } from "@/lib/resultReveal";
 import TowerScene, { type TowerDrop } from "./TowerScene";
 import "./tower-rush.css";
 import { towerCollapseTiming } from "./towerMotion";
@@ -36,6 +37,10 @@ export default function TowerRush(p: Props) {
   const animationTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const impactTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const landSound = useRef(p.onLanding); landSound.current = p.onLanding;
+  // A floor is settled in its response; a failed one (a settled loss) still has
+  // seconds of falling block ahead. Shared results wait for the landing.
+  const revealHold = useRef<(() => void) | null>(null), dropping = useRef(false);
+  const releaseReveal = () => { revealHold.current?.(); revealHold.current = null; };
   const disabled = busy || working || !!drop;
   const step = round?.step ?? 0;
   const rtp = active ? round.rtp : p.config?.rtp ?? .97;
@@ -52,6 +57,8 @@ export default function TowerRush(p: Props) {
   const settled = round && !active && !disabled;
   const lost = settled && round.status === "lost";
   const returned = settled && !lost;
+  // The round that ends with this falling block is listed once it has landed.
+  const history = drop?.failed ? p.history.filter(r => r.id !== round?.id) : p.history;
 
   useEffect(() => {
     alive.current = true;
@@ -59,10 +66,12 @@ export default function TowerRush(p: Props) {
     const visibility = () => { if (document.hidden) pause(); };
     window.addEventListener("blur", pause);
     document.addEventListener("visibilitychange", visibility);
-    return () => { alive.current = false; clearTimeout(animationTimer.current); clearTimeout(impactTimer.current); clearTimeout(levelTimer.current); window.removeEventListener("blur", pause); document.removeEventListener("visibilitychange", visibility); };
+    return () => { alive.current = false; releaseReveal(); clearTimeout(animationTimer.current); clearTimeout(impactTimer.current); clearTimeout(levelTimer.current); window.removeEventListener("blur", pause); document.removeEventListener("visibilitychange", visibility); };
   }, []);
 
-  useEffect(() => {
+  // Layout effect: a settled floor must never paint its result card for a
+  // frame before the drop that reveals it has started.
+  useLayoutEffect(() => {
     const revision = round ? `${round.id}:${round.step}:${round.status}` : "";
     if (seen.current === revision) return;
     seen.current = revision;
@@ -86,9 +95,12 @@ export default function TowerRush(p: Props) {
         clearTimeout(impactTimer.current);
         const collapse = towerCollapseTiming(round.step);
         if (failed) impactTimer.current = setTimeout(() => { if (alive.current) landSound.current(true); }, collapse.impact * 1000);
+        dropping.current = true;
         animationTimer.current = setTimeout(() => {
           if (!alive.current) return;
+          dropping.current = false;
           setVisualStep(round.step); setDrop(null); if (!failed) landed();
+          releaseReveal();
         }, failed ? Math.ceil(collapse.duration * 1000) : 820);
         return;
       }
@@ -96,13 +108,18 @@ export default function TowerRush(p: Props) {
     }
     intent.current = false;
     setVisualStep(round.step);
+    releaseReveal();
   }, [round, motion]);
 
   async function build() {
     if (actionLock.current || disabled || (!active && !p.canPlay)) return;
     actionLock.current = true; setWorking(true); intent.current = !p.pending;
     if (!active && !p.pending) { setVisualStep(0); setLevelUp(null); clearTimeout(levelTimer.current); }
+    releaseReveal(); revealHold.current = holdResults();
     const receipt = await p.act(p.pending ? "place" : active ? "reveal" : "place", 0);
+    // No new board for the effect above to reveal (an error, or a recovery that
+    // changed nothing): there is nothing left to hold back.
+    if (!receipt || (!dropping.current && seen.current === `${receipt.id}:${receipt.step}:${receipt.status}`)) releaseReveal();
     if (alive.current) {
       if (!receipt || p.pending) { intent.current = false; setAuto(false); }
       setWorking(false);
@@ -166,7 +183,7 @@ export default function TowerRush(p: Props) {
     </main><aside className="tr-sidebar">
       <div className="tr-history-title"><History size={17} /><h2>Your rounds</h2><button onClick={() => p.openPanel("history")}>View all</button></div>
       <div className="tr-table-head"><span>BET / TIME</span><span>RETURN</span></div>
-      <div className="tr-history">{p.history.length ? p.history.slice(0, 10).map(r => <button key={r.id} onClick={() => p.openPanel("history")}><span><b>{money(r.stakeAmount)}</b><small>{new Date(r.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · {r.step} floors</small></span><span className={r.status === "lost" ? "tr-history-loss" : "tr-history-win"}><b>{r.status === "active" ? "In play" : money(r.payoutAmount)}</b><small>{r.status === "active" ? `${formatMultiplier(r.multiplier, r.towerPayoutVersion ?? 1)}×` : r.status === "lost" ? "No return" : `${formatMultiplier(r.multiplier, r.towerPayoutVersion ?? 1)}× collected`}</small></span></button>) : <div className="tr-empty"><Layers3 size={28} /><strong>Your skyline starts here</strong><p>Completed rounds and returns will appear here.</p></div>}</div>
+      <div className="tr-history">{history.length ? history.slice(0, 10).map(r => <button key={r.id} onClick={() => p.openPanel("history")}><span><b>{money(r.stakeAmount)}</b><small>{new Date(r.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · {r.step} floors</small></span><span className={r.status === "lost" ? "tr-history-loss" : "tr-history-win"}><b>{r.status === "active" ? "In play" : money(r.payoutAmount)}</b><small>{r.status === "active" ? `${formatMultiplier(r.multiplier, r.towerPayoutVersion ?? 1)}×` : r.status === "lost" ? "No return" : `${formatMultiplier(r.multiplier, r.towerPayoutVersion ?? 1)}× collected`}</small></span></button>) : <div className="tr-empty"><Layers3 size={28} /><strong>Your skyline starts here</strong><p>Completed rounds and returns will appear here.</p></div>}</div>
       <div className="tr-guide"><span>THE HIGHER THE TOWER</span><h3>The bigger the moment.</h3>{version === 4 ? <><p>Every 5 completed floors unlocks a higher return, up to 1.90×. At floor 5, ₹100 returns ₹150 total: ₹100 stake + ₹50 profit, before any lower admin cap.</p><div><b>5 floors</b><span>1.50× total return</span></div><div><b>25+ floors</b><span>1.90× maximum total return</span></div><div><b>&infin;</b><span>no floor limit</span></div><small>Each floor can fail, including floor 1. Survival chance: {nextChance.toFixed(2)}%. Maximum theoretical stopping return: {(rtp * 100).toFixed(2)}% before rounding and caps. The first four floors return less than your bet. Auto build pauses at the payout cap; timing does not change outcomes.</small></> : version === 3 ? <><p>Every floor can fall, including the first. There is no final floor. Cash out after any successful build.</p><div><b>0.001×</b><span>first floor total return</span></div><div><b>1.000×</b><span>floor 30 total return, before caps</span></div><div><b>&infin;</b><span>no floor limit</span></div><small>Each floor has a {nextChance.toFixed(2)}% survival chance, fixed by the round’s RTP. Maximum theoretical stopping return: {(rtp * 100).toFixed(2)}% before paise rounding and caps; earlier cash-outs can return less. Auto build pauses at the payout cap. Timing your click does not change the result.</small></> : version === 2 ? <><p>Floors 1–19 are safe. One crash floor from 20–35 is fixed when the round starts. Cash out before it.</p><div><b>0.001×</b><span>first floor total return</span></div><div><b>1.000×</b><span>floor 30 total return, before caps</span></div><div><b>20–35</b><span>random crash floor</span></div><small>Crash-floor chances are weighted by the round's RTP. Maximum theoretical stopping return: {(rtp * 100).toFixed(2)}% before paise rounding and caps; earlier cash-outs can return less. Auto build pauses at floor 34. Timing your click does not change the result.</small></> : <><p>Build one floor at a time. There is no final floor. Cash out whenever you choose, before a block falls.</p><div><b>66.67%</b><span>chance per floor</span></div><div><b>&infin;</b><span>no floor limit</span></div><div><b>{cap}&times;</b><span>maximum payout multiplier</span></div><small>Target RTP {(rtp * 100).toFixed(2)}% before rounding and payout cap. Timing your click does not change the outcome.</small></>}</div>
     </aside></div>{p.children}
   </div>;

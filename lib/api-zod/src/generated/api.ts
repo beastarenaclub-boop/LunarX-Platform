@@ -37,7 +37,7 @@ export const SignupResponse = zod.object({
     username: zod
       .string()
       .nullish()
-      .describe('Player login name (\"cry\" + 4 digits). Null for operators.'),
+      .describe('Player login name (first 5 letters of the name + 3 digits, e.g. rahul482). Null for operators.'),
     role: zod.enum(["player", "agent", "support", "admin", "super_admin"]),
     status: zod.enum(["active", "suspended", "banned", "pending"]),
     displayName: zod.string().nullish(),
@@ -72,7 +72,7 @@ export const LoginBody = zod.object({
     .max(loginBodyUsernameMax)
     .optional()
     .describe(
-      'Player username (\"cry\" + 4 digits). Operators may send their email here.',
+      'Player username (first 5 letters of the name + 3 digits, e.g. rahul482). Operators may send their email here.',
     ),
   email: zod
     .string()
@@ -90,7 +90,7 @@ export const LoginResponse = zod.object({
     username: zod
       .string()
       .nullish()
-      .describe('Player login name (\"cry\" + 4 digits). Null for operators.'),
+      .describe('Player login name (first 5 letters of the name + 3 digits, e.g. rahul482). Null for operators.'),
     role: zod.enum(["player", "agent", "support", "admin", "super_admin"]),
     status: zod.enum(["active", "suspended", "banned", "pending"]),
     displayName: zod.string().nullish(),
@@ -123,7 +123,7 @@ export const DemoLoginResponse = zod.object({
     username: zod
       .string()
       .nullish()
-      .describe('Player login name (\"cry\" + 4 digits). Null for operators.'),
+      .describe('Player login name (first 5 letters of the name + 3 digits, e.g. rahul482). Null for operators.'),
     role: zod.enum(["player", "agent", "support", "admin", "super_admin"]),
     status: zod.enum(["active", "suspended", "banned", "pending"]),
     displayName: zod.string().nullish(),
@@ -158,7 +158,7 @@ export const GetMeResponse = zod.object({
   username: zod
     .string()
     .nullish()
-    .describe('Player login name (\"cry\" + 4 digits). Null for operators.'),
+    .describe('Player login name (first 5 letters of the name + 3 digits, e.g. rahul482). Null for operators.'),
   role: zod.enum(["player", "agent", "support", "admin", "super_admin"]),
   status: zod.enum(["active", "suspended", "banned", "pending"]),
   displayName: zod.string().nullish(),

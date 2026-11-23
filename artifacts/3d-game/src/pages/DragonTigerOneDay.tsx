@@ -42,6 +42,8 @@ import {
   useCoinPreferences,
 } from "@/components/table/CoinSettings";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
+import { useHeldValue } from "@/components/table/useHeldValue";
+import { useResultHold } from "@/lib/resultReveal";
 import {
   Dialog,
   DialogContent,
@@ -51,6 +53,8 @@ import {
 import "@/components/dragonTigerOneDay/one-day.css";
 import "@/components/dragonTigerOneDay/one-day-reference.css";
 
+/** `.od-face-up` turns the Tiger card over 0.6s; the result is not on screen before. */
+const TIGER_TURN_MS = 650;
 const money = (paise: string | number | bigint) =>
   `₹${(Number(paise) / 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 const cardName = (card: number) =>
@@ -162,12 +166,31 @@ function OneDayTable({ userId }: { userId?: string }) {
     )
       playGameSound("tick", OD_GAME);
   }, [game.seconds, stage, sound, game.connected]);
+  // Settlement credits the wallet the moment Tiger is disclosed, so the
+  // balance, history and win receipt would land while the card still turns.
+  const tigerTurned =
+    data?.round.phase === "result" && data.round.tiger !== undefined
+      ? data.round.id
+      : null;
+  const [landedRound, setLandedRound] = useState<number | null>(null);
+  useEffect(() => {
+    if (tigerTurned === null) return;
+    const timer = window.setTimeout(
+      () => setLandedRound(tigerTurned),
+      TIGER_TURN_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [tigerTurned]);
+  const landed = tigerTurned !== null && landedRound === tigerTurned;
+  const shown = useHeldValue(data, data?.round.phase === "result" && !landed);
+  useResultHold(!!data?.slips.length && !landed);
   const win = useRoundWin({
     game: OD_GAME,
     userId,
     roundId: data ? String(data.round.id) : null,
     eligible:
-      data?.round.phase === "result" &&
+      landed &&
+      !!data &&
       !!data.slips.length &&
       data.slips.every((s) => s.payoutPaise !== null),
     bets:
@@ -204,7 +227,7 @@ function OneDayTable({ userId }: { userId?: string }) {
             : game.placed
               ? "Second bet accepted"
               : "Second chance - updated bhav"
-          : phase === "tiger-reveal"
+          : phase === "tiger-reveal" || !landed
             ? "Opening Tiger..."
             : (data?.round.winner?.toUpperCase() ?? "") +
               (data?.round.winner === "tie" ? " GAME" : " WINS");
@@ -306,7 +329,7 @@ function OneDayTable({ userId }: { userId?: string }) {
             <span>
               <small>SHARED WALLET</small>
               <b data-testid="od-balance">
-                {data ? money(data.balancePaise) : "—"}
+                {shown ? money(shown.balancePaise) : "—"}
               </b>
             </span>
           </Link>
@@ -384,7 +407,7 @@ function OneDayTable({ userId }: { userId?: string }) {
                   side="Dragon"
                   dealing={phase === "first"}
                   card={data?.round.dragon}
-                  won={phase === "result" && data?.round.winner === "dragon"}
+                  won={landed && data?.round.winner === "dragon"}
                 />
                 <div className="od-versus">
                   <Swords size={22} />
@@ -401,7 +424,7 @@ function OneDayTable({ userId }: { userId?: string }) {
                   side="Tiger"
                   dealing={phase === "first"}
                   card={data?.round.tiger}
-                  won={phase === "result" && data?.round.winner === "tiger"}
+                  won={landed && data?.round.winner === "tiger"}
                 />
               </div>
             </OneDayStudio>
@@ -517,7 +540,7 @@ function OneDayTable({ userId }: { userId?: string }) {
         </Link>
         <div className="od-recent">
           <div className="od-road">
-            {data?.history.slice(0, 12).map((r) => (
+            {shown?.history.slice(0, 12).map((r) => (
               <span
                 key={r.id}
                 className={"od-bead-" + r.winner}
@@ -533,7 +556,7 @@ function OneDayTable({ userId }: { userId?: string }) {
                 {r.winner === "dragon" ? "D" : r.winner === "tiger" ? "T" : "="}
               </span>
             ))}
-            {!data?.history.length && <small>Recent results</small>}
+            {!shown?.history.length && <small>Recent results</small>}
           </div>
           <button onClick={() => setInfo("history")}>My history ↗</button>
         </div>
@@ -638,12 +661,12 @@ function OneDayTable({ userId }: { userId?: string }) {
           {info === "bets" && (
             <div className="od-history-list">
               <p>
-                Available wallet: <b>{data ? money(data.balancePaise) : "—"}</b>
+                Available wallet: <b>{shown ? money(shown.balancePaise) : "—"}</b>
                 <br />
                 Total debited this round: <b>{money(game.spent)}</b>
               </p>
-              {data?.slips.length ? (
-                data.slips.map((s) => (
+              {shown?.slips.length ? (
+                shown.slips.map((s) => (
                   <div key={s.id}>
                     <b>
                       {s.stage === "first" ? "First" : "Second"} chance ·{" "}
@@ -669,8 +692,8 @@ function OneDayTable({ userId }: { userId?: string }) {
           )}
           {info === "history" && (
             <div className="od-history-list">
-              {data?.recent.length ? (
-                data.recent.map((s) => (
+              {shown?.recent.length ? (
+                shown.recent.map((s) => (
                   <div key={s.id}>
                     <b>
                       #{s.roundId} · {s.stage} chance

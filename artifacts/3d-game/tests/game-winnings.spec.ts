@@ -102,16 +102,49 @@ test("successful game action refreshes immediately without a socket and opens th
   }, moduleUrl);
   await expect(page.getByTestId("winning-notice")).toBeVisible({ timeout: 4000 });
   await expect(page.getByTestId("winning-notice")).toContainText("Profit +₹98.00");
-  await page.screenshot({ path: "../../tmp/game-winnings/new-win-mobile.png" });
   const notice = await page.getByTestId("winning-notice").boundingBox();
   expect(notice!.x).toBeGreaterThanOrEqual(0);
   expect(notice!.x + notice!.width).toBeLessThanOrEqual(390);
   await page.getByRole("button", { name: "View result", exact: true }).click();
   await expect(page.getByTestId("game-winnings-dialog")).toContainText("₹198.00");
+  // Capture the persistent receipt after testing the transient notice. Font
+  // loading during a screenshot must not consume the notice's dismissal timer.
+  await page.screenshot({ path: "../../tmp/game-winnings/new-win-mobile.png" });
   await page.keyboard.press("Escape");
   await page.reload();
   await expect(page.getByTestId("game-last-win")).toHaveText("₹198.00");
   await expect(page.getByTestId("winning-notice")).toHaveCount(0);
+});
+
+test("a result the game has not shown yet stays in progress until the game releases it", async ({ page }) => {
+  await mockGames(page);
+  let settled = false, servedSettled = 0;
+  await page.route("**/api/reports/gameresults?**", route => {
+    if (settled) servedSettled++;
+    return route.fulfill({ json: report([bet("held", "dice", settled ? "won" : "placed", "10000", settled ? "19800" : "0")]) });
+  });
+  await page.goto("/dice");
+  await expect(page.getByTestId("game-last-win")).toHaveText("Bet in progress");
+  // The game's own animation is still running (a ball rolling, a wheel
+  // spinning) while the server settles — exactly the roulette case.
+  await page.evaluate(async () => {
+    const reveal = await import(/* @vite-ignore */ "/src/lib/resultReveal.ts");
+    (window as unknown as { releaseResult: () => void }).releaseResult = reveal.holdResults();
+  });
+  settled = true;
+  await expect.poll(() => servedSettled, { timeout: 12000 }).toBeGreaterThan(0);
+  await page.waitForTimeout(500);
+  await expect(page.getByTestId("game-last-win")).toHaveText("Bet in progress");
+  await expect(page.getByTestId("winning-notice")).toHaveCount(0);
+  await page.getByTestId("open-game-winnings").click();
+  await expect(page.locator('[data-bet="held"]')).toContainText("In progress");
+  await expect(page.getByTestId("game-winnings-dialog")).not.toContainText("₹198.00");
+  await page.keyboard.press("Escape");
+  // The ball lands: now, and only now, the win is announced.
+  await page.evaluate(() => (window as unknown as { releaseResult: () => void }).releaseResult());
+  await expect(page.getByTestId("game-last-win")).toHaveText("₹198.00");
+  await expect(page.getByTestId("winning-notice")).toBeVisible();
+  await expect(page.getByTestId("winning-notice-amount")).toHaveText("₹198.00");
 });
 
 test("a native win popup suppresses a duplicate announcement", async ({ page }) => {

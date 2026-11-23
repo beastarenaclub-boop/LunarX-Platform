@@ -42,6 +42,8 @@ import { useTableRound, type MyBet } from "@/components/table/useTableRound";
 import LastResultBanner, { useLastRevealedOutcome } from "@/components/table/LastResultBanner";
 import { CoinSettingsButton, CoinSettingsDialog, useCoinPreferences } from "@/components/table/CoinSettings";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
+import { useHeldValue } from "@/components/table/useHeldValue";
+import { useResultHold } from "@/lib/resultReveal";
 import LiveBetsPanel from "@/components/table/LiveBetsPanel";
 import ChipRack from "@/components/table/chips";
 import DiceTable from "@/components/lucky7/DiceTable";
@@ -344,6 +346,13 @@ export default function Lucky7() {
   const showingCurrentResult = landed && rest?.roundId === roundId
     && (phase === "reveal" || phase === "settling");
   const winningSpot = showingCurrentResult ? resultOf(rest.total) : null;
+  // The throw can still be rolling when the server settles (the tail above runs
+  // into the settlement window). Until these dice rest, keep the credited
+  // balance, settled slips and the shared results bar on their pre-roll state.
+  const revealPending = phase != null && phase !== "betting" && roundId != null
+    && !(landed && rest?.roundId === roundId);
+  useResultHold(revealPending);
+  const shownBalance = useHeldValue(balance.data?.balance, revealPending) ?? "0";
 
   // Spot taps stage chips for this round’s countdown.
   const coinPreferences = useCoinPreferences("lucky-7", user?.id);
@@ -577,7 +586,9 @@ export default function Lucky7() {
         {t(lang, "lucky7YourBets")}
       </div>
       {myBets.length > 0 ? (
-        myBets.map((b) => {
+        myBets.map((slip) => {
+          const b = revealPending && slip.status === "settled"
+            ? { ...slip, status: "pending", payoutAmount: "0" } : slip;
           const settled = b.status === "settled";
           const win = settled && BigInt(b.payoutAmount || "0") > 0n;
           return (
@@ -780,7 +791,7 @@ export default function Lucky7() {
           <div className="lucky7-header-details">
             <p>{t(lang, "lucky7Tagline")}</p>
             <div className="lucky7-wallet"><span>{t(lang, "balance")}</span>
-              <strong data-testid="text-lucky7-balance">₹{formatRupees(balance.data?.balance ?? "0")}</strong>
+              <strong data-testid="text-lucky7-balance">₹{formatRupees(shownBalance)}</strong>
             </div>
           </div>
         </div>

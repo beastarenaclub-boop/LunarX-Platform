@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -29,6 +30,8 @@ import {
   type CollectionRound,
 } from "@workspace/api-zod/instant-collection";
 import { formatRupees } from "@/lib/format";
+import { useResultHold } from "@/lib/resultReveal";
+import { useHeldValue } from "@/components/table/useHeldValue";
 import { subscribeAudioState, unlockAudio } from "@/game/audio";
 import PirateWater from "./PirateWater";
 import "./pirate-road.css";
@@ -117,10 +120,14 @@ export default function PirateRoad(p: Props) {
   const [width, setWidth] = useState(1200),
     [fullscreen, setFullscreen] = useState(false),
     [screenError, setScreenError] = useState("");
+  // A crossing is settled in its response (the final lane pays at once), but
+  // the captain still has the hop ahead: the result line, the balance and the
+  // shared results wait for the landing.
+  const [landing, setLanding] = useState(false);
   const active = p.round?.status === "active",
     lost = p.round?.status === "lost";
   const step = p.round?.step ?? 0,
-    result = !active ? p.round : null;
+    result = !active && !landing ? p.round : null;
   const rtp = active ? p.round!.rtp : (p.config?.rtp ?? 0.97);
   const cap = active
     ? p.round!.maxMultiplier
@@ -132,6 +139,17 @@ export default function PirateRoad(p: Props) {
   const sceneWidth = Math.max(width, 600),
     trackWidth = startWidth + laneWidth * 12 + 90;
   const position = step + (lost ? 1 : 0);
+  const landedAt = useRef({ id: p.round?.id, position });
+  useLayoutEffect(() => {
+    const previous = landedAt.current;
+    landedAt.current = { id: p.round?.id, position };
+    if (!p.motion || previous.id !== p.round?.id || position <= previous.position) return;
+    setLanding(true);
+    const timer = setTimeout(() => setLanding(false), 550);
+    return () => { clearTimeout(timer); setLanding(false); };
+  }, [p.round?.id, position, p.motion]);
+  useResultHold(landing);
+  const shownBalance = useHeldValue(p.balance, p.busy || landing);
   const birdX = position
     ? startWidth + (position - 0.5) * laneWidth
     : width < 600
@@ -221,7 +239,7 @@ export default function PirateRoad(p: Props) {
               <div className="pr-balance">
                 <small>BALANCE</small>
                 <strong data-testid="collection-balance">
-                  {p.balance === undefined ? "Loading…" : money(p.balance)}
+                  {shownBalance === undefined ? "Loading…" : money(shownBalance)}
                 </strong>
               </div>
               <div className="pr-stage-tools">
@@ -394,7 +412,7 @@ export default function PirateRoad(p: Props) {
               aria-live="polite"
               data-testid="collection-result"
             >
-              {p.busy ? (
+              {p.busy || landing ? (
                 <>
                   <RefreshCw size={15} className="pr-spin" />
                   <span>Making your move…</span>

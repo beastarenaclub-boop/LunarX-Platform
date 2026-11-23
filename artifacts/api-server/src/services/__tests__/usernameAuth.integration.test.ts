@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { request } from "node:http";
 
 test(
-  "players sign up with a generated cry+4-digit username and log in with it",
+  "players sign up with a name-based username (5 letters + 3 digits) and log in with it",
   { skip: !process.env.NETWORK_INTEGRATION },
   async () => {
     assert.ok(
@@ -13,6 +13,7 @@ test(
     const { eq } = await import("drizzle-orm");
     const { hashPassword } = await import("../../lib/password");
     const { resetLoginThrottle } = await import("../loginThrottle");
+    const { findUserByLogin, generateUsername, usernamePrefix } = await import("../auth");
     const { default: app } = await import("../../app");
     const server = app.listen(0, "127.0.0.1");
     await new Promise<void>((r) => server.once("listening", r));
@@ -64,12 +65,21 @@ test(
 
     try {
       resetLoginThrottle();
-      // Signup: no email; the server generates the username.
+      // Signup: no email; the username is the first 5 letters of the name
+      // + 3 random digits.
       const signup = await call("/auth/signup", { password, displayName: "Test Player" });
       const username: string = signup.json.username;
-      assert.match(username, /^cry\d{4}$/);
-      assert.equal(username.length, 7);
+      assert.match(username, /^testp\d{3}$/);
       assert.equal(signup.json.user.username, username);
+
+      // Short names use all their letters; accents are dropped; names without
+      // Latin letters (or no name) fall back to "cry". Checked directly so the
+      // per-IP auth limiter budget (20 requests) is left for the flow below.
+      assert.equal(usernamePrefix("Raj"), "raj");
+      assert.equal(usernamePrefix("  José  Kumar"), "josek");
+      assert.equal(usernamePrefix("राहुल"), "cry");
+      assert.equal(usernamePrefix(null), "cry");
+      assert.match(await generateUsername("Raj"), /^raj\d{3}$/);
 
       // Weak passwords are refused.
       await call("/auth/signup", { password: "password" }, 400);
@@ -84,7 +94,7 @@ test(
 
       // Wrong password and unknown usernames give the same generic error.
       const wrong = await call("/auth/login", { username, password: "Wrong@Pass123" }, 401);
-      const unknown = await call("/auth/login", { username: "cry0000x", password }, 401);
+      const unknown = await call("/auth/login", { username: "zzzzz0000x", password }, 401);
       assert.equal(wrong.json.error.message, unknown.json.error.message);
 
       // Per-account lockout after repeated failures (password spraying).
@@ -107,6 +117,26 @@ test(
       });
       await call("/auth/login", { email: legacyEmail, password });
       await call("/auth/login", { username: legacyEmail, password });
+
+      // Older "cry" + 4-digit usernames still resolve at login.
+      let legacyUsername = "";
+      for (let n = 0; n < 10000 && !legacyUsername; n++) {
+        const candidate = `cry${String(n).padStart(4, "0")}`;
+        const [taken] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, candidate));
+        if (!taken) legacyUsername = candidate;
+      }
+      const [legacyUser] = await db
+        .insert(usersTable)
+        .values({
+          email: legacyUsername,
+          emailNormalized: legacyUsername,
+          username: legacyUsername,
+          passwordHash: await hashPassword(password),
+          role: "player",
+          channel: "b2c",
+        })
+        .returning();
+      assert.equal((await findUserByLogin(legacyUsername.toUpperCase()))?.id, legacyUser!.id);
 
       // Reset tokens are only exposed on development/test servers.
       const reset = await call("/auth/password-reset/request", { username });

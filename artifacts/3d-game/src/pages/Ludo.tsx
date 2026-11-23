@@ -29,6 +29,8 @@ import {
   type LudoState,
 } from "@workspace/api-zod/ludo";
 import { useAuth } from "@/lib/auth";
+import { useResultHold } from "@/lib/resultReveal";
+import { useHeldValue } from "@/components/table/useHeldValue";
 import { useLudo } from "@/components/ludo/useLudo";
 import { LudoBoard, COLORS } from "@/components/ludo/LudoBoard";
 import {
@@ -247,6 +249,12 @@ function LudoGame({
       !playing &&
       !movement?.busy &&
       !presentation.catchingUp;
+  // The deciding move is settled (prize paid) as the server accepts it, while
+  // the board is still playing it out: the wallet and the shared results wait
+  // until the presentation has reached the end of the match.
+  const finishing = !!show && !waiting && !playing && !ended;
+  useResultHold(finishing);
+  const shownBalance = useHeldValue(data?.balancePaise, finishing);
   const home = !show && menu.screen === "home";
   const view = home ? "home" : !show ? "setup" : waiting ? "search" : "board";
   useLayoutEffect(() => {
@@ -440,8 +448,8 @@ function LudoGame({
               <Coins size={22} />
               <span>
                 <small>{demo ? "Demo wallet" : "Your wallet"}</small>
-                <b title={data ? money(data.balancePaise) : undefined}>
-                  {demo ? "∞" : data ? money(data.balancePaise) : "—"}
+                <b title={shownBalance !== undefined ? money(shownBalance) : undefined}>
+                  {demo ? "∞" : shownBalance !== undefined ? money(shownBalance) : "—"}
                 </b>
               </span>
             </div>
@@ -553,9 +561,9 @@ function LudoGame({
                     >
                       {matchClock}
                     </b>
-                    <span title={data ? money(data.balancePaise) : undefined}>
+                    <span title={shownBalance !== undefined ? money(shownBalance) : undefined}>
                       <Coins size={13} />{" "}
-                      {demo ? "∞" : data ? money(data.balancePaise) : "—"}
+                      {demo ? "∞" : shownBalance !== undefined ? money(shownBalance) : "—"}
                     </span>
                   </div>
                   <small>

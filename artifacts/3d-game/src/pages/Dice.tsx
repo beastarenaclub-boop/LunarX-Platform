@@ -20,6 +20,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { formatRupees, rupeesToPaise } from "@/lib/format";
+import { useResultHold } from "@/lib/resultReveal";
+import { useHeldValue } from "@/components/table/useHeldValue";
 import {
   customFetch,
   ApiError,
@@ -158,6 +160,10 @@ export default function Dice() {
   const [lastResult, setLastResult] = useState<DiceState | null>(null);
   const [animatedRoll, setAnimatedRoll] = useState<number | null>(null);
   const [completedResult, setCompletedResult] = useState<DiceState | null>(null);
+  // From the bet request until the pointer has stopped on the settled roll.
+  const [rolling, setRolling] = useState(false);
+  useResultHold(rolling);
+  const shownBalance = useHeldValue(balance.data?.balance, rolling);
   const roundWin = useRoundWin({ game: "dice", userId: user?.id, roundId: completedResult?.id ?? null,
     eligible: !!completedResult,
     bets: completedResult ? [{ status: "settled", totalStake: completedResult.stakeAmount, payoutAmount: completedResult.payoutAmount ?? "0" }] : [] });
@@ -306,6 +312,7 @@ export default function Dice() {
     }
     unlockAudio();
     if (sound) sfx.diceRoll();
+    setRolling(true);
     try {
       const out = await customFetch<DiceState>("/api/dice/roll", {
         method: "POST",
@@ -319,7 +326,10 @@ export default function Dice() {
           pricingVersion: config.data?.pricingVersion,
         }),
       });
-      setLastResult(out);
+      // The response already carries the settled roll (and the wallet push may
+      // already be in), but the pointer still has to travel: win colour,
+      // payout, sounds, history and balance all wait for it to stop.
+      setLastResult(null);
       notifyPlayStarted();
       // Brief roll animation: tween from current displayed roll → final.
       const startVal = animatedRoll ?? 50;
@@ -334,25 +344,26 @@ export default function Dice() {
         else setAnimatedRoll(out.roll);
       };
       requestAnimationFrame(animate);
+      await new Promise((resolve) => window.setTimeout(resolve, dur));
+      setLastResult(out);
+      setCompletedResult(out);
       invalidateWallet();
       if (sound) {
-        if (out.didWin) voiceRoundWin("dice", out.id);
-        else voiceRoundLoss("dice", out.id);
-      }
-      window.setTimeout(() => {
-        setCompletedResult(out);
-        if (sound) {
-          if (out.didWin) {
-            sfx.diceWin();
-          }
-          else sfx.diceLose();
+        if (out.didWin) {
+          sfx.diceWin();
+          voiceRoundWin("dice", out.id);
+        } else {
+          sfx.diceLose();
+          voiceRoundLoss("dice", out.id);
         }
-      }, 600);
+      }
       return out;
     } catch (err) {
       toast.error(apiMessage(err, "Roll failed"));
       void config.refetch();
       return null;
+    } finally {
+      setRolling(false);
     }
   };
 
@@ -458,7 +469,7 @@ export default function Dice() {
                   className="text-sm font-bold text-emerald-400 font-mono"
                   data-testid="text-dice-balance"
                 >
-                  ₹{formatRupees(balance.data?.balance ?? "0")}
+                  ₹{formatRupees(shownBalance ?? "0")}
                 </span>
               </div>
             )}

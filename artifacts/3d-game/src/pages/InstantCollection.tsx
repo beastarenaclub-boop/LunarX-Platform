@@ -6,6 +6,8 @@ import { customFetch, getGetWalletBalanceQueryKey, useGetWalletBalance } from "@
 import { collectionGame, collectionMultiplier, collectionSteps, progressive, type CollectionCode, type CollectionConfig, type CollectionOptions, type CollectionRound, type CollectionState } from "@workspace/api-zod/instant-collection";
 import { useAuth } from "@/lib/auth";
 import { formatRupees } from "@/lib/format";
+import { useResultHold } from "@/lib/resultReveal";
+import { useHeldValue } from "@/components/table/useHeldValue";
 import { store, useStore } from "@/game/store";
 import { playGameSound, unlockAudio } from "@/game/audio";
 import { notifyPlayStarted, updateSettings } from "@/game/engine";
@@ -64,6 +66,10 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
   const enough = balance.data !== undefined && paise <= Number(balance.data.balance);
   const within = config.data && paise >= Number(config.data.minStakePaise) && paise <= Number(config.data.maxStakePaise);
   const ready = !!config.data?.enabled && !!state.data && !state.isError && !!balance.data;
+  // A move is settled in its response and the wallet push can land before it;
+  // duel and fishing then play an 850 ms reveal. Hold until the round is shown.
+  useResultHold(busy);
+  const shownBalance = useHeldValue(balance.data?.balance, busy);
   const refresh = async () => { await Promise.all([qc.invalidateQueries({ queryKey: key }), qc.invalidateQueries({ queryKey: getGetWalletBalanceQueryKey() }), qc.invalidateQueries({ queryKey: ["/api/wallet/balances"] }), qc.invalidateQueries({ queryKey: ["/api/bets"] })]); };
   const remember = (p: PendingBet | null) => { setPending(p); try { p ? localStorage.setItem(pendingKey, JSON.stringify(p)) : localStorage.removeItem(pendingKey); } catch { /* optional recovery storage */ } };
   const cue = (kind: "select" | "bet" | "win" | "crash" | "reveal" | "clear") => {
@@ -176,7 +182,7 @@ export default function InstantCollection({ gameCode }: { gameCode: CollectionCo
     onResult={settled => cue(settled.status === "lost" ? "crash" : BigInt(settled.payoutAmount) > BigInt(settled.stakeAmount) ? "win" : "clear")}
   >{dialog}</CoinFlip>;
   return <div className={`ic-page ic-theme-${game.theme}`} style={{ "--ic-accent": game.accent } as CSSProperties} data-testid="collection-page">
-    <header className="ic-header"><div className="ic-brand"><Link href="/" aria-label="Back to lobby" className="ic-icon"><ArrowLeft size={19} /></Link><span className="ic-logomark"><Sparkles size={22} /></span><div><small>LUNAR ORIGINALS <span>INSTANT</span></small><h1>{game.name}</h1></div></div><div className="ic-header-right"><div className="ic-wallet"><Wallet size={18} /><div><small>WALLET BALANCE</small><strong data-testid="collection-balance">{balance.data ? amount(balance.data.balance) : "Loading…"}</strong></div></div><button className="ic-icon" onClick={() => setPanel("rules")} aria-label="Game rules"><CircleHelp size={20} /></button><button className="ic-icon" aria-label={sound ? "Mute sound" : "Enable sound"} onClick={toggleSound}>{sound ? <Volume2 size={19} /> : <VolumeX size={19} />}</button></div></header>
+    <header className="ic-header"><div className="ic-brand"><Link href="/" aria-label="Back to lobby" className="ic-icon"><ArrowLeft size={19} /></Link><span className="ic-logomark"><Sparkles size={22} /></span><div><small>LUNAR ORIGINALS <span>INSTANT</span></small><h1>{game.name}</h1></div></div><div className="ic-header-right"><div className="ic-wallet"><Wallet size={18} /><div><small>WALLET BALANCE</small><strong data-testid="collection-balance">{shownBalance !== undefined ? amount(shownBalance) : "Loading…"}</strong></div></div><button className="ic-icon" onClick={() => setPanel("rules")} aria-label="Game rules"><CircleHelp size={20} /></button><button className="ic-icon" aria-label={sound ? "Mute sound" : "Enable sound"} onClick={toggleSound}>{sound ? <Volume2 size={19} /> : <VolumeX size={19} />}</button></div></header>
     <main className="ic-layout"><section className="ic-arena">
       <div className="ic-arena-heading"><span><i /> {active ? "ROUND IN PLAY" : "READY WHEN YOU ARE"}</span><button onClick={() => setPanel("history")}><History size={14} /> Recent rounds</button></div>
       <div className={`ic-stage ic-stage-${game.kind} ${busy ? "ic-is-busy" : ""}`}>

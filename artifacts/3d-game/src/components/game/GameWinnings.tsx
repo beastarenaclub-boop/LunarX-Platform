@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { LOBBY_GAMES } from "@/components/lobby/catalog";
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { formatWinAmount } from "../table/RoundWinPopup";
+import { useResultsHeld } from "@/lib/resultReveal";
 import WinningNotice from "./WinningNotice";
 import "./game-winnings.css";
 
@@ -17,6 +18,10 @@ const aliases: Record<string, string> = {
 const money = (amount: string | bigint, demo: boolean) => `${demo ? "" : "₹"}${formatWinAmount(BigInt(amount))}${demo ? " coins" : ""}`;
 const paid = (bet: Bet) => bet.status === "won" || bet.status === "cashed_out";
 const winning = (bet: Bet) => paid(bet) && BigInt(bet.payoutAmount) > BigInt(bet.stakeAmount);
+/** How far back an already-settled bet can belong to a round the game has not shown yet, on arrival. */
+const ARRIVAL_HOLD_WINDOW_MS = 90_000;
+/** A withheld result reads as the bet still running — win, loss and amount alike. */
+const asRunning = (bet: Bet): Bet => ({ ...bet, status: "placed", payoutAmount: "0" });
 type GameReport = { items: { id: string; at: string; game: string; reference: string | null; stake: string; payout: string | null; status: Bet["status"] }[]; nextCursor?: string | null };
 
 /** Server receipts stay available after the result animation or the next round. */
@@ -84,19 +89,63 @@ function PersonalWinnings({ userId, game, name, demo }: { userId: string; game: 
     window.addEventListener("table-round-win", refresh);
     return () => { unsubscribe(); window.removeEventListener("table-round-win", refresh); };
   }, [refresh]);
+  /**
+   * Results the server has settled but the game on screen has not SHOWN yet.
+   *
+   * The report reads the server, and the server settles before the animation
+   * ends — a roulette round is paid some ten seconds before the ball stops, an
+   * instant game in the bet response itself. Printing "NEW WIN ₹X" (or flipping
+   * "Bet in progress" to a loss) at settlement told the player the result
+   * before their game did. While a game holds (`useResultHold`), a freshly
+   * settled bet is drawn as still running; when the last hold drops, it is
+   * released, and a win gets its notice then. The value says whether that
+   * release should raise a notice: a result found already settled on arrival
+   * is history, not news.
+   */
+  const resultsHeld = useResultsHeld();
+  const [withheld, setWithheld] = useState<ReadonlyMap<string, boolean>>(() => new Map());
   useEffect(() => {
     const entries = receipts.data?.pages[0]?.entries;
     if (!entries) return;
     const current = entries.filter(bet => bet.userId === userId && bet.gameCode === game);
     if (previous.current) {
-      const fresh = current.filter(bet => winning(bet) && !announced.current.has(bet.id) &&
+      const settledNow = current.filter(bet => bet.status !== "placed" &&
         (previous.current!.get(bet.id) === "placed" || !previous.current!.has(bet.id)));
-      if (fresh.length) setNotices(queue => [...queue, ...fresh.slice().reverse()]);
+      if (resultsHeld) {
+        // Read `announced` NOW: the updater runs on a later render, after this
+        // pass has already marked every winner announced.
+        const held = settledNow.map(bet => [bet.id, !announced.current.has(bet.id)] as const);
+        if (held.length) setWithheld(map => {
+          const next = new Map(map);
+          for (const [id, notify] of held) if (!next.has(id)) next.set(id, notify);
+          return next;
+        });
+      } else {
+        const fresh = settledNow.filter(bet => winning(bet) && !announced.current.has(bet.id));
+        if (fresh.length) setNotices(queue => [...queue, ...fresh.slice().reverse()]);
+      }
+    } else if (resultsHeld) {
+      // Arriving while the game is mid-reveal: the newest settled bets may be
+      // the round it is still animating. Kept back quietly.
+      const recent = current.filter(bet => bet.status !== "placed" &&
+        Date.now() - Date.parse(bet.placedAt) < ARRIVAL_HOLD_WINDOW_MS);
+      if (recent.length) setWithheld(new Map(recent.map(bet => [bet.id, false])));
     }
     current.filter(winning).forEach(bet => announced.current.add(bet.id));
     // Only the current page generates alerts. Opening older history never does.
     previous.current = new Map(current.map(bet => [bet.id, bet.status]));
+    // `resultsHeld` is read, not followed: a hold changing is handled by the
+    // release below, and re-running this would diff the page against itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receipts.data, userId, game]);
+  // The game has shown its result: let the withheld receipts through.
+  useEffect(() => {
+    if (resultsHeld || withheld.size === 0) return;
+    const entries = receipts.data?.pages[0]?.entries ?? [];
+    const released = entries.filter(bet => withheld.get(bet.id) === true && winning(bet));
+    if (released.length) setNotices(queue => [...queue, ...released.slice().reverse()]);
+    setWithheld(new Map());
+  }, [resultsHeld, withheld, receipts.data]);
   const dismissNotice = useCallback(() => setNotices(queue => queue.slice(1)), []);
   useRealtimeTopic<{ type: string }>(`wallet:${userId}`, event => { if (event.type === "balance") refresh(); });
   useRealtimeTopic<{ type: string; userId: string; gameCode: string }>("bets:global", event => {
@@ -104,7 +153,8 @@ function PersonalWinnings({ userId, game, name, demo }: { userId: string; game: 
   });
   useRealtimeResync(refresh);
   const rows = [...new Map((receipts.data?.pages.flatMap(page => page.entries ?? []) ?? [])
-    .filter(bet => bet.userId === userId && bet.gameCode === game).map(bet => [bet.id, bet])).values()];
+    .filter(bet => bet.userId === userId && bet.gameCode === game)
+    .map(bet => [bet.id, withheld.has(bet.id) ? asRunning(bet) : bet])).values()];
   const wins = rows.filter(winning).sort((a, b) => Date.parse(b.settledAt ?? b.placedAt) - Date.parse(a.settledAt ?? a.placedAt));
   const last = wins[0];
   const pending = rows.some(bet => bet.status === "placed");

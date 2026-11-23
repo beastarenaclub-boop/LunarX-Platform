@@ -47,6 +47,7 @@ import CricketBroadcast from "./CricketBroadcast";
 import { FIXTURES, sportForFixture } from '../../../../../lib/virtual-sports/fixtures.mjs';
 import { useMatchCommentary } from './MatchCommentary';
 import { installAudioAutostart } from '../../game/audioAutostart';
+import { useResultHold } from "../../lib/resultReveal";
 import "./virtual-sports.css";
 
 const number = (n: number) => n.toLocaleString("en-IN");
@@ -367,6 +368,10 @@ export default function VirtualSports({
   const bets = state?.bets.filter((b) => b.sport === selected) ?? [],
     activeBets = bets.filter((b) => b.status === "pending"),
     results = state?.results.filter((r) => r.sport === selected) ?? [];
+  // A match is paid the moment it ends, which this page learns only from its
+  // next state poll (the wallet push can land first): keep the shared results
+  // back while one of this player's bets is riding on a match still on screen.
+  useResultHold(phase === "live" && !!state?.bets.some((b) => b.status === "pending"));
   const event = round?.events.at(-1),
     totalStake = activeBets.reduce((a, b) => a + b.stake, 0);
   const matchClock =

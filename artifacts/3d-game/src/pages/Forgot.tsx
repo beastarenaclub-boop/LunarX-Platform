@@ -49,7 +49,7 @@ export default function Forgot() {
                 autoCapitalize="none"
                 autoCorrect="off"
                 spellCheck={false}
-                placeholder="e.g. cry1234"
+                placeholder="e.g. rahul482"
                 required
                 maxLength={254}
                 value={username}

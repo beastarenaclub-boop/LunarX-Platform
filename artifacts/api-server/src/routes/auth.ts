@@ -96,11 +96,12 @@ router.post("/signup", authRateLimiter, async (req, res, next) => {
     }
 
     const passwordHash = await hashPassword(input.password);
-    // Players get a random "cry" + 4-digit username. The email column is
-    // required, so it mirrors the username (no real email is collected).
+    // Players get a username from their name: first 5 letters + 3 random
+    // digits (rahul482). The email column is required, so it mirrors the
+    // username (no real email is collected).
     let user: typeof usersTable.$inferSelect | undefined;
     for (let attempt = 0; attempt < 5 && !user; attempt++) {
-      const username = await generateUsername();
+      const username = await generateUsername(displayName);
       try {
         [user] = await db
           .insert(usersTable)

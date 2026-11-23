@@ -39,7 +39,7 @@ export default function Signup() {
     signup.mutate({
       data: {
         password,
-        displayName: displayName || undefined,
+        displayName: displayName.trim() || undefined,
       },
     });
   }
@@ -57,14 +57,18 @@ export default function Signup() {
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-3">
             <p className="text-xs text-muted-foreground">
-              Your username (like <strong>cry1234</strong>) is created
-              automatically after signup. You will use it to sign in.
+              Your username is made from the first 5 letters of your name + 3
+              random numbers (like <strong>rahul482</strong>). You will use it
+              to sign in.
             </p>
             <div className="space-y-1.5">
-              <Label htmlFor="displayName">Display name (optional)</Label>
+              <Label htmlFor="displayName">Name</Label>
               <Input
                 id="displayName"
                 type="text"
+                autoComplete="name"
+                required
+                maxLength={50}
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 data-testid="input-signup-name"

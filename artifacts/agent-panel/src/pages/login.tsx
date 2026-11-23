@@ -54,7 +54,7 @@ export default function Login() {
                 autoCorrect="off"
                 spellCheck={false}
                 aria-label="Username"
-                placeholder="Username (e.g. cry1234)"
+                placeholder="Username (e.g. rahul482)"
                 maxLength={254}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}

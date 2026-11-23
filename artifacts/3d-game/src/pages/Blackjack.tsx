@@ -34,6 +34,8 @@ import RoundPhaseBanner from "@/components/table/RoundPhaseBanner";
 import LiveBetsPanel from "@/components/table/LiveBetsPanel";
 import { TableCoinRack, useCoinPreferences } from "@/components/table/CoinSettings";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
+import { useHeldValue } from "@/components/table/useHeldValue";
+import { useResultHold } from "@/lib/resultReveal";
 import { GameRulesButton } from "@/components/game/GameRules";
 
 interface BjHand {
@@ -174,11 +176,35 @@ export default function Blackjack() {
   // Keep the editable amount field independent of denomination filtering.
   const [stakeRupees, setStakeRupees] = useState<number>(coinPreferences.chip);
   const [hand, setHand] = useState<BjState | null>(null);
-  const roundWin = useRoundWin({ game: "blackjack", userId: user?.id, roundId: hand?.id ?? null,
-    eligible: hand?.status === "settled", bets: hand ? [hand] : [] });
   const [dealt, setDealt] = useState(false);
   const [autoStood, setAutoStood] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
+  // A settled hand arrives with the dealer's whole hand at once, but its cards
+  // still turn one by one (PlayingCard: 200ms apart, 500ms turn). The result,
+  // the payout and the credited balance wait until the last card is face up.
+  const [revealedHandId, setRevealedHandId] = useState<string | null>(null);
+  const settledHandId = hand?.status === "settled" ? hand.id : null;
+  const settledCards = hand?.status === "settled"
+    ? Math.max(hand.dealerCards.length, ...hand.hands.map((h) => h.cards.length))
+    : 0;
+  useEffect(() => {
+    if (!settledHandId) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(
+      () => setRevealedHandId(settledHandId),
+      reduced ? 0 : Math.max(0, settledCards - 1) * 200 + 500,
+    );
+    return () => window.clearTimeout(timer);
+  }, [settledHandId, settledCards]);
+  const handRevealed = !!hand && hand.status === "settled" && revealedHandId === hand.id;
+  // Hold from the moment an action could settle the hand (or the round
+  // auto-stands it) until its cards have shown the result.
+  const resultPending = busy !== null || (!!hand && !handRevealed &&
+    (hand.status === "settled" || round.phase === "settling"));
+  useResultHold(resultPending);
+  const shownBalance = useHeldValue(balance.data?.balance, resultPending);
+  const roundWin = useRoundWin({ game: "blackjack", userId: user?.id, roundId: hand?.id ?? null,
+    eligible: handRevealed, bets: hand ? [hand] : [] });
   const [fairnessOpen, setFairnessOpen] = useState(false);
   const [verifyOpen, setVerifyOpen] = useState<BjState | null>(null);
   const [verifyResult, setVerifyResult] = useState<Record<
@@ -262,7 +288,7 @@ export default function Blackjack() {
   // React to settled state: toast + wallet invalidation (once per hand).
   const settledToastRef = useRef<string | null>(null);
   useEffect(() => {
-    if (!hand || hand.status !== "settled") return;
+    if (!hand || !handRevealed) return;
     if (settledToastRef.current === hand.id) return;
     settledToastRef.current = hand.id;
     invalidateWallet();
@@ -282,7 +308,7 @@ export default function Blackjack() {
     } else {
       toast.error("Dealer wins this one");
     }
-  }, [hand, invalidateWallet, sound]);
+  }, [hand, handRevealed, invalidateWallet, sound]);
 
   const post = async (path: string, body?: unknown) => {
     return customFetch<BjState>(path, {
@@ -573,7 +599,7 @@ export default function Blackjack() {
                 className="text-sm font-bold text-indigo-300 font-mono"
                 data-testid="text-blackjack-balance"
               >
-                ₹{formatRupees(balance.data?.balance ?? "0")}
+                ₹{formatRupees(shownBalance ?? "0")}
               </span>
             </div>
             <GameRulesButton gameCode="blackjack" />
@@ -598,7 +624,7 @@ export default function Blackjack() {
             durationMs={round.phaseDurationMs}
             settleDurationMs={round.config?.settleDurationMs}
             resultSlot={
-              isSettled && hand ? (
+              handRevealed && hand ? (
                 <span>
                   {netResult > 0
                     ? `You won ₹${formatRupees(String(netResult))}`
@@ -620,7 +646,7 @@ export default function Blackjack() {
                 <span className="text-[10px] uppercase font-bold text-white/50">
                   Dealer
                 </span>
-                {hand && hand.dealerTotal !== null && (
+                {hand && hand.dealerTotal !== null && (!isSettled || handRevealed) && (
                   <Badge
                     variant="outline"
                     className="text-[10px] bg-white/5 border-white/20 text-white/80 font-mono"
@@ -710,12 +736,12 @@ export default function Blackjack() {
                           Doubled
                         </Badge>
                       )}
-                      {h.busted && (
+                      {h.busted && (!isSettled || handRevealed) && (
                         <Badge className="text-[9px] bg-rose-500/20 text-rose-300 border-rose-400/30">
                           Bust
                         </Badge>
                       )}
-                      {res && (
+                      {res && handRevealed && (
                         <Badge
                           className={cn(
                             "text-[9px] border",
@@ -746,7 +772,7 @@ export default function Blackjack() {
             </div>
 
             {/* Result banner */}
-            {isSettled && hand && (
+            {handRevealed && hand && (
               <div
                 className={cn(
                   "rounded-xl border p-3 text-center font-bold",

@@ -1,18 +1,28 @@
 import { db, usersTable, sessionsTable } from "@workspace/db";
 import type { User } from "@workspace/db";
-import { and, eq, gt, inArray, isNotNull, isNull, notLike, or } from "drizzle-orm";
+import { and, eq, gt, inArray, isNull, like, or } from "drizzle-orm";
 import { randomInt } from "node:crypto";
 import { unauthorized, HttpError } from "../lib/errors";
 
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
 
-/** Player usernames: "cry" + USERNAME_DIGITS random digits, 7 characters total. */
-export const USERNAME_PREFIX = "cry";
-export const USERNAME_DIGITS = 4;
+/**
+ * Login usernames: the first USERNAME_NAME_LETTERS letters of the account's
+ * name + USERNAME_DIGITS random digits, e.g. "Rahul Sharma" -> rahul482.
+ * Shorter names use all their letters (Raj -> raj482); names with no Latin
+ * letters fall back to USERNAME_FALLBACK_PREFIX (cry482).
+ */
+export const USERNAME_NAME_LETTERS = 5;
+export const USERNAME_DIGITS = 3;
+export const USERNAME_FALLBACK_PREFIX = "cry";
+/**
+ * Accepts current names (rahul482), the 4-digit overflow used when a name's
+ * 1,000 numbers are all taken (rahul4821), and older "cry" + 4-digit names
+ * (cry1234), which keep working.
+ */
 export const USERNAME_PATTERN = new RegExp(
-  `^${USERNAME_PREFIX}\\d{${USERNAME_DIGITS}}$`,
+  `^[a-z]{1,${USERNAME_NAME_LETTERS}}\\d{${USERNAME_DIGITS},${USERNAME_DIGITS + 1}}$`,
 );
-const USERNAME_SPACE = 10 ** USERNAME_DIGITS;
 
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -49,8 +59,9 @@ export async function findUserByUsername(
 }
 
 /**
- * Resolve a login identifier. Players use their username (cry1234); operators
- * and players created before usernames existed can still use their email.
+ * Resolve a login identifier. Players, masters and agents use their username
+ * (rahul482, or an older cry1234); admin/support and accounts created before
+ * usernames existed can still use their email.
  */
 export async function findUserByLogin(
   identifier: string,
@@ -64,58 +75,73 @@ export async function findUserByLogin(
 
 type DbOrTx = Pick<typeof db, "select">;
 
-function formatUsername(n: number): string {
-  return `${USERNAME_PREFIX}${String(n).padStart(USERNAME_DIGITS, "0")}`;
+/** Username letters taken from a name: "Rahul Sharma" -> "rahul", "José" -> "jose". */
+export function usernamePrefix(name: string | null | undefined): string {
+  const letters = (name ?? "")
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+  return letters.slice(0, USERNAME_NAME_LETTERS) || USERNAME_FALLBACK_PREFIX;
 }
 
 /**
- * Pick a random, currently unused username. The unique index on
- * users.username is the final guard against a concurrent signup taking the
- * same name, so callers must retry on a unique violation (see
+ * Pick a random, currently unused username for an account called `name`:
+ * its first 5 letters + 3 random digits. Each name has 1,000 numbers; once
+ * they are all taken a 4th digit is added so signups never stop. The unique
+ * index on users.username is the final guard against a concurrent signup
+ * taking the same name, so callers must retry on a unique violation (see
  * `isUniqueViolation`).
  */
-export async function generateUsername(conn: DbOrTx = db): Promise<string> {
-  // Fast path: random probes, checked in one round trip.
-  for (let round = 0; round < 4; round++) {
-    const candidates = [
-      ...new Set(
-        Array.from({ length: 16 }, () => formatUsername(randomInt(USERNAME_SPACE))),
-      ),
-    ];
-    const taken = await conn
+export async function generateUsername(
+  name: string | null | undefined,
+  conn: DbOrTx = db,
+): Promise<string> {
+  const prefix = usernamePrefix(name);
+  for (const digits of [USERNAME_DIGITS, USERNAME_DIGITS + 1]) {
+    const space = 10 ** digits;
+    const format = (n: number) => `${prefix}${String(n).padStart(digits, "0")}`;
+    // Fast path: random probes, checked in one round trip.
+    for (let round = 0; round < 4; round++) {
+      const candidates = [
+        ...new Set(Array.from({ length: 16 }, () => format(randomInt(space)))),
+      ];
+      const taken = await conn
+        .select({ username: usersTable.username, email: usersTable.emailNormalized })
+        .from(usersTable)
+        .where(
+          or(
+            inArray(usersTable.username, candidates),
+            inArray(usersTable.emailNormalized, candidates),
+          ),
+        );
+      const used = new Set(taken.flatMap((t) => [t.username, t.email]));
+      const free = candidates.find((c) => !used.has(c));
+      if (free) return free;
+    }
+    // Nearly full for this name: list its taken numbers and pick a free one.
+    // The prefix is plain a-z, so it is safe inside a LIKE pattern.
+    const rows = await conn
       .select({ username: usersTable.username, email: usersTable.emailNormalized })
       .from(usersTable)
       .where(
         or(
-          inArray(usersTable.username, candidates),
-          inArray(usersTable.emailNormalized, candidates),
+          like(usersTable.username, `${prefix}%`),
+          like(usersTable.emailNormalized, `${prefix}%`),
         ),
       );
-    const used = new Set(taken.flatMap((t) => [t.username, t.email]));
-    const free = candidates.find((c) => !used.has(c));
-    if (free) return free;
+    const used = new Set(rows.flatMap((r) => [r.username, r.email]));
+    const free: string[] = [];
+    for (let i = 0; i < space; i++) {
+      const candidate = format(i);
+      if (!used.has(candidate)) free.push(candidate);
+    }
+    if (free.length > 0) return free[randomInt(free.length)]!;
   }
-  // Nearly full: scan for remaining free names and pick one at random.
-  const all = await conn
-    .select({ username: usersTable.username, email: usersTable.emailNormalized })
-    .from(usersTable)
-    .where(
-      or(isNotNull(usersTable.username), notLike(usersTable.emailNormalized, "%@%")),
-    );
-  const used = new Set(all.flatMap((r) => [r.username, r.email]));
-  const free: string[] = [];
-  for (let i = 0; i < USERNAME_SPACE; i++) {
-    const name = formatUsername(i);
-    if (!used.has(name)) free.push(name);
-  }
-  if (free.length === 0) {
-    throw new HttpError(
-      503,
-      "USERNAMES_EXHAUSTED",
-      "New accounts are temporarily unavailable. Please contact support.",
-    );
-  }
-  return free[randomInt(free.length)]!;
+  throw new HttpError(
+    503,
+    "USERNAMES_EXHAUSTED",
+    "New accounts are temporarily unavailable. Please contact support.",
+  );
 }
 
 export function isUniqueViolation(error: unknown, constraint?: string): boolean {

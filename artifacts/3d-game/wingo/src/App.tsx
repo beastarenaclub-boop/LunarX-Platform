@@ -33,6 +33,8 @@ import {
 import { useStandaloneGameAudio, type GameAudioBridge } from "../../src/game/useStandaloneGameAudio";
 import type { GameState, History, Pick } from "./types";
 import RoundWinPopup, { type Win } from "../../src/components/table/RoundWinPopup";
+import { useHeldValue } from "../../src/components/table/useHeldValue";
+import { useResultHold } from "../../src/lib/resultReveal";
 
 const ROUND_DURATION = 30;
 const MULTIPLIERS = [1, 5, 10, 20, 50, 100];
@@ -143,7 +145,7 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
   const pricingV2 = payoutVersion >= 2;
   const payoutLabel = (pick: Pick) => data?.returns?.[pick] !== undefined ? `${data.returns[pick].toFixed(2)}×` : pick === "violet" ? (pricingV2 ? "4.25×" : "4.5×") : /^\d$/.test(pick) ? (payoutVersion >= 3 ? "1.98×" : pricingV2 ? "8.5×" : "9×") : (payoutVersion >= 4 ? "1.98×" : pricingV2 ? "1.70×" : "2×");
   const sharedWallet = !!onOpenWallet;
-  const balance = walletBalance === undefined ? data?.player.balance : Number(walletBalance);
+  const liveBalance = walletBalance === undefined ? data?.player.balance : Number(walletBalance);
   const lastBalance = useRef<number | undefined>(undefined);
   const walletChangeRef = useRef(onWalletChange);
   walletChangeRef.current = onWalletChange;
@@ -179,6 +181,14 @@ export default function App({ onBackToLobby, onOpenWallet, walletBalance, onWall
   const sound = gameAudio.enabled;
   const [time, setTime] = useState(0);
   const clock = useRef({ server: 0, received: 0 });
+  // The server pays a round as it closes (and pushes the wallet), but the
+  // winning number only appears with this page's next poll. From just before
+  // the close until then, keep the balance and the shared results where they
+  // were, so neither announces the result ahead of the reveal.
+  const awaitingReveal = !!data && time >= data.round.ends - 2000 &&
+    data.bets.some(bet => bet.duration === data.round.duration && bet.period === data.round.period && bet.payout === null);
+  useResultHold(awaitingReveal);
+  const balance = useHeldValue(liveBalance, awaitingReveal);
   const previousBets = useRef<Map<string, number | null>>(new Map());
   const [wins, setWins] = useState<Win[]>([]);
   const seenWins = useRef(new Set<string>());

@@ -10,8 +10,9 @@ export default function ChickenScene({ round, difficulty, hopping, onStep, canSt
   const scene = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(() => !document.hidden);
   const step = round?.status === "busted" ? round.attemptedStep : round?.step ?? 0;
-  const lost = round?.status === "busted";
-  const won = round?.status === "cashed_out";
+  // The step is already settled; its outcome shows once the hop has landed.
+  const lost = !hopping && round?.status === "busted";
+  const won = !hopping && round?.status === "cashed_out";
   const idling = idle && visible && !hopping && !lost && !won;
   const returns = CHICKEN_MODES[difficulty].returns;
   useEffect(() => {

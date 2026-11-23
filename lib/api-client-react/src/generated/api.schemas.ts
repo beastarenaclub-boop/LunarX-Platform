@@ -37,7 +37,7 @@ export interface SignupRequest {
 
 export interface LoginRequest {
   /**
-   * Player username ("cry" + 4 digits). Operators may send their email here.
+   * Player username (first 5 letters of the name + 3 digits, e.g. rahul482). Operators may send their email here.
    * @minLength 1
    * @maxLength 254
    */
@@ -108,7 +108,7 @@ export const UserPublicStatus = {
 export interface UserPublic {
   id: string;
   email: string;
-  /** Player login name ("cry" + 4 digits). Null for operators. */
+  /** Player login name (first 5 letters of the name + 3 digits, e.g. rahul482). Null for operators. */
   username?: string | null;
   role: UserPublicRole;
   status: UserPublicStatus;

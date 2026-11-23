@@ -16,6 +16,8 @@ import { useSevenRoundAudio } from "@/components/sevenupdown/useSevenRoundAudio"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { errorMessage, request } from "@/components/instant/InstantGame";
 import type { TableRoundSnapshot } from "@/components/table/useTableRound";
+import { useHeldValue } from "@/components/table/useHeldValue";
+import { useResultHold } from "@/lib/resultReveal";
 import DiceDome, { Pips } from "@/components/sevenupdown/DiceDome";
 import "@/components/sevenupdown/seven-up-down.css";
 
@@ -84,6 +86,13 @@ export default function SevenUpDown() {
   const resultTotal = dice[0] + dice[1];
   const paid = myBet?.status === "settled" ? Number(myBet.payoutAmount) : 0;
   const resultVisible = !!outcome && fresh;
+  // The dice show their faces the moment this 700ms poll delivers them, but the
+  // server settles (and pushes the new balance) 650ms after disclosing them, so
+  // a credit can arrive while the dome is still shaking. Keep the shown balance
+  // and the shared results back until the dice are on screen.
+  const rollPending = !!snapshot && snapshot.phase !== "betting" && !outcome;
+  useResultHold(rollPending);
+  const shownBalance = useHeldValue(balance.data?.balance, rollPending);
   const shownSlip = myBet ? fromBets(myBet.bets as SevenBet[]) : slip;
   const cue = (kind: SevenSound) => { if (sound) { void unlockAudio(); playSevenSound(kind); } };
   const setPanel = (next: typeof panel) => { if (next !== panel) cue(next ? "open" : "close"); setPanelState(next); };
@@ -198,7 +207,7 @@ export default function SevenUpDown() {
       {roadmap && <div className="sud-roadmap"><div><b>Table roadmap</b><button onClick={toggleRoadmap} aria-label="Close roadmap"><X size={16} /></button></div>{history.length ? <div className="sud-roadmap-cells">{history.slice().reverse().map(r => <span key={r.id} className={`sud-total-${category(totalOf(r))}`}>{totalOf(r)}</span>)}</div> : <p>Completed rounds will appear here automatically.</p>}<small>Past results do not predict the next roll.</small></div>}
       <div className="sud-activity"><span className="sud-live-dot" />AUTO ROUNDS <span key={`${snapshot?.roundId}-${latestBot?.name}`} className="sud-activity-bet">{latestBot ? `${latestBot.name} · BOT · ${money(latestBot.amount * 100)} on ${spotLabel(latestBot.spot)}` : "Simulated players joining…"}</span></div>
       <div className="sud-betting-board" aria-label="Betting board"><div className="sud-main-bets">{SEVEN_SPOTS.slice(0, 3).map(spot => spotButton(spot, true))}</div><div className="sud-number-bets">{SEVEN_SPOTS.slice(3).map(spot => spotButton(spot))}</div></div>
-      <div className="sud-balance-bar"><span>Balance <b data-testid="collection-balance">{balance.data ? money(balance.data.balance) : "Connecting…"}</b></span><span>Your Bet <b data-testid="seven-total-bet">{money(myBet?.totalStake ?? total)}</b></span></div>
+      <div className="sud-balance-bar"><span>Balance <b data-testid="collection-balance">{shownBalance !== undefined ? money(shownBalance) : "Connecting…"}</b></span><span>Your Bet <b data-testid="seven-total-bet">{money(myBet?.totalStake ?? total)}</b></span></div>
       <div className="sud-dock">
         <div className="sud-player"><span>{(user?.displayName || "P").slice(0, 1).toUpperCase()}</span><small>{user?.displayName || "Player"}</small></div>
         <button className="sud-dock-action" disabled={locked || !sumSlip(lastSlip) || !ready} onClick={() => { if (Object.keys(lastSlip).length > 1) setMultiple(true); edit({ ...lastSlip }, "stack"); }} aria-label="Repeat last bet"><RotateCcw size={21} /><small>again</small></button>

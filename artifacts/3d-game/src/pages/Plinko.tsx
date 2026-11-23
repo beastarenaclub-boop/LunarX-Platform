@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { sfx, unlockAudio, voiceRoundLoss, voiceRoundWin } from "@/game/audio";
 import { notifyPlayStarted } from "@/game/engine";
 import { formatRupees, rupeesToPaise } from "@/lib/format";
+import { useResultHold } from "@/lib/resultReveal";
+import { useHeldValue } from "@/components/table/useHeldValue";
 import { AutoBetStatus, useSelectionBet } from "@/components/table/AutoBet";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
 import { InstantShell, StakeControl, Notice, FairnessDialog, SeedField, useInstantGame, request, errorMessage, stakeError, money } from "@/components/instant/InstantGame";
@@ -45,6 +47,10 @@ export default function Plinko() {
   const recent = useQuery({ queryKey: ["plinko.recent", user?.id], queryFn: () => request<PlinkoState[]>("/api/plinko/recent?limit=8"), enabled: !!user, retry: false });
   const available = bonus ? undefined : balance.data?.balance;
   const latestBalance = useRef(available); latestBalance.current = available;
+  // The drop is settled (and the wallet pushed) before the ball lands: keep the
+  // header and the shared results bar on the pre-drop wallet until it lands.
+  const shownBalance = useHeldValue(balance.data?.balance, busy);
+  useResultHold(busy);
   const validation = stakeError(stake, available, config.data?.maxStakePaise);
   const table = ball?.multipliers ?? config.data?.multipliers?.[risk]?.[String(rows)] ?? [];
   const ready = !!user && config.data?.enabled === true && table.length === rows + 1 && balance.isSuccess && seed.isSuccess && !rotating && !uncertain;
@@ -113,7 +119,7 @@ export default function Plinko() {
   const changeRisk = (r: Risk) => { setRisk(r); setCompleted(null); };
   const net = completed ? (Number(completed.payoutAmount) - Number(completed.stakeAmount)) / 100 : 0;
   if (!user) return null;
-  return <InstantShell game="plinko" balance={balance.data?.balance} onFairness={() => { setDetail(null); setVerification(""); setFairness(true); }}>
+  return <InstantShell game="plinko" balance={shownBalance} onFairness={() => { setDetail(null); setVerification(""); setFairness(true); }}>
     <RoundWinDialog win={win.win} onClose={win.dismiss} />
     <section className="instant-heading"><div><h2>Let the good times drop.</h2><p>Pick your risk. Drop a ball. Follow every bounce.</p></div><span className="instant-tag"><i /> {rows} ROWS</span></section>
     {config.isError && <Notice onRetry={() => void config.refetch()}>Payout settings couldn't load.</Notice>}

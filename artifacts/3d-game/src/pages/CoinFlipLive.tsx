@@ -38,6 +38,8 @@ import { updateSettings } from "@/game/engine";
 import { B2C_BRAND, B2C_STANDALONE } from "@/components/b2c/config";
 import ChipRack from "@/components/table/chips";
 import type { TableRoundSnapshot } from "@/components/table/useTableRound";
+import { useHeldValue } from "@/components/table/useHeldValue";
+import { useResultHold } from "@/lib/resultReveal";
 import {
   Dialog,
   DialogContent,
@@ -153,6 +155,11 @@ export default function CoinFlipLive() {
       : snapshot.phase === "betting"
         ? "betting"
         : "toss";
+  // The wallet is credited (and pushed over the socket) the moment the toss
+  // ends, but this page only learns the outcome on its next poll. Keep the
+  // balance and the shared results where they were until the coin is shown.
+  const shownBalance = useHeldValue(wallet.data?.balance, phase === "toss");
+  useResultHold(phase === "toss");
   const countdown = snapshot
     ? Math.max(
         0,
@@ -422,7 +429,7 @@ export default function CoinFlipLive() {
             <div>
               <small>YOUR BALANCE</small>
               <strong data-testid="collection-balance">
-                {wallet.data ? money(wallet.data.balance) : "Connecting…"}
+                {shownBalance !== undefined ? money(shownBalance) : "Connecting…"}
               </strong>
             </div>
           </div>

@@ -251,6 +251,8 @@ export function useWheel20Live() {
     snapshot,
     clock,
     history: history.data ?? [],
+    /** Raw receipts (undefined until loaded), for held displays. */
+    historyData: history.data,
     historyError: history.isError,
     outcome,
     countdown,
@@ -259,6 +261,8 @@ export function useWheel20Live() {
     locked,
     ready,
     wallet,
+    /** Raw server balance (undefined until loaded), for held displays. */
+    balance: balance.data?.balance,
     min,
     max,
     shown,

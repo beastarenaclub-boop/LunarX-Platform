@@ -44,6 +44,8 @@ import {
 } from "@/components/wheel20live/StudioPerformance";
 import type { W20Playback } from "@/components/wheel20live/studioTiming";
 import { useAuth } from "@/lib/auth";
+import { useResultHold } from "@/lib/resultReveal";
+import { useHeldValue } from "@/components/table/useHeldValue";
 import {
   Dialog,
   DialogContent,
@@ -140,6 +142,14 @@ export default function Wheel20Live() {
     !!outcome &&
     (landed === id || game.clock >= (round?.revealEndsAt ?? Infinity));
   const betting = game.bettingOpen;
+  // The rotor lands only 350 ms before the server settles, on a client clock
+  // that trails the server by the poll latency, so the credit can arrive
+  // first. Keep the wallet and receipts as they were until the wheel lands.
+  const spinning = !!round && round.phase !== "betting" && !landedNow;
+  useResultHold(spinning);
+  const shownBalance = useHeldValue(game.balance, spinning);
+  const history = useHeldValue(game.historyData, spinning) ?? [];
+  const lastSettled = history.find((h) => h.status === "settled");
   const status = !game.fresh
     ? "CONNECTING TO TABLE"
     : !game.ready
@@ -567,7 +577,7 @@ export default function Wheel20Live() {
         <div className="w20-balances">
           <div>
             <small>BALANCE</small>
-            <strong data-testid="w20-balance">{money(game.wallet)}</strong>
+            <strong data-testid="w20-balance">{money(shownBalance ?? 0)}</strong>
           </div>
           <div>
             <small>TOTAL BET</small>
@@ -575,7 +585,7 @@ export default function Wheel20Live() {
           </div>
           <div className="w20-lastwin">
             <small>LAST WIN</small>
-            <strong>{money(game.lastWin)}</strong>
+            <strong>{money(lastSettled?.payoutAmount ?? 0)}</strong>
           </div>
         </div>
         <div className="w20-recent" aria-label="Recent results">
@@ -676,10 +686,10 @@ export default function Wheel20Live() {
               <div className="w20-history-list">
                 {game.historyError ? (
                   <p>History is unavailable. Please try again.</p>
-                ) : !game.history.length ? (
+                ) : !history.length ? (
                   <p>No confirmed bets yet.</p>
                 ) : (
-                  game.history.map((h) => (
+                  history.map((h) => (
                     <article key={h.roundId}>
                       <div>
                         <strong>

@@ -33,6 +33,7 @@ const child = spawn(
     "src/services/__tests__/paymentHistory.integration.test.ts",
     "src/services/__tests__/accountSecurity.integration.test.ts",
     "src/services/__tests__/usernameAuth.integration.test.ts",
+    "src/services/__tests__/networkPasswordReset.integration.test.ts",
     "src/services/__tests__/releaseMoneySafety.integration.test.ts",
     "src/services/__tests__/withdrawalApproval.integration.test.ts",
     "src/services/__tests__/masterManualPayments.integration.test.ts",

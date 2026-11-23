@@ -191,8 +191,12 @@ export default function ReferenceTeenPattiTable({
                       <g className="tp20-readout-back">
                         <ReferenceCardBack />
                       </g>
+                      {/* A face enters the DOM only when it opens, so the
+                          deal cannot be read ahead of the dealer. */}
                       <g className="tp20-readout-face">
-                        {value != null && <CardFace value={value} jumbo />}
+                        {cardsVisible && value != null && (
+                          <CardFace value={value} jumbo />
+                        )}
                       </g>
                     </svg>
                   );
@@ -252,7 +256,7 @@ export default function ReferenceTeenPattiTable({
                       <ReferenceCardBack />
                     </g>
                     <g className="tp20-readout-face">
-                      <CardFace value={value} jumbo />
+                      {shown && <CardFace value={value} jumbo />}
                     </g>
                   </g>
                 );

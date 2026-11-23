@@ -143,8 +143,8 @@ test(
         "POST",
         201,
       );
-      // Masters and agents get a generated "cry" + 4-digit login username.
-      assert.match(master.username, /^cry\d{4}$/);
+      // Masters and agents get a login username: first 5 letters of the name + 3 digits.
+      assert.match(master.username, /^north\d{3}$/);
       const masterClient = await login(master.username);
       assert.equal(
         (await call(masterClient, "/network/context")).role,
@@ -161,7 +161,7 @@ test(
         "POST",
         201,
       );
-      assert.match(agent.username, /^cry\d{4}$/);
+      assert.match(agent.username, /^north\d{3}$/);
       assert.notEqual(agent.username, master.username);
       const agentClient = await login(agent.username);
       // Both tabs send the same browser cookie jar; the panel selects its own session.
@@ -228,8 +228,8 @@ test(
         "POST",
         201,
       );
-      // Players get a generated "cry" + 4-digit username used as their login.
-      assert.match(player.username, /^cry\d{4}$/);
+      // Players get a name-based username (first 5 letters + 3 digits) as their login.
+      assert.match(player.username, /^north\d{3}$/);
       assert.equal(player.email, player.username);
       const otherMaster = await call(
         company,

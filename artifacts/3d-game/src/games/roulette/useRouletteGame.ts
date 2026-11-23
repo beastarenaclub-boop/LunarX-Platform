@@ -6,6 +6,7 @@ import {
   useRealtimeTopic,
 } from "@workspace/api-client-react";
 import { useTableRound } from "@/components/table/useTableRound";
+import { useResultHold } from "@/lib/resultReveal";
 import {
   AUTO_SEND_AT_MS,
   BAR_FLASH_HALF_MS,
@@ -90,6 +91,9 @@ interface StagedChip {
 }
 
 const wholePoints = (paise: bigint): number => Number(paise / PAISE_PER_POINT);
+
+/** The longest the Score is capped waiting for a ball that may never land. */
+const SCORE_CAP_MAX_MS = 45_000;
 
 /**
  * The game screen's whole state machine.
@@ -477,17 +481,83 @@ export function useRouletteGame(wheel: Wheel, balancePaise: bigint | null) {
   );
 
   /**
+   * The round whose number the wheel has NOT shown yet, if any.
+   *
+   * From the close to the ball stopping. Settlement lands inside that stretch:
+   * the server credits the win at the end of the reveal window and pushes the
+   * new balance on `wallet:<user>`, while the spin itself only starts when the
+   * on-screen clock reaches zero — some ten seconds later. Everything that
+   * would move on that credit has to wait for the ball.
+   */
+  const hiddenRoundId =
+    pending !== null && revealedRoundId !== pending.roundId ? pending.roundId : null;
+
+  // The shared "My results" bar reads the server directly and would print the
+  // win the moment the round settles. Hold it back until the ball has landed.
+  useResultHold(hiddenRoundId !== null);
+
+  /**
+   * The balance as it stood when the result went hidden — the most the Score
+   * may show until the ball lands.
+   *
+   * Without it the Score was `balance − meter − staged` with the meter still
+   * hidden, so the settlement push lifted it by the whole win while the wheel
+   * had not even started turning: the player read their win off the Score
+   * before the spin. Capped with a MIN rather than by subtracting the win,
+   * because the balance push and the meter read race each other and a
+   * subtraction that lands first dips the Score by the win instead — the same
+   * leak in the other direction. A debit that lands late (a confirm in the
+   * closing second) still shows, since it only ever lowers the number.
+   *
+   * A round that was already settled when we first saw it closed (a rejoin
+   * mid-tail) has the win in the balance already, so it comes off the base.
+   */
+  const [scoreCap, setScoreCap] = useState<{
+    roundId: string;
+    basePaise: bigint;
+    since: number;
+  } | null>(null);
+  useEffect(() => {
+    if (hiddenRoundId === null) {
+      setScoreCap(null);
+      return;
+    }
+    if (balancePaise === null) return;
+    setScoreCap((cap) => {
+      if (cap?.roundId === hiddenRoundId) return cap;
+      let alreadyPaid = 0n;
+      if (snap?.roundId === hiddenRoundId) {
+        for (const b of snap.myBets) {
+          if (b.status === "settled") alreadyPaid += BigInt(b.payoutAmount ?? "0");
+        }
+      }
+      return { roundId: hiddenRoundId, basePaise: balancePaise - alreadyPaid, since: Date.now() };
+    });
+  }, [hiddenRoundId, balancePaise, snap]);
+  const scoreBalancePaise =
+    balancePaise !== null &&
+    scoreCap !== null &&
+    scoreCap.roundId === hiddenRoundId &&
+    // A spin that never comes (a hidden tab, a lost result) must not pin the
+    // Score for ever. Same ceiling as the shared hold.
+    now - scoreCap.since < SCORE_CAP_MAX_MS &&
+    scoreCap.basePaise < balancePaise
+      ? scoreCap.basePaise
+      : balancePaise;
+
+  /**
    * The Score.
    *
    * `balance − held win − staged`. The held win is subtracted because it is NOT
    * spendable until it is taken: the meter is holding it, and letting a player
    * bet it and then take it as well would show them money twice. A negative
-   * intermediate draws 0 rather than a minus sign.
+   * intermediate draws 0 rather than a minus sign. While the round's number is
+   * still hidden the balance is capped at its pre-settlement value (above).
    */
   const scoreRawPaise =
-    balancePaise === null
+    scoreBalancePaise === null
       ? null
-      : balancePaise - (meterShown ? meterPaise : 0n) - stagedPaise;
+      : scoreBalancePaise - (meterShown ? meterPaise : 0n) - stagedPaise;
   /**
    * The DISPLAYED score, floored at zero.
    *

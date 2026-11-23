@@ -111,20 +111,21 @@ export function B2CAuthDialog({
         <form onSubmit={submit} className="b2c-auth-form">
           {registering && (
             <label>
-              Display name
+              Name
               <input
-                autoComplete="nickname"
+                autoComplete="name"
+                required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your display name"
+                placeholder="Your name"
                 maxLength={50}
               />
             </label>
           )}
           {registering ? (
             <p className="b2c-username-hint">
-              Your username (like <strong>cry1234</strong>) is created
-              automatically after signup.
+              Your username is the first 5 letters of your name + 3 random
+              numbers (like <strong>rahul482</strong>).
             </p>
           ) : (
             <label>
@@ -140,7 +141,7 @@ export function B2CAuthDialog({
                 maxLength={254}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. cry1234"
+                placeholder="e.g. rahul482"
                 data-testid="input-login-username"
               />
             </label>

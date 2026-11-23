@@ -64,9 +64,12 @@ export default function AvBetPanel({
   onAdd?: () => void;
 }) {
   const roundId = useStore((s) => s.roundId);
-  const countdownMs = useStore((s) => s.countdownMs);
+  // Narrow selectors: the countdown and multiplier change on every animation
+  // frame, but this panel only needs "is betting still open" and, while it has
+  // a bet in the air, the multiplier for the live cash-out amount.
+  const bettingOpen = useStore((s) => s.countdownMs > 300);
   const phase = useStore((s) => s.phase);
-  const multiplier = useStore((s) => s.multiplier);
+  const multiplier = useStore((s) => (s.panels[panelIdx].activeBetId ? s.multiplier : 1));
   const balance = useStore((s) => s.balance);
   const panel = useStore((s) => s.panels[panelIdx]);
   const myBets = useStore((s) => s.myBets);
@@ -100,7 +103,7 @@ export default function AvBetPanel({
   const canPlace =
     phase === "betting" &&
     !panel.pendingBet && !panel.activeBetId &&
-    roundId.startsWith("crash-") && countdownMs > 300 &&
+    roundId.startsWith("crash-") && bettingOpen &&
     Number.isFinite(panel.amount) && panel.amount > 0 &&
     (maxStakeRupees <= 0 || panel.amount <= maxStakeRupees) &&
     (freeBetArmed ? freeBetStake > 0 : panel.amount <= balance) &&

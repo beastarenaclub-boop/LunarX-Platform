@@ -47,6 +47,8 @@ import DragonTigerDealer, {
 } from "@/components/dragonTiger/DragonTigerDealer";
 import ChipRack, { CoinFace } from "@/components/table/chips";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
+import { useHeldValue } from "@/components/table/useHeldValue";
+import { useResultHold } from "@/lib/resultReveal";
 import {
   CoinSettingsButton,
   CoinSettingsDialog,
@@ -62,6 +64,8 @@ import "@/components/dragonTiger/dragon-tiger.css";
 const format = (n: number) => n.toLocaleString("en-IN");
 const signed = (n: number) => `${n > 0 ? "+" : ""}${format(n)}`;
 const LABELS = { dragon: "Dragon", tiger: "Tiger", tie: "Tie" };
+/** `.dt-card` turns face up over 0.65s; the result is not on screen before. */
+const CARD_FLIP_MS = 700;
 const SUITS = ["♠", "♥", "♦", "♣"];
 const RANKS = [
   "A",
@@ -201,7 +205,22 @@ function DragonTigerTable({ userId }: { userId: string }) {
   const leaderId = useRef<string | null>(null);
   const announced = useRef("");
   const confirmed = useRef<number | null>(null);
-  const top = data?.leaderboard[0];
+  const phase = data?.round.phase;
+  // The server credits the win in the same response that hands over the
+  // cards, so balance, rankings, history and the win receipt would all land
+  // while the cards are still turning. Hold them until the flip has finished.
+  const cardsTurned =
+    phase === "result" && data?.round.dragon !== undefined ? data.round.id : null;
+  const [landedRound, setLandedRound] = useState<number | null>(null);
+  useEffect(() => {
+    if (cardsTurned === null) return;
+    const timer = window.setTimeout(() => setLandedRound(cardsTurned), CARD_FLIP_MS);
+    return () => window.clearTimeout(timer);
+  }, [cardsTurned]);
+  const landed = cardsTurned !== null && landedRound === cardsTurned;
+  const shown = useHeldValue(data, phase === "result" && !landed);
+  useResultHold(!!data?.myBet && !landed);
+  const top = shown?.leaderboard[0];
   useEffect(() => {
     document.title = "Dragon Tiger · Lunar Casino";
   }, []);
@@ -238,14 +257,13 @@ function DragonTigerTable({ userId }: { userId: string }) {
     if (soundOn) sfx.chipStackPush();
   }, [data?.myBet, data?.round.id, soundOn]);
 
-  const phase = data?.round.phase;
-  const winner = data?.round.winner;
+  const winner = landed ? data?.round.winner : undefined;
   const dragonRank =
     data?.round.dragon === undefined ? undefined : data.round.dragon % 13;
   const tigerRank =
     data?.round.tiger === undefined ? undefined : data.round.tiger % 13;
   const compared =
-    phase === "result" && dragonRank !== undefined && tigerRank !== undefined;
+    landed && dragonRank !== undefined && tigerRank !== undefined;
   const comparison = compared
     ? `${RANKS[dragonRank]} ${dragonRank === tigerRank ? "=" : dragonRank > tigerRank ? ">" : "<"} ${RANKS[tigerRank]}`
     : "VS";
@@ -265,7 +283,7 @@ function DragonTigerTable({ userId }: { userId: string }) {
       ? "Reconnecting…"
       : phase === "result" && winner
         ? `${LABELS[winner]} ${winner === "tie" ? "game" : "wins"}`
-        : phase === "dealing" || !seconds
+        : phase === "dealing" || phase === "result" || !seconds
           ? "Dealing cards"
           : data.myBet
             ? "Your bet is confirmed"
@@ -278,19 +296,20 @@ function DragonTigerTable({ userId }: { userId: string }) {
   const result = data?.lastResult;
   const heardResult = useRef<number | null>(null);
   useEffect(() => {
-    if (phase !== "result" || !result || result.roundId !== data?.round.id || heardResult.current === result.roundId) return;
+    if (!landed || !result || result.roundId !== data?.round.id || heardResult.current === result.roundId) return;
     heardResult.current = result.roundId;
     if (soundOn && result.payout < result.stake) sfx.tableLose("dragon-tiger");
-  }, [phase, result, data?.round.id, soundOn]);
+  }, [landed, result, data?.round.id, soundOn]);
   const roundWin = useRoundWin({
     game: "dragon-tiger", userId,
     roundId: data ? String(data.round.id) : null,
-    eligible: phase === "result" && result?.roundId === data?.round.id,
+    eligible: landed && result?.roundId === data?.round.id,
     bets: result ? [{ status: "settled", totalStake: String(Math.round(result.stake * 100)), payoutAmount: String(Math.round(result.payout * 100)) }] : [],
   });
   useEffect(() => { if (roundWin.win) setCoinSettingsOpen(false); }, [roundWin.win]);
   const counts = { dragon: 0, tiger: 0, tie: 0 };
-  data?.history.forEach((r) => counts[r.winner]++);
+  shown?.history.forEach((r) => counts[r.winner]++);
+  const shownResult = shown?.lastResult;
 
   return (
     <main
@@ -382,7 +401,7 @@ function DragonTigerTable({ userId }: { userId: string }) {
               <span>
                 YOUR CHIPS
                 <strong data-testid="dt-balance">
-                  {data ? format(data.player.balance) : "—"}
+                  {shown ? format(shown.player.balance) : "—"}
                 </strong>
               </span>
             </div>
@@ -499,8 +518,8 @@ function DragonTigerTable({ userId }: { userId: string }) {
                 data-testid="dt-leaders"
                 id="dt-ranking-list"
               >
-                {data?.leaderboard.length ? (
-                  data.leaderboard.map((leader) => (
+                {shown?.leaderboard.length ? (
+                  shown.leaderboard.map((leader) => (
                     <LeaderRow
                       key={leader.userId}
                       leader={leader}
@@ -531,7 +550,7 @@ function DragonTigerTable({ userId }: { userId: string }) {
                   </li>
                 )}
               </ol>
-              {(data?.leaderboard.length ?? 0) > 3 && (
+              {(shown?.leaderboard.length ?? 0) > 3 && (
                 <button
                   className="dt-expand-leaders"
                   aria-expanded={allLeaders}
@@ -546,19 +565,19 @@ function DragonTigerTable({ userId }: { userId: string }) {
                 <span>
                   Your position
                   <strong>
-                    {data?.player.rank ? `#${data.player.rank}` : "Unranked"}
+                    {shown?.player.rank ? `#${shown.player.rank}` : "Unranked"}
                   </strong>
                 </span>
                 <span>
                   Net winnings
                   <strong
                     className={
-                      (data?.player.net ?? 0) < 0
+                      (shown?.player.net ?? 0) < 0
                         ? "dt-negative"
                         : "dt-positive"
                     }
                   >
-                    {signed(data?.player.net ?? 0)}
+                    {signed(shown?.player.net ?? 0)}
                   </strong>
                 </span>
               </div>
@@ -858,8 +877,8 @@ function DragonTigerTable({ userId }: { userId: string }) {
                   className="dt-road"
                   aria-label="Round history, newest first"
                 >
-                  {data?.history.length ? (
-                    data.history.map((r) => (
+                  {shown?.history.length ? (
+                    shown.history.map((r) => (
                       <span
                         key={r.id}
                         className={`dt-result-dot dt-dot-${r.winner}`}
@@ -896,13 +915,13 @@ function DragonTigerTable({ userId }: { userId: string }) {
               <span>LAST ROUND</span>
               <strong
                 className={
-                  result && result.payout - result.stake < 0
+                  shownResult && shownResult.payout - shownResult.stake < 0
                     ? "dt-negative"
                     : "dt-positive"
                 }
               >
-                {result
-                  ? `${signed(result.payout - result.stake)} chips`
+                {shownResult
+                  ? `${signed(shownResult.payout - shownResult.stake)} chips`
                   : "Take your seat"}
               </strong>
             </div>

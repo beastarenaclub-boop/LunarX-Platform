@@ -83,20 +83,33 @@ Run `npm run demo:test` for session, isolation and playable-game checks.
 ### Player usernames
 
 Players sign in with a **username**, not an email. Signup (and agent-created
-B2B players) generates a random 7-character username: `cry` + 4 digits, e.g.
-`cry4821`. It is shown once after signup with a copy button and on the Profile
-page. Migration `0071_player_usernames` adds `users.username` and assigns one to
-every existing player; players created before this change can still sign in
-with their old email. Operators (admin, master, agent, support) keep email
-login. The format allows 10,000 usernames (`cry0000`–`cry9999`); signup returns
-`503 USERNAMES_EXHAUSTED` when all are taken — raise `USERNAME_DIGITS` in
-`artifacts/api-server/src/services/auth.ts` before that happens.
+B2B players) builds it from the name: the first 5 letters + 3 random digits,
+e.g. "Rahul Sharma" → `rahul482`. Shorter names use all their letters
+(`raj482`); a name with no Latin letters falls back to `cry` (`cry482`). Each
+name has 1,000 numbers; when they are all taken a 4th digit is added
+(`rahul4821`). The name is required on the signup forms. The username is shown
+once after signup with a copy button and on the Profile page. Masters and
+agents get a username the same way; admin and support keep email login.
+
+Accounts created earlier keep their `cry` + 4-digit username (`cry4821`,
+assigned by migrations `0071_player_usernames` and `0072_operator_usernames`),
+and players created before usernames existed can still sign in with their old
+email. The rules live in `artifacts/api-server/src/services/auth.ts`
+(`generateUsername`, `USERNAME_PATTERN`).
 
 Login failures are throttled per IP and per username (8 failures → 15-minute
 lock), and passwords need 8–72 characters with a letter and a number. There is
 no email/SMS delivery, so "Forgot password" asks players to contact support;
 an admin resets the password from the user's page. Reset tokens are returned in
 API responses only when `NODE_ENV` is `development` or `test`.
+
+The branch panel (admin B2B section and master/agent panel) has a **Reset
+password** button on every master, agent and user row
+(`POST /api/network/nodes/:id/password`, `POST /api/network/players/:id/password`).
+Admin can reset anyone; a master resets its own agents and the users under
+them; an agent resets its own users. The operator must enter their own password
+(`X-Confirm-Password`), the target is signed out everywhere, and the change is
+audit-logged. Limit: 10 resets per operator per 15 minutes.
 
 ### Payment retry safeguards
 

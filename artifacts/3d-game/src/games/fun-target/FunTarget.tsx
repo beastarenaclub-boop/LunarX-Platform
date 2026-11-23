@@ -7,6 +7,7 @@ import { useTableRound, type TableRoundState } from "@/components/table/useTable
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { rupeesToPaise } from "@/lib/format";
+import { useResultHold } from "@/lib/resultReveal";
 import { useStore } from "@/game/store";
 import { unlockAudio } from "@/game/audio";
 import Cabinet from "./Cabinet";
@@ -425,6 +426,11 @@ export default function FunTarget({ embedded = false }: { embedded?: boolean }) 
   // slip shows on the snapshot — it is cleared only after the wallet caught up.
   const stagedBets = wireBets(draft), stagedTotal = totalStake(pending?.bets ?? (accepted.length ? [] : stagedBets));
   const shownBalance = pending && balanceAtSend.current !== null ? balanceAtSend.current : available;
+  // Settlement credits the wallet at the end of the reveal window, but this
+  // round's spin only starts at the settle deadline: from the result until the
+  // wheel stops, the Score stays on what it read before the result.
+  const scoreBeforeResult = spinning ? reveal?.scoreBeforeResult : queued?.scoreBeforeResult;
+  useResultHold(queued !== null || spinning);
   const shownBets = winner > 0n && heldBets ? heldBets : (spinning || awaitingWin) && reveal ? reveal.bets : accepted.length ? accepted : pending?.bets ?? stagedBets;
   const snapshotRecent = round.recent.filter(r => r.roundId !== queued?.roundId && !(spinning && r.roundId === reveal?.roundId));
   const liveHistory = snapshotRecent.slice(0, 10).reverse().map(r => (r.outcome as Outcome).pocket);
@@ -462,7 +468,7 @@ export default function FunTarget({ embedded = false }: { embedded?: boolean }) 
   const clearControl = <Button data-testid="btn-clear" onClick={clear}>{text("funTargetClear")}</Button>;
   return <main ref={page} className="ft-page" draggable={false} onDragStartCapture={preventDrag} onDragOverCapture={preventDrag} onDropCapture={preventDrag} onPointerDown={unlockAudio} onKeyDown={unlockAudio}>
     <Cabinet lang={lang} embedded={embedded} sound={sound} spinning={spinning} chip={chip} bets={shownBets}
-      balance={spinning && reveal?.scoreBeforeResult !== undefined ? reveal.scoreBeforeResult : shownBalance > stagedTotal + displayedWinner ? shownBalance - stagedTotal - displayedWinner : 0n} winner={displayedWinner} total={totalStake(shownBets)}
+      balance={scoreBeforeResult !== undefined ? scoreBeforeResult : shownBalance > stagedTotal + displayedWinner ? shownBalance - stagedTotal - displayedWinner : 0n} winner={displayedWinner} total={totalStake(shownBets)}
       reveal={reveal} restingPocket={restingPocket} resultPocket={resultVisible ? landed.pocket : null}
       history={history.slice(-10)} seconds={seconds}
       canBet={canBet} message={message} removeMode={removeMode}

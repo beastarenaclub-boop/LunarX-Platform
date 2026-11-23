@@ -99,14 +99,19 @@ export type NetworkPlayer = {
   agent_id: string | null;
 };
 type Player = NetworkPlayer;
-const api = <T,>(path: string, body?: unknown, method = "POST") =>
+const api = <T,>(
+  path: string,
+  body?: unknown,
+  method = "POST",
+  headers: Record<string, string> = {},
+) =>
   customFetch<T>(
     `/api/network${path}`,
     body === undefined
       ? {}
       : {
           method,
-          headers: { "content-type": "application/json" },
+          headers: { "content-type": "application/json", ...headers },
           body: JSON.stringify(body),
         },
   );
@@ -195,7 +200,7 @@ export function NetworkPanel({
   const [search, setSearch] = useState(""),
     [playerOffset, setPlayerOffset] = useState(0);
   const [modal, setModal] = useState<null | {
-    kind: "create" | "edit" | "fund" | "settle";
+    kind: "create" | "edit" | "fund" | "settle" | "password";
     requestId?: string;
     node?: Node;
     player?: Player;
@@ -253,14 +258,24 @@ export function NetworkPanel({
       path,
       body,
       method,
+      headers,
     }: {
       path: string;
       body: unknown;
       method?: string;
-    }) => api(path, body, method),
+      headers?: Record<string, string>;
+    }) => api(path, body, method, headers),
     onSuccess: (result, variables) => {
       setModal(null);
       setError("");
+      if (variables.path.endsWith("/password")) {
+        const who = (result as { username?: unknown } | undefined)?.username;
+        setNotice(
+          `Password changed${typeof who === "string" ? ` for ${who}` : ""}. They have been signed out everywhere — share the new password with them.`,
+        );
+        void qc.invalidateQueries({ queryKey: ["network"] });
+        return;
+      }
       const createdUsername =
         (variables.path === "/players" || variables.path === "/nodes") &&
         result &&
@@ -298,8 +313,8 @@ export function NetworkPanel({
       if (modal?.kind === "create") {
         const body = {
           name: get("name"),
-          // Masters, agents and users all get a generated "cry" + 4-digit
-          // login username; no email is collected.
+          // Masters, agents and users all get a login username made from
+          // the name (first 5 letters + 3 random digits); no email is collected.
           password: get("password"),
           ...(role !== "agent"
             ? {
@@ -346,6 +361,18 @@ export function NetworkPanel({
             reference: get("memo"),
             requestId: modal.requestId,
           },
+        });
+      } else if (modal?.kind === "password") {
+        if (get("password") !== get("confirmPassword")) {
+          setError("The new passwords do not match.");
+          return;
+        }
+        mutate.mutate({
+          path: modal.player
+            ? `/players/${encodeURIComponent(modal.player.id)}/password`
+            : `/nodes/${encodeURIComponent(modal.node!.id)}/password`,
+          body: { password: get("password") },
+          headers: { "X-Confirm-Password": get("ownPassword") },
         });
       }
     } catch (e) {
@@ -423,6 +450,9 @@ export function NetworkPanel({
           <button onClick={() => open({ kind: "edit", node: n })}>
             Manage
           </button>
+          <button onClick={() => open({ kind: "password", node: n })}>
+            Reset password
+          </button>
           {(role === "admin"
             ? n.kind === "master"
             : n.parent_id === context.data.node?.id) && (
@@ -439,13 +469,15 @@ export function NetworkPanel({
       )}
     </div>
   );
-  const playerActions = (player: Player) =>
-    role !== "master" && (
+  const playerActions = (player: Player) => (
       <div className="net-row-actions">
         {role === "agent" && (
           <button onClick={() => open({ kind: "fund", player })}>Funds</button>
         )}
-        {channel === "b2b" && (
+        <button onClick={() => open({ kind: "password", player })}>
+          Reset password
+        </button>
+        {role !== "master" && player.channel === "b2b" && (
           <button
             disabled={mutate.isPending}
             onClick={() =>
@@ -784,9 +816,7 @@ export function NetworkPanel({
               nodes={nodes.data?.nodes ?? []}
               rootId={context.data.node?.id ?? null}
               renderActions={nodeActions}
-              renderPlayerActions={
-                role === "master" ? undefined : playerActions
-              }
+              renderPlayerActions={playerActions}
             />
           ) : role === "agent" ? null : (
             <>
@@ -1031,7 +1061,9 @@ export function NetworkPanel({
                   ? `Manage ${modal.node?.name}`
                   : modal.kind === "fund"
                     ? `Funds · ${modal.node?.name ?? modal.player?.display_name}`
-                    : `Settle · ${modal.node?.name}`}
+                    : modal.kind === "password"
+                      ? `Reset password · ${modal.node?.name ?? (modal.player?.display_name || modal.player?.username || modal.player?.email)}`
+                      : `Settle · ${modal.node?.name}`}
             </h2>
             <form onSubmit={save}>
               {(modal.kind === "create" || modal.kind === "edit") && (
@@ -1050,8 +1082,9 @@ export function NetworkPanel({
                 <>
                   <p>
                     <small>
-                      A login username like <strong>cry1234</strong> is
-                      created automatically and shown after saving.
+                      The login username is made from the first 5 letters of
+                      the name + 3 random numbers (like{" "}
+                      <strong>rahul482</strong>) and shown after saving.
                     </small>
                   </p>
                   <Field
@@ -1197,6 +1230,63 @@ export function NetworkPanel({
                   </Field>
                 </>
               )}
+              {modal.kind === "password" && (
+                <>
+                  <div className="net-fund-summary">
+                    <p>
+                      Login username:{" "}
+                      <strong>
+                        {modal.node
+                          ? loginName(modal.node)
+                          : modal.player
+                            ? loginName(modal.player)
+                            : null}
+                      </strong>
+                    </p>
+                    <p>
+                      The old password stops working and this account is
+                      signed out everywhere. The username stays the same.
+                    </p>
+                  </div>
+                  <Field
+                    label={
+                      modal.player
+                        ? "New password (8–72 characters, letters and numbers)"
+                        : "New password (10–72 characters, letters and numbers)"
+                    }
+                  >
+                    <input
+                      autoFocus
+                      type="password"
+                      name="password"
+                      required
+                      minLength={modal.player ? 8 : 10}
+                      maxLength={72}
+                      autoComplete="new-password"
+                    />
+                  </Field>
+                  <Field label="Confirm new password">
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      required
+                      minLength={modal.player ? 8 : 10}
+                      maxLength={72}
+                      autoComplete="new-password"
+                    />
+                  </Field>
+                  <Field label="Your own login password">
+                    <input
+                      type="password"
+                      name="ownPassword"
+                      required
+                      maxLength={200}
+                      autoComplete="current-password"
+                    />
+                    <small>Needed to confirm it is really you.</small>
+                  </Field>
+                </>
+              )}
               {error && (
                 <p className="net-error" role="alert">
                   {error}
@@ -1211,7 +1301,11 @@ export function NetworkPanel({
                   Cancel
                 </button>
                 <button className="net-primary" disabled={mutate.isPending}>
-                  {mutate.isPending ? "Saving…" : "Save"}
+                  {mutate.isPending
+                    ? "Saving…"
+                    : modal.kind === "password"
+                      ? "Change password"
+                      : "Save"}
                 </button>
               </div>
             </form>

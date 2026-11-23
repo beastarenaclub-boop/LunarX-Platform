@@ -9,7 +9,8 @@ import {
 import { B2C_STANDALONE } from "@/components/b2c/config";
 
 /**
- * After signup the server generates the player's username (cry + 4 digits).
+ * After signup the server generates the player's username (first 5 letters of
+ * their name + 3 digits, e.g. rahul482).
  * Signup forms call `announceNewUsername`; this dialog is mounted once at the
  * app root so it stays visible even when the signup form unmounts because
  * the player is now signed in.

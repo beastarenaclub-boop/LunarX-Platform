@@ -24,6 +24,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAuth } from "@/lib/auth";
+import { useResultHold } from "@/lib/resultReveal";
+import { useHeldValue } from "@/components/table/useHeldValue";
 import { installAudioAutostart } from "@/game/audioAutostart";
 import {
   DealerStudio,
@@ -140,6 +142,14 @@ export default function AndarBaharLive() {
   const andarPercent = recent.length
     ? Math.round((andarCount / recent.length) * 100)
     : 0;
+  // The deal follows decoded video frames, so the last card can still be on
+  // its way when the server credits the round at the end of its reveal. Keep
+  // the wallet and receipts as they were until the table has shown the result.
+  const revealing = !!snapshot && snapshot.phase !== "betting" && !finished;
+  useResultHold(revealing);
+  const shownBalance = useHeldValue(game.balance, revealing);
+  const history = useHeldValue(game.historyData, revealing) ?? [];
+  const lastWin = Number(history[0]?.payoutAmount ?? 0);
   const status = !game.fresh
     ? "CONNECTING TO TABLE"
     : !game.ready
@@ -564,13 +574,13 @@ export default function AndarBaharLive() {
             </b>
           </span>
           <span>
-            Balance <b data-testid="ab-balance">{money(game.wallet)}</b>
+            Balance <b data-testid="ab-balance">{money(shownBalance ?? 0)}</b>
           </span>
           <span>
             Total bet <b data-testid="ab-total">{money(game.total)}</b>
           </span>
           <span>
-            Last win <b>{money(game.lastWin)}</b>
+            Last win <b>{money(lastWin)}</b>
           </span>
           <span className="ab-round-id">
             #{snapshot?.roundId.slice(-10) ?? "CONNECTING"}
@@ -642,12 +652,12 @@ export default function AndarBaharLive() {
             <div className="ab-personal-history">
               {game.historyError ? (
                 <p>History is unavailable. Please try again shortly.</p>
-              ) : !game.history.length ? (
+              ) : !history.length ? (
                 <p>
                   No settled bets yet. Your completed rounds will appear here.
                 </p>
               ) : (
-                game.history.map((h) => (
+                history.map((h) => (
                   <div key={h.id}>
                     <Card id={h.joker} />
                     <span>

@@ -74,7 +74,7 @@ async function setup(
     if (path === "/api/auth/signup") {
       expect(request.postDataJSON()).toEqual({ password: 'Secure@Test123', displayName: 'New Player' });
       loggedIn = true;
-      username = 'cry2468';
+      username = 'newpl246';
       return route.fulfill({ json: { user: { ...user, username }, username } });
     }
     if (path === "/api/auth/logout") {
@@ -415,14 +415,14 @@ test("signup shows the generated username after the form closes and restores it 
   await page.getByRole('button', { name: 'Login', exact: true }).first().click();
   await page.getByRole('button', { name: 'Create an account', exact: true }).click();
   const form = page.getByRole('dialog');
-  await form.getByLabel('Display name', { exact: true }).fill('New Player');
+  await form.getByLabel('Name', { exact: true }).fill('New Player');
   await form.getByLabel('Password', { exact: true }).fill('Secure@Test123');
   await form.getByRole('checkbox').check();
   await form.getByRole('button', { name: 'Create account', exact: true }).click();
-  await expect(page.getByTestId('text-new-username')).toContainText('cry2468');
+  await expect(page.getByTestId('text-new-username')).toContainText('newpl246');
   await expect(page.getByRole('dialog')).toContainText('Account created');
   await page.reload();
-  await expect(page.getByTestId('text-new-username')).toContainText('cry2468');
+  await expect(page.getByTestId('text-new-username')).toContainText('newpl246');
   await page.getByTestId('btn-username-continue').click();
   await expect(page.getByTestId('text-new-username')).toHaveCount(0);
   expect(await page.evaluate(() => sessionStorage.getItem('crypto777:new-username'))).toBeNull();

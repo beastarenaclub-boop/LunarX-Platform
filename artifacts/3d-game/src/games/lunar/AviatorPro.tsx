@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RtpDisclosure } from "@/components/RtpDisclosure";
 import { useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
-import { useStore } from "@/game/store";
+import { useStore, store } from "@/game/store";
 import { initEngine, setActiveCrashGame } from "@/game/engine";
 import RealtimeBridge from "@/components/lunar/RealtimeBridge";
 
@@ -160,7 +160,6 @@ export default function AviatorPro({
   // selectors match nothing at all).
   embedded = false,
 }: { gameCode?: string; embedded?: boolean }) {
-  const multiplier = useStore((s) => s.multiplier);
   const { user, isLoading } = useAuth();
   const houseEdge = useStore((s) => s.roundHouseEdge);
 
@@ -206,9 +205,20 @@ export default function AviatorPro({
     return initEngine();
   }, [gameCode, embedded, user?.id]);
 
+  // The tab title follows the multiplier on a timer. Subscribing to the
+  // multiplier here re-rendered the whole game — both bet panels, the bets
+  // list, the chat and every dialog — on each animation frame, which made the
+  // flight stutter on phones.
   useEffect(() => {
-    document.title = `${multiplier.toFixed(2)}x • Aviator`;
-  }, [multiplier]);
+    let shown = "";
+    const update = () => {
+      const next = `${store.getState().multiplier.toFixed(2)}x • Aviator`;
+      if (next !== shown) document.title = shown = next;
+    };
+    update();
+    const timer = window.setInterval(update, 250);
+    return () => window.clearInterval(timer);
+  }, []);
 
   if (!user) {
     // A bare `null` inside an iframe is an unexplained black rectangle. Say

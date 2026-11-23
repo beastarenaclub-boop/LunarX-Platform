@@ -1882,7 +1882,7 @@ components:
           type: string
           minLength: 1
           maxLength: 254
-          description: Player username ("cry" + 4 digits). Operators may send their email here.
+          description: Player username (first 5 letters of the name + 3 digits, e.g. rahul482). Operators may send their email here.
         email:
           type: string
           minLength: 1
@@ -1917,7 +1917,7 @@ components:
         username:
           type: string
           nullable: true
-          description: Player login name ("cry" + 4 digits). Null for operators.
+          description: Player login name (first 5 letters of the name + 3 digits, e.g. rahul482). Null for operators.
         role:
           type: string
           enum: [player, agent, support, admin, super_admin]

@@ -96,7 +96,7 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
     signup.mutate({
       data: {
         password: signupPassword,
-        displayName: signupName || undefined,
+        displayName: signupName.trim() || undefined,
       },
     });
   }
@@ -133,7 +133,7 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
                 autoCapitalize="none"
                 autoCorrect="off"
                 spellCheck={false}
-                placeholder="e.g. cry1234"
+                placeholder="e.g. rahul482"
                 required
                 maxLength={254}
                 value={loginUsername}
@@ -168,14 +168,17 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
         <TabsContent value="signup" className="mt-3">
           <form onSubmit={onSignupSubmit} className="space-y-3">
             <p className="text-xs text-muted-foreground">
-              Your username (like <strong>cry1234</strong>) is created
-              automatically after signup.
+              Your username is made from the first 5 letters of your name + 3
+              random numbers (like <strong>rahul482</strong>).
             </p>
             <div className="space-y-1.5">
-              <Label htmlFor="hp-signup-name">Display name (optional)</Label>
+              <Label htmlFor="hp-signup-name">Name</Label>
               <Input
                 id="hp-signup-name"
                 type="text"
+                autoComplete="name"
+                required
+                maxLength={50}
                 value={signupName}
                 onChange={(e) => setSignupName(e.target.value)}
                 data-testid="input-signup-name"
@@ -219,7 +222,7 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
                 autoCapitalize="none"
                 autoCorrect="off"
                 spellCheck={false}
-                placeholder="e.g. cry1234"
+                placeholder="e.g. rahul482"
                 required
                 maxLength={254}
                 value={forgotUsername}

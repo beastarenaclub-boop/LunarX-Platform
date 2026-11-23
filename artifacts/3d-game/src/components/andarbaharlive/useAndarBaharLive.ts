@@ -239,6 +239,8 @@ export function useAndarBaharLive() {
     deal,
     countdown,
     wallet,
+    /** Raw server balance (undefined until loaded), for held displays. */
+    balance: balance.data?.balance,
     min,
     max,
     shown,
@@ -246,6 +248,8 @@ export function useAndarBaharLive() {
     config: config.data,
     total: total(shown),
     history: Array.isArray(history.data) ? history.data : [],
+    /** Raw receipts (undefined until loaded), for held displays. */
+    historyData: Array.isArray(history.data) ? history.data : undefined,
     historyError: history.isError,
     lastWin: Number(history.data?.[0]?.payoutAmount ?? 0),
     canConfirm: !locked && total(draft) >= min,

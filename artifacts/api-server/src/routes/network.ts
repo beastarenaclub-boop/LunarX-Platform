@@ -1,15 +1,21 @@
 import { Router, type IRouter } from "express";
+import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import {
   db,
   usersTable,
   networkNodesTable,
   auditLogTable,
+  sessionsTable,
+  passwordResetsTable,
   type User,
 } from "@workspace/db";
 import { nanoid } from "nanoid";
 import { requireAuth } from "../middlewares/auth";
+import { requireStepUp } from "../middlewares/stepUp";
+import { disconnectAccountSessions } from "../realtime/gateway";
+import { createNotification } from "../services/notifications";
 import { badRequest, conflict, forbidden, notFound } from "../lib/errors";
 import { hashPassword } from "../lib/password";
 import { assertPasswordAllowed } from "../lib/passwordPolicy";
@@ -172,7 +178,8 @@ router.post("/nodes", async (req, res, next) => {
     const passwordHash = await hashPassword(input.password);
     let node: (typeof networkNodesTable.$inferSelect & { username: string }) | undefined;
     for (let attempt = 0; attempt < 5 && !node; attempt++) {
-    const username = await generateUsername();
+    // Login username: first 5 letters of the name + 3 random digits.
+    const username = await generateUsername(input.name);
     try {
     node = await db.transaction(async (tx) => {
       if (actor.role === "master" && input.manualPaymentsEnabled) {
@@ -328,11 +335,12 @@ router.post("/players", async (req, res, next) => {
     const input = playerCredentials.parse(req.body);
     assertPasswordAllowed(input.password);
     const passwordHash = await hashPassword(input.password);
-    // Players sign in with a generated "cry" + 4-digit username; the required
-    // email column mirrors it. Retry if a concurrent signup takes the name.
+    // Players sign in with a username built from their name (first 5 letters
+    // + 3 random digits); the required email column mirrors it. Retry if a
+    // concurrent signup takes the name.
     let user: User | undefined;
     for (let attempt = 0; attempt < 5 && !user; attempt++) {
-      const username = await generateUsername();
+      const username = await generateUsername(input.name);
       try {
         user = await db.transaction(async (tx) => {
           const [created] = await tx
@@ -401,6 +409,163 @@ router.patch("/players/:id", async (req, res, next) => {
     next(e);
   }
 });
+
+// Password resets from the branch panel. The operator confirms with their own
+// password (X-Confirm-Password, checked by requireStepUp) so a stolen panel
+// session alone cannot take over downline accounts.
+const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60_000,
+  limit: 10,
+  keyGenerator: (req) => req.user!.id,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: {
+    error: {
+      code: "TOO_MANY_REQUESTS",
+      message: "Too many password changes. Try again in a few minutes.",
+    },
+  },
+});
+const newPasswordBody = z.object({ password: z.string().min(1).max(200) }).strict();
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+/** Sets the new hash, signs the account out everywhere and voids reset links. */
+async function replacePassword(tx: Tx, userId: string, passwordHash: string) {
+  await tx
+    .update(usersTable)
+    .set({ passwordHash, updatedAt: new Date() })
+    .where(eq(usersTable.id, userId));
+  const revoked = await tx
+    .update(sessionsTable)
+    .set({ revokedAt: new Date() })
+    .where(and(eq(sessionsTable.userId, userId), isNull(sessionsTable.revokedAt)))
+    .returning({ id: sessionsTable.id });
+  await tx
+    .update(passwordResetsTable)
+    .set({ usedAt: new Date() })
+    .where(and(eq(passwordResetsTable.userId, userId), isNull(passwordResetsTable.usedAt)));
+  return revoked.length;
+}
+
+function afterPasswordReset(userId: string) {
+  disconnectAccountSessions(userId);
+  void createNotification({
+    userId,
+    type: "custom",
+    title: "Password changed",
+    message:
+      "Your password was reset by your account manager and existing sessions were signed out. Contact them if you did not expect this change.",
+    linkUrl: "/profile",
+  }).catch(() => {});
+}
+
+// Admin resets any master or agent; a master resets only its own agents.
+router.post(
+  "/nodes/:id/password",
+  passwordResetLimiter,
+  requireStepUp,
+  async (req, res, next) => {
+    try {
+      const actor = await networkIdentity(req.user!);
+      if (actor.role === "agent")
+        throw forbidden("Agents cannot change branch passwords");
+      const { password } = newPasswordBody.parse(req.body);
+      const [node] = await db
+        .select()
+        .from(networkNodesTable)
+        .where(eq(networkNodesTable.id, String(req.params.id)));
+      if (!node) throw notFound();
+      if (actor.role !== "admin" && node.parentId !== actor.node.id)
+        throw forbidden("You can manage only your own agents");
+      const [target] = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.id, node.userId));
+      if (!target || target.role !== "agent") throw notFound();
+      if (password.length < 10)
+        throw badRequest("Password must be at least 10 characters.");
+      assertPasswordAllowed(password, { username: target.username });
+      const passwordHash = await hashPassword(password);
+      const revokedSessions = await db.transaction(async (tx) => {
+        const [locked] = await tx
+          .select({ id: usersTable.id })
+          .from(usersTable)
+          .where(eq(usersTable.id, target.id))
+          .for("update");
+        if (!locked) throw notFound();
+        const revoked = await replacePassword(tx, target.id, passwordHash);
+        await audit(tx, req.user!, "network.password_reset", node.id, {
+          userId: target.id,
+          username: target.username,
+          kind: node.kind,
+          revokedSessions: revoked,
+        });
+        return revoked;
+      });
+      afterPasswordReset(target.id);
+      res.json({ ok: true, username: target.username ?? target.email, revokedSessions });
+    } catch (e) {
+      next(e);
+    }
+  },
+);
+
+// Admin resets any player; a master resets players under its agents; an
+// agent resets only its own players.
+router.post(
+  "/players/:id/password",
+  passwordResetLimiter,
+  requireStepUp,
+  async (req, res, next) => {
+    try {
+      const actor = await networkIdentity(req.user!);
+      const { password } = newPasswordBody.parse(req.body);
+      const [target] = await db
+        .select()
+        .from(usersTable)
+        .where(eq(usersTable.id, String(req.params.id)));
+      if (
+        !target ||
+        target.role !== "player" ||
+        !["b2b", "b2c"].includes(target.channel) ||
+        (actor.role !== "admin" && target.channel !== "b2b")
+      )
+        throw notFound();
+      if (actor.role === "agent" && target.b2bAgentId !== actor.node.id)
+        throw forbidden("You can manage only your own users");
+      if (actor.role === "master") {
+        const [agent] = target.b2bAgentId
+          ? await db
+              .select({ parentId: networkNodesTable.parentId })
+              .from(networkNodesTable)
+              .where(eq(networkNodesTable.id, target.b2bAgentId))
+          : [];
+        if (!agent || agent.parentId !== actor.node.id)
+          throw forbidden("You can manage only users under your agents");
+      }
+      assertPasswordAllowed(password, { username: target.username });
+      const passwordHash = await hashPassword(password);
+      const revokedSessions = await db.transaction(async (tx) => {
+        const [locked] = await tx
+          .select({ id: usersTable.id })
+          .from(usersTable)
+          .where(eq(usersTable.id, target.id))
+          .for("update");
+        if (!locked) throw notFound();
+        const revoked = await replacePassword(tx, target.id, passwordHash);
+        await audit(tx, req.user!, "network.player.password_reset", target.id, {
+          username: target.username,
+          revokedSessions: revoked,
+        });
+        return revoked;
+      });
+      afterPasswordReset(target.id);
+      res.json({ ok: true, username: target.username ?? target.email, revokedSessions });
+    } catch (e) {
+      next(e);
+    }
+  },
+);
 
 async function ledgerFilter(req: Parameters<typeof requireAuth>[0]) {
   const actor = await networkIdentity(req.user!);

@@ -21,6 +21,7 @@ import {
   Users,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useResultHold } from "@/lib/resultReveal";
 import { useStore } from "@/game/store";
 import { updateSettings } from "@/game/engine";
 import { sfx, unlockAudio } from "@/game/audio";
@@ -90,6 +91,9 @@ function ForexTable({ userId }: { userId: string }) {
     (balance ?? 0) >= coins.chip &&
     coins.chip % 10 === 0;
   const open = state?.trades.filter((t) => t.status === "open") || [];
+  // A round's trades are paid at its close (wallet push included) a poll before
+  // this page shows the close: hold the shared results while ours are locked in.
+  useResultHold(locked && open.length > 0);
   const latestResult = state?.results[0];
   const settled =
     state?.trades.filter(

@@ -54,6 +54,7 @@ import { useTableRound } from "@/components/table/useTableRound";
 import LiveBetsPanel from "@/components/table/LiveBetsPanel";
 import { useCoinPreferences } from "@/components/table/CoinSettings";
 import RoundWinDialog, { useRoundWin } from "@/components/table/RoundWinDialog";
+import { useResultHold } from "@/lib/resultReveal";
 import {
   betKey,
   betLabel,
@@ -335,6 +336,14 @@ export default function Roulette() {
       onRollEnd: () => sfx.ballRollStop(120),
     }),
     [],
+  );
+
+  // The landing is planned to finish inside the reveal window, before the
+  // server settles — but a slow frame or a late outcome can push it past
+  // settlement, and the shared "My results" bar must not name the win while
+  // the ball is still rolling. Held from the close until the ball is down.
+  useResultHold(
+    (round.phase === "reveal" || round.phase === "settling") && landedPocket === null,
   );
 
   // Croupier calls the winning number + its colour once the wheel comes to

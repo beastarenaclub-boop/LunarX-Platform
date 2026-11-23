@@ -2,7 +2,7 @@ import { tooMany } from "../lib/errors";
 
 /**
  * Per-account failed-login throttle. The per-IP limiter alone cannot stop
- * password spraying across the small username space (cry0000–cry9999) from
+ * password spraying across guessable usernames (name letters + 3 digits) from
  * many IPs, so failures are also counted per login identifier.
  *
  * State is in memory: the API currently runs as a single instance (see

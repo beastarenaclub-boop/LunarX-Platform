@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: "POST",
         credentials: "include",
         headers: { "content-type": "application/json" },
-        // Masters and agents sign in with their "cry" + 4-digit username;
+        // Masters and agents sign in with their username (rahul482 / cry1234);
         // accounts created before usernames may still enter their email.
         body: JSON.stringify({ username, password }),
       },
