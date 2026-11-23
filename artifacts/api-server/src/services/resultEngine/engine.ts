@@ -468,8 +468,14 @@ export async function decideOutcomeFor(args: {
             args.payoutFor,
             true,
           );
+    // decide() immediately draws honestly for normal mode, an empty book or
+    // no candidates. Historical totals and shared budgets cannot affect that
+    // result. Reading them for every idle table saturated the shared DB pool
+    // and delayed unrelated crash-game polls by several seconds.
+    const needsDecisionContext = state.mode !== "normal" && exposure.betCount > 0 &&
+      exposure.totalStakedPaise > 0n && exposure.outcomes.length > 0;
     const win =
-      state.mode === "auto"
+      needsDecisionContext && state.mode === "auto"
         ? await windowFor(state.streamKey, state.params.windowRounds)
         : { stakedPaise: 0n, houseNetPaise: 0n };
     const bank: BankState = {
@@ -486,22 +492,22 @@ export async function decideOutcomeFor(args: {
     // default, and every scope nobody has configured — returns an empty
     // object, so the floor test keeps reading this stream's own bank and
     // floor exactly as it always has.
-    Object.assign(bank, await effectiveFloorFor(partnerId));
-    if (state.mode === "rtp") {
+    if (needsDecisionContext) Object.assign(bank, await effectiveFloorFor(partnerId));
+    if (needsDecisionContext && state.mode === "rtp") {
       const totals = await cumulativeFor(state.streamKey, state.params.rtpHistoryScope);
       bank.cumulativeStakedPaise = totals.stakedPaise;
       bank.cumulativePayoutPaise = totals.payoutPaise;
     }
     // Only read when it can act: the switch is on and more than one party
     // has a chip on this round.
-    if (state.params.partyBalanceEnabled && (exposure.partyStakes?.size ?? 0) > 1) {
+    if (needsDecisionContext && state.params.partyBalanceEnabled && (exposure.partyStakes?.size ?? 0) > 1) {
       bank.partyTotals = await partyTotalsFor(gameCode, partnerId, state.params.partyHistoryScope);
       bank.partyTargetBps = state.params.partyTargetRtpBps || 10_000 - state.params.rtpHoldBps;
     }
     // Likewise the player balance: only read when a switch is on, and only
     // for the accounts on this round. Measured over the RTP history scope,
     // the one window the stream's target is already measured over.
-    if ((state.params.playerCapEnabled || state.params.playerLiftEnabled) && (exposure.playerStakes?.size ?? 0) > 0) {
+    if (needsDecisionContext && (state.params.playerCapEnabled || state.params.playerLiftEnabled) && (exposure.playerStakes?.size ?? 0) > 0) {
       bank.playerTotals = await playerTotalsFor(gameCode, partnerId, state.params.rtpHistoryScope, [...exposure.playerStakes!.keys()]);
     }
     const rng = SeededRng.fresh();
