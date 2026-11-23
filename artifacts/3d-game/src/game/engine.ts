@@ -433,8 +433,8 @@ function settingsApplyVolumes() {
 // Outcomes and accepted auto-cashouts are owned by the server. The browser
 // interpolates animation only; reconnects restore the same committed round.
 let engineGeneration = 0;
-/** How long the flight keeps moving without a fresh poll before it holds. */
-const MAX_EXTRAPOLATION_MS = 2000;
+const STALE_ROUND_MS = 2000;
+let roundRequest: AbortController | null = null;
 let latestSnapshot: CrashSnapshot | null = null;
 let snapshotReceivedAt = 0;
 let engineRunning = false;
@@ -457,7 +457,7 @@ function syncCrashBets(snapshot: CrashSnapshot) {
         const current = panels[panel];
         if (current.activeBetId !== receipt.id || current.pendingBet !== pendingBet || current.pendingAmount !== pendingAmount) {
           if (panels === st.panels) panels = [...panels] as typeof panels;
-          panels[panel] = {...current, activeBetId:receipt.id, pendingBet, pendingAmount};
+          panels[panel] = {...current, queuedBet:null, activeBetId:receipt.id, pendingBet, pendingAmount};
         }
       }
     }
@@ -472,20 +472,26 @@ async function startBettingPhase() {
   const generation = ++engineGeneration;
   const gameCode = store.getState().activeGameCode;
   latestSnapshot = null;
+  roundRequest?.abort();
   if (phaseTimer) clearTimeout(phaseTimer);
   if (raf) cancelAnimationFrame(raf);
-  store.setState({phase:"crashed", countdownMs:0, roundId:"connecting", roundHouseEdge:undefined});
+  store.setState({phase:"crashed", roundConnection:"connecting", countdownMs:0, roundId:"connecting", roundHouseEdge:undefined});
+  let shownFlyMs = 0, frameAt = performance.now();
   const poll = async (roundId?: string): Promise<void> => {
+    const controller = new AbortController();
+    roundRequest = controller;
+    const timeout = setTimeout(() => controller.abort(), 8000);
     try {
-      const snapshot = await getCrashRound(gameCode, roundId);
+      const snapshot = await getCrashRound(gameCode, roundId, controller.signal);
       if (generation !== engineGeneration || !engineRunning) return;
       const first = !latestSnapshot;
       latestSnapshot = snapshot;
-      store.setState({ roundHouseEdge: snapshot.houseEdge });
+      store.setState({ roundHouseEdge: snapshot.houseEdge, roundConnection:"live" });
       snapshotReceivedAt = performance.now();
       const previous = store.getState();
       if (first) store.setState({roundId:snapshot.id, phase:snapshot.phase === "crashed" ? "flying" : snapshot.phase,
-        multiplier:snapshot.multiplier, countdownTotalMs:snapshot.bettingMs, crashAt:0, flyMs:0,
+        multiplier:snapshot.multiplier, countdownMs:Math.max(0,snapshot.startsAt-snapshot.now), countdownTotalMs:snapshot.bettingMs, crashAt:0,
+        flyMs:snapshot.phase === "betting" ? 0 : Math.max(0,snapshot.now-snapshot.startsAt),
         serverSeed:"", serverSeedHash:snapshot.serverSeedHash, clientSeed:snapshot.clientSeed, nonce:snapshot.nonce,
         liveBets:[], panels:previous.panels.map(p=>({...p,activeBetId:null,pendingBet:false,pendingAmount:0})) as typeof previous.panels});
       syncCrashBets(snapshot);
@@ -502,41 +508,48 @@ async function startBettingPhase() {
         sfx.engineStart(gameCode);
       }
       if (first) {
-        // Server time shown on screen. It is extrapolated from the last poll
-        // and lags the real server clock by the download latency, so the
-        // multiplier on screen is never ahead of what a cashout can get.
-        let shownNow = 0;
+        shownFlyMs = snapshot.phase === "betting" ? 0 : Math.max(0,snapshot.now-snapshot.startsAt);
+        frameAt = performance.now();
         const animate = () => {
           if (generation !== engineGeneration || !latestSnapshot) return;
-          // Polls land every 250 ms plus a round trip. The old 500 ms cap froze
-          // the multiplier on every poll once the round trip passed 250 ms
-          // (mobile data, a busy server) and then jumped it forward — the
-          // flight looked stuck. Keep extrapolating for up to
-          // MAX_EXTRAPOLATION_MS instead, and never step backwards when a poll
-          // arrives with network jitter.
-          shownNow = Math.max(shownNow, latestSnapshot.now + Math.min(MAX_EXTRAPOLATION_MS, performance.now()-snapshotReceivedAt));
-          const now = shownNow;
+          const frame = performance.now(), age = frame - snapshotReceivedAt;
+          const delta = Math.max(0, Math.min(100, frame - frameAt));
+          frameAt = frame;
+          if (age > STALE_ROUND_MS) store.setState({roundConnection:"reconnecting"});
           if (latestSnapshot.phase === "betting") {
-            store.setState({countdownMs:Math.max(0,latestSnapshot.startsAt-now)});
+            store.setState({countdownMs:Math.max(0,latestSnapshot.startsAt-latestSnapshot.now-age)});
             // The helicopter is already running while the countdown ticks;
             // the same source carries into flight without restarting.
             if (gameCode === "fury" && store.getState().settings.sound && musicRouteAllowed) sfx.engineIntensity(1, 0, gameCode);
           }
           else {
-            const flyMs = Math.max(0,now-latestSnapshot.startsAt), multiplier = Math.floor(Math.exp(flyMs/10000)*100)/100;
+            // Interpolate only toward confirmed server time. Extrapolation
+            // could show 2.20x and then crash at 2.16x when the response arrived.
+            // On a stalled connection hold the last confirmed value instead.
+            const target = Math.max(shownFlyMs, latestSnapshot.now-latestSnapshot.startsAt);
+            shownFlyMs = Math.min(target, shownFlyMs + Math.max(delta, (target-shownFlyMs)*(1-Math.exp(-delta/100))));
+            const flyMs = shownFlyMs, multiplier = Math.min(latestSnapshot.multiplier, Math.floor(Math.exp(flyMs/10000)*100)/100);
             store.setState({multiplier,flyMs});
             if (store.getState().settings.sound && musicRouteAllowed) sfx.engineIntensity(multiplier, flyMs, gameCode);
           }
           raf=requestAnimationFrame(animate);
         };
         raf=requestAnimationFrame(animate);
-        if (snapshot.phase === "betting") store.getState().panels.forEach((p,i)=>{
-          if (i < (gameCode === "jetx" ? 4 : 2) && p.autoBet.enabled && p.autoBet.roundsLeft>0 && !p.pendingBet) void placeBet(i as CrashPanelIndex);
-        });
       }
+      if (snapshot.phase === "betting" && snapshot.startsAt-snapshot.now > 300) store.getState().panels.forEach((p,i)=>{
+        const queued = p.queuedBet?.gameCode === gameCode && p.queuedBet.afterRoundId !== snapshot.id;
+        if (i < (gameCode === "jetx" ? 4 : 2) && !p.pendingBet && !p.activeBetId &&
+          (queued || (first && p.autoBet.enabled && p.autoBet.roundsLeft>0))) void placeBet(i as CrashPanelIndex);
+      });
       phaseTimer=setTimeout(()=>void poll(snapshot.id),250);
     } catch {
-      if (generation === engineGeneration && engineRunning) phaseTimer=setTimeout(()=>void poll(roundId),1000);
+      if (generation === engineGeneration && engineRunning) {
+        store.setState({roundConnection:"reconnecting"});
+        phaseTimer=setTimeout(()=>void poll(roundId),1000);
+      }
+    } finally {
+      clearTimeout(timeout);
+      if (roundRequest === controller) roundRequest = null;
     }
   };
   await poll();
@@ -595,11 +608,13 @@ function finishRound(
       return {
         ...p,
         activeBetId: null,
+        pendingBet: false,
+        pendingAmount: 0,
         autoBet: { ...newAuto, enabled: stillRunning },
       };
     }
     // Update auto bet for panels with no bet (e.g. ran out)
-    return p;
+    return p.pendingBet ? {...p, pendingBet:false, pendingAmount:0} : p;
   }) as typeof s.panels;
 
   // Annotate myBets for this round with crash multiplier
@@ -684,48 +699,82 @@ function finishRound(
 // server call is pending. Server bet ids land back in panel.activeBetId.
 const placingPanels: Set<number> = new Set();
 
+/** A manual tap outside the betting window authorizes exactly one next round. */
+export function queueNextBet(panelIdx: CrashPanelIndex) {
+  const s = store.getState(), p = s.panels[panelIdx];
+  if (!engineRunning || !s.roundId.startsWith("crash-") || s.gameDisabled ||
+    s.roundConnection !== "live" || p.pendingBet || p.activeBetId || p.queuedBet) return;
+  if (panelIdx > 1 && s.activeGameCode !== "jetx") return;
+  const useFreeBet = s.useFreeBetForBets && s.freeBetCount > 0;
+  const amount = useFreeBet ? Math.round(Number(s.freeBetNextAmountPaise)) / 100 : p.amount;
+  if (!Number.isFinite(amount) || amount <= 0) return;
+  if (!useFreeBet && !s.useBonusForBets && amount > s.balance) {
+    toast.error("Insufficient balance"); return;
+  }
+  store.setState({panels:s.panels.map((current,i)=>i === panelIdx ? {...current, queuedBet:{
+    afterRoundId:s.roundId, gameCode:s.activeGameCode, amount,
+    useBonus:s.useBonusForBets, useFreeBet,
+    autoCashOut:p.autoCashOutEnabled ? p.autoCashOut : undefined,
+  }} : current) as typeof s.panels});
+}
+
+export function cancelQueuedBet(panelIdx: CrashPanelIndex) {
+  store.setState(s=>({panels:s.panels.map((p,i)=>i === panelIdx && p.queuedBet ? {...p,queuedBet:null} : p) as typeof s.panels}));
+}
+
+function clearQueuedBets() {
+  store.setState(s=>({panels:s.panels.map(p=>p.queuedBet ? {...p,queuedBet:null} : p) as typeof s.panels}));
+}
+
 export async function placeBet(panelIdx: CrashPanelIndex) {
   const s = store.getState();
   const p = s.panels[panelIdx];
+  const queued = p.queuedBet;
   if (panelIdx > 1 && s.activeGameCode !== "jetx") return;
   if (s.phase !== "betting" || !s.roundId.startsWith("crash-")) return;
   if (s.gameDisabled) {
+    cancelQueuedBet(panelIdx);
     toast.error("Game is temporarily disabled");
     return;
   }
   if (p.pendingBet || p.activeBetId) return;
+  if (queued && (queued.gameCode !== s.activeGameCode || queued.afterRoundId === s.roundId)) return;
   // Free bet: stake is the fixed grant amount decided by the server; the
   // local amount input is ignored and no wallet balance is needed.
-  const useFreeBet = s.useFreeBetForBets && s.freeBetCount > 0;
+  const useFreeBet = queued ? queued.useFreeBet : s.useFreeBetForBets && s.freeBetCount > 0;
   const freeBetStake = useFreeBet
     ? Math.round(Number(s.freeBetNextAmountPaise)) / 100
     : 0;
   if (!useFreeBet && p.amount <= 0) return;
-  if (useFreeBet && freeBetStake <= 0) return;
+  if (useFreeBet && (freeBetStake <= 0 || s.freeBetCount <= 0 || (queued && queued.amount !== freeBetStake))) {
+    cancelQueuedBet(panelIdx);
+    toast.error("Free bet is no longer available");
+    return;
+  }
   if (placingPanels.has(panelIdx)) return;
   placingPanels.add(panelIdx);
   if (s.settings.sound) sfx.bet();
   // Optimistically reserve the stake locally so the panel UI flips to its
   // "Cancel"/"Cash out" affordance immediately. The server is the source of
   // truth for the wallet balance — it is debited inside placeServerBet.
-  const reserved = useFreeBet ? freeBetStake : p.amount;
+  const reserved = queued?.amount ?? (useFreeBet ? freeBetStake : p.amount);
   store.setState({
     panels: s.panels.map((pp, i) =>
-      i === panelIdx ? { ...pp, pendingBet: true, pendingAmount: reserved } : pp,
+      i === panelIdx ? { ...pp, queuedBet:null, pendingBet: true, pendingAmount: reserved } : pp,
     ) as typeof s.panels,
   });
   try {
     const serverBet = await placeServerBet(reserved, {
-      useBonus: store.getState().useBonusForBets,
+      useBonus: queued?.useBonus ?? s.useBonusForBets,
       useFreeBet,
       panel: panelIdx,
-      autoCashOut: p.autoCashOutEnabled ? p.autoCashOut : undefined,
+      autoCashOut: queued ? queued.autoCashOut : p.autoCashOutEnabled ? p.autoCashOut : undefined,
     });
     if (useFreeBet) {
       // Consumed one grant — refresh the summary so the toggle/count update.
       void import("./freeBets").then((m) => m.refreshFreeBets());
     }
-    if (store.getState().roundId !== s.roundId) return;
+    if (store.getState().roundId !== s.roundId || store.getState().phase === "crashed") return;
     // Stash the server bet id on the panel as activeBetId so cashOut/lose
     // calls have the right reference even though the local round hasn't
     // started flying yet.
@@ -1025,6 +1074,7 @@ export function applyLiveGameConfig(cfg: PublicGameConfig) {
     // a panel pointing at an out-of-range value the server would reject.
     const panels = s.panels.map((pp) => ({
       ...pp,
+      queuedBet: cfg.enabled === false ? null : pp.queuedBet,
       autoCashOut: Math.min(hi, Math.max(lo, pp.autoCashOut)),
     })) as typeof s.panels;
     const maxStakeRupees =
@@ -1077,6 +1127,7 @@ async function fetchAndApplyServerConfig(
  */
 export function setActiveCrashGame(gameCode: string) {
   if (store.getState().activeGameCode === gameCode) return;
+  clearQueuedBets();
   store.setState({
     activeGameCode: gameCode,
     // Auto play was authorised for the previous game. Never carry it into
@@ -1116,6 +1167,9 @@ export function initEngine() {
   return () => {
     engineRunning = false;
     engineGeneration++;
+    roundRequest?.abort();
+    roundRequest = null;
+    clearQueuedBets();
     if (raf) cancelAnimationFrame(raf);
     if (phaseTimer) clearTimeout(phaseTimer);
     if (atmosphereInterval) clearInterval(atmosphereInterval);

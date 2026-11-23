@@ -66,11 +66,11 @@ export interface CrashSnapshot {
   bets: { id: string; stakeAmount: string; status: string; payoutAmount: string; multiplier: number | null; panel: number; autoCashOut?: number | null }[];
 }
 
-export async function getCrashRound(gameCode: string, roundId?: string): Promise<CrashSnapshot> {
+export async function getCrashRound(gameCode: string, roundId?: string, signal?: AbortSignal): Promise<CrashSnapshot> {
   const base = import.meta.env.VITE_API_URL || "/api";
   const query = new URLSearchParams({ clientSeed: store.getState().clientSeed || "player", turbo:String(store.getState().settings.turbo) });
   if (roundId) query.set("roundId", roundId);
-  const response = await fetch(`${base}/crash/${encodeURIComponent(gameCode)}?${query}`, { credentials: "include" });
+  const response = await fetch(`${base}/crash/${encodeURIComponent(gameCode)}?${query}`, { credentials: "include", cache: "no-store", signal });
   if (!response.ok) throw new Error("Connecting to the game server");
   const data = await response.json() as CrashSnapshot;
   if (!data.id?.startsWith("crash-") || !Number.isFinite(data.now)) throw new Error("Invalid game round");

@@ -74,7 +74,7 @@ test("restored flight keeps cashout available after rejection and waits for an a
   expect(accepted).toBe(true);
   await page.reload();
   await expect(
-    page.getByTestId("bet-panel-0").filter({ visible: true }),
+    page.getByTestId("av-bet-panel-0").filter({ visible: true }),
   ).toBeVisible();
   await expect(page.getByTestId("btn-cashout-0")).toHaveCount(0);
 });

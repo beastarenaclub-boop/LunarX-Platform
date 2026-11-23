@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import aviatorLogo from "@/assets/aviator-logo.svg";
 import idleArt from "@/assets/loading_image_middle.png";
 import { useStore } from "@/game/store";
@@ -19,14 +19,6 @@ import { useStore } from "@/game/store";
  * included.
  */
 const IDLE_ART: string | null = idleArt;
-
-/**
- * Where the countdown sits ON TOP of IDLE_ART, as a percentage down the image.
- * 50% is dead centre; raise it to push the bar toward the bottom of the art if
- * it collides with something in the middle of your image. Ignored when
- * IDLE_ART is null — the fallback lockup stacks the countdown underneath.
- */
-const IDLE_ART_COUNTDOWN_Y = "55%";
 
 /**
  * Idle-art sizing. The art is drawn at an EXACT width and height derived from
@@ -83,6 +75,8 @@ const CURVE = "#e50539";
  */
 export default function AvCanvas() {
   const phase = useStore((s) => s.phase);
+  const connection = useStore((s) => s.roundConnection);
+  const roundId = useStore((s) => s.roundId);
   const multiplier = useStore((s) => s.multiplier);
   const flyMs = useStore((s) => s.flyMs);
   const countdownMs = useStore((s) => s.countdownMs);
@@ -92,7 +86,7 @@ export default function AvCanvas() {
   const liveBets = useStore((s) => s.liveBets);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const sizeRef = useRef({ w: 1420, h: 710 });
+  const [size, setSize] = useState({ w: 382, h: 200 });
 
   useEffect(() => {
     const el = containerRef.current;
@@ -101,13 +95,17 @@ export default function AvCanvas() {
       // clientWidth/Height, not getBoundingClientRect — the page applies CSS
       // `zoom` above us, which scales the rect but not the local coordinate
       // space the plane is positioned in.
-      sizeRef.current = { w: el.clientWidth, h: el.clientHeight };
+      setSize(previous => previous.w === el.clientWidth && previous.h === el.clientHeight
+        ? previous : { w: el.clientWidth, h: el.clientHeight });
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
-  const { w, h } = sizeRef.current;
+  const { w, h } = size;
+  // A viewport-sized 300vmax rotating layer exhausted mobile GPU memory.
+  // This circle covers the stage at every rotation, including its far corner.
+  const sunburstSize = Math.ceil(Math.hypot(w, h) * 2.1);
 
   // Position tracks FLIGHT TIME, not the multiplier. In the reference the plane
   // sweeps out to the top-right over the first few seconds and then hovers
@@ -189,12 +187,13 @@ export default function AvCanvas() {
   );
   const artW = artH * IDLE_ART_RATIO;
 
-  // The seconds number that used to sit above the bar is gone (operator
-  // request, 2026-10-10): the draining bar alone says how long is left, and a
-  // large counter over the idle art read as a second, busier clock.
+  // Keep the betting window explicit without covering the idle artwork.
 
   const countdown = (
     <div className="flex flex-col items-center">
+      <span className="mb-2 text-[12px] text-white/80 tabular-nums" data-testid="aviator-countdown">
+        {countdownMs > 0 ? `Place your bets · ${(countdownMs / 1000).toFixed(1)}s` : "Waiting for takeoff…"}
+      </span>
       <div
         className="h-[3px] overflow-hidden rounded-full bg-white/10"
         style={{ width: IDLE_BAR_PX }}
@@ -217,6 +216,7 @@ export default function AvCanvas() {
       ref={containerRef}
       className="relative w-full h-full overflow-hidden rounded-[20px] border border-[#2a2b2e] bg-[#0d0d0d]"
       data-testid="aviator-canvas"
+      data-phase={phase}
     >
       {/* Sunburst: ~20 charcoal wedges radiating from the bottom-left origin,
           rotating slowly. Present in every phase, exactly like the reference. */}
@@ -226,10 +226,10 @@ export default function AvCanvas() {
           style={{
             left: startX,
             top: startY,
-            width: "300vmax",
-            height: "300vmax",
-            marginLeft: "-150vmax",
-            marginTop: "-150vmax",
+            width: sunburstSize,
+            height: sunburstSize,
+            marginLeft: -sunburstSize / 2,
+            marginTop: -sunburstSize / 2,
             borderRadius: "50%",
             background:
               "repeating-conic-gradient(from 0deg, rgba(255,255,255,0.055) 0deg 7deg, rgba(255,255,255,0) 7deg 16deg)",
@@ -320,13 +320,11 @@ export default function AvCanvas() {
 
       {/* Center readout */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
-        {phase === "betting" ? (
+        {roundId === "connecting" ? (
+          <div className="text-center text-sm text-white/80" role="status">Connecting to next round…</div>
+        ) : phase === "betting" ? (
           <div className="flex flex-col items-center gap-4">
-            {/* Slot for your own idle artwork — see IDLE_ART at the top of the
-                file. Scales to 42% of the canvas width and is capped at 45% of
-                its height. With art set the countdown is overlaid on it at
-                IDLE_ART_COUNTDOWN_Y; without it, the fallback lockup stacks the
-                countdown underneath instead. */}
+            {/* Keep the countdown below the artwork so its text stays legible. */}
             {IDLE_ART ? (
               <div className="flex flex-col items-center gap-2">
                 <div className="relative">
@@ -339,13 +337,8 @@ export default function AvCanvas() {
                     style={{ width: Math.round(artW), height: Math.round(artH) }}
                     data-testid="idle-branding"
                   />
-                  <div
-                    className="absolute left-1/2 w-full -translate-x-1/2 -translate-y-1/2"
-                    style={{ top: IDLE_ART_COUNTDOWN_Y }}
-                  >
-                    {countdown}
-                  </div>
                 </div>
+                {countdown}
               </div>
             ) : (
               <>
@@ -417,6 +410,11 @@ export default function AvCanvas() {
           </div>
         )}
       </div>
+      {connection === "reconnecting" && roundId !== "connecting" && (
+        <div className="absolute inset-x-2 top-2 rounded bg-black/75 px-2 py-1 text-center text-xs text-amber-200" role="status">
+          Reconnecting… showing the last confirmed value
+        </div>
+      )}
 
       {/* Live players pill — reference .wrapper: 32px tall, radius 16, 24px
           avatars ringed in #28a90a, count 12px/500. */}

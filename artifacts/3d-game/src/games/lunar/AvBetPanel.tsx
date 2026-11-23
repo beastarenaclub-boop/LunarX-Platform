@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useStore, store } from "@/game/store";
 import {
   placeBet,
+  queueNextBet,
+  cancelQueuedBet,
   cashOut,
   setPanelAmount,
   setPanelAutoCash,
@@ -69,6 +71,7 @@ export default function AvBetPanel({
   // a bet in the air, the multiplier for the live cash-out amount.
   const bettingOpen = useStore((s) => s.countdownMs > 300);
   const phase = useStore((s) => s.phase);
+  const connection = useStore((s) => s.roundConnection);
   const multiplier = useStore((s) => (s.panels[panelIdx].activeBetId ? s.multiplier : 1));
   const balance = useStore((s) => s.balance);
   const panel = useStore((s) => s.panels[panelIdx]);
@@ -99,15 +102,19 @@ export default function AvBetPanel({
   const activeBet = panel.activeBetId ? myBets.find((b) => b.id === panel.activeBetId) : null;
   const potential = activeBet ? +(activeBet.amount * multiplier).toFixed(2) : 0;
 
-  const amountLocked = panel.pendingBet || !!panel.activeBetId;
+  const amountLocked = panel.pendingBet || !!panel.activeBetId || !!panel.queuedBet;
   const canPlace =
     phase === "betting" &&
-    !panel.pendingBet && !panel.activeBetId &&
+    !amountLocked && connection === "live" &&
     roundId.startsWith("crash-") && bettingOpen &&
     Number.isFinite(panel.amount) && panel.amount > 0 &&
     (maxStakeRupees <= 0 || panel.amount <= maxStakeRupees) &&
     (freeBetArmed ? freeBetStake > 0 : panel.amount <= balance) &&
     !gameDisabled;
+  const canQueue = !canPlace && !amountLocked && connection === "live" &&
+    roundId.startsWith("crash-") && !gameDisabled && Number.isFinite(panel.amount) && panel.amount > 0 &&
+    (maxStakeRupees <= 0 || panel.amount <= maxStakeRupees) &&
+    (freeBetArmed ? freeBetStake > 0 : panel.amount <= balance);
   const canCancel = phase === "betting" && panel.pendingBet;
   // Cashing out an in-flight bet stays possible even if an admin disables the
   // game mid-round — a player must never lose money to a toggle.
@@ -129,7 +136,7 @@ export default function AvBetPanel({
 
   // Once the round is flying `pendingAmount` is cleared but the bet is still
   // live, so read the committed stake rather than the reservation.
-  const staked = activeBet?.amount ?? (panel.pendingBet ? panel.pendingAmount : null);
+  const staked = panel.queuedBet?.amount ?? activeBet?.amount ?? (panel.pendingBet ? panel.pendingAmount : null);
   const shownAmount = amountLocked ? (staked ?? panel.amount) : panel.amount;
 
   return (
@@ -235,7 +242,7 @@ export default function AvBetPanel({
               type="text"
               inputMode="decimal"
               value={draft ?? fmtINR(shownAmount)}
-              onFocus={() => !amountLocked && setDraft(String(shownAmount))}
+              onFocus={(e) => !amountLocked && setDraft(e.currentTarget.value)}
               onBlur={() => setDraft(null)}
               onChange={(e) => {
                 const v = e.target.value.replace(/[^0-9.]/g, "");
@@ -299,7 +306,15 @@ export default function AvBetPanel({
                 <span className={ACTION_CCY}>INR</span>
               </span>
             </button>
-          ) : canCancel ? (
+          ) : panel.queuedBet ? (
+            <button onClick={() => cancelQueuedBet(panelIdx)}
+              className={cn(ACTION_BTN,"bg-[#c02626] hover:bg-[#d63030]")}
+              data-testid={`btn-cancel-queue-${panelIdx}`}>
+              <span className="text-[17px]">Next round · Cancel</span>
+              <span className={ACTION_SUB}>{fmtINR(panel.queuedBet.amount)}<span className={ACTION_CCY}>INR</span></span>
+              <span className="mt-1 text-[11px]">Not charged yet</span>
+            </button>
+          ) : canCancel || panel.pendingBet ? (
             <button
               disabled
               className={cn(ACTION_BTN, "bg-[#c02626] hover:bg-[#d63030]")}
@@ -313,17 +328,17 @@ export default function AvBetPanel({
             </button>
           ) : (
             <button
-              onClick={() => placeBet(panelIdx)}
-              disabled={!canPlace}
+              onClick={() => canPlace ? void placeBet(panelIdx) : queueNextBet(panelIdx)}
+              disabled={!canPlace && !canQueue}
               className={cn(
                 ACTION_BTN,
                 "bg-[#36a800] shadow-[inset_0_0_0_1px_#5bc044] hover:bg-[#3fc000] disabled:cursor-not-allowed disabled:opacity-55",
               )}
               data-testid={`btn-bet-${panelIdx}`}
             >
-              {/* The reference shows "Bet" in every idle phase — there is no
-                  separate green "Next round" label. */}
-              <span className={ACTION_LABEL}>Bet</span>
+              <span className={ACTION_LABEL}>
+                {connection !== "live" ? "Connecting…" : canQueue ? "Next round" : "Bet"}
+              </span>
               <span className={ACTION_SUB}>
                 {freeBetArmed ? `FREE ${fmtINR(freeBetStake)}` : fmtINR(panel.amount)}
                 <span className={ACTION_CCY}>INR</span>

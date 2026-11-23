@@ -61,7 +61,15 @@ export interface PanelState {
   amount: number;
   autoCashOutEnabled: boolean;
   autoCashOut: number;
-  pendingBet: boolean; // queued for next round
+  pendingBet: boolean; // placement in flight or accepted before takeoff
+  queuedBet: {
+    afterRoundId: string;
+    gameCode: string;
+    amount: number;
+    useBonus: boolean;
+    useFreeBet: boolean;
+    autoCashOut?: number;
+  } | null; // one explicit next-round request; never persisted
   pendingAmount: number; // immutable reserved stake for the pending bet
   activeBetId: string | null; // current round bet
   autoBet: {
@@ -115,6 +123,7 @@ export interface GameState {
   lastBonusTs: number | null;
   // round
   phase: Phase;
+  roundConnection: "connecting" | "live" | "reconnecting";
   multiplier: number;
   roundId: string;
   countdownMs: number; // betting countdown remaining
@@ -198,6 +207,7 @@ const initialPanel = (): PanelState => ({
   autoCashOut: 2.0,
   selectedRoundId: null,
   pendingBet: false,
+  queuedBet: null,
   pendingAmount: 0,
   activeBetId: null,
   autoBet: {
@@ -249,6 +259,7 @@ const initialState: GameState = {
   balance: 10000,
   lastBonusTs: null,
   phase: "betting",
+  roundConnection: "connecting",
   multiplier: 1,
   roundId: "init",
   countdownMs: 5000,
@@ -342,10 +353,10 @@ function loadPersisted(): Partial<GameState> {
     }
     if (Array.isArray(data.panels) && data.panels.length >= 2) {
       result.panels = [
-        { ...initialPanel(), ...(data.panels[0] ?? {}), selectedRoundId: null, pendingBet: false, pendingAmount: 0, activeBetId: null },
-        { ...initialPanel(), ...(data.panels[1] ?? {}), selectedRoundId: null, pendingBet: false, pendingAmount: 0, activeBetId: null },
-        { ...initialPanel(), ...(data.panels[2] ?? {}), selectedRoundId: null, pendingBet: false, pendingAmount: 0, activeBetId: null },
-        { ...initialPanel(), ...(data.panels[3] ?? {}), selectedRoundId: null, pendingBet: false, pendingAmount: 0, activeBetId: null },
+        { ...initialPanel(), ...(data.panels[0] ?? {}), queuedBet: null, selectedRoundId: null, pendingBet: false, pendingAmount: 0, activeBetId: null },
+        { ...initialPanel(), ...(data.panels[1] ?? {}), queuedBet: null, selectedRoundId: null, pendingBet: false, pendingAmount: 0, activeBetId: null },
+        { ...initialPanel(), ...(data.panels[2] ?? {}), queuedBet: null, selectedRoundId: null, pendingBet: false, pendingAmount: 0, activeBetId: null },
+        { ...initialPanel(), ...(data.panels[3] ?? {}), queuedBet: null, selectedRoundId: null, pendingBet: false, pendingAmount: 0, activeBetId: null },
       ];
     }
     return result;
