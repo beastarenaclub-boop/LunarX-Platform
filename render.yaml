@@ -66,7 +66,9 @@ services:
     dockerfilePath: ./deploy/render/web.Dockerfile
     dockerContext: .
     autoDeployTrigger: off
-    healthCheckPath: /api/healthz
+    # Check the web server itself; an API restart must not remove the frontend
+    # from routing. API requests keep their separate backend health/retry path.
+    healthCheckPath: /
     domains:
       - lunarx.live
       - b2b.lunarx.live
