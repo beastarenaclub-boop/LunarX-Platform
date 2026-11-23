@@ -9,6 +9,7 @@ import {
   uniqueIndex,
   index,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { usersTable } from "./users";
 type PokerGame = "poker-one-day" | "poker-20-20" | "poker-six-players";
 type PokerQuote = {
@@ -41,7 +42,11 @@ export const pokerRounds = pgTable(
     endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
     settledAt: timestamp("settled_at", { withTimezone: true }),
   },
-  (t) => [index("poker_round_game").on(t.game, t.id)],
+  (t) => [
+    index("poker_round_game").on(t.game, t.id),
+    index("poker_round_pending_reveal_idx").on(t.game, t.revealsAt, t.id)
+      .where(sql`${t.settledAt} IS NULL`),
+  ],
 );
 export const pokerBets = pgTable(
   "poker_bets",

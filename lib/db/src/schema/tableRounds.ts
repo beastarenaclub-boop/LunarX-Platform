@@ -67,6 +67,12 @@ export const tableRoundsTable = pgTable(
     index("table_rounds_game_code_idx").on(t.gameCode),
     index("table_rounds_phase_idx").on(t.phase),
     index("table_rounds_created_at_idx").on(t.createdAt),
+    // Settlement workers only need unfinished rounds, not the full history.
+    index("table_rounds_pending_reveal_idx").on(t.gameCode, t.revealEndsAt)
+      .where(sql`${t.phase} <> 'settled'`),
+    index("table_rounds_venue_end_idx").on(t.gameCode, t.clientSeed, t.settleEndsAt),
+    index("table_rounds_owner_created_idx").on(t.gameCode, sql`(${t.config}->>'owner')`, t.createdAt.desc())
+      .where(sql`${t.config}->>'owner' IS NOT NULL`),
   ],
 );
 
