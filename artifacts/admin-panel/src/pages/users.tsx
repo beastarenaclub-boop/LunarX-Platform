@@ -97,7 +97,7 @@ export default function UsersPage() {
       <div className="flex flex-wrap gap-3 items-end">
         <div className="w-72">
           <Input
-            placeholder="Email, display name, or user ID"
+            placeholder="Username, email, display name, or user ID"
             value={q}
             onChange={(e) => {
               setQ(e.target.value);
@@ -262,7 +262,7 @@ export default function UsersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Email</TableHead>
+              <TableHead>Username / login</TableHead>
               <TableHead>Display</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
@@ -280,7 +280,12 @@ export default function UsersPage() {
             )}
             {data?.users.map((u) => (
               <TableRow key={u.id} data-testid={`row-user-${u.id}`}>
-                <TableCell className="font-medium">{u.email}</TableCell>
+                <TableCell className="font-medium">
+                  <span className="font-mono">{u.username ?? u.email}</span>
+                  {u.username && u.email !== u.username && (
+                    <div className="text-xs text-slate-500">{u.email}</div>
+                  )}
+                </TableCell>
                 <TableCell>{u.displayName ?? "—"}</TableCell>
                 <TableCell>
                   <Badge variant="secondary">{u.role}</Badge>

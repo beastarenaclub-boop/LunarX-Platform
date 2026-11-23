@@ -119,9 +119,9 @@ test(
       if (cookie) client.cookie = cookie.split(";")[0];
       return result;
     }
-    async function login(email: string, panel?: "master" | "agent") {
+    async function login(username: string, panel?: "master" | "agent") {
       const client: Client = { host: "localhost:5176", panel };
-      await call(client, "/auth/agent-login", { email, password });
+      await call(client, "/auth/agent-login", { username, password });
       return client;
     }
     async function sum(account: string) {
@@ -135,7 +135,6 @@ test(
         company,
         "/network/nodes",
         {
-          email: `${prefix}-master@example.test`,
           name: "North Branch",
           password,
           companyFeeBps: 1000,
@@ -144,7 +143,9 @@ test(
         "POST",
         201,
       );
-      const masterClient = await login(`${prefix}-master@example.test`);
+      // Masters and agents get a generated "cry" + 4-digit login username.
+      assert.match(master.username, /^cry\d{4}$/);
+      const masterClient = await login(master.username);
       assert.equal(
         (await call(masterClient, "/network/context")).role,
         "master",
@@ -153,7 +154,6 @@ test(
         masterClient,
         "/network/nodes",
         {
-          email: `${prefix}-agent@example.test`,
           name: "North Agent",
           password,
           shareBps: 5000,
@@ -161,10 +161,12 @@ test(
         "POST",
         201,
       );
-      const agentClient = await login(`${prefix}-agent@example.test`);
+      assert.match(agent.username, /^cry\d{4}$/);
+      assert.notEqual(agent.username, master.username);
+      const agentClient = await login(agent.username);
       // Both tabs send the same browser cookie jar; the panel selects its own session.
-      const scopedMaster = await login(`${prefix}-master@example.test`, "master");
-      const scopedAgent = await login(`${prefix}-agent@example.test`, "agent");
+      const scopedMaster = await login(master.username, "master");
+      const scopedAgent = await login(agent.username, "agent");
       assert.ok(scopedMaster.cookie!.startsWith("sid_master="));
       assert.ok(scopedAgent.cookie!.startsWith("sid_agent="));
       const sharedCookies = `${scopedMaster.cookie}; ${scopedAgent.cookie}; ${agentClient.cookie}`;
@@ -173,8 +175,8 @@ test(
       }
       await call({ ...scopedMaster, cookie: agentClient.cookie }, "/network/context", undefined, "GET", 401);
       await call({ ...scopedMaster, cookie: scopedAgent.cookie!.replace("sid_agent=", "sid_master=") }, "/network/context", undefined, "GET", 401);
-      await call(scopedMaster, "/auth/agent-login", { email: `${prefix}-agent@example.test`, password }, "POST", 403);
-      await call(scopedAgent, "/auth/agent-login", { email: `${prefix}-master@example.test`, password }, "POST", 403);
+      await call(scopedMaster, "/auth/agent-login", { username: agent.username, password }, "POST", 403);
+      await call(scopedAgent, "/auth/agent-login", { username: master.username, password }, "POST", 403);
       await call({ ...scopedAgent, cookie: sharedCookies }, "/auth/logout", {});
       await call(scopedAgent, "/network/context", undefined, "GET", 401);
       assert.equal((await call({ ...scopedMaster, cookie: sharedCookies }, "/network/context")).role, "master");
@@ -240,7 +242,7 @@ test(
         "POST",
         201,
       );
-      const otherClient = await login(`${prefix}-other@example.test`);
+      const otherClient = await login(otherMaster.username);
       const website = await call(publicB2b, `/network/website/${master.id}`);
       assert.deepEqual(Object.keys(website).sort(), ["domain", "loginUrl", "masterId", "name", "url", "defaultUrl", "logoUrl"].sort(), "Public website metadata contains no account or financial data");
       assert.equal(website.masterId, master.id);
@@ -571,7 +573,7 @@ test(
       unsubscribe();
       assert.ok(
         wallet.entries.every((e: { email: string }) =>
-          [player.email, `${prefix}-agent@example.test`].includes(e.email),
+          [player.email, agent.username].includes(e.email),
         ),
       );
       await call(
@@ -709,10 +711,10 @@ test(
 
       // Reporting has its own historical fixtures; do not alter settlement tests above.
       const reportMaster = await call(company, '/network/nodes', {email:`${prefix}-reports@example.test`,name:'Report Master',password}, 'POST', 201);
-      const reportClient = await login(`${prefix}-reports@example.test`);
-      const reportAgents: {id:string}[] = [];
+      const reportClient = await login(reportMaster.username);
+      const reportAgents: {id:string;username:string}[] = [];
       for (const label of ['one','two','empty']) reportAgents.push(await call(reportClient,'/network/nodes',{email:`${prefix}-report-${label}@example.test`,name:`Report ${label}`,password,shareBps:5000},'POST',201));
-      const reportAgentClient = await login(`${prefix}-report-one@example.test`);
+      const reportAgentClient = await login(reportAgents[0].username);
       const seed = async (suffix:string, at:string, agentId:string, stake:number, payout:number, revision=1) => {
         const net=stake-payout;
         for (const [kind,id,amount] of [['company','company',net/10],['master',reportMaster.id,net*45/100],['agent',agentId,net*45/100]] as const)

@@ -53,6 +53,7 @@ export type NetworkNode = {
   parent_name: string | null;
   name: string;
   email: string;
+  username?: string | null;
   status: string;
   company_fee_bps: number;
   share_bps: number;
@@ -80,6 +81,10 @@ type Context = {
     manualPaymentsEnabled: boolean;
   };
 };
+/** Login name shown for an account: its username, or the old email. */
+export const loginName = (a: { username?: string | null; email: string }) =>
+  a.username ?? a.email;
+
 export type NetworkPlayer = {
   id: string;
   email: string;
@@ -257,14 +262,22 @@ export function NetworkPanel({
       setModal(null);
       setError("");
       const createdUsername =
-        variables.path === "/players" && result && typeof result === "object"
+        (variables.path === "/players" || variables.path === "/nodes") &&
+        result &&
+        typeof result === "object"
           ? (result as { username?: unknown }).username
           : undefined;
+      const createdWhat =
+        variables.path === "/players"
+          ? "User"
+          : role === "admin"
+            ? "Master branch"
+            : "Agent";
       setNotice(
         variables.path === "/transfers"
           ? "Funds transferred successfully. Balances and wallet ledger updated."
           : typeof createdUsername === "string"
-            ? `User created. Login username: ${createdUsername} — share it with the player together with the password you set.`
+            ? `${createdWhat} created. Login username: ${createdUsername} — share it together with the password you set.`
             : "Saved successfully.",
       );
       void qc.invalidateQueries({ queryKey: ["network"] });
@@ -285,8 +298,8 @@ export function NetworkPanel({
       if (modal?.kind === "create") {
         const body = {
           name: get("name"),
-          // B2B players get a generated "cry" + 4-digit username.
-          ...(role === "agent" ? {} : { email: get("email") }),
+          // Masters, agents and users all get a generated "cry" + 4-digit
+          // login username; no email is collected.
           password: get("password"),
           ...(role !== "agent"
             ? {
@@ -354,7 +367,7 @@ export function NetworkPanel({
     (n) => !masterFilter || n.parent_id === masterFilter,
   );
   const visibleAgents = scopedAgents.filter((n) =>
-    `${n.name} ${n.email}`
+    `${n.name} ${n.username ?? ""} ${n.email}`
       .toLowerCase()
       .includes(agentSearch.trim().toLowerCase()),
   );
@@ -508,7 +521,7 @@ export function NetworkPanel({
           <div>
             <span>Available to transfer</span>
             <strong>{own ? money(own.float_balance) : "Loading…"}</strong>
-            <small>{own?.email}</small>
+            <small>{own ? loginName(own) : null}</small>
           </div>
           <div className="net-actions">
             <button onClick={refreshBalances} disabled={nodes.isFetching}>
@@ -756,7 +769,7 @@ export function NetworkPanel({
                       .filter((n) => n.kind === "master")
                       .map((n) => (
                         <option key={n.id} value={n.id}>
-                          {n.name} · {n.email}
+                          {n.name} · {loginName(n)}
                         </option>
                       ))}
                   </select>
@@ -815,7 +828,7 @@ export function NetworkPanel({
                         <tr key={n.id}>
                           <td>
                             <strong>{n.name}</strong>
-                            <small>{n.email}</small>
+                            <small>{loginName(n)}</small>
                             {n.parent_id && (
                               <small>
                                 Under{" "}
@@ -902,7 +915,7 @@ export function NetworkPanel({
                   ? `Total users${search ? " matching search" : ""}: ${players.data.total}`
                   : "Loading user count…"}
                 {selectedAgent && channel === "b2b"
-                  ? ` · ${selectedAgent.email}`
+                  ? ` · ${loginName(selectedAgent)}`
                   : ""}
               </p>
             </div>
@@ -927,7 +940,7 @@ export function NetworkPanel({
                   <option value="">All agents</option>
                   {agentNodes.map((n) => (
                     <option key={n.id} value={n.id}>
-                      {n.name} · {n.email} ({n.players} users)
+                      {n.name} · {loginName(n)} ({n.players} users)
                     </option>
                   ))}
                 </select>
@@ -1035,28 +1048,17 @@ export function NetworkPanel({
               )}
               {modal.kind === "create" && (
                 <>
-                  {role === "agent" ? (
-                    <p>
-                      <small>
-                        A login username like <strong>cry1234</strong> is
-                        created automatically and shown after saving.
-                      </small>
-                    </p>
-                  ) : (
-                    <Field label="Login email">
-                      <input
-                        type="email"
-                        name="email"
-                        required
-                        autoComplete="off"
-                      />
-                    </Field>
-                  )}
+                  <p>
+                    <small>
+                      A login username like <strong>cry1234</strong> is
+                      created automatically and shown after saving.
+                    </small>
+                  </p>
                   <Field
                     label={
                       role === "agent"
                         ? "Password (8–72 characters, letters and numbers)"
-                        : "Password (10–72 characters)"
+                        : "Password (10–72 characters, letters and numbers)"
                     }
                   >
                     <input
@@ -1142,7 +1144,13 @@ export function NetworkPanel({
                 <div className="net-fund-summary">
                   <p>
                     Downline account:{" "}
-                    <strong>{modal.node?.email ?? modal.player?.email}</strong>
+                    <strong>
+                      {modal.node
+                        ? loginName(modal.node)
+                        : modal.player
+                          ? loginName(modal.player)
+                          : null}
+                    </strong>
                   </p>
                   {role !== "admin" && (
                     <p>

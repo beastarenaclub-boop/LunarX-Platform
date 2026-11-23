@@ -505,6 +505,13 @@
       "when": 1795392000000,
       "tag": "0071_player_usernames",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1795395600000,
+      "tag": "0072_operator_usernames",
+      "breakpoints": true
     }
   ]
 }

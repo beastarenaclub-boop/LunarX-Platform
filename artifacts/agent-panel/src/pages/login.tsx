@@ -8,7 +8,7 @@ import { getOperatorPanel } from "@workspace/api-client-react";
 
 export default function Login() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      await login(email.trim(), password);
+      await login(username.trim().toLowerCase(), password);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -47,10 +47,17 @@ export default function Login() {
             )}
             <div>
               <Input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                name="username"
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                aria-label="Username"
+                placeholder="Username (e.g. cry1234)"
+                maxLength={254}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>

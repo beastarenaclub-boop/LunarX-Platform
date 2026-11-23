@@ -96,9 +96,12 @@ export default function UserDetail() {
           <Link href="/users" className="text-sm text-slate-500 hover:underline">
             ← Back to users
           </Link>
-          <h1 className="text-2xl font-semibold mt-1" data-testid="text-user-email">
-            {user.email}
+          <h1 className="text-2xl font-semibold mt-1 font-mono" data-testid="text-user-email">
+            {user.username ?? user.email}
           </h1>
+          {user.username && user.email !== user.username && (
+            <div className="text-sm text-slate-500">Old login email: {user.email}</div>
+          )}
           <div className="text-sm text-slate-500 flex items-center gap-2 mt-1">
             <span className="font-mono text-xs">{user.id}</span>
             <Badge variant="secondary">{user.role}</Badge>

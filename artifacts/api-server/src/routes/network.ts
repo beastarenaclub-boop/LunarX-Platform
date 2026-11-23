@@ -67,16 +67,11 @@ function isDuplicate(error: unknown): boolean {
   return databaseError.code === "23505" || isDuplicate(databaseError.cause);
 }
 const bps = z.number().int().min(0).max(10000);
+// Masters and agents sign in with a generated "cry" + 4-digit username, like
+// players. `email` is ignored (accepted only so a panel tab opened before the
+// update still works).
 const credentials = z.object({
-  email: z
-    .string()
-    .trim()
-    .email()
-    .max(254)
-    .refine(
-      (v) => !v.toLowerCase().endsWith("@demo.lunar.local"),
-      "Reserved email",
-    ),
+  email: z.string().max(254).optional(),
   password: z.string().min(10).max(72),
   name: z.string().trim().min(2).max(100),
 });
@@ -146,7 +141,7 @@ router.get("/nodes", async (req, res, next) => {
         : actor.role === "master"
           ? sql`(n.id = ${actor.node.id} OR n.parent_id = ${actor.node.id})`
           : sql`n.id = ${actor.node.id}`;
-    const rows = await db.execute(sql`SELECT n.*, u.email,
+    const rows = await db.execute(sql`SELECT n.*, u.email, u.username,
       (SELECT name FROM network_nodes parent WHERE parent.id=n.parent_id) AS parent_name,
       (SELECT count(*)::int FROM users p WHERE p.b2b_agent_id = n.id OR p.b2b_agent_id IN (SELECT id FROM network_nodes WHERE parent_id=n.id)) AS players,
       COALESCE((SELECT sum(amount)::text FROM network_ledger l WHERE l.account_id=n.id),'0') AS earned,
@@ -173,23 +168,24 @@ router.post("/nodes", async (req, res, next) => {
     const input = createNode.parse(req.body);
     if (actor.role === "master" && input.companyFeeBps !== 1000)
       throw forbidden("Company fee is controlled by admin");
+    assertPasswordAllowed(input.password);
     const passwordHash = await hashPassword(input.password);
-    const node = await db.transaction(async (tx) => {
+    let node: (typeof networkNodesTable.$inferSelect & { username: string }) | undefined;
+    for (let attempt = 0; attempt < 5 && !node; attempt++) {
+    const username = await generateUsername();
+    try {
+    node = await db.transaction(async (tx) => {
       if (actor.role === "master" && input.manualPaymentsEnabled) {
         const [master] = await tx.select().from(networkNodesTable).where(eq(networkNodesTable.id, actor.node.id)).for("share");
         if (!master?.manualPaymentsEnabled) throw forbidden("Admin must assign manual payment access before you can delegate it");
       }
-      const existing = await tx
-        .select({ id: usersTable.id })
-        .from(usersTable)
-        .where(eq(usersTable.emailNormalized, input.email.toLowerCase()));
-      if (existing.length)
-        throw conflict("Email is already registered. Use a new account.");
+      // The required email column mirrors the generated username.
       const [user] = await tx
         .insert(usersTable)
         .values({
-          email: input.email,
-          emailNormalized: input.email.toLowerCase(),
+          email: username,
+          emailNormalized: username,
+          username,
           passwordHash,
           displayName: input.name,
           role: "agent",
@@ -210,13 +206,18 @@ router.post("/nodes", async (req, res, next) => {
         .returning();
       await audit(tx, req.user!, "network.create", created!.id, {
         ...created!,
-        email: input.email,
+        username,
       });
-      return created!;
+      return { ...created!, username };
     });
+    } catch (e) {
+      // A concurrent signup took this username: pick another one.
+      if (!isDuplicate(e)) throw e;
+    }
+    }
+    if (!node) throw conflict("Could not create the account. Please try again.");
     res.status(201).json(serialize(node));
   } catch (e) {
-    if (isDuplicate(e)) return next(conflict("Email is already registered"));
     next(e);
   }
 });

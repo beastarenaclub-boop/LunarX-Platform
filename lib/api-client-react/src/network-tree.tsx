@@ -130,7 +130,7 @@ export function NetworkTree({
     nodes.find((node) => node.id === rootId)?.kind === "agent";
   const { byId, children, roots, visible } = useMemo(() => {
     const sorted = [...nodes].sort(
-      (a, b) => a.name.localeCompare(b.name) || a.email.localeCompare(b.email),
+      (a, b) => a.name.localeCompare(b.name) || (a.username ?? a.email).localeCompare(b.username ?? b.email),
     );
     const byId = new Map(sorted.map((node) => [node.id, node]));
     const children = new Map<string, NetworkNode[]>();
@@ -146,7 +146,7 @@ export function NetworkTree({
       if (
         isAgentRoot ||
         !query ||
-        `${node.name} ${node.email}`.toLowerCase().includes(query)
+        `${node.name} ${node.username ?? ""} ${node.email}`.toLowerCase().includes(query)
       ) {
         visible.add(node.id);
         if (node.parent_id) visible.add(node.parent_id);
@@ -217,7 +217,7 @@ export function NetworkTree({
                 {node.id === rootId ? " · Your account" : ""}
               </span>
               <strong>{node.name}</strong>
-              <span>{node.email}</span>
+              <span>{node.username ?? node.email}</span>
               <small>
                 Under{" "}
                 {parent?.name ??

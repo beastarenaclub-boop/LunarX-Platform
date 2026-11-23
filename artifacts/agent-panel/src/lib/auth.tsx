@@ -22,7 +22,7 @@ export type AgentUser = {
 type AuthContextValue = {
   user: AgentUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -55,14 +55,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void refresh();
   }, [refresh]);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (username: string, password: string) => {
     const data = await customFetch<{ user: AgentUser }>(
       "/api/auth/agent-login",
       {
         method: "POST",
         credentials: "include",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        // Masters and agents sign in with their "cry" + 4-digit username;
+        // accounts created before usernames may still enter their email.
+        body: JSON.stringify({ username, password }),
       },
     );
     disconnectRealtime();
