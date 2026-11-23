@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect, useLayoutEffect, type ReactNode } from "reac
 import { Switch, Route, Redirect, useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
+import { NewUsernameDialog } from "@/components/auth/NewUsernameDialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
@@ -390,6 +391,7 @@ function App() {
         </Switch>
         </Suspense>
         </GameViewport>
+        <NewUsernameDialog />
         <Toaster position="top-right" theme={!GAME_ROUTES.has(location) && !["/lottery", "/prize-lotto", "/launcher"].includes(location) ? "light" : "dark"} richColors />
       </TooltipProvider>
     </AuthProvider>

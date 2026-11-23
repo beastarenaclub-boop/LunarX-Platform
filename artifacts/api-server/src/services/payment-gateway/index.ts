@@ -36,5 +36,7 @@ export function getPaymentProvider(): PaymentProvider {
 
 export function isGatewayEnabled(): boolean {
   const name = (process.env.PAYMENT_PROVIDER ?? "stub").toLowerCase();
-  return name !== "stub" && name !== "";
+  // Unknown names fall back to StubProvider above, so they must not enable
+  // deposits, payouts or the stub's unsigned webhook handler.
+  return name === "cashfree";
 }

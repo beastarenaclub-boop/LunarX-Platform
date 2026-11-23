@@ -12,6 +12,8 @@ import { nanoid } from "nanoid";
 import { requireAuth } from "../middlewares/auth";
 import { badRequest, conflict, forbidden, notFound } from "../lib/errors";
 import { hashPassword } from "../lib/password";
+import { assertPasswordAllowed } from "../lib/passwordPolicy";
+import { generateUsername } from "../services/auth";
 import { networkIdentity } from "../services/network";
 import { networkWebsite, masterWebsite } from "../services/networkWebsite";
 import { weeklyStatus, assertBranchOperations } from "../services/networkWeekly";
@@ -78,6 +80,15 @@ const credentials = z.object({
   password: z.string().min(10).max(72),
   name: z.string().trim().min(2).max(100),
 });
+const playerCredentials = z
+  .object({
+    password: z.string().min(8).max(72),
+    name: z.string().trim().min(2).max(100),
+    // Ignored: players now get a generated username. Accepted so an agent
+    // panel tab opened before the update still works.
+    email: z.string().max(254).optional(),
+  })
+  .strict();
 const createNode = credentials
   .extend({ companyFeeBps: bps.default(1000), shareBps: bps.default(10000), manualPaymentsEnabled: z.boolean().optional() })
   .strict();
@@ -291,9 +302,9 @@ router.get("/players", async (req, res, next) => {
     if (agentId && channel !== "b2b")
       throw badRequest("Agent filters are available only for B2B users");
     const agentFilter = agentId ? sql`u.b2b_agent_id=${agentId}` : sql`true`;
-    const condition = sql`u.role='player' AND u.channel=${channel} AND ${playerScope(actor)} AND ${agentFilter} AND (u.email ILIKE ${`%${q}%`} OR u.display_name ILIKE ${`%${q}%`})`;
+    const condition = sql`u.role='player' AND u.channel=${channel} AND ${playerScope(actor)} AND ${agentFilter} AND (u.email ILIKE ${`%${q}%`} OR u.username ILIKE ${`%${q}%`} OR u.display_name ILIKE ${`%${q}%`})`;
     const [rows, total] = await Promise.all([
-      db.execute(sql`SELECT u.id,u.email,u.display_name,u.status,u.channel,u.created_at,u.b2b_agent_id AS agent_id,a.name AS agent,m.name AS master,
+      db.execute(sql`SELECT u.id,u.email,u.username,u.display_name,u.status,u.channel,u.created_at,u.b2b_agent_id AS agent_id,a.name AS agent,m.name AS master,
         COALESCE((SELECT sum(amount)::text FROM wallet_ledger WHERE user_id=u.id),'0') AS balance,
         COALESCE((SELECT sum(stake-payout)::text FROM network_wagers WHERE user_id=u.id AND settled),'0') AS net
         FROM users u LEFT JOIN network_nodes a ON a.id=u.b2b_agent_id LEFT JOIN network_nodes m ON m.id=a.parent_id
@@ -313,33 +324,48 @@ router.post("/players", async (req, res, next) => {
     const actor = await networkIdentity(req.user!);
     if (actor.role !== "agent")
       throw forbidden("Only an agent can create a B2B player");
-    const input = credentials.strict().parse(req.body);
+    const input = playerCredentials.parse(req.body);
+    assertPasswordAllowed(input.password);
     const passwordHash = await hashPassword(input.password);
-    const user = await db.transaction(async (tx) => {
-      const [created] = await tx
-        .insert(usersTable)
-        .values({
-          email: input.email,
-          emailNormalized: input.email.toLowerCase(),
-          passwordHash,
-          displayName: input.name,
-          role: "player",
-          channel: "b2b",
-          b2bAgentId: actor.node.id,
-          referredBy: null,
-        })
-        .returning();
-      await audit(tx, req.user!, "network.player.create", created!.id, {
-        email: input.email,
-        agentId: actor.node.id,
-      });
-      return created!;
+    // Players sign in with a generated "cry" + 4-digit username; the required
+    // email column mirrors it. Retry if a concurrent signup takes the name.
+    let user: User | undefined;
+    for (let attempt = 0; attempt < 5 && !user; attempt++) {
+      const username = await generateUsername();
+      try {
+        user = await db.transaction(async (tx) => {
+          const [created] = await tx
+            .insert(usersTable)
+            .values({
+              email: username,
+              emailNormalized: username,
+              username,
+              passwordHash,
+              displayName: input.name,
+              role: "player",
+              channel: "b2b",
+              b2bAgentId: actor.node.id,
+              referredBy: null,
+            })
+            .returning();
+          await audit(tx, req.user!, "network.player.create", created!.id, {
+            username,
+            agentId: actor.node.id,
+          });
+          return created!;
+        });
+      } catch (e) {
+        if (!isDuplicate(e)) throw e;
+      }
+    }
+    if (!user) throw conflict("Could not create the player. Please try again.");
+    res.status(201).json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      channel: user.channel,
     });
-    res
-      .status(201)
-      .json({ id: user.id, email: user.email, channel: user.channel });
   } catch (e) {
-    if (isDuplicate(e)) return next(conflict("Email is already registered"));
     next(e);
   }
 });

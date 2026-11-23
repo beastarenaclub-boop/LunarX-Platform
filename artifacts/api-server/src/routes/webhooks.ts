@@ -5,7 +5,7 @@ import {
   withdrawalsTable,
 } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
-import { getPaymentProvider } from "../services/payment-gateway";
+import { getPaymentProvider, isGatewayEnabled } from "../services/payment-gateway";
 import { postEntry, publishWalletBalance, toWalletScope } from "../services/wallet";
 import { bus } from "../realtime/eventBus";
 import { recordAudit } from "../lib/audit";
@@ -15,6 +15,12 @@ const router: IRouter = Router();
 
 router.post("/payment", async (req, res): Promise<void> => {
   try {
+    // The stub provider does not verify signatures. Without a real gateway
+    // this endpoint would let anyone mark their own deposit as paid.
+    if (!isGatewayEnabled()) {
+      res.status(404).json({ ok: false });
+      return;
+    }
     const provider = getPaymentProvider();
     const rawBody =
       (req as unknown as Record<string, unknown>).rawBody as string | undefined ??
@@ -40,6 +46,16 @@ router.post("/payment", async (req, res): Promise<void> => {
       }
 
       if (dep.status === "approved" || dep.status === "cancelled") {
+        res.json({ ok: true });
+        return;
+      }
+
+      if (payload.status === "paid" && payload.amount > 0n && payload.amount !== dep.amount) {
+        // Never credit more (or less) than what the gateway says was paid.
+        logger.error(
+          { gatewayOrderId: payload.gatewayOrderId, paid: payload.amount.toString(), expected: dep.amount.toString() },
+          "Deposit webhook: paid amount does not match the request; not crediting",
+        );
         res.json({ ok: true });
         return;
       }

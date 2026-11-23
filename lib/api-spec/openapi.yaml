@@ -51,7 +51,7 @@ paths:
     post:
       operationId: login
       tags: [auth]
-      summary: Log in with email and password
+      summary: Log in with username (players) or email (operators) and password
       requestBody:
         required: true
         content:
@@ -1869,23 +1869,31 @@ components:
             details: {}
     SignupRequest:
       type: object
-      required: [email, password]
+      required: [password]
       properties:
-        email: { type: string, format: email }
-        password: { type: string, minLength: 8, maxLength: 128 }
+        password: { type: string, minLength: 8, maxLength: 72 }
         displayName: { type: string, maxLength: 64 }
         referralCode: { type: string, maxLength: 32 }
     LoginRequest:
       type: object
-      required: [email, password]
+      required: [password]
       properties:
-        email: { type: string, format: email }
+        username:
+          type: string
+          minLength: 1
+          maxLength: 254
+          description: Player username ("cry" + 4 digits). Operators may send their email here.
+        email:
+          type: string
+          minLength: 1
+          maxLength: 254
+          description: Operator email login (and legacy player accounts).
         password: { type: string, minLength: 1, maxLength: 128 }
     PasswordResetRequest:
       type: object
-      required: [email]
       properties:
-        email: { type: string, format: email }
+        username: { type: string, minLength: 1, maxLength: 254 }
+        email: { type: string, minLength: 1, maxLength: 254 }
     PasswordResetIssued:
       type: object
       required: [ok]
@@ -1898,14 +1906,18 @@ components:
       type: object
       required: [token, password]
       properties:
-        token: { type: string }
-        password: { type: string, minLength: 8, maxLength: 128 }
+        token: { type: string, maxLength: 128 }
+        password: { type: string, minLength: 8, maxLength: 72 }
     UserPublic:
       type: object
       required: [id, email, role, status, createdAt]
       properties:
         id: { type: string }
         email: { type: string }
+        username:
+          type: string
+          nullable: true
+          description: Player login name ("cry" + 4 digits). Null for operators.
         role:
           type: string
           enum: [player, agent, support, admin, super_admin]
@@ -1923,6 +1935,10 @@ components:
       required: [user]
       properties:
         user: { $ref: "#/components/schemas/UserPublic" }
+        username:
+          type: string
+          nullable: true
+          description: Returned on signup so the player can save their new username.
     Me:
       $ref: "#/components/schemas/UserPublic"
     Profile:

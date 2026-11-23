@@ -16,18 +16,25 @@ import {
   ConfirmPasswordResetBody,
 } from "@workspace/api-zod";
 import {
-  normalizeEmail,
-  findUserByEmail,
+  findUserByLogin,
   createSession,
   revokeSession,
   getActiveSession,
   findUserById,
+  generateUsername,
+  isUniqueViolation,
 } from "../services/auth";
+import {
+  assertLoginAllowed,
+  recordLoginFailure,
+  recordLoginSuccess,
+} from "../services/loginThrottle";
 import { ensureWallet } from "../services/wallet";
 import { bus } from "../realtime/eventBus";
-import { hashPassword, verifyPassword } from "../lib/password";
-import { DEMO_EMAIL_DOMAIN, isDemoUser } from "../lib/serialize";
-import { conflict, unauthorized, badRequest } from "../lib/errors";
+import { hashPassword, verifyPassword, burnPasswordCheck } from "../lib/password";
+import { assertPasswordAllowed } from "../lib/passwordPolicy";
+import { isDemoUser } from "../lib/serialize";
+import { unauthorized, badRequest, HttpError } from "../lib/errors";
 import { recordAudit, clientIp } from "../lib/audit";
 import { writeAppLog } from "../services/appLog";
 import { applySignupBonusAndReferral } from "../services/promotions";
@@ -63,19 +70,8 @@ router.post("/signup", authRateLimiter, async (req, res, next) => {
   try {
     if (requestSite(req) !== "b2c") throw forbidden("Player accounts can only be created by your account manager");
     const input = SignupBody.parse(req.body);
-    const normalized = normalizeEmail(input.email);
-    // Reserve the demo email namespace. Demo status is identified purely by the
-    // email pattern (isDemoUser), and demo accounts receive starting credits and
-    // are auto-purged by the cleanup job. Letting a normal signup pick a
-    // *@demo.lunar.local address would let it self-classify as demo and claim
-    // demo credits outside /demo-login (and its abuse caps). Reserving the
-    // dedicated demo domain is sufficient — isDemoUser also requires it — so we
-    // don't block legitimate addresses that merely start with "demo_".
-    if (normalized.endsWith(DEMO_EMAIL_DOMAIN)) {
-      throw badRequest("This email address is not allowed.");
-    }
-    const existing = await findUserByEmail(normalized);
-    if (existing) throw conflict("Email already registered");
+    assertPasswordAllowed(input.password);
+    const displayName = input.displayName?.replace(/[\u0000-\u001f\u007f]/g, "").trim() || null;
 
     // Public signups always belong directly to the company B2C channel.
     const validReferral: string | null = null;
@@ -100,18 +96,34 @@ router.post("/signup", authRateLimiter, async (req, res, next) => {
     }
 
     const passwordHash = await hashPassword(input.password);
-    const [user] = await db
-      .insert(usersTable)
-      .values({
-        email: input.email.trim(),
-        emailNormalized: normalized,
-        passwordHash,
-        role: "player",
-        status: "active",
-        displayName: input.displayName ?? null,
-        referredBy: validReferral,
-      })
-      .returning();
+    // Players get a random "cry" + 4-digit username. The email column is
+    // required, so it mirrors the username (no real email is collected).
+    let user: typeof usersTable.$inferSelect | undefined;
+    for (let attempt = 0; attempt < 5 && !user; attempt++) {
+      const username = await generateUsername();
+      try {
+        [user] = await db
+          .insert(usersTable)
+          .values({
+            email: username,
+            emailNormalized: username,
+            username,
+            passwordHash,
+            role: "player",
+            status: "active",
+            displayName,
+            referredBy: validReferral,
+          })
+          .returning();
+      } catch (err) {
+        // Another signup took the same name at the same moment: pick again.
+        if (!isUniqueViolation(err)) throw err;
+      }
+    }
+    if (!user) {
+      throw new HttpError(503, "SIGNUP_BUSY", "Could not create the account. Please try again.");
+    }
+    const normalized = user.emailNormalized;
 
     await ensureWallet(user!.id);
 
@@ -199,7 +211,7 @@ router.post("/signup", authRateLimiter, async (req, res, next) => {
     });
     void writeAppLog({
       kind: "auth",
-      message: `New signup: ${input.email.trim()}`,
+      message: `New signup: ${user.username}`,
       actorId: user!.id,
       ip: clientIp(req),
     });
@@ -240,19 +252,45 @@ router.post("/signup", authRateLimiter, async (req, res, next) => {
       logger.warn({ err }, "applySignupBonusAndReferral failed");
     }
 
-    res.json({ user: publicUser(user!), signupBonus: bonusInfo });
+    res.json({
+      user: publicUser(user!),
+      username: user.username,
+      signupBonus: bonusInfo,
+    });
   } catch (err) {
     next(err);
   }
 });
 
+/**
+ * Shared credential check for player and operator logins. Counts failures per
+ * login identifier (on top of the per-IP limiter) and spends equal bcrypt time
+ * for unknown accounts so timing does not reveal which usernames exist.
+ */
+async function checkCredentials(input: {
+  username?: string;
+  email?: string;
+  password: string;
+}) {
+  const identifier = (input.username ?? input.email ?? "").trim();
+  if (!identifier) throw badRequest("Enter your username and password.");
+  assertLoginAllowed(identifier);
+  const user = await findUserByLogin(identifier);
+  const ok = user
+    ? await verifyPassword(input.password, user.passwordHash)
+    : await burnPasswordCheck(input.password);
+  if (!user || !ok) {
+    recordLoginFailure(identifier);
+    throw unauthorized("Invalid username or password");
+  }
+  recordLoginSuccess(identifier);
+  return user;
+}
+
 router.post("/login", authRateLimiter, async (req, res, next) => {
   try {
     const input = LoginBody.parse(req.body);
-    const user = await findUserByEmail(input.email);
-    if (!user) throw unauthorized("Invalid email or password");
-    const ok = await verifyPassword(input.password, user.passwordHash);
-    if (!ok) throw unauthorized("Invalid email or password");
+    const user = await checkCredentials(input);
     if (user.status !== "active") {
       throw unauthorized(`Account is ${user.status}`);
     }
@@ -282,7 +320,7 @@ router.post("/login", authRateLimiter, async (req, res, next) => {
     });
     void writeAppLog({
       kind: "auth",
-      message: `Login: ${user.email}`,
+      message: `Login: ${user.username ?? user.email}`,
       actorId: user.id,
       ip: clientIp(req),
     });
@@ -297,10 +335,7 @@ router.post("/agent-login", authRateLimiter, async (req, res, next) => {
   try {
     if (requestSite(req) !== "operator") throw forbidden("Use the master / agent panel website");
     const input = LoginBody.parse(req.body);
-    const user = await findUserByEmail(input.email);
-    if (!user) throw unauthorized("Invalid email or password");
-    const ok = await verifyPassword(input.password, user.passwordHash);
-    if (!ok) throw unauthorized("Invalid email or password");
+    const user = await checkCredentials(input);
     if (user.status !== "active") {
       throw unauthorized(`Account is ${user.status}`);
     }
@@ -377,9 +412,11 @@ router.post(
   async (req, res, next) => {
     try {
       const input = RequestPasswordResetBody.parse(req.body);
-      const user = await findUserByEmail(input.email);
+      const identifier = (input.username ?? input.email ?? "").trim();
+      if (!identifier) throw badRequest("Enter your username.");
+      const user = await findUserByLogin(identifier);
       let token: string | undefined;
-      if (user) {
+      if (user && user.status === "active") {
         const [row] = await db
           .insert(passwordResetsTable)
           .values({
@@ -393,10 +430,13 @@ router.post(
           "Password reset token issued",
         );
       }
-      // Avoid revealing whether the email exists; only expose token in non-prod
-      // for testability.
+      // Avoid revealing whether the account exists. There is no email/SMS
+      // delivery, so the token is only returned on explicit development/test
+      // runs — an unset NODE_ENV (a misconfigured server) must never hand out
+      // reset tokens, or anyone could take over any account by username.
       const body: { ok: true; token?: string } = { ok: true };
-      if (process.env.NODE_ENV !== "production" && token) body.token = token;
+      const exposeToken = ["development", "test"].includes(process.env.NODE_ENV ?? "");
+      if (exposeToken && token) body.token = token;
       res.json(body);
     } catch (err) {
       next(err);
@@ -404,7 +444,7 @@ router.post(
   },
 );
 
-router.post("/password-reset/confirm", async (req, res, next) => {
+router.post("/password-reset/confirm", authRateLimiter, async (req, res, next) => {
   try {
     const input = ConfirmPasswordResetBody.parse(req.body);
     const rows = await db
@@ -420,6 +460,8 @@ router.post("/password-reset/confirm", async (req, res, next) => {
       .limit(1);
     const reset = rows[0];
     if (!reset) throw badRequest("Invalid or expired token");
+    const target = await findUserById(reset.userId);
+    assertPasswordAllowed(input.password, { username: target?.username });
 
     const passwordHash = await hashPassword(input.password);
     await db.transaction(async (tx) => {

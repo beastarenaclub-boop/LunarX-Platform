@@ -7,10 +7,11 @@
  */
 
 export interface PasswordResetConfirm {
+  /** @maxLength 128 */
   token: string;
   /**
    * @minLength 8
-   * @maxLength 128
+   * @maxLength 72
    */
   password: string;
 }

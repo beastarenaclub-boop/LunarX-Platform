@@ -259,7 +259,7 @@ function Security() {
           two-step verification is not currently available.
         </p>
         <p className="account-hint">
-          Account: {user?.email} · Status: {user?.status} ·{" "}
+          Account: {user?.username ?? user?.email} · Status: {user?.status} ·{" "}
           <Link href="/profile">View identity verification</Link>
         </p>
         <label>

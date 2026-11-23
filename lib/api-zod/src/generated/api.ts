@@ -18,14 +18,13 @@ export const HealthCheckResponse = zod.object({
  * @summary Create a new player account
  */
 export const signupBodyPasswordMin = 8;
-export const signupBodyPasswordMax = 128;
+export const signupBodyPasswordMax = 72;
 
 export const signupBodyDisplayNameMax = 64;
 
 export const signupBodyReferralCodeMax = 32;
 
 export const SignupBody = zod.object({
-  email: zod.string().email(),
   password: zod.string().min(signupBodyPasswordMin).max(signupBodyPasswordMax),
   displayName: zod.string().max(signupBodyDisplayNameMax).optional(),
   referralCode: zod.string().max(signupBodyReferralCodeMax).optional(),
@@ -35,6 +34,10 @@ export const SignupResponse = zod.object({
   user: zod.object({
     id: zod.string(),
     email: zod.string(),
+    username: zod
+      .string()
+      .nullish()
+      .describe('Player login name (\"cry\" + 4 digits). Null for operators.'),
     role: zod.enum(["player", "agent", "support", "admin", "super_admin"]),
     status: zod.enum(["active", "suspended", "banned", "pending"]),
     displayName: zod.string().nullish(),
@@ -47,15 +50,36 @@ export const SignupResponse = zod.object({
       ),
     createdAt: zod.coerce.date(),
   }),
+  username: zod
+    .string()
+    .nullish()
+    .describe("Returned on signup so the player can save their new username."),
 });
 
 /**
- * @summary Log in with email and password
+ * @summary Log in with username (players) or email (operators) and password
  */
+export const loginBodyUsernameMax = 254;
+
+export const loginBodyEmailMax = 254;
+
 export const loginBodyPasswordMax = 128;
 
 export const LoginBody = zod.object({
-  email: zod.string().email(),
+  username: zod
+    .string()
+    .min(1)
+    .max(loginBodyUsernameMax)
+    .optional()
+    .describe(
+      'Player username (\"cry\" + 4 digits). Operators may send their email here.',
+    ),
+  email: zod
+    .string()
+    .min(1)
+    .max(loginBodyEmailMax)
+    .optional()
+    .describe("Operator email login (and legacy player accounts)."),
   password: zod.string().min(1).max(loginBodyPasswordMax),
 });
 
@@ -63,6 +87,10 @@ export const LoginResponse = zod.object({
   user: zod.object({
     id: zod.string(),
     email: zod.string(),
+    username: zod
+      .string()
+      .nullish()
+      .describe('Player login name (\"cry\" + 4 digits). Null for operators.'),
     role: zod.enum(["player", "agent", "support", "admin", "super_admin"]),
     status: zod.enum(["active", "suspended", "banned", "pending"]),
     displayName: zod.string().nullish(),
@@ -75,6 +103,10 @@ export const LoginResponse = zod.object({
       ),
     createdAt: zod.coerce.date(),
   }),
+  username: zod
+    .string()
+    .nullish()
+    .describe("Returned on signup so the player can save their new username."),
 });
 
 /**
@@ -88,6 +120,10 @@ export const DemoLoginResponse = zod.object({
   user: zod.object({
     id: zod.string(),
     email: zod.string(),
+    username: zod
+      .string()
+      .nullish()
+      .describe('Player login name (\"cry\" + 4 digits). Null for operators.'),
     role: zod.enum(["player", "agent", "support", "admin", "super_admin"]),
     status: zod.enum(["active", "suspended", "banned", "pending"]),
     displayName: zod.string().nullish(),
@@ -100,6 +136,10 @@ export const DemoLoginResponse = zod.object({
       ),
     createdAt: zod.coerce.date(),
   }),
+  username: zod
+    .string()
+    .nullish()
+    .describe("Returned on signup so the player can save their new username."),
 });
 
 /**
@@ -115,6 +155,10 @@ export const LogoutResponse = zod.object({
 export const GetMeResponse = zod.object({
   id: zod.string(),
   email: zod.string(),
+  username: zod
+    .string()
+    .nullish()
+    .describe('Player login name (\"cry\" + 4 digits). Null for operators.'),
   role: zod.enum(["player", "agent", "support", "admin", "super_admin"]),
   status: zod.enum(["active", "suspended", "banned", "pending"]),
   displayName: zod.string().nullish(),
@@ -131,8 +175,17 @@ export const GetMeResponse = zod.object({
 /**
  * @summary Request a password reset token
  */
+export const requestPasswordResetBodyUsernameMax = 254;
+
+export const requestPasswordResetBodyEmailMax = 254;
+
 export const RequestPasswordResetBody = zod.object({
-  email: zod.string().email(),
+  username: zod
+    .string()
+    .min(1)
+    .max(requestPasswordResetBodyUsernameMax)
+    .optional(),
+  email: zod.string().min(1).max(requestPasswordResetBodyEmailMax).optional(),
 });
 
 export const RequestPasswordResetResponse = zod.object({
@@ -148,11 +201,13 @@ export const RequestPasswordResetResponse = zod.object({
 /**
  * @summary Confirm password reset using token
  */
+export const confirmPasswordResetBodyTokenMax = 128;
+
 export const confirmPasswordResetBodyPasswordMin = 8;
-export const confirmPasswordResetBodyPasswordMax = 128;
+export const confirmPasswordResetBodyPasswordMax = 72;
 
 export const ConfirmPasswordResetBody = zod.object({
-  token: zod.string(),
+  token: zod.string().max(confirmPasswordResetBodyTokenMax),
   password: zod
     .string()
     .min(confirmPasswordResetBodyPasswordMin)

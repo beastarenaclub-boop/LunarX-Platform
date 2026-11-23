@@ -11,9 +11,33 @@ import {
 } from "../services/freeBets";
 import { badRequest, notFound, conflict } from "../lib/errors";
 import { recordAuditFromReq } from "../lib/audit";
+import { CRASH_GAME_CODES, getGameConfig } from "../services/rtp";
 
 const router: IRouter = Router();
 const adminOnly = requireRole("admin", "super_admin");
+
+/**
+ * Free bets skip the normal stake limits when placed (the stake is forced to
+ * the grant amount), so cap the grant itself at the game's maximum stake —
+ * or, for "any game" grants, the largest crash-game maximum.
+ */
+async function assertFreeBetAmount(amount: bigint, gameCode?: string) {
+  if (amount <= 0n) throw badRequest("Amount must be positive");
+  let max = 0n;
+  if (gameCode) {
+    const cfg = await getGameConfig(gameCode);
+    if (!cfg) throw badRequest("Unknown game");
+    max = cfg.maxStakePaise;
+  } else {
+    for (const code of CRASH_GAME_CODES) {
+      const cfg = await getGameConfig(code);
+      if (cfg && cfg.maxStakePaise > max) max = cfg.maxStakePaise;
+    }
+  }
+  if (max > 0n && amount > max) {
+    throw badRequest(`Free bet amount cannot exceed the maximum stake of ${max.toString()} paise`);
+  }
+}
 
 const AmountStr = z
   .string()
@@ -135,7 +159,7 @@ router.post("/admin/free-bets", adminOnly, async (req, res, next) => {
   try {
     const input = GrantBody.parse(req.body);
     const amount = BigInt(input.amountPaise);
-    if (amount <= 0n) throw badRequest("Amount must be positive");
+    await assertFreeBetAmount(amount, input.gameCode);
     const grant = await grantFreeBets({
       userId: input.userId,
       gameCode: input.gameCode,
@@ -188,7 +212,7 @@ router.post("/admin/rain", adminOnly, async (req, res, next) => {
   try {
     const input = RainBody.parse(req.body);
     const amount = BigInt(input.amountPaise);
-    if (amount <= 0n) throw badRequest("Amount must be positive");
+    await assertFreeBetAmount(amount);
     const rain = await createRainEvent({
       amountPaise: amount,
       betsPerClaim: input.betsPerClaim,

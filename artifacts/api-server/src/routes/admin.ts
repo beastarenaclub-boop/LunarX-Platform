@@ -65,7 +65,7 @@ import {
 import { storeUpiQrObject, deleteUpiQrObject } from "../services/upiQrStorage";
 import { HttpError } from "../lib/errors";
 import { recordAuditFromReq } from "../lib/audit";
-import { notFound, badRequest } from "../lib/errors";
+import { notFound, badRequest, forbidden } from "../lib/errors";
 import {
   postEntry,
   ensureWallet,
@@ -415,6 +415,7 @@ router.get("/users", adminOnly, async (req, res, next) => {
       conds.push(
         or(
           ilike(usersTable.emailNormalized, like),
+          ilike(usersTable.username, like),
           ilike(usersTable.displayName, like),
           eq(usersTable.id, q),
         )!,
@@ -549,11 +550,25 @@ router.post("/users/:userId/status", adminWrite, async (req, res, next) => {
     if (existing[0].id === req.user!.id) {
       throw badRequest("Cannot change your own status");
     }
+    // Same rule as admin password resets: only a super admin may change an
+    // administrator's status (a rogue admin must not lock out the owners).
+    if (
+      ["admin", "super_admin"].includes(existing[0].role) &&
+      req.user!.role !== "super_admin"
+    ) {
+      throw forbidden("Only a super admin can change an administrator's status");
+    }
     const [updated] = await db
       .update(usersTable)
       .set({ status: input.status, updatedAt: new Date() })
       .where(eq(usersTable.id, userId))
       .returning();
+    if (input.status !== "active") {
+      // HTTP requests are already refused for inactive accounts; also close
+      // open realtime sockets so a suspended user stops receiving streams.
+      const { disconnectAccountSessions } = await import("../realtime/gateway");
+      disconnectAccountSessions(userId);
+    }
     await recordAuditFromReq(req, {
       action: `user.${input.status}`,
       targetType: "user",
@@ -865,6 +880,26 @@ router.post(
       if (existing.status !== "pending") {
         throw badRequest("Withdrawal already decided");
       }
+      // Claim the request atomically so two clicks / two admins cannot both
+      // debit and pay it. Never expire a claim automatically: after a crash
+      // the previous attempt may already have debited or paid the request.
+      const [claimed] = await db
+        .update(withdrawalsTable)
+        .set({ reviewedBy: req.user!.id, reviewedAt: new Date() })
+        .where(
+          and(
+            eq(withdrawalsTable.id, id),
+            eq(withdrawalsTable.status, "pending"),
+            sql`${withdrawalsTable.reviewedAt} IS NULL`,
+          ),
+        )
+        .returning({ id: withdrawalsTable.id });
+      if (!claimed) throw badRequest("Withdrawal is already being processed. Reconcile its payment before retrying.");
+      const releaseClaim = () =>
+        db
+          .update(withdrawalsTable)
+          .set({ reviewedBy: null, reviewedAt: null })
+          .where(and(eq(withdrawalsTable.id, id), eq(withdrawalsTable.status, "pending")));
 
       const newStatus = input.decision === "approve" ? "approved" : "rejected";
 
@@ -883,31 +918,66 @@ router.post(
           );
           const balance = await getBalance(wallet.id);
           if (balance < existing.amount) {
+            await releaseClaim();
             throw badRequest("Insufficient wallet balance to approve");
           }
-          await postEntry({
-            userId: existing.userId,
-            type: "withdraw",
-            amount: -existing.amount,
-            scope: "lunar",
-            memo: `Withdrawal ${id} approved`,
-            createdBy: req.user!.id,
-            refType: "withdrawal",
-            refId: id,
-          });
+          try {
+            await postEntry({
+              userId: existing.userId,
+              type: "withdraw",
+              amount: -existing.amount,
+              scope: "lunar",
+              memo: `Withdrawal ${id} approved`,
+              createdBy: req.user!.id,
+              refType: "withdrawal",
+              refId: id,
+            });
+          } catch (debitErr) {
+            await releaseClaim();
+            throw debitErr;
+          }
         }
 
         if (isGatewayEnabled() && existing.kind !== "agent_commission") {
+          // Only the gateway call itself is treated as a payout failure. A
+          // later error (audit, notification) must NOT refund and requeue a
+          // withdrawal that was actually paid out, or it would be paid twice.
+          let result: Awaited<ReturnType<ReturnType<typeof getPaymentProvider>["createPayout"]>>;
           try {
             const provider = getPaymentProvider();
-            const result = await provider.createPayout({
+            result = await provider.createPayout({
               payoutId: id,
               amount: existing.amount,
               currency: existing.currency,
               upiId: existing.destination,
               purpose: `Withdrawal ${id}`,
             });
+          } catch {
+            // A timeout is not proof that the provider did not pay. Keep the
+            // debit and claim until reconciliation; never refund or pay again
+            // automatically when the external outcome is unknown.
+            const [fallback] = await db
+              .update(withdrawalsTable)
+              .set({
+                status: "approved",
+                gatewayStatus: "outcome_unknown",
+                rejectionReason: "Gateway response unavailable. Reconcile the payout before refunding or paying again.",
+              })
+              .where(eq(withdrawalsTable.id, id))
+              .returning();
 
+            await recordAuditFromReq(req, {
+              action: "withdrawal.gateway_outcome_unknown",
+              targetType: "withdrawal",
+              targetId: id,
+              before: { status: existing.status },
+              after: { status: "approved", gatewayStatus: "outcome_unknown", refunded: false },
+            });
+            publishWithdrawalDecided(id, existing.userId, existing.amount, "approved");
+            res.json(serializeWithdrawal(fallback!));
+            return;
+          }
+          {
             if (result.status === "failed" || result.status === "reversed") {
               await postEntry({
                 userId: existing.userId,
@@ -994,39 +1064,6 @@ router.post(
             });
             publishWithdrawalDecided(id, existing.userId, existing.amount, payoutStatus);
             res.json(serializeWithdrawal(updated!));
-            return;
-          } catch (gatewayErr) {
-            await postEntry({
-              userId: existing.userId,
-              type: "refund",
-              amount: existing.amount,
-              memo: `Withdrawal ${id} gateway error — refund & requeue`,
-              refType: "withdrawal",
-              refId: id,
-              enforceNonNegative: false,
-            });
-
-            const [fallback] = await db
-              .update(withdrawalsTable)
-              .set({
-                status: "pending",
-                gatewayStatus: "gateway_error",
-                rejectionReason: "Gateway payout request failed — requeued for retry",
-                reviewedBy: null,
-                reviewedAt: null,
-              })
-              .where(eq(withdrawalsTable.id, id))
-              .returning();
-
-            await recordAuditFromReq(req, {
-              action: "withdrawal.gateway_error_requeue",
-              targetType: "withdrawal",
-              targetId: id,
-              before: { status: existing.status },
-              after: { status: "pending", gatewayStatus: "gateway_error", refunded: true },
-            });
-            publishWithdrawalDecided(id, existing.userId, existing.amount, "pending");
-            res.json(serializeWithdrawal(fallback!));
             return;
           }
         }
@@ -1513,6 +1550,11 @@ router.put("/withdraw-settings", adminWrite, async (req, res, next) => {
 router.put("/deposit-settings", adminWrite, async (req, res, next) => {
   try {
     const body = DepositSettingsBody.parse(req.body);
+    if (body.autoEnabled === true && !isGatewayEnabled()) {
+      throw badRequest(
+        "Configure a real payment gateway (PAYMENT_PROVIDER) before enabling automatic deposits",
+      );
+    }
     const result = await db.transaction(async (tx) => {
     // Lock the singleton row so concurrent admin updates serialize and both
     // flags are evaluated against the same latest state. Without this, two

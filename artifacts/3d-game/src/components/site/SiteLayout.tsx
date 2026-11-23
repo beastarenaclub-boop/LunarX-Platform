@@ -199,7 +199,7 @@ export function SiteLayout({
             </div>
             <div>
               <strong>{user?.displayName || "Your account"}</strong>
-              <span>{user?.email || `Welcome to ${website?.name??accountBrand}`}</span>
+              <span>{user?.username || user?.email || `Welcome to ${website?.name??accountBrand}`}</span>
             </div>
           </div>
           <p className="site-nav-label">MY ACCOUNT</p>

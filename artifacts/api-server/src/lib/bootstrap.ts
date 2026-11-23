@@ -516,13 +516,31 @@ export async function bootstrapSuperAdmin(): Promise<void> {
     .where(eq(usersTable.emailNormalized, normalized))
     .limit(1);
   if (existing[0]) {
-    if (existing[0].role !== "super_admin") {
+    // Only an existing administrator may be upgraded. Promoting any account
+    // that happens to hold this email (e.g. an agent created with it) would
+    // hand full control to whoever registered it.
+    if (existing[0].role === "admin") {
       await db
         .update(usersTable)
         .set({ role: "super_admin", status: "active" })
         .where(eq(usersTable.id, existing[0].id));
-      logger.info({ email: normalized }, "Promoted existing user to super_admin");
+      logger.info({ email: normalized }, "Promoted existing admin to super_admin");
+    } else if (existing[0].role !== "super_admin") {
+      logger.error(
+        { email: normalized, role: existing[0].role },
+        "SUPER_ADMIN_EMAIL belongs to a non-admin account; not promoting it",
+      );
     }
+    return;
+  }
+  // On a real (HTTPS) deployment never create the super admin with the
+  // documented local default or a short password.
+  const realDeployment =
+    process.env.NODE_ENV === "production" && process.env.COOKIE_SECURE !== "false";
+  if (realDeployment && (password === "Admin@12345" || password.length < 16)) {
+    logger.error(
+      "SUPER_ADMIN_PASSWORD is the local default or shorter than 16 characters; refusing to create the super_admin account",
+    );
     return;
   }
   const passwordHash = await hashPassword(password);

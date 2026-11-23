@@ -83,8 +83,8 @@ test("mobile menus, account sign-out and keyboard-sized forms remain reachable",
   await tappable(signOut);await signOut.click();
   await expect(page).toHaveURL(/\/login$/);
   await page.setViewportSize({width:390,height:300});
-  const email=page.getByTestId("input-login-email");
-  await email.fill("mobile@example.test");
+  const email=page.getByTestId("input-login-username");
+  await email.fill("cry5678");
   expect(await email.evaluate(el=>getComputedStyle(el).fontSize)).toBe("16px");
   await page.getByTestId("input-login-password").fill("mobile-test-password");
   await tappable(page.getByTestId("btn-login-submit"));

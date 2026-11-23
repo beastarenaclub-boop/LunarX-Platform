@@ -7,7 +7,18 @@
  */
 
 export interface LoginRequest {
-  email: string;
+  /**
+   * Player username ("cry" + 4 digits). Operators may send their email here.
+   * @minLength 1
+   * @maxLength 254
+   */
+  username?: string;
+  /**
+   * Operator email login (and legacy player accounts).
+   * @minLength 1
+   * @maxLength 254
+   */
+  email?: string;
   /**
    * @minLength 1
    * @maxLength 128

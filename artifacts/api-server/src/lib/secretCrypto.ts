@@ -41,6 +41,13 @@ function loadKey(): Buffer {
       cachedKey = buf;
       return cachedKey;
     }
+    if (process.env.NODE_ENV === "production") {
+      // A malformed key must not silently fall back to a key derived from a
+      // string in our source code.
+      throw new Error(
+        "PARTNER_SECRET_KEY must be 32 bytes (hex or base64) in production.",
+      );
+    }
     logger.warn(
       "PARTNER_SECRET_KEY is set but is not 32 bytes (hex or base64); falling back to derived dev key",
     );

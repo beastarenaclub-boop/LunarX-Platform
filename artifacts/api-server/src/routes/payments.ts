@@ -6,6 +6,7 @@ import {
   walletsTable,
   walletLedgerTable,
   upiAccountsTable,
+  walletStatusTable,
 } from "@workspace/db";
 import { nanoid } from "nanoid";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
@@ -26,7 +27,8 @@ import { listCoinPacks, resolveCoinPack, serializeCoinPack } from "../services/c
 import { bus } from "../realtime/eventBus";
 import { writeAppLog } from "../services/appLog";
 import { readUpiQrObject } from "../services/upiQrStorage";
-import { getPaymentProvider } from "../services/payment-gateway";
+import { getPaymentProvider, isGatewayEnabled } from "../services/payment-gateway";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { applyDepositBonus } from "../services/promotions";
 import { logger } from "../lib/logger";
 import { z } from "zod";
@@ -219,6 +221,11 @@ router.post("/deposits/auto", requireAuth, async (req, res, next) => {
     if (!settings.autoEnabled) {
       throw forbidden("Automatic deposits are currently disabled");
     }
+    // The stub provider accepts unsigned webhooks: never take auto deposits
+    // unless a real payment gateway is configured.
+    if (!isGatewayEnabled()) {
+      throw forbidden("Automatic deposits are currently unavailable");
+    }
     const input = AutoDepositInput.parse(req.body);
     const amount = BigInt(input.amount);
     if (amount <= 0n) throw badRequest("Amount must be greater than zero");
@@ -336,8 +343,16 @@ router.get(
       const key = `${req.params.prefix}/${req.params.name}`;
       const obj = await readUpiQrObject(key);
       if (!obj) throw notFound("QR image not found");
-      res.setHeader("Content-Type", obj.contentType);
-      res.setHeader("Cache-Control", "public, max-age=300");
+      const type = String(obj.contentType ?? "").split(";")[0]!.trim().toLowerCase();
+      res.setHeader(
+        "Content-Type",
+        ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(type)
+          ? type
+          : "application/octet-stream",
+      );
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader("Content-Security-Policy", "default-src 'none'; sandbox");
+      res.setHeader("Cache-Control", "private, max-age=300");
       res.send(obj.body);
     } catch (err) {
       next(err);
@@ -371,10 +386,15 @@ router.post("/gateway-webhook", async (req, res, next) => {
     }
     const body = GatewayWebhookBody.parse(req.body);
 
-    const expectedSig = Buffer.from(
-      `${body.paymentId}:${body.status}:${secret}`,
-    ).toString("base64");
-    if (body.signature !== expectedSig) {
+    // HMAC-SHA256 over the payload fields, compared in constant time. (The old
+    // base64("id:status:secret") format exposed the secret to anyone who saw
+    // a single callback.)
+    const expectedSig = createHmac("sha256", secret)
+      .update(`${body.paymentId}:${body.status}:${body.gatewayRef}`)
+      .digest("hex");
+    const given = Buffer.from(body.signature);
+    const expected = Buffer.from(expectedSig);
+    if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
       logger.warn({ paymentId: body.paymentId }, "Gateway webhook: invalid signature");
       res.status(401).json({ error: { code: "INVALID_SIGNATURE", message: "Invalid signature" } });
       return;
@@ -720,6 +740,15 @@ router.post("/withdrawals", requireAuth, async (req, res, next) => {
       throw badRequest(
         `Maximum withdrawal is ₹${(Number(limits.maxAmountPaise) / 100).toLocaleString("en-IN")}`,
       );
+    }
+
+    const [walletHold] = await db
+      .select({ status: walletStatusTable.status })
+      .from(walletStatusTable)
+      .where(eq(walletStatusTable.userId, req.user!.id))
+      .limit(1);
+    if (walletHold?.status === "frozen") {
+      throw forbidden("Your wallet is on hold. Please contact support.");
     }
 
     // Enforce KYC approved.

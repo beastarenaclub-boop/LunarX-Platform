@@ -1445,3 +1445,19 @@
     scroll-behavior: auto !important;
   }
 }
+.b2c-game-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  max-width: calc(100% - 16px);
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: #0d684d;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}

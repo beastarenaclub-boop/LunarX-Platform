@@ -131,11 +131,18 @@ export default function Profile() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Email</span>
-              <span data-testid="text-profile-email">
-                {profile.data?.email ?? "—"}
+              <span className="text-muted-foreground">Username</span>
+              <span className="font-mono font-semibold" data-testid="text-profile-username">
+                {profile.data?.username ?? profile.data?.email ?? "—"}
               </span>
             </div>
+            {profile.data?.username &&
+              profile.data.email !== profile.data.username && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Email (old login)</span>
+                  <span data-testid="text-profile-email">{profile.data.email}</span>
+                </div>
+              )}
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Display name</span>
               <span>{profile.data?.displayName ?? "—"}</span>
@@ -223,7 +230,7 @@ export default function Profile() {
                   <Input
                     id="idFile"
                     type="file"
-                    accept="image/*,application/pdf"
+                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf"
                     required
                     onChange={(e) => setIdFile(e.target.files?.[0] ?? null)}
                     data-testid="input-kyc-id-file"
@@ -234,7 +241,7 @@ export default function Profile() {
                   <Input
                     id="selfieFile"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                     required
                     onChange={(e) => setSelfieFile(e.target.files?.[0] ?? null)}
                     data-testid="input-kyc-selfie-file"

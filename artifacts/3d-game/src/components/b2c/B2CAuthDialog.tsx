@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useSiteChannel } from "@/lib/siteChannel";
+import { announceNewUsername } from "@/components/auth/NewUsernameDialog";
 import { B2C_BRAND } from "./config";
 
 export function B2CAuthDialog({
@@ -35,7 +36,7 @@ export function B2CAuthDialog({
   const site = useSiteChannel();
   const [signup, setSignup] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [accepted, setAccepted] = useState(false);
@@ -54,15 +55,20 @@ export function B2CAuthDialog({
       const response = registering
         ? await register.mutateAsync({
             data: {
-              email: email.trim(),
               password,
               displayName: name.trim() || undefined,
             },
           })
-        : await login.mutateAsync({ data: { email: email.trim(), password } });
+        : await login.mutateAsync({
+            data: { username: username.trim().toLowerCase(), password },
+          });
+      // Show the generated username (app-root dialog) before the form closes.
+      if (registering)
+        announceNewUsername(response.username ?? response.user.username);
       qc.setQueryData(getGetMeQueryKey(), response.user);
       await qc.invalidateQueries({ queryKey: getGetMeQueryKey() });
       setPassword("");
+      setSignup(false);
       onOpenChange(false);
       navigate(destination);
     } catch (cause) {
@@ -115,17 +121,30 @@ export function B2CAuthDialog({
               />
             </label>
           )}
-          <label>
-            Email address
-            <input
-              type="email"
-              autoComplete="username"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter email address"
-            />
-          </label>
+          {registering ? (
+            <p className="b2c-username-hint">
+              Your username (like <strong>cry1234</strong>) is created
+              automatically after signup.
+            </p>
+          ) : (
+            <label>
+              Username
+              <input
+                type="text"
+                name="username"
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                required
+                maxLength={254}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="e.g. cry1234"
+                data-testid="input-login-username"
+              />
+            </label>
+          )}
           <label>
             Password
             <span className="b2c-password">
@@ -133,6 +152,7 @@ export function B2CAuthDialog({
                 type={visible ? "text" : "password"}
                 autoComplete={registering ? "new-password" : "current-password"}
                 minLength={registering ? 8 : undefined}
+                maxLength={registering ? 72 : 128}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -147,6 +167,11 @@ export function B2CAuthDialog({
               </button>
             </span>
           </label>
+          {registering && (
+            <p className="b2c-username-hint">
+              At least 8 characters with a letter and a number.
+            </p>
+          )}
           {!registering && (
             <button
               type="button"

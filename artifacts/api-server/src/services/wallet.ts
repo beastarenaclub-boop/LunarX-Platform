@@ -1,5 +1,5 @@
 import { INSTANT_COLLECTION } from "@workspace/api-zod/instant-collection";
-import { db, walletsTable, walletLedgerTable, type LedgerEntryType } from "@workspace/db";
+import { db, walletsTable, walletLedgerTable, walletStatusTable, type LedgerEntryType } from "@workspace/db";
 import { and, eq, desc, or, lt, sql } from "drizzle-orm";
 import { bus } from "../realtime/eventBus";
 import { DEMO_RUNTIME } from "../demo/runtime";
@@ -161,6 +161,17 @@ async function postEntryCore(tx: TxClient, input: PostEntryInput) {
       .values({ userId: input.userId, currency: input.currency ?? "INR", scope })
       .returning();
     wallet = created!;
+  }
+
+  // An admin wallet freeze stops the player spending or withdrawing.
+  // Credits (wins, refunds, deposits) and admin adjustments still post.
+  if (input.amount < 0n && !DEMO_RUNTIME && (input.type === "bet" || input.type === "withdraw")) {
+    const [status] = await tx
+      .select({ status: walletStatusTable.status })
+      .from(walletStatusTable)
+      .where(eq(walletStatusTable.userId, input.userId))
+      .limit(1);
+    if (status?.status === "frozen") throw new Error("WALLET_FROZEN");
   }
 
   const sumRows = await tx

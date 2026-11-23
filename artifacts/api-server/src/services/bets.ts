@@ -11,6 +11,7 @@ import {
   debitForBet as bonusDebit,
   creditForWin as bonusCreditWin,
   refundForBet as bonusRefund,
+  publishBonusBalance,
   isBonusEligibleGame,
   convertBonusToCashIfReady,
 } from "./bonusWallet";
@@ -612,17 +613,51 @@ export async function refundStake(
     });
     bus.publish({topic:`free-bets:${userId}`,type:"changed",ts:Date.now()});
   } else if (meta?.useBonus) {
-    await bonusRefund({ userId, amount: stakeAmount, betId });
-  } else {
-    await postEntry({
-      userId,
-      type: "refund",
-      amount: stakeAmount,
-      scope: toWalletScope(rows[0]?.gameCode),
-      refType: "bet",
-      refId: betId,
-      memo: "Pre-settlement failure — refund",
+    // Commit the claim and bonus credit together. A process interruption or
+    // failed credit must leave the original bet retryable, never half-refunded.
+    const balance = await db.transaction(async (tx) => {
+      const [claimed] = await tx
+        .update(betsTable)
+        .set({ status: "voided", settledAt: new Date() })
+        .where(and(eq(betsTable.id, betId), eq(betsTable.status, "placed")))
+        .returning({ id: betsTable.id });
+      if (!claimed) return null;
+      return bonusRefund({ userId, amount: stakeAmount, betId }, tx);
     });
+    if (balance !== null) publishBonusBalance(userId, balance, "win", stakeAmount);
+  } else {
+    // Void + refund atomically and only for a still-open bet: a bet that was
+    // already settled (won/lost) or refunded is never refunded again.
+    const refunded = await db.transaction(async (tx) => {
+      const [claimed] = await tx
+        .update(betsTable)
+        .set({ status: "voided", settledAt: new Date() })
+        .where(and(eq(betsTable.id, betId), eq(betsTable.status, "placed")))
+        .returning({ id: betsTable.id });
+      if (!claimed) return null;
+      const { entry } = await postEntry(
+        {
+          userId,
+          type: "refund",
+          amount: stakeAmount,
+          scope: toWalletScope(rows[0]?.gameCode),
+          refType: "bet",
+          refId: betId,
+          memo: "Pre-settlement failure — refund",
+        },
+        tx,
+      );
+      return entry;
+    });
+    if (refunded) {
+      publishWalletBalance({
+        userId,
+        scope: toWalletScope(rows[0]?.gameCode),
+        balance: refunded.balanceAfter,
+        entryType: "refund",
+        amount: stakeAmount,
+      });
+    }
   }
 }
 

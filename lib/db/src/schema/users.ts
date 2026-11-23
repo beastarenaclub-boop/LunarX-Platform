@@ -34,6 +34,12 @@ export const usersTable = pgTable(
       .$defaultFn(() => nanoid()),
     email: text("email").notNull(),
     emailNormalized: text("email_normalized").notNull(),
+    /**
+     * Player login name: "cry" + 4 random digits (e.g. "cry4821"), always
+     * stored lowercase. Operators (admin/master/agent/support) keep email
+     * login and have no username.
+     */
+    username: text("username"),
     passwordHash: text("password_hash").notNull(),
     role: userRoleEnum("role").notNull().default("player"),
     status: userStatusEnum("status").notNull().default("active"),
@@ -52,6 +58,9 @@ export const usersTable = pgTable(
   },
   (t) => [
     uniqueIndex("users_email_normalized_idx").on(t.emailNormalized),
+    uniqueIndex("users_username_idx")
+      .on(t.username)
+      .where(sql`${t.username} IS NOT NULL`),
     index("users_role_idx").on(t.role),
     index("users_status_idx").on(t.status),
     uniqueIndex("users_referral_code_idx")

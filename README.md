@@ -80,6 +80,43 @@ one API instance; multiple instances require session affinity and aggregated
 presence before scaling. Game availability/settings sync into demo every 30 seconds.
 Run `npm run demo:test` for session, isolation and playable-game checks.
 
+### Player usernames
+
+Players sign in with a **username**, not an email. Signup (and agent-created
+B2B players) generates a random 7-character username: `cry` + 4 digits, e.g.
+`cry4821`. It is shown once after signup with a copy button and on the Profile
+page. Migration `0071_player_usernames` adds `users.username` and assigns one to
+every existing player; players created before this change can still sign in
+with their old email. Operators (admin, master, agent, support) keep email
+login. The format allows 10,000 usernames (`cry0000`–`cry9999`); signup returns
+`503 USERNAMES_EXHAUSTED` when all are taken — raise `USERNAME_DIGITS` in
+`artifacts/api-server/src/services/auth.ts` before that happens.
+
+Login failures are throttled per IP and per username (8 failures → 15-minute
+lock), and passwords need 8–72 characters with a letter and a number. There is
+no email/SMS delivery, so "Forgot password" asks players to contact support;
+an admin resets the password from the user's page. Reset tokens are returned in
+API responses only when `NODE_ENV` is `development` or `test`.
+
+### Payment retry safeguards
+
+Cash and bonus stake refunds claim the open bet and credit its wallet in one
+transaction. A failed credit rolls back the claim; repeated refunds do not
+credit twice. Frozen wallets still accept wins/refunds but cannot place cash
+bets or withdraw.
+
+Withdrawal approvals hold a claim until a definite result. A gateway timeout
+keeps the debit and records `outcome_unknown` for reconciliation; it must not
+automatically refund or dispatch a second payout. An interrupted claim is not
+released merely because ten minutes passed. Review the provider and ledger
+before any manual recovery.
+
+Only the supported `cashfree` provider enables gateway processing. The custom
+`/api/payments/gateway-webhook` callback now requires a lowercase hex HMAC-SHA256
+of `paymentId:status:gatewayRef` using `GATEWAY_WEBHOOK_SECRET`; the old base64
+signature format is rejected. Cashfree's `/api/webhooks/payment` keeps its
+provider-specific signature verification.
+
 Login, signup permissions, game availability and balances use the existing API.
 Recent wins display the player's settled wins from their latest 50 bets; no
 public winner amounts or fixture results are fabricated.

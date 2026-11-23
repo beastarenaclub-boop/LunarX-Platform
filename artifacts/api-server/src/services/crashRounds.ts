@@ -248,9 +248,11 @@ export async function cashOutCrash(
     throw badRequest("This game settles through its own game controls.");
   if ((bet.metadata as { crashFunded?: boolean } | null)?.crashFunded === false)
     throw badRequest("Bet funding is still pending.");
-  // Previously accepted client rounds finish under their original terms.
+  // Bets without a server crash round have no server-side flight to check the
+  // multiplier against; paying the client-requested value would let anyone
+  // cash out an old open bet at the game's maximum multiplier.
   if (!bet.roundId?.startsWith("crash-"))
-    return cashOutBet({ betId: id, userId, multiplier: requested });
+    throw badRequest("This round has ended. Contact support about this bet.");
   const round = await crashRoundForUser(bet.roundId, userId),
     now = Date.now();
   const settled = await settleDueBet(bet, round, now);

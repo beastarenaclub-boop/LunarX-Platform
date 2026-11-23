@@ -10,17 +10,18 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Rocket } from "lucide-react";
 import { useSiteChannel } from "@/lib/siteChannel";
+import { announceNewUsername } from "@/components/auth/NewUsernameDialog";
 
 export default function Signup() {
   const site = useSiteChannel();
   const [, navigate] = useLocation();
   const qc = useQueryClient();
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const signup = useSignup({
     mutation: {
-      onSuccess: async () => {
+      onSuccess: async (data) => {
+        announceNewUsername(data.username ?? data.user.username);
         await qc.invalidateQueries({ queryKey: getGetMeQueryKey() });
         try {
           sessionStorage.removeItem("lunar:referral-code");
@@ -37,10 +38,8 @@ export default function Signup() {
 
     signup.mutate({
       data: {
-        email,
         password,
         displayName: displayName || undefined,
-
       },
     });
   }
@@ -57,18 +56,10 @@ export default function Signup() {
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                data-testid="input-signup-email"
-              />
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Your username (like <strong>cry1234</strong>) is created
+              automatically after signup. You will use it to sign in.
+            </p>
             <div className="space-y-1.5">
               <Label htmlFor="displayName">Display name (optional)</Label>
               <Input
@@ -87,12 +78,13 @@ export default function Signup() {
                 autoComplete="new-password"
                 required
                 minLength={8}
+                maxLength={72}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 data-testid="input-signup-password"
               />
               <p className="text-[10px] text-muted-foreground">
-                At least 8 characters.
+                At least 8 characters with a letter and a number.
               </p>
             </div>
 

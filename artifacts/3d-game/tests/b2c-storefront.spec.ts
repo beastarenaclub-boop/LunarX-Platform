@@ -13,6 +13,7 @@ async function setup(
 ) {
   let loggedIn = !!options.loggedIn;
   let demo = !!options.demoSession;
+  let username: string | undefined;
   const expiresAt = new Date(Date.now() + 3600000).toISOString();
   const errors: string[] = [];
   const mutations: string[] = [];
@@ -33,6 +34,7 @@ async function setup(
     const user = {
       id: "b2c-test",
       email: "player@example.test",
+      username,
       displayName: demo ? "Demo TEST01" : "Test Player",
       isDemo: demo,
       ...(demo ? { demoExpiresAt: expiresAt } : {}),
@@ -62,12 +64,18 @@ async function setup(
           json: {
             error: {
               code: "INVALID_CREDENTIALS",
-              message: "Email or password is incorrect",
+              message: "Invalid username or password",
             },
           },
         });
       loggedIn = true;
       return route.fulfill({ json: { user } });
+    }
+    if (path === "/api/auth/signup") {
+      expect(request.postDataJSON()).toEqual({ password: 'Secure@Test123', displayName: 'New Player' });
+      loggedIn = true;
+      username = 'cry2468';
+      return route.fulfill({ json: { user: { ...user, username }, username } });
     }
     if (path === "/api/auth/logout") {
       loggedIn = false; demo = false;
@@ -157,6 +165,10 @@ test("standalone landing, banner controls and real catalog artwork", async ({
   expect(
     await page.locator(".b2c-game-grid [data-game-id]").count(),
   ).toBeGreaterThan(30);
+  for (const artwork of [/ice-fish\/banner-v1\.webp$/, /collection-banner-v1(?:-[A-Za-z0-9_-]+)?\.jpg$/, /mega-ball\/banner\.jpg$/]) {
+    await expect(page.locator('.b2c-hero > img')).toHaveAttribute('src', artwork);
+    await page.getByRole('button', { name: 'Next banner' }).click();
+  }
   for (const artwork of ["poker-one-day", "poker-20-20", "poker-six-players"]) {
     await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
       "src",
@@ -182,7 +194,7 @@ test("standalone landing, banner controls and real catalog artwork", async ({
   await page.getByRole("button", { name: "Next banner" }).click();
   await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
     "src",
-    /poker-one-day-v2(?:-[A-Za-z0-9_-]+)?\.jpg$/,
+    /ice-fish\/banner-v1\.webp$/,
   );
   await page.getByRole("button", { name: "Previous banner" }).click();
   await expect(page.locator(".b2c-hero > img")).toHaveAttribute(
@@ -250,7 +262,7 @@ test("New Games and Ludo filters work from phone taps and tag search", async ({ 
   await expect(page.locator("#b2c-games [data-game-id='ludo']")).toHaveClass(/new-game-card/);
   await navigation.getByRole("button", { name: "New Games", exact: true }).click();
   const cards = page.locator("#b2c-games [data-game-id]");
-  await expect(cards.first()).toHaveAttribute("data-game-id", "ludo");
+  await expect(cards.first()).toHaveAttribute("data-game-id", "ice-fish");
   expect(await cards.evaluateAll(elements => elements.every(e => e.classList.contains("new-game-card")))).toBe(true);
   await page.getByRole("button", { name: "Search games", exact: true }).click();
   await page.getByRole("searchbox", { name: "Search games", exact: true }).fill("board game");
@@ -366,7 +378,7 @@ test("login validates consent, reports errors, signs in and uses one shared bala
   await expect(
     dialog.getByRole("button", { name: "Login", exact: true }),
   ).toBeDisabled();
-  await dialog.getByLabel("Email address").fill("player@example.test");
+  await dialog.getByLabel("Username").fill("cry1234");
   await dialog.getByLabel("Password", { exact: true }).fill("incorrect");
   await dialog.getByRole("button", { name: "Show password" }).click();
   await expect(dialog.getByLabel("Password", { exact: true })).toHaveAttribute(
@@ -376,7 +388,7 @@ test("login validates consent, reports errors, signs in and uses one shared bala
   await dialog.getByRole("checkbox").check();
   await dialog.getByRole("button", { name: "Login", exact: true }).click();
   await expect(dialog.getByRole("alert")).toHaveText(
-    "Email or password is incorrect",
+    "Invalid username or password",
   );
   await dialog.getByLabel("Password", { exact: true }).fill("correct-password");
   await dialog.getByRole("button", { name: "Login", exact: true }).click();
@@ -397,6 +409,27 @@ test("login validates consent, reports errors, signs in and uses one shared bala
   expect(errors).toEqual([]);
 });
 
+test("signup shows the generated username after the form closes and restores it on reload", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const { errors, mutations } = await setup(page);
+  await page.getByRole('button', { name: 'Login', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Create an account', exact: true }).click();
+  const form = page.getByRole('dialog');
+  await form.getByLabel('Display name', { exact: true }).fill('New Player');
+  await form.getByLabel('Password', { exact: true }).fill('Secure@Test123');
+  await form.getByRole('checkbox').check();
+  await form.getByRole('button', { name: 'Create account', exact: true }).click();
+  await expect(page.getByTestId('text-new-username')).toContainText('cry2468');
+  await expect(page.getByRole('dialog')).toContainText('Account created');
+  await page.reload();
+  await expect(page.getByTestId('text-new-username')).toContainText('cry2468');
+  await page.getByTestId('btn-username-continue').click();
+  await expect(page.getByTestId('text-new-username')).toHaveCount(0);
+  expect(await page.evaluate(() => sessionStorage.getItem('crypto777:new-username'))).toBeNull();
+  expect(mutations.filter(path => path === '/api/auth/signup')).toHaveLength(1);
+  expect(errors).toEqual([]);
+});
+
 test("selected game is preserved through authentication and B2B signup stays hidden", async ({
   page,
 }) => {
@@ -412,7 +445,7 @@ test("selected game is preserved through authentication and B2B signup stays hid
   await expect(
     dialog.getByRole("button", { name: "Create an account" }),
   ).toHaveCount(0);
-  await dialog.getByLabel("Email address").fill("player@example.test");
+  await dialog.getByLabel("Username").fill("cry1234");
   await dialog.getByLabel("Password", { exact: true }).fill("correct-password");
   await dialog.getByRole("checkbox").check();
   await dialog.getByRole("button", { name: "Login", exact: true }).click();

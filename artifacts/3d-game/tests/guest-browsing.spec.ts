@@ -39,7 +39,7 @@ for (const channel of ["b2c", "b2b"] as const) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
       await expect(page.getByRole("heading", { name: "TOP Games", exact: true })).toBeVisible();
-      await expect(page.getByTestId("input-login-email")).toHaveCount(0);
+      await expect(page.getByTestId("input-login-username")).toHaveCount(0);
       await expect(page.getByRole("link", { name: "Log in", exact: true })).toBeVisible();
       await expect(page.getByRole("link", { name: "Sign up", exact: true })).toHaveCount(channel === "b2c" ? 1 : 0);
       if (width >= 768) await page.getByRole("button", { name: "Search games", exact: true }).click();
@@ -58,9 +58,9 @@ for (const channel of ["b2c", "b2b"] as const) {
     await page.goto("/");
     await page.getByTestId("card-game-mines").click();
     await expect(page).toHaveURL(/\/login\?next=%2Fmines$/);
-    await expect(page.getByTestId("input-login-email")).toBeVisible();
+    await expect(page.getByTestId("input-login-username")).toBeVisible();
     expect(observed.privateReads).toEqual([]);
-    await page.getByTestId("input-login-email").fill("guest-flow@example.test");
+    await page.getByTestId("input-login-username").fill("cry4321");
     await page.getByTestId("input-login-password").fill("browser-test-password");
     await page.getByTestId("btn-login-submit").click();
     await expect(page).toHaveURL(/\/mines$/);
@@ -74,7 +74,7 @@ test("direct game and account links stay protected, preserving the requested pag
   const observed = await guestSite(page, "b2b");
   for (const path of ["/mines", "/jetx", "/horse-racing", "/lunar-colour-trading", "/lottery", "/virtual-sports/football", "/wallet?tab=deposit", "/history", "/profile"]) {
     await page.goto(path);
-    await expect(page.getByTestId("input-login-email")).toBeVisible();
+    await expect(page.getByTestId("input-login-username")).toBeVisible();
     const url = new URL(page.url());
     expect(url.pathname).toBe("/login");
     expect(url.searchParams.get("next")).toBe(path);
@@ -134,9 +134,9 @@ for (const width of [390, 1440]) {
     await page.getByTestId("card-game-mines").click();
     await expect(page).toHaveURL(/\/branch\/north-branch\/login\?next=%2Fmines$/);
     await page.reload();
-    await expect(page.getByTestId("input-login-email")).toBeVisible();
+    await expect(page.getByTestId("input-login-username")).toBeVisible();
     expect(observed.privateReads).toEqual([]);
-    await page.getByTestId("input-login-email").fill("guest-flow@example.test");
+    await page.getByTestId("input-login-username").fill("cry4321");
     await page.getByTestId("input-login-password").fill("browser-test-password");
     await page.getByTestId("btn-login-submit").click();
     await expect(page).toHaveURL(/\/branch\/north-branch\/mines$/);

@@ -8,6 +8,7 @@ import { assertNetworkActive, networkIdentity } from "../services/network";
 import { bus, type RealtimeEvent } from "./eventBus";
 import { ALLOWED_ROLES_PER_TOPIC, type ClientToServer, type ServerToClient } from "./protocol";
 import { logger } from "../lib/logger";
+import { originAllowed } from "../middlewares/csrf";
 import { recordRealtimeActivity } from "../services/sessionActivity";
 
 const accountSockets = new Map<WebSocket, { userId: string; sessionId: string }>();
@@ -104,7 +105,10 @@ async function authenticate(req: IncomingMessage): Promise<{ userId: string; rol
 }
 
 export function attachRealtime(httpServer: HttpServer, alternativeUpgrade?: (req: IncomingMessage, socket: Duplex, head: Buffer) => boolean): WebSocketServer {
-  const wss = new WebSocketServer({ noServer: true });
+  // Realtime messages are tiny subscribe/unsubscribe ops; cap frames so a
+  // client cannot push 100 MB messages (the ws default) to exhaust memory.
+  const wss = new WebSocketServer({ noServer: true, maxPayload: 64 * 1024 });
+  const liveness = new WeakMap<WebSocket, ClientCtx>();
 
   httpServer.on("upgrade", (req, socket, head) => {
     if (!req.url) {
@@ -114,6 +118,16 @@ export function attachRealtime(httpServer: HttpServer, alternativeUpgrade?: (req
     const url = new URL(req.url, "http://localhost");
     if (url.pathname !== "/ws" && url.pathname !== "/api/ws") {
       // Let other upgrade handlers (if any) deal with it.
+      return;
+    }
+    // Session cookies are SameSite=None, so a browser on any website would
+    // attach them to a WebSocket opened to us. Browsers always send Origin
+    // on WebSocket handshakes: reject foreign origins (cross-site WebSocket
+    // hijacking of wallet/notification/admin streams).
+    const origin = req.headers.origin;
+    if (origin && !originAllowed(req, origin)) {
+      socket.write("HTTP/1.1 403 Forbidden\r\n\r\n");
+      socket.destroy();
       return;
     }
     if (alternativeUpgrade?.(req, socket, head)) return;
@@ -137,6 +151,7 @@ export function attachRealtime(httpServer: HttpServer, alternativeUpgrade?: (req
       topics: new Map(),
       alive: true,
     };
+    liveness.set(ws, ctx);
 
     send(ws, { op: "welcome", userId: ctx.userId, role: ctx.role, ts: Date.now() });
 
@@ -213,15 +228,19 @@ export function attachRealtime(httpServer: HttpServer, alternativeUpgrade?: (req
   // Heartbeat: drop dead connections.
   const interval = setInterval(() => {
     for (const ws of wss.clients) {
-      const anyWs = ws as WebSocket & { _ctx?: ClientCtx };
-      // We track liveness via pong handler; since we don't store ctx on ws
-      // here, a simpler ping is sent and stale clients get terminated by ws.
+      // A client that did not answer the previous ping is dead: drop it so
+      // stale sockets (and their topic subscriptions) do not pile up.
+      const ctx = liveness.get(ws);
+      if (ctx && !ctx.alive) {
+        ws.terminate();
+        continue;
+      }
+      if (ctx) ctx.alive = false;
       try {
         ws.ping();
       } catch {
         ws.terminate();
       }
-      void anyWs;
     }
   }, 30_000);
 

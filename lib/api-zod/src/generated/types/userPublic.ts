@@ -11,6 +11,8 @@ import type { UserPublicStatus } from "./userPublicStatus";
 export interface UserPublic {
   id: string;
   email: string;
+  /** Player login name ("cry" + 4 digits). Null for operators. */
+  username?: string | null;
   role: UserPublicRole;
   status: UserPublicStatus;
   displayName?: string | null;

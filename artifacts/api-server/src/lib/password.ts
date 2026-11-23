@@ -12,3 +12,15 @@ export async function verifyPassword(
 ): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
+
+let dummyHash: Promise<string> | null = null;
+
+/**
+ * Spend the same bcrypt time when an account does not exist, so response
+ * timing does not reveal which usernames/emails are registered.
+ */
+export async function burnPasswordCheck(password: string): Promise<false> {
+  dummyHash ??= bcrypt.hash("timing-equalizer-not-a-password", COST);
+  await bcrypt.compare(password, await dummyHash);
+  return false;
+}

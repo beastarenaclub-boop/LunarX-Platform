@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { getActiveSession, findUserById } from "../services/auth";
-import { unauthorized, forbidden } from "../lib/errors";
-import type { UserRole } from "@workspace/db";
+import { unauthorized } from "../lib/errors";
+export { requireRole } from "./roles";
 import { requestSite, requestOperatorPanel, sessionCookie, customMaster } from "./siteChannel";
 import { assertNetworkActive, networkIdentity, userBelongsToMaster } from "../services/network";
 import { isDemoToken } from "../demo/sessions";
@@ -48,12 +48,4 @@ export function requireAuth(
 ) {
   if (!req.user) return next(unauthorized());
   next();
-}
-
-export function requireRole(...allowed: UserRole[]) {
-  return (req: Request, _res: Response, next: NextFunction) => {
-    if (!req.user) return next(unauthorized());
-    if (!allowed.includes(req.user.role)) return next(forbidden());
-    next();
-  };
 }

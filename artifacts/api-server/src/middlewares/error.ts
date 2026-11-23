@@ -68,6 +68,15 @@ export function errorHandler(
     });
     return;
   }
+  if (err instanceof Error && err.message === "WALLET_FROZEN") {
+    res.status(403).json({
+      error: {
+        code: "WALLET_FROZEN",
+        message: "Your wallet is on hold. Please contact support.",
+      },
+    });
+    return;
+  }
   if (err instanceof Error && err.message === "INSUFFICIENT_FUNDS") {
     res.status(400).json({
       error: { code: "INSUFFICIENT_FUNDS", message: "Insufficient wallet balance" },

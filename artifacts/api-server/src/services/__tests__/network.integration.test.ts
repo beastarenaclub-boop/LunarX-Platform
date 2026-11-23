@@ -83,6 +83,7 @@ test(
         id: string;
         userId: string;
         email: string;
+        username: string;
         role: string;
         total: number;
         balance: string;
@@ -219,20 +220,15 @@ test(
         agentClient,
         "/network/players",
         {
-          email: `${prefix}-player@example.test`,
           name: "North Player",
           password,
         },
         "POST",
         201,
       );
-      await call(
-        agentClient,
-        "/network/players",
-        { email: player.email, name: "Duplicate Player", password },
-        "POST",
-        409,
-      );
+      // Players get a generated "cry" + 4-digit username used as their login.
+      assert.match(player.username, /^cry\d{4}$/);
+      assert.equal(player.email, player.username);
       const otherMaster = await call(
         company,
         "/network/nodes",

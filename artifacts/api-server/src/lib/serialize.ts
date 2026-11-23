@@ -50,6 +50,7 @@ export function publicUser(u: User) {
   return {
     id: u.id,
     email: u.email,
+    username: u.username ?? null,
     role: u.role,
     status: u.status,
     displayName: u.displayName,

@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Rocket } from "lucide-react";
 import { unlockAudio } from "@/game/audio";
 import { useSiteChannel } from "@/lib/siteChannel";
+import { announceNewUsername } from "@/components/auth/NewUsernameDialog";
 
 interface Props {
   /** Where to navigate after a successful sign-in/signup. Defaults to "/". */
@@ -34,14 +35,13 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
   const [mode, setMode] = useState<Mode>("login");
 
   // login state
-  const [loginEmail, setLoginEmail] = useState("");
+  const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   // signup state
-  const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupName, setSignupName] = useState("");
   // forgot state
-  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotUsername, setForgotUsername] = useState("");
   const [resetToken, setResetToken] = useState<string | null>(null);
 
   const login = useLogin({
@@ -56,7 +56,8 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
   });
   const signup = useSignup({
     mutation: {
-      onSuccess: async () => {
+      onSuccess: async (data) => {
+        announceNewUsername(data.username ?? data.user.username);
         await qc.invalidateQueries({ queryKey: getGetMeQueryKey() });
         toast.success("Account created");
         navigate(redirectTo);
@@ -72,7 +73,9 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
             ? String((data as Record<string, unknown>).token ?? "")
             : "";
         if (token) setResetToken(token);
-        toast.success("If the email is registered, a reset link was sent.");
+        toast.success(
+          "Request received. If you cannot reset it yourself, contact support with your username.",
+        );
       },
       onError: (err: Error) => toast.error(err.message),
     },
@@ -83,14 +86,15 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
   function onLoginSubmit(e: FormEvent) {
     e.preventDefault();
     unlockAudio();
-    login.mutate({ data: { email: loginEmail, password: loginPassword } });
+    login.mutate({
+      data: { username: loginUsername.trim().toLowerCase(), password: loginPassword },
+    });
   }
   function onSignupSubmit(e: FormEvent) {
     e.preventDefault();
     unlockAudio();
     signup.mutate({
       data: {
-        email: signupEmail,
         password: signupPassword,
         displayName: signupName || undefined,
       },
@@ -99,7 +103,7 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
   function onForgotSubmit(e: FormEvent) {
     e.preventDefault();
     unlockAudio();
-    reset.mutate({ data: { email: forgotEmail } });
+    reset.mutate({ data: { username: forgotUsername.trim().toLowerCase() } });
   }
 
   const inner = (
@@ -120,16 +124,21 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
         <TabsContent value="login" className="mt-3">
           <form onSubmit={onLoginSubmit} className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="hp-login-email">Email</Label>
+              <Label htmlFor="hp-login-username">Username</Label>
               <Input
-                id="hp-login-email"
-                name="email"
-                type="email"
+                id="hp-login-username"
+                name="username"
+                type="text"
                 autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                placeholder="e.g. cry1234"
                 required
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                data-testid="input-login-email"
+                maxLength={254}
+                value={loginUsername}
+                onChange={(e) => setLoginUsername(e.target.value)}
+                data-testid="input-login-username"
               />
             </div>
             <div className="space-y-1.5">
@@ -158,18 +167,10 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
 
         <TabsContent value="signup" className="mt-3">
           <form onSubmit={onSignupSubmit} className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="hp-signup-email">Email</Label>
-              <Input
-                id="hp-signup-email"
-                type="email"
-                autoComplete="email"
-                required
-                value={signupEmail}
-                onChange={(e) => setSignupEmail(e.target.value)}
-                data-testid="input-signup-email"
-              />
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Your username (like <strong>cry1234</strong>) is created
+              automatically after signup.
+            </p>
             <div className="space-y-1.5">
               <Label htmlFor="hp-signup-name">Display name (optional)</Label>
               <Input
@@ -188,12 +189,13 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
                 autoComplete="new-password"
                 required
                 minLength={8}
+                maxLength={72}
                 value={signupPassword}
                 onChange={(e) => setSignupPassword(e.target.value)}
                 data-testid="input-signup-password"
               />
               <p className="text-[10px] text-muted-foreground">
-                At least 8 characters.
+                At least 8 characters with a letter and a number.
               </p>
             </div>
             <Button
@@ -210,15 +212,24 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
         <TabsContent value="forgot" className="mt-3">
           <form onSubmit={onForgotSubmit} className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="hp-forgot-email">Email</Label>
+              <Label htmlFor="hp-forgot-username">Username</Label>
               <Input
-                id="hp-forgot-email"
-                type="email"
+                id="hp-forgot-username"
+                type="text"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                placeholder="e.g. cry1234"
                 required
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                data-testid="input-forgot-email"
+                maxLength={254}
+                value={forgotUsername}
+                onChange={(e) => setForgotUsername(e.target.value)}
+                data-testid="input-forgot-username"
               />
+              <p className="text-[11px] text-muted-foreground">
+                Forgot your password? Contact support with your username and
+                we will reset it for you.
+              </p>
             </div>
             <Button
               type="submit"
@@ -226,12 +237,12 @@ export default function LoginCard({ redirectTo = "/", flat = false }: Props) {
               disabled={pending}
               data-testid="btn-forgot-submit"
             >
-              {reset.isPending ? "Sending…" : "Send reset link"}
+              {reset.isPending ? "Sending…" : "Request reset"}
             </Button>
             {resetToken && (
               <div className="rounded-md border border-card-border bg-muted/40 p-3 text-xs">
                 <div className="font-semibold mb-1">
-                  Dev token (visible because email is not configured):
+                  Dev token (only shown on development servers):
                 </div>
                 <code className="break-all" data-testid="text-reset-token">
                   {resetToken}

@@ -7,5 +7,14 @@
  */
 
 export interface PasswordResetRequest {
-  email: string;
+  /**
+   * @minLength 1
+   * @maxLength 254
+   */
+  username?: string;
+  /**
+   * @minLength 1
+   * @maxLength 254
+   */
+  email?: string;
 }

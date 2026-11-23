@@ -24,10 +24,9 @@ export interface ErrorResponse {
 }
 
 export interface SignupRequest {
-  email: string;
   /**
    * @minLength 8
-   * @maxLength 128
+   * @maxLength 72
    */
   password: string;
   /** @maxLength 64 */
@@ -37,7 +36,18 @@ export interface SignupRequest {
 }
 
 export interface LoginRequest {
-  email: string;
+  /**
+   * Player username ("cry" + 4 digits). Operators may send their email here.
+   * @minLength 1
+   * @maxLength 254
+   */
+  username?: string;
+  /**
+   * Operator email login (and legacy player accounts).
+   * @minLength 1
+   * @maxLength 254
+   */
+  email?: string;
   /**
    * @minLength 1
    * @maxLength 128
@@ -46,7 +56,16 @@ export interface LoginRequest {
 }
 
 export interface PasswordResetRequest {
-  email: string;
+  /**
+   * @minLength 1
+   * @maxLength 254
+   */
+  username?: string;
+  /**
+   * @minLength 1
+   * @maxLength 254
+   */
+  email?: string;
 }
 
 export interface PasswordResetIssued {
@@ -56,10 +75,11 @@ export interface PasswordResetIssued {
 }
 
 export interface PasswordResetConfirm {
+  /** @maxLength 128 */
   token: string;
   /**
    * @minLength 8
-   * @maxLength 128
+   * @maxLength 72
    */
   password: string;
 }
@@ -88,6 +108,8 @@ export const UserPublicStatus = {
 export interface UserPublic {
   id: string;
   email: string;
+  /** Player login name ("cry" + 4 digits). Null for operators. */
+  username?: string | null;
   role: UserPublicRole;
   status: UserPublicStatus;
   displayName?: string | null;
@@ -99,6 +121,8 @@ export interface UserPublic {
 
 export interface AuthResponse {
   user: UserPublic;
+  /** Returned on signup so the player can save their new username. */
+  username?: string | null;
 }
 
 export type Me = UserPublic;

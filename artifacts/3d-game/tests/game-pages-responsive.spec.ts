@@ -627,7 +627,7 @@ const PAGES: PageSpec[] = [
     name: "Profile /profile",
     path: "/profile",
     readySelectors: [
-      '[data-testid="text-profile-email"]',
+      '[data-testid="text-profile-username"]',
       '[data-testid="btn-back-home"]',
     ],
     // KYC submit only renders when the resubmit form is shown; the always-

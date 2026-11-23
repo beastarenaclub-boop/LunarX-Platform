@@ -498,6 +498,13 @@
       "when": 1794956400000,
       "tag": "0070_lobby_layout",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1795392000000,
+      "tag": "0071_player_usernames",
+      "breakpoints": true
     }
   ]
 }

@@ -55,8 +55,8 @@ function AgentUsers({
               </span>
               <div className="net-tree-identity">
                 <span className="net-tree-kind">User</span>
-                <strong>{player.display_name || player.email}</strong>
-                <span>{player.email}</span>
+                <strong>{player.display_name || player.username || player.email}</strong>
+                <span>{player.username ?? player.email}</span>
                 <small>Agent: {agent.name}</small>
               </div>
               <div className="net-tree-player-balance">

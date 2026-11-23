@@ -540,9 +540,9 @@ export interface RefundForBetInput {
   betId: string;
 }
 
-export async function refundForBet(input: RefundForBetInput): Promise<bigint> {
-  if (input.amount <= 0n) return await getBonusBalance(input.userId);
-  const result = await db.transaction(async (tx) => {
+export async function refundForBet(input: RefundForBetInput, transaction?: TxClient): Promise<bigint> {
+  if (input.amount <= 0n) return transaction ? getBalanceTx(transaction, input.userId) : getBonusBalance(input.userId);
+  const refund = async (tx: TxClient) => {
     await lockBonusUser(tx, input.userId);
     const current = await getBalanceTx(tx, input.userId);
     const next = current + input.amount;
@@ -564,8 +564,10 @@ export async function refundForBet(input: RefundForBetInput): Promise<bigint> {
       })
       .where(eq(bonusWageringTable.userId, input.userId));
     return next;
-  });
-  publishBonusBalance(input.userId, result, "win", input.amount);
+  };
+  const result = transaction ? await refund(transaction) : await db.transaction(refund);
+  // A caller supplying its transaction publishes only after committing it.
+  if (!transaction) publishBonusBalance(input.userId, result, "win", input.amount);
   return result;
 }
 

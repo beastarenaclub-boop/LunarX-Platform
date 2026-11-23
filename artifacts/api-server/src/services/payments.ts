@@ -5,8 +5,9 @@ import {
   type PaymentRequest,
   type PaymentRequestKind,
 } from "@workspace/db";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { bus } from "../realtime/eventBus";
+import { conflict } from "../lib/errors";
 
 export interface CreatePaymentInput {
   userId: string;
@@ -27,7 +28,36 @@ export interface CreatePaymentInput {
 export async function createPaymentRequest(
   input: CreatePaymentInput,
 ): Promise<PaymentRequest> {
-  const [row] = await db
+  const utr = input.upiRef?.trim().toLowerCase() ?? "";
+  const checkUtr =
+    input.kind === "deposit" && (input.method ?? "manual") === "manual" && utr.length > 0;
+  const [row] = await db.transaction(async (tx) => {
+    if (checkUtr) {
+      // One bank transfer reference can back only one company deposit.
+      // Without this a player could pay once and submit the same UTR many
+      // times (or from several accounts) and have each approved. The
+      // advisory lock serializes concurrent submissions of the same UTR.
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${"utr:" + utr}))`);
+      const [dup] = await tx
+        .select({ id: paymentRequestsTable.id })
+        .from(paymentRequestsTable)
+        .where(
+          and(
+            isNull(paymentRequestsTable.collectionMasterId),
+            eq(paymentRequestsTable.kind, "deposit"),
+            eq(paymentRequestsTable.method, "manual"),
+            sql`lower(${paymentRequestsTable.upiRef}) = ${utr}`,
+            inArray(paymentRequestsTable.status, ["pending", "approved"]),
+          ),
+        )
+        .limit(1);
+      if (dup) {
+        throw conflict(
+          "This UTR / transaction reference was already submitted. Contact support if this is a mistake.",
+        );
+      }
+    }
+    return tx
     .insert(paymentRequestsTable)
     .values({
       userId: input.userId,
@@ -43,6 +73,7 @@ export async function createPaymentRequest(
       status: "pending",
     })
     .returning();
+  });
   // Increment the relevant pending counter on the admin dashboard.
   bus.publish({
     topic: "admin:metrics",

@@ -297,7 +297,7 @@ export const useSignup = <
 };
 
 /**
- * @summary Log in with email and password
+ * @summary Log in with username (players) or email (operators) and password
  */
 export const getLoginUrl = () => {
   return `/api/auth/login`;
@@ -360,7 +360,7 @@ export type LoginMutationBody = BodyType<LoginRequest>;
 export type LoginMutationError = ErrorType<ErrorResponse>;
 
 /**
- * @summary Log in with email and password
+ * @summary Log in with username (players) or email (operators) and password
  */
 export const useLogin = <
   TError = ErrorType<ErrorResponse>,

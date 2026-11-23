@@ -252,7 +252,7 @@ export default function TopBar({ onJetXActivityToggle }: { onJetXActivityToggle?
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="flex items-center gap-2">
                 <Wallet className="w-3.5 h-3.5" />
-                Signed in as {user.displayName || user.email}
+                Signed in as {user.displayName || user.username || user.email}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>

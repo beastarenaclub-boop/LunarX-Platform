@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export default function Forgot() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const req = useRequestPasswordReset({
     mutation: {
@@ -20,7 +20,9 @@ export default function Forgot() {
             ? String((data as Record<string, unknown>).token ?? "")
             : "";
         if (t) setToken(t);
-        toast.success("If the email is registered, a reset link was sent.");
+        toast.success(
+          "Request received. If you cannot reset it yourself, contact support with your username.",
+        );
       },
       onError: (err: Error) => toast.error(err.message),
     },
@@ -28,7 +30,7 @@ export default function Forgot() {
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
-    req.mutate({ data: { email } });
+    req.mutate({ data: { username: username.trim().toLowerCase() } });
   }
 
   return (
@@ -40,29 +42,38 @@ export default function Forgot() {
         <CardContent className="space-y-3">
           <form onSubmit={onSubmit} className="space-y-3">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
+                id="username"
+                type="text"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                placeholder="e.g. cry1234"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                data-testid="input-forgot-email"
+                maxLength={254}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                data-testid="input-forgot-username"
               />
             </div>
+            <p className="text-xs text-muted-foreground">
+              Passwords are reset by our support team. Contact support with
+              your username and they will set a new password for you.
+            </p>
             <Button
               type="submit"
               className="w-full"
               disabled={req.isPending}
               data-testid="btn-forgot-submit"
             >
-              {req.isPending ? "Sending…" : "Send reset link"}
+              {req.isPending ? "Sending…" : "Request reset"}
             </Button>
           </form>
           {token && (
             <div className="rounded-md border border-card-border bg-muted/40 p-3 text-xs">
               <div className="font-semibold mb-1">
-                Dev token (visible because email is not configured):
+                Dev token (only shown on development servers):
               </div>
               <code className="break-all" data-testid="text-reset-token">
                 {token}

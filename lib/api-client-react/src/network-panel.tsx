@@ -83,6 +83,7 @@ type Context = {
 export type NetworkPlayer = {
   id: string;
   email: string;
+  username?: string | null;
   display_name: string;
   status: string;
   channel: string;
@@ -252,13 +253,19 @@ export function NetworkPanel({
       body: unknown;
       method?: string;
     }) => api(path, body, method),
-    onSuccess: (_result, variables) => {
+    onSuccess: (result, variables) => {
       setModal(null);
       setError("");
+      const createdUsername =
+        variables.path === "/players" && result && typeof result === "object"
+          ? (result as { username?: unknown }).username
+          : undefined;
       setNotice(
         variables.path === "/transfers"
           ? "Funds transferred successfully. Balances and wallet ledger updated."
-          : "Saved successfully.",
+          : typeof createdUsername === "string"
+            ? `User created. Login username: ${createdUsername} — share it with the player together with the password you set.`
+            : "Saved successfully.",
       );
       void qc.invalidateQueries({ queryKey: ["network"] });
     },
@@ -278,7 +285,8 @@ export function NetworkPanel({
       if (modal?.kind === "create") {
         const body = {
           name: get("name"),
-          email: get("email"),
+          // B2B players get a generated "cry" + 4-digit username.
+          ...(role === "agent" ? {} : { email: get("email") }),
           password: get("password"),
           ...(role !== "agent"
             ? {
@@ -900,7 +908,7 @@ export function NetworkPanel({
             </div>
             <input
               aria-label="Search users"
-              placeholder="Search name or email"
+              placeholder="Search name, username or email"
               value={search}
               maxLength={100}
               onChange={(e) => {
@@ -949,8 +957,8 @@ export function NetworkPanel({
                 {players.data?.players.map((p) => (
                   <tr key={p.id}>
                     <td>
-                      <strong>{p.display_name || p.email}</strong>
-                      <small>{p.email}</small>
+                      <strong>{p.display_name || p.username || p.email}</strong>
+                      <small>{p.username ?? p.email}</small>
                     </td>
                     <td>
                       {p.master || "Company"}
@@ -1027,20 +1035,35 @@ export function NetworkPanel({
               )}
               {modal.kind === "create" && (
                 <>
-                  <Field label="Login email">
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      autoComplete="off"
-                    />
-                  </Field>
-                  <Field label="Password (10–72 characters)">
+                  {role === "agent" ? (
+                    <p>
+                      <small>
+                        A login username like <strong>cry1234</strong> is
+                        created automatically and shown after saving.
+                      </small>
+                    </p>
+                  ) : (
+                    <Field label="Login email">
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        autoComplete="off"
+                      />
+                    </Field>
+                  )}
+                  <Field
+                    label={
+                      role === "agent"
+                        ? "Password (8–72 characters, letters and numbers)"
+                        : "Password (10–72 characters)"
+                    }
+                  >
                     <input
                       type="password"
                       name="password"
                       required
-                      minLength={10}
+                      minLength={role === "agent" ? 8 : 10}
                       maxLength={72}
                       autoComplete="new-password"
                     />

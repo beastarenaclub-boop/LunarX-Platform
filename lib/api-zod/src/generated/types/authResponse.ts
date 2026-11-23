@@ -9,4 +9,6 @@ import type { UserPublic } from "./userPublic";
 
 export interface AuthResponse {
   user: UserPublic;
+  /** Returned on signup so the player can save their new username. */
+  username?: string | null;
 }

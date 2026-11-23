@@ -8,7 +8,10 @@ const corsAllowlist = (process.env.CORS_ORIGINS ?? "")
   .map((s) => s.trim())
   .filter(Boolean);
 
-function originAllowed(req: Request, origin: string): boolean {
+export function originAllowed(
+  req: Pick<Request, "headers"> | { headers: { host?: string } },
+  origin: string,
+): boolean {
   let host: string;
   try {
     host = new URL(origin).host;

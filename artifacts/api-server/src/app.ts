@@ -13,8 +13,17 @@ import { demoGateway } from "./demo/bridge";
 import { resolveCustomSite } from "./middlewares/siteChannel";
 
 const app: Express = express();
-app.use((_req, res, next) => {
+app.disable("x-powered-by");
+app.use((req, res, next) => {
   res.set("Accept-CH", "Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Sec-CH-UA-Model, Sec-CH-UA-Mobile");
+  // Baseline security headers for every API response.
+  res.set("X-Content-Type-Options", "nosniff");
+  res.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  // Partners embed /launch in their own iframes; everything else may only be
+  // framed by our own pages (e.g. admin KYC previews).
+  if (req.path !== "/launch") res.set("X-Frame-Options", "SAMEORIGIN");
+  if (process.env.COOKIE_SECURE !== "false")
+    res.set("Strict-Transport-Security", "max-age=31536000");
   next();
 });
 
@@ -63,9 +72,16 @@ app.use(
       // Allow same-origin / non-browser (no Origin header).
       if (!origin) return cb(null, true);
       if (corsAllowlist.length === 0) {
-        // No allowlist configured: in non-production reflect the request
-        // origin so local dev works; in production refuse credentialed CORS.
-        if (process.env.NODE_ENV !== "production") return cb(null, true);
+        // No allowlist configured: only local development origins may make
+        // credentialed cross-origin calls. Reflecting *any* origin whenever
+        // NODE_ENV was not "production" let every website read a logged-in
+        // player's API responses on a misconfigured server.
+        if (process.env.NODE_ENV !== "production") {
+          try {
+            const { hostname } = new URL(origin);
+            if (["localhost", "127.0.0.1", "[::1]"].includes(hostname)) return cb(null, true);
+          } catch {}
+        }
         return cb(null, false);
       }
       if (corsAllowlist.includes(origin)) return cb(null, true);
